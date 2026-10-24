@@ -105,6 +105,8 @@ PAGE_REFERENCES = [
     "Main Menu/Gallery",
     "Cat Base Menu/Gallery",
     "Cat (Normal Cat)/Gallery",
+    "Sonic the Hedgehog Collaboration Event/Gallery",
+    "Summer Break Cats (Celebration Event)/Gallery",
     "Cat Base Menu",
     "Main Menu",
 ]
@@ -163,6 +165,23 @@ def get_category_files() -> tuple[str, list[dict]]:
             errors.append(f"{api} gallery pages: {exc}")
             print(f"WARNING: gallery image query failed at {api}: {exc}")
     raise RuntimeError("; ".join(errors))
+
+def normalize_webp_extension(path: Path) -> Path:
+    try:
+        with path.open("rb") as image_file:
+            header = image_file.read(12)
+        if header[:4] == b"RIFF" and header[8:12] == b"WEBP" and path.suffix.lower() != ".webp":
+            destination = path.with_suffix(".webp")
+            if destination.exists():
+                path.unlink()
+            else:
+                path.rename(destination)
+            print(f"Normalized WebP extension: {destination.relative_to(ROOT)}")
+            return destination
+    except Exception as exc:
+        print(f"WARNING: could not inspect {path.name}: {exc}")
+    return path
+
 
 def import_relevant_sheets() -> list[dict]:
     try:
@@ -226,11 +245,16 @@ def import_relevant_sheets() -> list[dict]:
                 "image/gif": ".gif",
             }.get(mime, Path(url.split("?")[0]).suffix or ".img")
             destination = SHEETS / (safe_slug(title) + ext)
-            if destination.exists() and destination.stat().st_size > 100:
+            normalized_existing = destination.with_suffix(".webp")
+            if normalized_existing.exists() and normalized_existing.stat().st_size > 100:
+                destination = normalized_existing
+                ok = True
+            elif destination.exists() and destination.stat().st_size > 100:
                 ok = True
             else:
                 ok = download(url, destination)
             if ok:
+                destination = normalize_webp_extension(destination)
                 saved.append({
                     "title": title,
                     "path": destination.relative_to(ROOT).as_posix(),
