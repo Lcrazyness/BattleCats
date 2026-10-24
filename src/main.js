@@ -31,9 +31,9 @@ const gold = (label, action, small=false) =>
   '<button class="gold-button'+(small?' small':'')+'" data-go="'+action+'">'+label+'</button>';
 const headBar = (label) =>
   '<div class="top-strip"><span class="top-title">'+label+'</span><span class="top-xp">XP<span class="top-xp-plus">＋</span></span><strong class="top-value">'+money(save.xp)+'</strong></div>';
-const bottomBar = () =>
+const bottomBar = (back="base") =>
   '<div class="bottom-strip">'+
-    '<button class="back-button" data-go="go:base" aria-label="Back">↶</button>'+
+    '<button class="back-button" data-go="go:'+back+'" aria-label="Back">↶</button>'+
     '<button class="store-button" data-go="go:store"><span class="store-cart">🛒</span> STORE</button>'+
     '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
