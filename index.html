@@ -2,23 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>Battle Cats Remake</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#252b42">
+<title>The Battle Cats — Fan Remake</title>
 <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
-<canvas id="game" width="1200" height="600"></canvas>
-
-<!-- Classic scripts (not ES modules) so index.html works when double-clicked. Order matters. -->
-<script src="src/engine/assets.js"></script>
-<script src="src/engine/draw.js"></script>
-<script src="src/engine/widgets.js"></script>
-<script src="src/engine/scenes.js"></script>
-<script src="src/data/layout.js"></script>
-<script src="src/data/save.js"></script>
-<script src="src/scenes/TitleScene.js"></script>
-<script src="src/scenes/CatBaseScene.js"></script>
-<script src="src/scenes/StubScene.js"></script>
+<main class="game" aria-label="Battle Cats fan remake">
+<header class="topbar">
+  <div class="brand">🐾 BATTLE CATS</div>
+  <div class="wallet">
+    <span class="pill xp">1,200 XP</span>
+    <span class="pill food">30 🍖</span>
+    <span class="pill energy">100 ⚡</span>
+  </div>
+</header>
+<section class="stage" aria-live="polite"></section>
+<footer class="footer"><span>CAT ARMY HQ</span><span>Fan-made remake · Progress saved locally</span></footer>
+</main>
 <script src="src/main.js"></script>
 </body>
 </html>
