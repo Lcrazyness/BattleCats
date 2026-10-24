@@ -31,7 +31,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install importer dependency
-        run: python -m pip install requests
+        run: python -m pip install requests pillow opencv-python-headless
 
       - name: Download Battle Cats menu art and relevant sprite sheets
         run: python scripts/import_battlecats_sprites.py
