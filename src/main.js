@@ -38,32 +38,20 @@ const bottomBar = (back="base") =>
     '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
 const catHead = (className="") =>
-  '<svg class="'+className+'" viewBox="0 0 180 195" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
-    '<path d="M25 72 L14 18 L61 46 Q90 29 119 46 L166 18 L155 73 Q180 95 176 128 Q171 177 91 185 Q11 178 5 129 Q1 96 25 72Z" fill="#fff" stroke="#111" stroke-width="7" stroke-linejoin="round"/>'+
-    '<ellipse cx="57" cy="91" rx="7" ry="10" fill="#111"/><ellipse cx="123" cy="91" rx="7" ry="10" fill="#111"/>'+
-    '<path d="M78 115 Q90 107 102 115 Q97 127 90 127 Q83 126 78 115Z" fill="#111"/>'+
-    '<path d="M90 126 Q87 141 72 139 M90 126 Q94 141 108 139 M72 139 Q66 152 57 142 M108 139 Q115 152 123 142" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>'+
-  '</svg>';
+  '<img class="cat-head-sprite '+className+'" src="sprites/cat-head.svg" alt="" draggable="false">';
 const catBody = () =>
-  '<svg viewBox="0 0 320 470" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
-    '<path d="M86 204 Q49 218 44 270 L51 458 Q52 468 64 468 L113 468 L133 326 L158 326 L181 468 L238 468 Q250 468 251 454 L260 273 Q258 226 218 203Z" fill="#fff" stroke="#111" stroke-width="9" stroke-linejoin="round"/>'+
-    '<path d="M79 223 Q43 226 30 268 Q21 299 43 315 Q55 323 68 310 L91 274 M220 222 Q260 223 282 263 Q298 293 279 312 Q266 324 250 309 L227 274" fill="#fff" stroke="#111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>'+
-    '<path d="M62 110 L42 25 L107 68 Q157 47 211 69 L278 25 L255 115 Q286 145 278 184 Q268 236 218 250 Q163 267 106 249 Q54 232 43 187 Q34 146 62 110Z" fill="#fff" stroke="#111" stroke-width="9" stroke-linejoin="round"/>'+
-    '<path d="M76 36 L96 64 L58 86Z" fill="#f4b7b5" stroke="#111" stroke-width="4"/><path d="M244 36 L225 64 L262 86Z" fill="#f4b7b5" stroke="#111" stroke-width="4"/>'+
-    '<ellipse cx="112" cy="143" rx="8" ry="12" fill="#111"/><ellipse cx="211" cy="143" rx="8" ry="12" fill="#111"/>'+
-    '<path d="M144 167 Q160 155 176 167 Q169 181 160 181 Q151 181 144 167Z" fill="#111"/>'+
-    '<path d="M160 180 Q156 199 137 196 M160 180 Q164 199 183 196 M137 196 Q129 210 119 199 M183 196 Q192 210 201 199" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round"/>'+
-    '<path d="M90 293 Q160 313 229 292" fill="none" stroke="#dedede" stroke-width="5" stroke-linecap="round"/>'+
-  '</svg>';
+  '<img class="cat-body-sprite" src="sprites/cat.svg" alt="" draggable="false">';
 const worldCrowd = () =>
-  '<div class="title-crowd">'+Array.from({length:13},(_,i)=>'<div class="crowd-cat" style="transform:translateY('+(i%4*4)+'px)">'+catHead()+'</div>').join("")+'</div>';
+  '<img class="title-crowd-sprite" src="sprites/title-crowd.svg" alt="" draggable="false">';
+
 function renderTitle() {
   return '<section class="screen title-screen real-title-screen">'+
     '<div class="real-title-frame">'+
-      '<img class="real-title-art" src="https://picfiles.alphacoders.com/655/thumb-1920-655856.webp" alt="The Battle Cats title screen" draggable="false">'+
-      '<button class="title-hotspot title-play" data-go="go:base" aria-label="Play"></button>'+
-      '<button class="title-hotspot title-settings" data-go="go:settings" aria-label="Settings"></button>'+
-      '<button class="title-hotspot title-mailbox" data-go="go:mailbox" aria-label="Mailbox"></button>'+
+      '<img class="title-background-sprite" src="sprites/title-background.svg" alt="" draggable="false">'+
+      '<img class="title-logo-sprite" src="sprites/title-logo.svg" alt="The Battle Cats" draggable="false">'+
+      '<img class="title-crowd-sprite" src="sprites/title-crowd.svg" alt="" draggable="false">'+
+      '<div class="title-buttons">'+gold("Play","go:base")+gold("Settings","go:settings")+'</div>'+
+      '<button class="title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/mailbox.svg" alt="" draggable="false"><span>Mailbox</span></button>'+
     '</div>'+
   '</section>';
 }
