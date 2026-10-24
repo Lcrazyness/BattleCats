@@ -12,6 +12,7 @@ Open the GitHub Pages site if Pages is enabled for this repository, or open inde
 - Cat Base layout with the brown XP header, green patterned background, five tall yellow menu buttons, cat character and dialogue bubble, and the bottom Store/Cat Food strip.
 - Stage selection and chapter stage list.
 - Upgrade, Equip, Cat Dictionary, Treasure, Cat Capsules, Storage, Missions, Gamatoto, Store, Mailbox, and Settings menus.
+- Fresh save starts at 0 XP, 30 Cat Food, 100 Energy, and the basic Cat at Level 1 (HP 100 / ATK 8). The first stage win unlocks Tank Cat.
 - Local save data through localStorage, including XP, cat food, tickets, cats, levels, and equipped lineup.
 - Responsive layout for desktop and mobile screens.
 
