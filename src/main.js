@@ -3,37 +3,29 @@
 const $ = (selector, root=document) => root.querySelector(selector);
 const money = value => Number(value || 0).toLocaleString();
 const defaults = {
-  xp:14636, catFood:104, rareTickets:1, normalTickets:2,
-  energy:100, maxEnergy:100, level:1, exp:0,
+  xp:0, catFood:30, rareTickets:0, normalTickets:0,
+  energy:100, maxEnergy:100, level:1, exp:0, stageClears:0,
   units:[
-    {id:1,name:"Macho Cat",level:1,cost:100},
-    {id:2,name:"Tank Cat",level:1,cost:150},
-    {id:3,name:"Axe Cat",level:1,cost:200}
+    {id:1,name:"Cat",level:1,deployCost:50,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:2.5}
   ],
-  equipped:[1,2,3], mail:1, missions:0, sound:true, music:true, menuVersion:2
+  equipped:[1], mail:0, missions:0, sound:true, music:true, menuVersion:3
 };
+const SAVE_KEY = "battleCatsSave_v3";
 let save;
 try {
-  const old = JSON.parse(localStorage.getItem("battleCatsSave") || "{}");
-  save = {...defaults, ...old};
-  if (!Array.isArray(save.units)) save.units = defaults.units.map(unit => ({...unit}));
-  if (!Array.isArray(save.equipped)) save.equipped = save.units.slice(0,3).map(unit => unit.id);
-  if (save.menuVersion !== 2) {
-    if (!old.menuVersion) {
-      save.xp = defaults.xp;
-      save.catFood = defaults.catFood;
-    }
-    save.menuVersion = 2;
-  }
+  const old = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+  save = old && old.menuVersion === 3 ? {...defaults, ...old} : {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
+  if (!Array.isArray(save.units) || !save.units.length) save.units = defaults.units.map(unit => ({...unit}));
+  if (!Array.isArray(save.equipped)) save.equipped = save.units.slice(0,1).map(unit => unit.id);
 } catch {
-  save = {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1,2,3]};
+  save = {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
 }
 let scene = "title";
 let currentRegion = "empire";
 let toastTimer = 0;
 const stage = $(".stage");
 const persist = () => {
-  try { localStorage.setItem("battleCatsSave", JSON.stringify(save)); } catch {}
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
 const gold = (label, action, small=false) =>
   '<button class="gold-button'+(small?' small':'')+'" data-go="'+action+'">'+label+'</button>';
@@ -53,13 +45,15 @@ const catHead = (className="") =>
     '<path d="M90 126 Q87 141 72 139 M90 126 Q94 141 108 139 M72 139 Q66 152 57 142 M108 139 Q115 152 123 142" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>'+
   '</svg>';
 const catBody = () =>
-  '<svg viewBox="0 0 300 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
-    '<path d="M65 154 Q30 185 38 250 L45 354 L113 354 L127 272 L143 354 L218 354 L231 239 Q244 177 202 151Z" fill="#fff" stroke="#111" stroke-width="8" stroke-linejoin="round"/>'+
-    '<path d="M69 192 Q19 208 21 259 Q20 285 43 284 L62 249 M204 187 Q258 209 257 251 Q257 278 233 280 L217 247" fill="#fff" stroke="#111" stroke-width="8" stroke-linecap="round"/>'+
-    '<path d="M62 96 L45 18 L103 53 Q151 32 194 53 L254 19 L235 100 Q267 126 258 163 Q247 226 150 229 Q53 227 41 164 Q33 126 62 96Z" fill="#fff" stroke="#111" stroke-width="8" stroke-linejoin="round"/>'+
-    '<ellipse cx="104" cy="119" rx="8" ry="12" fill="#111"/><ellipse cx="192" cy="119" rx="8" ry="12" fill="#111"/>'+
-    '<path d="M133 145 Q150 133 167 145 Q160 158 150 158 Q140 158 133 145Z" fill="#111"/>'+
-    '<path d="M150 157 Q146 176 126 174 M150 157 Q154 176 174 174 M126 174 Q119 187 109 177 M174 174 Q182 187 191 177" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round"/>'+
+  '<svg viewBox="0 0 320 470" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+    '<path d="M86 204 Q49 218 44 270 L51 458 Q52 468 64 468 L113 468 L133 326 L158 326 L181 468 L238 468 Q250 468 251 454 L260 273 Q258 226 218 203Z" fill="#fff" stroke="#111" stroke-width="9" stroke-linejoin="round"/>'+
+    '<path d="M79 223 Q43 226 30 268 Q21 299 43 315 Q55 323 68 310 L91 274 M220 222 Q260 223 282 263 Q298 293 279 312 Q266 324 250 309 L227 274" fill="#fff" stroke="#111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path d="M62 110 L42 25 L107 68 Q157 47 211 69 L278 25 L255 115 Q286 145 278 184 Q268 236 218 250 Q163 267 106 249 Q54 232 43 187 Q34 146 62 110Z" fill="#fff" stroke="#111" stroke-width="9" stroke-linejoin="round"/>'+
+    '<path d="M76 36 L96 64 L58 86Z" fill="#f4b7b5" stroke="#111" stroke-width="4"/><path d="M244 36 L225 64 L262 86Z" fill="#f4b7b5" stroke="#111" stroke-width="4"/>'+
+    '<ellipse cx="112" cy="143" rx="8" ry="12" fill="#111"/><ellipse cx="211" cy="143" rx="8" ry="12" fill="#111"/>'+
+    '<path d="M144 167 Q160 155 176 167 Q169 181 160 181 Q151 181 144 167Z" fill="#111"/>'+
+    '<path d="M160 180 Q156 199 137 196 M160 180 Q164 199 183 196 M137 196 Q129 210 119 199 M183 196 Q192 210 201 199" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round"/>'+
+    '<path d="M90 293 Q160 313 229 292" fill="none" stroke="#dedede" stroke-width="5" stroke-linecap="round"/>'+
   '</svg>';
 const worldCrowd = () =>
   '<div class="title-crowd">'+Array.from({length:13},(_,i)=>'<div class="crowd-cat" style="transform:translateY('+(i%4*4)+'px)">'+catHead()+'</div>').join("")+'</div>';
@@ -84,7 +78,7 @@ function renderBase() {
     '</div>'+
     '<div class="cat-illustration">'+catBody()+'</div>'+
     '<div class="speech-bubble">Working-Cat earns money and it’s really important. Do invest in UPGRADE!!</div>'+
-    bottomBar()+
+    bottomBar("title")+
   '</section>';
 }
 function renderWindow(label, content, back="base") {
@@ -92,7 +86,7 @@ function renderWindow(label, content, back="base") {
     '<div class="menu-pattern"></div>'+
     '<div class="menu-window"><div class="menu-window-title">'+label+'</div><div class="menu-window-body">'+content+
     '<div class="screen-actions">'+gold("BACK","go:"+back)+'</div></div></div>'+
-    bottomBar()+
+    bottomBar("base")+
   '</section>';
 }
 const row = (label, detail, action, actionLabel="OPEN") =>
@@ -137,7 +131,7 @@ function renderDictionary(equip=false) {
   const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
     '<div class="cat-grid">'+save.units.map((unit,i)=>{
       const isEquipped = save.equipped.includes(unit.id);
-      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+catHead()+'</div><strong>'+unit.name+'</strong><small>Level '+unit.level+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
+      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+catHead()+'</div><strong>'+unit.name+'</strong><small>Level '+unit.level+(unit.hp?' · HP '+unit.hp+' · ATK '+unit.attack:'')+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
     }).join("")+'</div>';
   if (equip) return renderWindow("Equip Cats",body,"base");
   return renderWindow("Cat Dictionary",body,"base");
@@ -257,7 +251,7 @@ function perform(action) {
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
     if (!unit) return;
-    const cost = unit.level*100;
+    const cost = (unit.upgradeCost || 100)*unit.level;
     if (save.xp < cost) return notify("Not enough XP!");
     save.xp -= cost; unit.level++;
     render(); notify(unit.name+" upgraded!");
@@ -284,11 +278,17 @@ function perform(action) {
   }
   switch(action) {
     case "fight": navigate("fight"); break;
-    case "win":
-      save.xp += 250; save.missions = (save.missions||0)+1;
+    case "win": {
+      save.xp += 250; save.missions = (save.missions||0)+1; save.stageClears = (save.stageClears||0)+1;
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
-      navigate("battle"); notify("Victory! +250 XP");
+      let reward = "Victory! +250 XP";
+      if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
+        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:150,upgradeCost:400,hp:300,attack:8,range:110,speed:6,recharge:6});
+        reward = "Victory! +250 XP · Tank Cat unlocked";
+      }
+      navigate("battle"); notify(reward);
       break;
+    }
     case "rank":
       if (save.xp < 500) return notify("Not enough XP!");
       save.xp -= 500; save.level++; render(); notify("Rank increased!"); break;
@@ -314,7 +314,7 @@ function perform(action) {
     case "save": persist(); notify("Game saved on this device."); break;
     case "reset":
       if (confirm("Reset all local demo progress? This cannot be undone.")) {
-        save = {...defaults,units:defaults.units.map(unit=>({...unit})),equipped:[1,2,3]};
+        save = {...defaults,units:defaults.units.map(unit=>({...unit})),equipped:[1]};
         persist(); navigate("title"); notify("Progress reset.");
       }
       break;
