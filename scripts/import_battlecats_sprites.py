@@ -51,6 +51,9 @@ KEYWORDS = (
     "cat (normal cat)",
     "cat's spritesheet",
     "cat’s spritesheet",
+    "cat sprite sheet",
+    "normal cat sprite sheet",
+    "cat unit sprite",
     "cat's icon",
     "cat’s icon",
     "cat's upgrade menu icon",
@@ -198,9 +201,48 @@ def normalize_webp_extension(path: Path) -> Path:
     return path
 
 
+
+def search_sprite_files(api: str) -> list[dict]:
+    """Find actual sheet/icon file pages by name; category gallery can hide them."""
+    terms = [
+        "Cat's spritesheet",
+        "Cat's icon",
+        "Cat's Upgrade Menu icon",
+        "Cat's sprite in the Storage",
+        "Basic Cat sprite sheet",
+        "Normal Cat spritesheet",
+        "Various UI elements EN",
+    ]
+    found: dict[str, dict] = {}
+    for term in terms:
+        params = {
+            "action": "query",
+            "list": "search",
+            "srsearch": term,
+            "srnamespace": "6",
+            "srlimit": "10",
+            "format": "json",
+        }
+        try:
+            response = session.get(api, params=params, timeout=30)
+            response.raise_for_status()
+            results = response.json().get("query", {}).get("search", [])
+            for item in results:
+                title = item.get("title", "")
+                if title:
+                    found[title] = {"title": title}
+        except Exception as exc:
+            print(f"WARNING: file search failed for {term!r}: {exc}")
+        time.sleep(0.08)
+    return list(found.values())
+
 def import_relevant_sheets() -> list[dict]:
     try:
         api, members = get_category_files()
+        search_hits = search_sprite_files(api)
+        known_titles = {entry.get("title") for entry in members}
+        members.extend(entry for entry in search_hits if entry.get("title") not in known_titles)
+        print(f"Added {len(search_hits)} file-name search results from {api}.")
     except Exception as exc:
         print(f"WARNING: spritesheet wiki API was unavailable: {exc}")
         return []
