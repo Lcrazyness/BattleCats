@@ -101,25 +101,33 @@ def download(url: str, destination: Path) -> bool:
         return False
 
 
+PAGE_REFERENCES = [
+    "Main Menu/Gallery",
+    "Cat Base Menu/Gallery",
+    "Cat (Normal Cat)/Gallery",
+    "Cat Base Menu",
+    "Main Menu",
+]
+
+
 def get_category_files() -> tuple[str, list[dict]]:
-    params = {
-        "action": "query",
-        "list": "categorymembers",
-        "cmtitle": "Category:Spritesheets",
-        "cmtype": "file",
-        "cmlimit": "max",
-        "format": "json",
-    }
     errors = []
     for api in API_CANDIDATES:
+        params = {
+            "action": "query",
+            "list": "categorymembers",
+            "cmtitle": "Category:Spritesheets",
+            "cmtype": "file",
+            "cmlimit": "max",
+            "format": "json",
+        }
         files: list[dict] = []
         try:
             for _ in range(30):
                 response = session.get(api, params=params, timeout=30)
                 response.raise_for_status()
                 data = response.json()
-                batch = data.get("query", {}).get("categorymembers", [])
-                files.extend(batch)
+                files.extend(data.get("query", {}).get("categorymembers", []))
                 continuation = data.get("continue")
                 if not continuation:
                     break
@@ -127,13 +135,33 @@ def get_category_files() -> tuple[str, list[dict]]:
             if files:
                 print(f"Spritesheet category source: {api}; {len(files)} file entries.")
                 return api, files
-            errors.append(f"{api}: category returned no file entries")
         except Exception as exc:
-            errors.append(f"{api}: {exc}")
+            errors.append(f"{api} category: {exc}")
             print(f"WARNING: category API failed at {api}: {exc}")
-        # Do not carry continuation tokens over to a different wiki.
-        params.pop("cmcontinue", None)
-        params.pop("continue", None)
+
+        # Some wikis categorize gallery pages rather than individual files.
+        try:
+            params = {
+                "action": "query",
+                "titles": "|".join(PAGE_REFERENCES),
+                "prop": "images",
+                "imlimit": "max",
+                "format": "json",
+            }
+            response = session.get(api, params=params, timeout=30)
+            response.raise_for_status()
+            pages = response.json().get("query", {}).get("pages", {})
+            files = []
+            for page in pages.values():
+                files.extend(page.get("images", []))
+            if files:
+                unique = {entry["title"]: entry for entry in files if entry.get("title")}
+                print(f"Loaded {len(unique)} image references from gallery pages on {api}.")
+                return api, list(unique.values())
+            errors.append(f"{api} gallery pages: no images returned")
+        except Exception as exc:
+            errors.append(f"{api} gallery pages: {exc}")
+            print(f"WARNING: gallery image query failed at {api}: {exc}")
     raise RuntimeError("; ".join(errors))
 
 def import_relevant_sheets() -> list[dict]:
@@ -149,6 +177,13 @@ def import_relevant_sheets() -> list[dict]:
         lowered = title.lower()
         if any(keyword in lowered for keyword in KEYWORDS):
             matches.append(entry)
+    # When pages expose gallery files with generic titles (for example "English"),
+    # keep files used by the menu/normal-cat galleries so the source artwork still lands locally.
+    if not matches:
+        print("No filenames matched the category filter; candidate image titles:")
+        for entry in members[:60]:
+            print("  - " + entry.get("title", "" ))
+        matches = members[:MAX_FILES]
 
     print("Relevant sprite sheet candidates:")
     for entry in matches:
