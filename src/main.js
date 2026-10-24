@@ -47,11 +47,10 @@ const worldCrowd = () =>
 function renderTitle() {
   return '<section class="screen title-screen real-title-screen">'+
     '<div class="real-title-frame">'+
-      '<img class="title-background-sprite" src="sprites/title-background.svg" alt="" draggable="false">'+
-      '<img class="title-logo-sprite" src="sprites/title-logo.svg" alt="The Battle Cats" draggable="false">'+
-      '<img class="title-crowd-sprite" src="sprites/title-crowd.svg" alt="" draggable="false">'+
-      '<div class="title-buttons">'+gold("Play","go:base")+gold("Settings","go:settings")+'</div>'+
-      '<button class="title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/mailbox.svg" alt="" draggable="false"><span>Mailbox</span></button>'+
+      '<img class="title-background-sprite" src="sprites/title-screen.webp" alt="The Battle Cats title screen" draggable="false">'+
+      '<button class="title-hotspot title-play" data-go="go:base" aria-label="Play"></button>'+
+      '<button class="title-hotspot title-settings" data-go="go:settings" aria-label="Settings"></button>'+
+      '<button class="title-hotspot title-mailbox" data-go="go:mailbox" aria-label="Mailbox"></button>'+
     '</div>'+
   '</section>';
 }
@@ -62,11 +61,18 @@ function renderBase() {
       gold("START!!","go:battle")+
       gold("UPGRADE","go:upgrade")+
       gold("EQUIP","go:equip")+
-      gold("TREASURE","go:treasure")+
-      gold("DICTIONARY","go:dictionary")+
     '</div>'+
-    '<div class="cat-illustration">'+catBody()+'</div>'+
+    '<div class="base-utility-menu">'+
+      '<button class="base-utility-button" data-go="go:menu"><span class="base-utility-icon">▤</span><span>MENU</span></button>'+
+      '<button class="base-utility-button" data-go="go:gamatoto"><span class="base-utility-icon">⛏</span><span>GAMATOTO</span></button>'+
+      '<button class="base-utility-button" data-go="go:missions"><span class="base-utility-icon">☷</span><span>MISSIONS</span></button>'+
+    '</div>'+
+    '<div class="cat-illustration"><img class="cat-body-sprite" src="sprites/cat-base-reference.jpg" alt="" draggable="false"></div>'+
     '<div class="speech-bubble">Working-Cat earns money and it’s really important. Do invest in UPGRADE!!</div>'+
+    '<div class="base-right-services">'+
+      '<button class="base-service-button" data-go="go:storage"><span class="base-service-icon">▣</span><span>STORAGE</span></button>'+
+      '<button class="base-service-button" data-go="go:capsules"><span class="base-service-icon">🐱</span><span>CAT CAPSULE</span></button>'+
+    '</div>'+
     bottomBar("title")+
   '</section>';
 }
@@ -165,7 +171,10 @@ function renderGeneric(key) {
       ["Free daily cat food","Claim one free cat food for this demo.","dailyfood","CLAIM"],
       ["Cat Food balance",money(save.catFood)+" cat food available.","noop","OK"]
     ]],
-    menu:["Menu","Save your game or open another menu.",[
+    menu:["Menu","Open the other Cat Base menus here.",[
+      ["Cat Guide","View your unlocked cats.","go:dictionary","OPEN"],
+      ["Enemy Guide","View enemies you've encountered.","go:enemyguide","OPEN"],
+      ["Treasure","View chapter treasure progress.","go:treasure","OPEN"],
       ["Missions","Check demo tasks and rewards.","go:missions","OPEN"],
       ["Gamatoto","Open expedition menu.","go:gamatoto","OPEN"],
       ["Storage","View collected items.","go:storage","OPEN"],
@@ -182,6 +191,9 @@ function renderGeneric(key) {
       ["Music",save.music?"On":"Off","music",save.music?"ON":"OFF"],
       ["Save Progress","Save your current demo progress.","save","SAVE"],
       ["Reset Progress","Erase this browser’s demo save.","reset","RESET"]
+    ]],
+    enemyguide:["Enemy Guide","Enemies will appear here as the chapter and battle systems are added.",[
+      ["Back to Menu","Return to the Cat Base menu list.","go:menu","BACK"]
     ]],
     about:["About","An unofficial browser fan remake. Original Battle Cats art, sound, and full battle mechanics are not included in this menu demo.",[
       ["Return to Title","Back to the title screen.","go:title","BACK"]
@@ -207,6 +219,8 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  const titleArt = stage.querySelector(".title-background-sprite");
+  if (titleArt) titleArt.addEventListener("error", () => { titleArt.src = "sprites/title-background.svg"; }, {once:true});
   persist();
 }
 function navigate(next) {
