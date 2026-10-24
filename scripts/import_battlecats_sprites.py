@@ -18,7 +18,11 @@ import requests
 ROOT = Path(__file__).resolve().parent.parent
 SPRITES = ROOT / "sprites"
 SHEETS = SPRITES / "original_sheets"
-API = "https://battlecats.miraheze.org/w/api.php"
+API_CANDIDATES = [
+    "https://battlecats.miraheze.org/w/api.php",
+    "https://battlecats.miraheze.org/api.php",
+    "https://battle-cats.fandom.com/api.php",
+]
 USER_AGENT = "BattleCatsFanRemakeAssetImporter/1.0 (GitHub Actions; menu asset reference)"
 MAX_FILES = 30
 MAX_FILE_BYTES = 18 * 1024 * 1024
@@ -97,8 +101,7 @@ def download(url: str, destination: Path) -> bool:
         return False
 
 
-def get_category_files() -> list[dict]:
-    files: list[dict] = []
+def get_category_files() -> tuple[str, list[dict]]:
     params = {
         "action": "query",
         "list": "categorymembers",
@@ -107,23 +110,35 @@ def get_category_files() -> list[dict]:
         "cmlimit": "max",
         "format": "json",
     }
-    for _ in range(30):
-        response = session.get(API, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        files.extend(data.get("query", {}).get("categorymembers", []))
-        continuation = data.get("continue")
-        if not continuation:
-            break
-        params.update(continuation)
-    else:
-        print("WARNING: stopped category pagination at the safety limit")
-    return files
-
+    errors = []
+    for api in API_CANDIDATES:
+        files: list[dict] = []
+        try:
+            for _ in range(30):
+                response = session.get(api, params=params, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+                batch = data.get("query", {}).get("categorymembers", [])
+                files.extend(batch)
+                continuation = data.get("continue")
+                if not continuation:
+                    break
+                params.update(continuation)
+            if files:
+                print(f"Spritesheet category source: {api}; {len(files)} file entries.")
+                return api, files
+            errors.append(f"{api}: category returned no file entries")
+        except Exception as exc:
+            errors.append(f"{api}: {exc}")
+            print(f"WARNING: category API failed at {api}: {exc}")
+        # Do not carry continuation tokens over to a different wiki.
+        params.pop("cmcontinue", None)
+        params.pop("continue", None)
+    raise RuntimeError("; ".join(errors))
 
 def import_relevant_sheets() -> list[dict]:
     try:
-        members = get_category_files()
+        api, members = get_category_files()
     except Exception as exc:
         print(f"WARNING: spritesheet wiki API was unavailable: {exc}")
         return []
@@ -135,6 +150,9 @@ def import_relevant_sheets() -> list[dict]:
         if any(keyword in lowered for keyword in KEYWORDS):
             matches.append(entry)
 
+    print("Relevant sprite sheet candidates:")
+    for entry in matches:
+        print("  - " + entry.get("title", ""))
     matches.sort(
         key=lambda entry: (
             min(
@@ -157,7 +175,7 @@ def import_relevant_sheets() -> list[dict]:
             "format": "json",
         }
         try:
-            response = session.get(API, params=params, timeout=30)
+            response = session.get(api, params=params, timeout=30)
             response.raise_for_status()
             pages = response.json().get("query", {}).get("pages", {})
             info = next(iter(pages.values())).get("imageinfo", [{}])[0]
@@ -182,6 +200,7 @@ def import_relevant_sheets() -> list[dict]:
                     "title": title,
                     "path": destination.relative_to(ROOT).as_posix(),
                     "source": "The Battle Cats Wiki — Category:Spritesheets",
+                    "wiki_api": api,
                     "source_url": "https://battlecats.miraheze.org/wiki/" + quote(title.replace(" ", "_")),
                     "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders.",
                 })
