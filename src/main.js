@@ -38,11 +38,7 @@ const bottomBar = (back="base") =>
     '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
 const catHead = (className="") =>
-  '<img class="cat-head-sprite '+className+'" src="sprites/cat-head.svg" alt="" draggable="false">';
-const catBody = () =>
-  '<img class="cat-body-sprite" src="sprites/cat.svg" alt="" draggable="false">';
-const worldCrowd = () =>
-  '<img class="title-crowd-sprite" src="sprites/title-crowd.svg" alt="" draggable="false">';
+  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp" alt="" draggable="false">';
 
 function renderTitle() {
   return '<section class="screen title-screen real-title-screen">'+
@@ -224,9 +220,12 @@ function render() {
   }
   stage.innerHTML = html;
   const titleArt = stage.querySelector(".title-background-sprite");
-  if (titleArt) titleArt.addEventListener("error", () => { titleArt.src = "sprites/title-background.svg"; }, {once:true});
+  if (titleArt) titleArt.addEventListener("error", () => { titleArt.src = "sprites/original_sheets/main-menu-ver-10-10.webp"; }, {once:true});
   const baseArt = stage.querySelector(".base-screenshot-image");
   if (baseArt) baseArt.addEventListener("error", () => { baseArt.src = "sprites/cat-base-reference.jpg"; }, {once:true});
+  stage.querySelectorAll(".cat-head-sprite").forEach(icon => {
+    icon.addEventListener("error", () => { icon.src = "sprites/original_sheets/cat-base-menu-icon.webp"; }, {once:true});
+  });
   persist();
 }
 function navigate(next) {
