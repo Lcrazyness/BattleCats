@@ -58,12 +58,13 @@ const catBody = () =>
 const worldCrowd = () =>
   '<div class="title-crowd">'+Array.from({length:13},(_,i)=>'<div class="crowd-cat" style="transform:translateY('+(i%4*4)+'px)">'+catHead()+'</div>').join("")+'</div>';
 function renderTitle() {
-  return '<section class="screen title-screen">'+
-    '<div class="title-sun"></div><div class="title-clouds"></div><div class="ruin ruin-left"></div><div class="ruin ruin-right"></div>'+
-    '<div class="title-logo"><div class="logo-the">The</div><div class="logo-battle">Battle</div><div class="logo-cats">Cats</div><div class="logo-paw">●</div></div>'+
-    '<div class="logo-cat">'+catHead()+'</div>'+worldCrowd()+
-    '<div class="title-buttons">'+gold("Play","go:base")+gold("Settings","go:settings")+'</div>'+
-    '<button class="title-mailbox" data-go="go:mailbox"><span class="mailbox-art">📮</span><span>Mailbox</span></button>'+
+  return '<section class="screen title-screen real-title-screen">'+
+    '<div class="real-title-frame">'+
+      '<img class="real-title-art" src="https://picfiles.alphacoders.com/655/thumb-1920-655856.webp" alt="The Battle Cats title screen" draggable="false">'+
+      '<button class="title-hotspot title-play" data-go="go:base" aria-label="Play"></button>'+
+      '<button class="title-hotspot title-settings" data-go="go:settings" aria-label="Settings"></button>'+
+      '<button class="title-hotspot title-mailbox" data-go="go:mailbox" aria-label="Mailbox"></button>'+
+    '</div>'+
   '</section>';
 }
 function renderBase() {
