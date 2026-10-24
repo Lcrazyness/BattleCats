@@ -55,25 +55,29 @@ function renderTitle() {
   '</section>';
 }
 function renderBase() {
-  return '<section class="screen base-screen">'+headBar("CAT BASE")+
-    '<div class="base-pattern"></div>'+
-    '<div class="base-menu">'+
-      gold("START!!","go:battle")+
-      gold("UPGRADE","go:upgrade")+
-      gold("EQUIP","go:equip")+
+  return '<section class="screen base-screenshot-screen">'+
+    '<div class="base-screenshot-frame">'+
+      '<img class="base-screenshot-image" src="sprites/original_sheets/cat-base-menu.webp" alt="The Battle Cats Cat Base menu" draggable="false">'+
+      '<div class="base-dynamic-stat base-stat-rank">'+money(save.level)+'</div>'+
+      '<div class="base-dynamic-stat base-stat-xp">'+money(save.xp)+'</div>'+
+      '<div class="base-dynamic-stat base-stat-food">'+money(save.catFood)+'</div>'+
+      '<button class="base-hitbox" style="left:1.4%;top:23.6%;width:31.8%;height:12.4%" data-go="go:battle" aria-label="Start battle"></button>'+
+      '<button class="base-hitbox" style="left:1.4%;top:39.1%;width:31.8%;height:12.1%" data-go="go:upgrade" aria-label="Upgrade"></button>'+
+      '<button class="base-hitbox" style="left:1.4%;top:54.3%;width:31.8%;height:12.1%" data-go="go:equip" aria-label="Equip cats"></button>'+
+      '<button class="base-hitbox" style="left:2.4%;top:69.5%;width:9.2%;height:15%" data-go="go:menu" aria-label="Menu"></button>'+
+      '<button class="base-hitbox" style="left:12.7%;top:69.4%;width:9.5%;height:15.5%" data-go="go:gamatoto" aria-label="Gamatoto"></button>'+
+      '<button class="base-hitbox" style="left:22.2%;top:69.4%;width:9.1%;height:15.5%" data-go="go:missions" aria-label="Missions"></button>'+
+      '<button class="base-hitbox" style="left:34.3%;top:77.5%;width:8.5%;height:15.5%" data-go="go:storage" aria-label="Storage"></button>'+
+      '<button class="base-hitbox" style="left:43.2%;top:77%;width:8.2%;height:16%" data-go="go:capsules" aria-label="Cat Capsule"></button>'+
+      '<button class="base-hitbox" style="left:52%;top:77%;width:8.3%;height:16%" data-go="go:capsules" aria-label="Rare Cat Capsule"></button>'+
+      '<button class="base-hitbox" style="left:0;top:88.7%;width:8%;height:11.3%" data-go="go:title" aria-label="Back to title"></button>'+
+      '<button class="base-hitbox" style="left:54%;top:94%;width:20%;height:6%" data-go="go:store" aria-label="Store"></button>'+
+      '<button class="base-hitbox" style="left:75%;top:93.5%;width:25%;height:6.5%" data-go="go:store" aria-label="Cat Food store"></button>'+
+      '<button class="base-hitbox" style="left:0;top:9%;width:20%;height:12%" data-go="go:menu" aria-label="User rank"></button>'+
+      '<button class="base-hitbox" style="left:21.5%;top:9%;width:6%;height:11%" data-go="go:missions" aria-label="Calendar"></button>'+
+      '<button class="base-hitbox" style="left:75%;top:0;width:25%;height:7.5%" data-go="go:store" aria-label="XP store"></button>'+
+      '<button class="base-hitbox" style="left:97%;top:8%;width:3%;height:8%" data-go="go:about" aria-label="Information"></button>'+
     '</div>'+
-    '<div class="base-utility-menu">'+
-      '<button class="base-utility-button" data-go="go:menu"><span class="base-utility-icon">▤</span><span>MENU</span></button>'+
-      '<button class="base-utility-button" data-go="go:gamatoto"><span class="base-utility-icon">⛏</span><span>GAMATOTO</span></button>'+
-      '<button class="base-utility-button" data-go="go:missions"><span class="base-utility-icon">☷</span><span>MISSIONS</span></button>'+
-    '</div>'+
-    '<div class="cat-illustration">'+catBody()+'</div>'+
-    '<div class="speech-bubble">Working-Cat earns money and it’s really important. Do invest in UPGRADE!!</div>'+
-    '<div class="base-right-services">'+
-      '<button class="base-service-button" data-go="go:storage"><span class="base-service-icon">▣</span><span>STORAGE</span></button>'+
-      '<button class="base-service-button" data-go="go:capsules"><span class="base-service-icon">🐱</span><span>CAT CAPSULE</span></button>'+
-    '</div>'+
-    bottomBar("title")+
   '</section>';
 }
 function renderWindow(label, content, back="base") {
@@ -221,6 +225,8 @@ function render() {
   stage.innerHTML = html;
   const titleArt = stage.querySelector(".title-background-sprite");
   if (titleArt) titleArt.addEventListener("error", () => { titleArt.src = "sprites/title-background.svg"; }, {once:true});
+  const baseArt = stage.querySelector(".base-screenshot-image");
+  if (baseArt) baseArt.addEventListener("error", () => { baseArt.src = "sprites/cat-base-reference.jpg"; }, {once:true});
   persist();
 }
 function navigate(next) {
