@@ -331,8 +331,6 @@ def import_relevant_sheets() -> list[dict]:
 def build_ui_sprite_assets() -> list[str]:
     """Split the real game menu screenshots into individual, transparent UI sprites."""
     from collections import deque
-    import cv2
-    import numpy as np
     from PIL import Image, ImageDraw
 
     ui_dir = SPRITES / "ui"
@@ -373,11 +371,12 @@ def build_ui_sprite_assets() -> list[str]:
             if mode == "mailbox":
                 cool_or_cloud = (b >= r * 0.88 and g >= r * 0.70) or (min(r, g, b) > 190 and max(r, g, b) - min(r, g, b) < 55)
                 return cool_or_cloud
-            # Pale pink/white Cat Base wallpaper and warm wood framing around the
-            # capsule icons; enclosed artwork is protected by its dark outline.
+            # The newer menu uses a muted teal/green swirl wallpaper. Remove
+            # edge-connected wall colors but preserve artwork isolated by ink.
             pale_wall = r > 165 and g > 130 and b > 135 and r - b < 125 and g - b < 115
+            teal_wall = g > 70 and b > 65 and g >= r * 0.92 and b >= r * 0.88 and max(r, g, b) - min(r, g, b) < 115
             wood = r > 65 and r > g * 1.18 and g > b * 1.15 and b < 135 and r < 205
-            return pale_wall or wood
+            return pale_wall or teal_wall or wood
 
         seeds = [(x, 0) for x in range(w)] + [(x, h - 1) for x in range(w)]
         seeds += [(0, y) for y in range(h)] + [(w - 1, y) for y in range(h)]
@@ -422,25 +421,38 @@ def build_ui_sprite_assets() -> list[str]:
         print(f"Built sprite {output.relative_to(ROOT)} ({rgba.width}x{rgba.height})")
 
     def inpaint_background(image: Image.Image, boxes: list[tuple[float, float, float, float]], output: Path) -> None:
-        rgb = np.asarray(image.convert("RGB"))
-        mask = np.zeros(rgb.shape[:2], dtype=np.uint8)
-        h, w = mask.shape
-        for x1, y1, x2, y2 in boxes:
-            left = max(0, round(x1 * w))
-            top = max(0, round(y1 * h))
-            right = min(w, round(x2 * w))
-            bottom = min(h, round(y2 * h))
-            cv2.rectangle(mask, (left, top), (right, bottom), 255, thickness=-1)
-        # Inpaint around former UI elements so no flattened button artwork remains
-        # under the new clickable sprite elements.
-        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-        result = cv2.inpaint(bgr, mask, 12, cv2.INPAINT_TELEA)
-        result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
-        clean = Image.fromarray(result)
+        """Replace areas under extracted UI sprites without blur streaks."""
+        if not boxes:
+            clean = image.copy()
+            clean.save(output, format="WEBP", quality=94, method=6)
+            written.append(output.relative_to(ROOT).as_posix())
+            print(f"Saved local screen backdrop {output.relative_to(ROOT)} ({image.width}x{image.height})")
+            return
+
+        # The original Cat Base wallpaper is a repeated green swirl design. Use
+        # a clean sample of that exact wallpaper for the hidden areas, and a
+        # brown footer sample for buttons on the bottom bar. This prevents the
+        # long blur trails caused by inpainting entire button rectangles.
+        if image.size == base.size:
+            wall_tile = image.crop(box_pixels((0.355, 0.14, 0.465, 0.405), image.size))
+            footer_tile = image.crop(box_pixels((0.16, 0.865, 0.48, 0.945), image.size))
+        else:
+            wall_tile = image.crop(box_pixels((0.08, 0.18, 0.24, 0.38), image.size))
+            footer_tile = wall_tile
+
+        clean = image.copy()
+        for box in boxes:
+            rect = box_pixels(box, image.size)
+            x1, y1, x2, y2 = rect
+            if x2 <= x1 or y2 <= y1:
+                continue
+            tile = footer_tile if y1 > image.height * 0.80 else wall_tile
+            tile = tile.resize((x2 - x1, y2 - y1), Image.Resampling.LANCZOS)
+            clean.paste(tile, (x1, y1))
         output.parent.mkdir(parents=True, exist_ok=True)
-        clean.save(output, format="WEBP", quality=92, method=6)
+        clean.save(output, format="WEBP", quality=94, method=6)
         written.append(output.relative_to(ROOT).as_posix())
-        print(f"Built cleaned background {output.relative_to(ROOT)} ({w}x{h})")
+        print(f"Built texture-patched background {output.relative_to(ROOT)} ({image.width}x{image.height})")
 
     # The screenshot's two large title buttons become independent sprites. The
     # old button pixels are inpainted from the scene before the sprites are placed.
@@ -453,27 +465,25 @@ def build_ui_sprite_assets() -> list[str]:
         shape = "flood" if name == "title-mailbox" else "round"
         flood_mode = "mailbox" if name == "title-mailbox" else "base"
         crop_save(title, box, ui_dir / f"{name}.png", shape, flood_mode)
-    inpaint_background(
-        title,
-        [(0.286, 0.57, 0.712, 0.711), (0.286, 0.714, 0.713, 0.845), (0.870, 0.815, 0.993, 0.979)],
-        bg_dir / "title-background-clean.webp",
-    )
+    # Keep the title scene intact underneath the tightly-cropped button images;
+    # the transparent sprites are now actual clickable image elements.
+    inpaint_background(title, [], bg_dir / "title-background-clean.webp")
 
     # Fractions refer to the native Cat Base screenshot, so these crops scale if
     # the community wiki replaces the screen capture with a higher-resolution copy.
     base_sprites = {
-        "base-start": ((0.014, 0.218, 0.329, 0.325), "round", "base"),
-        "base-upgrade": ((0.014, 0.355, 0.329, 0.461), "round", "base"),
-        "base-equip": ((0.014, 0.487, 0.329, 0.591), "round", "base"),
-        "base-menu": ((0.024, 0.625, 0.115, 0.754), "flood", "base"),
-        "base-gamatoto": ((0.122, 0.624, 0.223, 0.755), "flood", "base"),
-        "base-missions": ((0.225, 0.622, 0.312, 0.755), "flood", "base"),
-        "base-storage": ((0.338, 0.693, 0.422, 0.834), "flood", "base"),
-        "base-cat-capsule": ((0.429, 0.693, 0.519, 0.834), "flood", "base"),
-        "base-rare-capsule": ((0.521, 0.693, 0.611, 0.834), "flood", "base"),
-        "base-back": ((0.002, 0.849, 0.082, 0.999), "flood", "base"),
-        "base-store": ((0.541, 0.858, 0.741, 0.941), "round", "base"),
-        "base-cat-food": ((0.748, 0.859, 0.904, 0.994), "flood", "base"),
+        "base-start": ((0.016, 0.219, 0.326, 0.323), "round", "base"),
+        "base-upgrade": ((0.016, 0.356, 0.326, 0.458), "round", "base"),
+        "base-equip": ((0.016, 0.485, 0.326, 0.586), "round", "base"),
+        "base-menu": ((0.030, 0.632, 0.113, 0.755), "flood", "base"),
+        "base-gamatoto": ((0.123, 0.626, 0.220, 0.755), "flood", "base"),
+        "base-missions": ((0.226, 0.626, 0.311, 0.755), "flood", "base"),
+        "base-storage": ((0.338, 0.695, 0.420, 0.833), "flood", "base"),
+        "base-cat-capsule": ((0.430, 0.695, 0.517, 0.833), "flood", "base"),
+        "base-rare-capsule": ((0.522, 0.695, 0.609, 0.833), "flood", "base"),
+        "base-back": ((0.002, 0.849, 0.082, 0.999), "round", "base"),
+        "base-store": ((0.542, 0.860, 0.740, 0.939), "round", "base"),
+        "base-cat-food": ((0.748, 0.860, 0.904, 0.994), "flood", "base"),
     }
     for name, (box, shape, mode) in base_sprites.items():
         crop_save(base, box, ui_dir / f"{name}.png", shape, mode)
@@ -484,8 +494,9 @@ def build_ui_sprite_assets() -> list[str]:
         (0.006, 0.207, 0.337, 0.336),
         (0.006, 0.344, 0.337, 0.471),
         (0.006, 0.476, 0.337, 0.602),
-        (0.017, 0.615, 0.322, 0.766),
-        (0.328, 0.682, 0.620, 0.846),
+        (0.017, 0.615, 0.120, 0.766),
+        (0.115, 0.615, 0.229, 0.766),
+        (0.220, 0.615, 0.322, 0.766),
         (0.000, 0.842, 0.086, 1.000),
         (0.532, 0.851, 0.747, 0.949),
         (0.739, 0.850, 0.913, 1.000),
