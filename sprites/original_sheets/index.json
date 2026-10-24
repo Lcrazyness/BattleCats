@@ -22,5 +22,29 @@
     "wiki_api": "https://battle-cats.fandom.com/api.php",
     "source_url": "https://battlecats.miraheze.org/wiki/File%3ACat_base_menu.jpg",
     "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
+  },
+  {
+    "title": "File:Basic Cat E(bcp).png",
+    "path": "sprites/original_sheets/basic-cat-e-bcp.webp",
+    "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
+    "wiki_api": "https://battle-cats.fandom.com/api.php",
+    "source_url": "https://battlecats.miraheze.org/wiki/File%3ABasic_Cat_E%28bcp%29.png",
+    "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
+  },
+  {
+    "title": "File:Basic Cat TF(bcp).png",
+    "path": "sprites/original_sheets/basic-cat-tf-bcp.webp",
+    "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
+    "wiki_api": "https://battle-cats.fandom.com/api.php",
+    "source_url": "https://battlecats.miraheze.org/wiki/File%3ABasic_Cat_TF%28bcp%29.png",
+    "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
+  },
+  {
+    "title": "File:Basic Cat(bcp).png",
+    "path": "sprites/original_sheets/basic-cat-bcp.webp",
+    "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
+    "wiki_api": "https://battle-cats.fandom.com/api.php",
+    "source_url": "https://battlecats.miraheze.org/wiki/File%3ABasic_Cat%28bcp%29.png",
+    "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
   }
 ]
