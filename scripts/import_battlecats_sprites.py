@@ -1,0 +1,222 @@
+#!/usr/bin/env python3
+"""Import menu-related Battle Cats sprite sheets into sprites/ from the community wiki.
+
+This is intentionally limited to menu assets and the basic Cat so the repository
+does not accidentally mirror the wiki's entire multi-gigabyte asset category.
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+import time
+from pathlib import Path
+from urllib.parse import quote
+
+import requests
+
+ROOT = Path(__file__).resolve().parent.parent
+SPRITES = ROOT / "sprites"
+SHEETS = SPRITES / "original_sheets"
+API = "https://battlecats.miraheze.org/w/api.php"
+USER_AGENT = "BattleCatsFanRemakeAssetImporter/1.0 (GitHub Actions; menu asset reference)"
+MAX_FILES = 30
+MAX_FILE_BYTES = 18 * 1024 * 1024
+session = requests.Session()
+session.headers.update({"User-Agent": USER_AGENT})
+
+# Exact title-screen screenshot was the reference the developer liked.
+SCREENSHOT_SOURCES = [
+    (
+        "https://picfiles.alphacoders.com/655/thumb-1920-655856.webp",
+        SPRITES / "title-screen.webp",
+    ),
+    (
+        "https://encdn.ldmnq.com/faq/images/en/73a29ff2-35c8-4ee8-810c-3c3607c40cee.jpg",
+        SPRITES / "cat-base-reference.jpg",
+    ),
+]
+
+KEYWORDS = (
+    "main menu",
+    "menu title",
+    "title menu",
+    "cat base menu",
+    "cat base menu cat",
+    "normal cat",
+    "cat (normal cat)",
+    "various ui elements (en)",
+    "ui elements (en)",
+    "cat base",
+)
+PREFERRED = (
+    "main menu",
+    "cat base menu",
+    "cat base menu cat",
+    "normal cat",
+    "various ui elements (en)",
+)
+
+
+def safe_slug(title: str) -> str:
+    title = title.removeprefix("File:")
+    title = re.sub(r"\.(png|webp|jpg|jpeg|gif|bmp|tif|tiff)$", "", title, flags=re.I)
+    title = re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-").lower()
+    return (title[:100] or "sprite-sheet")
+
+
+def download(url: str, destination: Path) -> bool:
+    try:
+        response = session.get(url, timeout=45, stream=True)
+        response.raise_for_status()
+        content_type = response.headers.get("content-type", "").lower()
+        if not content_type.startswith("image/"):
+            print(f"Skip non-image response for {destination.name}: {content_type}")
+            response.close()
+            return False
+        tmp = destination.with_suffix(destination.suffix + ".part")
+        total = 0
+        with tmp.open("wb") as output:
+            for chunk in response.iter_content(128 * 1024):
+                if not chunk:
+                    continue
+                total += len(chunk)
+                if total > MAX_FILE_BYTES:
+                    raise ValueError(f"file exceeds {MAX_FILE_BYTES} byte safety limit")
+                output.write(chunk)
+        response.close()
+        if total < 128:
+            tmp.unlink(missing_ok=True)
+            print(f"Skip suspiciously small image: {destination.name}")
+            return False
+        tmp.replace(destination)
+        print(f"Downloaded {destination.relative_to(ROOT)} ({total:,} bytes)")
+        return True
+    except Exception as exc:
+        print(f"WARNING: could not download {url}: {exc}")
+        return False
+
+
+def get_category_files() -> list[dict]:
+    files: list[dict] = []
+    params = {
+        "action": "query",
+        "list": "categorymembers",
+        "cmtitle": "Category:Spritesheets",
+        "cmtype": "file",
+        "cmlimit": "max",
+        "format": "json",
+    }
+    for _ in range(30):
+        response = session.get(API, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        files.extend(data.get("query", {}).get("categorymembers", []))
+        continuation = data.get("continue")
+        if not continuation:
+            break
+        params.update(continuation)
+    else:
+        print("WARNING: stopped category pagination at the safety limit")
+    return files
+
+
+def import_relevant_sheets() -> list[dict]:
+    try:
+        members = get_category_files()
+    except Exception as exc:
+        print(f"WARNING: spritesheet wiki API was unavailable: {exc}")
+        return []
+
+    matches = []
+    for entry in members:
+        title = entry.get("title", "")
+        lowered = title.lower()
+        if any(keyword in lowered for keyword in KEYWORDS):
+            matches.append(entry)
+
+    matches.sort(
+        key=lambda entry: (
+            min(
+                (PREFERRED.index(term) for term in PREFERRED if term in entry["title"].lower()),
+                default=99,
+            ),
+            entry["title"].lower(),
+        )
+    )
+    SHEETS.mkdir(parents=True, exist_ok=True)
+    saved: list[dict] = []
+
+    for entry in matches[:MAX_FILES]:
+        title = entry["title"]
+        params = {
+            "action": "query",
+            "titles": title,
+            "prop": "imageinfo",
+            "iiprop": "url|mime|size",
+            "format": "json",
+        }
+        try:
+            response = session.get(API, params=params, timeout=30)
+            response.raise_for_status()
+            pages = response.json().get("query", {}).get("pages", {})
+            info = next(iter(pages.values())).get("imageinfo", [{}])[0]
+            url = info.get("url")
+            mime = info.get("mime", "")
+            if not url or not mime.startswith("image/"):
+                print(f"Skip asset with no image URL: {title}")
+                continue
+            ext = {
+                "image/png": ".png",
+                "image/jpeg": ".jpg",
+                "image/webp": ".webp",
+                "image/gif": ".gif",
+            }.get(mime, Path(url.split("?")[0]).suffix or ".img")
+            destination = SHEETS / (safe_slug(title) + ext)
+            if destination.exists() and destination.stat().st_size > 100:
+                ok = True
+            else:
+                ok = download(url, destination)
+            if ok:
+                saved.append({
+                    "title": title,
+                    "path": destination.relative_to(ROOT).as_posix(),
+                    "source": "The Battle Cats Wiki — Category:Spritesheets",
+                    "source_url": "https://battlecats.miraheze.org/wiki/" + quote(title.replace(" ", "_")),
+                    "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders.",
+                })
+            time.sleep(0.15)
+        except Exception as exc:
+            print(f"WARNING: failed to import {title}: {exc}")
+
+    return saved
+
+
+def main() -> int:
+    SPRITES.mkdir(parents=True, exist_ok=True)
+    # Import the real menu screenshot as a local asset first; the SVG remains a
+    # fallback if the source is temporarily unavailable.
+    for url, destination in SCREENSHOT_SOURCES:
+        if destination.exists() and destination.stat().st_size > 1000:
+            print(f"Already present: {destination.relative_to(ROOT)}")
+            continue
+        download(url, destination)
+
+    sheets = import_relevant_sheets()
+    index_path = SPRITES / "original_sheets" / "index.json"
+    if sheets:
+        SHEETS.mkdir(parents=True, exist_ok=True)
+        index_path.write_text(json.dumps(sheets, indent=2), encoding="utf-8")
+        print(f"Imported {len(sheets)} relevant wiki sprite sheets.")
+    else:
+        print("No menu sheets were imported from the category; screenshot assets are still attempted.")
+
+    if not (SPRITES / "title-screen.webp").exists():
+        print("ERROR: The local title screenshot is missing; title screen will use its SVG fallback.")
+        # A failure to fetch upstream art must not prevent the app from deploying.
+        return 0
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
