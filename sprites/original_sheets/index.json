@@ -24,6 +24,14 @@
     "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
   },
   {
+    "title": "File:Normal cat right icon.png",
+    "path": "sprites/original_sheets/normal-cat-right-icon.webp",
+    "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
+    "wiki_api": "https://battle-cats.fandom.com/api.php",
+    "source_url": "https://battle-cats.fandom.com/wiki/File%3ANormal_cat_right_icon.png",
+    "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
+  },
+  {
     "title": "File:Basic Cat E(bcp).png",
     "path": "sprites/original_sheets/basic-cat-e-bcp.webp",
     "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
@@ -45,6 +53,14 @@
     "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
     "wiki_api": "https://battle-cats.fandom.com/api.php",
     "source_url": "https://battle-cats.fandom.com/wiki/File%3ABasic_Cat%28bcp%29.png",
+    "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
+  },
+  {
+    "title": "File:Cat Base Accessory Icon.png",
+    "path": "sprites/original_sheets/cat-base-accessory-icon.webp",
+    "source": "The Battle Cats Wiki \u2014 Category:Spritesheets",
+    "wiki_api": "https://battle-cats.fandom.com/api.php",
+    "source_url": "https://battle-cats.fandom.com/wiki/File%3ACat_Base_Accessory_Icon.png",
     "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders."
   }
 ]
