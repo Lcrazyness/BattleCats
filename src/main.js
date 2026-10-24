@@ -124,7 +124,7 @@ function renderUpgrade() {
   const body = pageCopy("Spend XP to increase your rank and strengthen your cats.")+
     row("Player Rank","Rank "+save.level+" · "+money(save.xp)+" XP available","rank","RANK UP · 500 XP")+
     '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
-    '<div class="menu-list">'+save.units.map((unit,i)=>row(unit.name,"Level "+unit.level+" · Next level costs "+(unit.level*100)+" XP","unit:"+i,"UPGRADE")).join("")+'</div>';
+    '<div class="menu-list">'+save.units.map((unit,i)=>row(unit.name,"Level "+unit.level+" · Next level costs "+((unit.upgradeCost||100)*unit.level)+" XP","unit:"+i,"UPGRADE")).join("")+'</div>';
   return renderWindow("Upgrade",body,"base");
 }
 function renderDictionary(equip=false) {
