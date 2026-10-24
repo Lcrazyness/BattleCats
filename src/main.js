@@ -67,7 +67,7 @@ function renderBase() {
       '<button class="base-utility-button" data-go="go:gamatoto"><span class="base-utility-icon">⛏</span><span>GAMATOTO</span></button>'+
       '<button class="base-utility-button" data-go="go:missions"><span class="base-utility-icon">☷</span><span>MISSIONS</span></button>'+
     '</div>'+
-    '<div class="cat-illustration"><img class="cat-body-sprite" src="sprites/cat-base-reference.jpg" alt="" draggable="false"></div>'+
+    '<div class="cat-illustration">'+catBody()+'</div>'+
     '<div class="speech-bubble">Working-Cat earns money and it’s really important. Do invest in UPGRADE!!</div>'+
     '<div class="base-right-services">'+
       '<button class="base-service-button" data-go="go:storage"><span class="base-service-icon">▣</span><span>STORAGE</span></button>'+
