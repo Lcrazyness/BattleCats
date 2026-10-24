@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Battle Cats Remake</title>
+<link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+<canvas id="game" width="1200" height="600"></canvas>
+
+<!-- Classic scripts (not ES modules) so index.html works when double-clicked. Order matters. -->
+<script src="src/engine/assets.js"></script>
+<script src="src/engine/draw.js"></script>
+<script src="src/engine/widgets.js"></script>
+<script src="src/engine/scenes.js"></script>
+<script src="src/data/layout.js"></script>
+<script src="src/data/save.js"></script>
+<script src="src/scenes/TitleScene.js"></script>
+<script src="src/scenes/CatBaseScene.js"></script>
+<script src="src/scenes/StubScene.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
