@@ -305,10 +305,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 /* Cat Base uses the bundled in-game reference capture; transparent hitboxes keep it playable. */
 .base-screenshot-screen{
-  position:absolute;inset:0;display:flex;align-items:stretch;justify-content:stretch;
-  overflow:hidden;background:#294039;
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;background:#243a34;
 }
-.base-screenshot-frame{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#294039;}
+.base-screenshot-frame{
+  position:relative;flex:0 0 auto;width:min(100vw,200dvh);height:min(100dvh,50vw);
+  aspect-ratio:2/1;overflow:hidden;background:#294039;
+}
 .base-screenshot-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-drag:none;}
 .base-hitbox{
   position:absolute;z-index:15;display:block;min-width:0;min-height:0;margin:0;padding:0;
