@@ -275,7 +275,7 @@ def import_relevant_sheets() -> list[dict]:
                     "path": destination.relative_to(ROOT).as_posix(),
                     "source": "The Battle Cats Wiki — Category:Spritesheets",
                     "wiki_api": api,
-                    "source_url": "https://battlecats.miraheze.org/wiki/" + quote(title.replace(" ", "_")),
+                    "source_url": "https://battle-cats.fandom.com/wiki/" + quote(title.replace(" ", "_")),
                     "license_note": "Community wiki content is commonly CC BY-SA unless a file page states otherwise; original game art belongs to its respective rights holders.",
                 })
             time.sleep(0.15)
