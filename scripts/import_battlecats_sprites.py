@@ -374,7 +374,7 @@ def build_ui_sprite_assets() -> list[str]:
             # The newer menu uses a muted teal/green swirl wallpaper. Remove
             # edge-connected wall colors but preserve artwork isolated by ink.
             pale_wall = r > 165 and g > 130 and b > 135 and r - b < 125 and g - b < 115
-            teal_wall = g > 70 and b > 65 and g >= r * 0.92 and b >= r * 0.88 and max(r, g, b) - min(r, g, b) < 115
+            teal_wall = g > 40 and b > 40 and g >= r * 0.84 and b >= r * 0.78 and max(r, g, b) - min(r, g, b) < 135
             wood = r > 65 and r > g * 1.18 and g > b * 1.15 and b < 135 and r < 205
             return pale_wall or teal_wall or wood
 
@@ -491,15 +491,15 @@ def build_ui_sprite_assets() -> list[str]:
     # Mask the original controls from the backdrop. The sprites are then the
     # visible UI elements, rather than invisible hitboxes over a full screenshot.
     base_masks = [
-        (0.006, 0.207, 0.337, 0.336),
-        (0.006, 0.344, 0.337, 0.471),
-        (0.006, 0.476, 0.337, 0.602),
-        (0.017, 0.615, 0.120, 0.766),
-        (0.115, 0.615, 0.229, 0.766),
-        (0.220, 0.615, 0.322, 0.766),
-        (0.000, 0.842, 0.086, 1.000),
-        (0.532, 0.851, 0.747, 0.949),
-        (0.739, 0.850, 0.913, 1.000),
+        (0.015, 0.218, 0.327, 0.324),
+        (0.015, 0.355, 0.327, 0.459),
+        (0.015, 0.484, 0.327, 0.587),
+        (0.028, 0.630, 0.115, 0.757),
+        (0.121, 0.624, 0.222, 0.757),
+        (0.224, 0.624, 0.313, 0.757),
+        (0.001, 0.848, 0.083, 1.000),
+        (0.540, 0.858, 0.742, 0.941),
+        (0.746, 0.858, 0.906, 0.996),
     ]
     inpaint_background(base, base_masks, bg_dir / "cat-base-background-clean.webp")
 
