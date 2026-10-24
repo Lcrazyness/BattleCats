@@ -1,0 +1,24 @@
+{
+  "titleBackground": "sprites/backgrounds/title-background-clean.webp",
+  "titleButtons": {
+    "title-play": "sprites/ui/title-play.png",
+    "title-settings": "sprites/ui/title-settings.png",
+    "title-mailbox": "sprites/ui/title-mailbox.png"
+  },
+  "catBaseBackground": "sprites/backgrounds/cat-base-background-clean.webp",
+  "catBaseButtons": {
+    "base-start": "sprites/ui/base-start.png",
+    "base-upgrade": "sprites/ui/base-upgrade.png",
+    "base-equip": "sprites/ui/base-equip.png",
+    "base-menu": "sprites/ui/base-menu.png",
+    "base-gamatoto": "sprites/ui/base-gamatoto.png",
+    "base-missions": "sprites/ui/base-missions.png",
+    "base-storage": "sprites/ui/base-storage.png",
+    "base-cat-capsule": "sprites/ui/base-cat-capsule.png",
+    "base-rare-capsule": "sprites/ui/base-rare-capsule.png",
+    "base-back": "sprites/ui/base-back.png",
+    "base-store": "sprites/ui/base-store.png",
+    "base-cat-food": "sprites/ui/base-cat-food.png"
+  },
+  "source": "Cropped from local Battle Cats Wiki menu captures; see sprites/original_sheets/index.json for source links."
+}
