@@ -29,6 +29,7 @@ try {
   save = {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1,2,3]};
 }
 let scene = "title";
+let currentRegion = "empire";
 let toastTimer = 0;
 const stage = $(".stage");
 const persist = () => {
@@ -109,8 +110,8 @@ function renderBattle() {
   return renderWindow("Select a Stage",body,"base");
 }
 function renderStage() {
-  const locations = ["Japan","Korea","China","Mongolia","Russia","Australia"];
-  const body = pageCopy("EMPIRE OF CATS · CHAPTER 1")+
+  const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
+  const body = pageCopy((currentRegion==="future"?"INTO THE FUTURE":currentRegion==="cosmos"?"CATS OF THE COSMOS":currentRegion==="legend"?"LEGEND STAGES":currentRegion==="event"?"EVENT STAGES":"EMPIRE OF CATS")+" · CHAPTER 1")+
     '<div class="meter"><span style="width:8%"></span></div>'+
     '<div class="menu-list">'+locations.map((name,i)=>row(name,i===0?"Clear to earn XP and continue.":"Stage not cleared",i===0?"go:fight":"locked",i===0?"BATTLE":"LOCKED")).join("")+'</div>';
   return renderWindow("Choose a Stage",body,"battle");
@@ -252,7 +253,7 @@ function recruit(rare) {
 function perform(action) {
   if (!action) return;
   if (action.startsWith("go:")) return navigate(action.slice(3));
-  if (action.startsWith("stage:")) return navigate("stage");
+  if (action.startsWith("stage:")) { currentRegion = action.slice(6); return navigate("stage"); }
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
     if (!unit) return;
