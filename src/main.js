@@ -43,36 +43,32 @@ const catHead = (className="") =>
 function renderTitle() {
   return '<section class="screen title-screen real-title-screen">'+
     '<div class="real-title-frame">'+
-      '<img class="title-background-sprite" src="sprites/title-screen.webp" alt="The Battle Cats title screen" draggable="false">'+
-      '<button class="title-hotspot title-play" data-go="go:base" aria-label="Play"></button>'+
-      '<button class="title-hotspot title-settings" data-go="go:settings" aria-label="Settings"></button>'+
-      '<button class="title-hotspot title-mailbox" data-go="go:mailbox" aria-label="Mailbox"></button>'+
+      '<img class="title-background-sprite" src="sprites/backgrounds/title-background-clean.webp" alt="" draggable="false">'+
+      '<button class="title-hotspot title-sprite-button title-play" data-go="go:base" aria-label="Play"><img src="sprites/ui/title-play.png" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-settings" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
 function renderBase() {
-  return '<section class="screen base-screenshot-screen">'+
-    '<div class="base-screenshot-frame">'+
-      '<img class="base-screenshot-image" src="sprites/original_sheets/cat-base-menu.webp" alt="The Battle Cats Cat Base menu" draggable="false">'+
+  return '<section class="screen base-sprite-screen">'+
+    '<div class="base-sprite-frame">'+
+      '<img class="base-background-sprite" src="sprites/backgrounds/cat-base-background-clean.webp" alt="" draggable="false">'+
       '<div class="base-dynamic-stat base-stat-rank">'+money(save.level)+'</div>'+
       '<div class="base-dynamic-stat base-stat-xp">'+money(save.xp)+'</div>'+
       '<div class="base-dynamic-stat base-stat-food">'+money(save.catFood)+'</div>'+
-      '<button class="base-hitbox" style="left:1.4%;top:23.6%;width:31.8%;height:12.4%" data-go="go:battle" aria-label="Start battle"></button>'+
-      '<button class="base-hitbox" style="left:1.4%;top:39.1%;width:31.8%;height:12.1%" data-go="go:upgrade" aria-label="Upgrade"></button>'+
-      '<button class="base-hitbox" style="left:1.4%;top:54.3%;width:31.8%;height:12.1%" data-go="go:equip" aria-label="Equip cats"></button>'+
-      '<button class="base-hitbox" style="left:2.4%;top:69.5%;width:9.2%;height:15%" data-go="go:menu" aria-label="Menu"></button>'+
-      '<button class="base-hitbox" style="left:12.7%;top:69.4%;width:9.5%;height:15.5%" data-go="go:gamatoto" aria-label="Gamatoto"></button>'+
-      '<button class="base-hitbox" style="left:22.2%;top:69.4%;width:9.1%;height:15.5%" data-go="go:missions" aria-label="Missions"></button>'+
-      '<button class="base-hitbox" style="left:34.3%;top:77.5%;width:8.5%;height:15.5%" data-go="go:storage" aria-label="Storage"></button>'+
-      '<button class="base-hitbox" style="left:43.2%;top:77%;width:8.2%;height:16%" data-go="go:capsules" aria-label="Cat Capsule"></button>'+
-      '<button class="base-hitbox" style="left:52%;top:77%;width:8.3%;height:16%" data-go="go:capsules" aria-label="Rare Cat Capsule"></button>'+
-      '<button class="base-hitbox" style="left:0;top:88.7%;width:8%;height:11.3%" data-go="go:title" aria-label="Back to title"></button>'+
-      '<button class="base-hitbox" style="left:54%;top:94%;width:20%;height:6%" data-go="go:store" aria-label="Store"></button>'+
-      '<button class="base-hitbox" style="left:75%;top:93.5%;width:25%;height:6.5%" data-go="go:store" aria-label="Cat Food store"></button>'+
-      '<button class="base-hitbox" style="left:0;top:9%;width:20%;height:12%" data-go="go:menu" aria-label="User rank"></button>'+
-      '<button class="base-hitbox" style="left:21.5%;top:9%;width:6%;height:11%" data-go="go:missions" aria-label="Calendar"></button>'+
-      '<button class="base-hitbox" style="left:75%;top:0;width:25%;height:7.5%" data-go="go:store" aria-label="XP store"></button>'+
-      '<button class="base-hitbox" style="left:97%;top:8%;width:3%;height:8%" data-go="go:about" aria-label="Information"></button>'+
+      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/base-start.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/base-upgrade.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/base-equip.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/base-menu.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/base-gamatoto.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/base-missions.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/base-back.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
