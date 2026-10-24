@@ -327,6 +327,187 @@ def import_relevant_sheets() -> list[dict]:
     return saved
 
 
+
+def build_ui_sprite_assets() -> list[str]:
+    """Split the real game menu screenshots into individual, transparent UI sprites."""
+    from collections import deque
+    import cv2
+    import numpy as np
+    from PIL import Image, ImageDraw
+
+    ui_dir = SPRITES / "ui"
+    bg_dir = SPRITES / "backgrounds"
+    ui_dir.mkdir(parents=True, exist_ok=True)
+    bg_dir.mkdir(parents=True, exist_ok=True)
+
+    title_path = SPRITES / "title-screen.webp"
+    base_path = SHEETS / "cat-base-menu.webp"
+    if not title_path.exists() or not base_path.exists():
+        print("WARNING: menu screenshots are missing; cannot generate cropped UI sprites.")
+        return []
+
+    title = Image.open(title_path).convert("RGB")
+    base = Image.open(base_path).convert("RGB")
+    written: list[str] = []
+
+    def box_pixels(box: tuple[float, float, float, float], size: tuple[int, int], pad: float = 0.0) -> tuple[int, int, int, int]:
+        w, h = size
+        x1, y1, x2, y2 = box
+        return (
+            max(0, round((x1 - pad) * w)),
+            max(0, round((y1 - pad) * h)),
+            min(w, round((x2 + pad) * w)),
+            min(h, round((y2 + pad) * h)),
+        )
+
+    def flood_alpha(crop: Image.Image, mode: str) -> Image.Image:
+        """Make only edge-connected screenshot wallpaper transparent."""
+        rgba = crop.convert("RGBA")
+        pixels = rgba.load()
+        w, h = rgba.size
+        visited = bytearray(w * h)
+        queue = deque()
+
+        def is_background(pixel: tuple[int, ...]) -> bool:
+            r, g, b = pixel[:3]
+            if mode == "mailbox":
+                cool_or_cloud = (b >= r * 0.88 and g >= r * 0.70) or (min(r, g, b) > 190 and max(r, g, b) - min(r, g, b) < 55)
+                return cool_or_cloud
+            # Pale pink/white Cat Base wallpaper and warm wood framing around the
+            # capsule icons; enclosed artwork is protected by its dark outline.
+            pale_wall = r > 165 and g > 130 and b > 135 and r - b < 125 and g - b < 115
+            wood = r > 65 and r > g * 1.18 and g > b * 1.15 and b < 135 and r < 205
+            return pale_wall or wood
+
+        seeds = [(x, 0) for x in range(w)] + [(x, h - 1) for x in range(w)]
+        seeds += [(0, y) for y in range(h)] + [(w - 1, y) for y in range(h)]
+        for x, y in seeds:
+            idx = y * w + x
+            if not visited[idx] and is_background(pixels[x, y]):
+                visited[idx] = 1
+                queue.append((x, y))
+        while queue:
+            x, y = queue.popleft()
+            pixels[x, y] = (*pixels[x, y][:3], 0)
+            for nx, ny in ((x-1,y),(x+1,y),(x,y-1),(x,y+1),(x-1,y-1),(x+1,y-1),(x-1,y+1),(x+1,y+1)):
+                if 0 <= nx < w and 0 <= ny < h:
+                    idx = ny * w + nx
+                    if not visited[idx] and is_background(pixels[nx, ny]):
+                        visited[idx] = 1
+                        queue.append((nx, ny))
+        return rgba
+
+    def crop_save(
+        image: Image.Image,
+        box: tuple[float, float, float, float],
+        output: Path,
+        shape: str = "round",
+        flood_mode: str = "base",
+    ) -> None:
+        crop = image.crop(box_pixels(box, image.size))
+        if shape == "round":
+            rgba = crop.convert("RGBA")
+            alpha = Image.new("L", rgba.size, 0)
+            draw = ImageDraw.Draw(alpha)
+            radius = max(4, round(min(rgba.size) * 0.16))
+            draw.rounded_rectangle((0, 0, rgba.width - 1, rgba.height - 1), radius=radius, fill=255)
+            rgba.putalpha(alpha)
+        elif shape == "flood":
+            rgba = flood_alpha(crop, flood_mode)
+        else:
+            rgba = crop.convert("RGBA")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        rgba.save(output, format="PNG", optimize=True)
+        written.append(output.relative_to(ROOT).as_posix())
+        print(f"Built sprite {output.relative_to(ROOT)} ({rgba.width}x{rgba.height})")
+
+    def inpaint_background(image: Image.Image, boxes: list[tuple[float, float, float, float]], output: Path) -> None:
+        rgb = np.asarray(image.convert("RGB"))
+        mask = np.zeros(rgb.shape[:2], dtype=np.uint8)
+        h, w = mask.shape
+        for x1, y1, x2, y2 in boxes:
+            left = max(0, round(x1 * w))
+            top = max(0, round(y1 * h))
+            right = min(w, round(x2 * w))
+            bottom = min(h, round(y2 * h))
+            cv2.rectangle(mask, (left, top), (right, bottom), 255, thickness=-1)
+        # Inpaint around former UI elements so no flattened button artwork remains
+        # under the new clickable sprite elements.
+        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+        result = cv2.inpaint(bgr, mask, 12, cv2.INPAINT_TELEA)
+        result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+        clean = Image.fromarray(result)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        clean.save(output, format="WEBP", quality=92, method=6)
+        written.append(output.relative_to(ROOT).as_posix())
+        print(f"Built cleaned background {output.relative_to(ROOT)} ({w}x{h})")
+
+    # The screenshot's two large title buttons become independent sprites. The
+    # old button pixels are inpainted from the scene before the sprites are placed.
+    title_boxes = {
+        "title-play": (0.300, 0.584, 0.700, 0.695),
+        "title-settings": (0.300, 0.727, 0.700, 0.833),
+        "title-mailbox": (0.881, 0.824, 0.986, 0.971),
+    }
+    for name, box in title_boxes.items():
+        shape = "flood" if name == "title-mailbox" else "round"
+        flood_mode = "mailbox" if name == "title-mailbox" else "base"
+        crop_save(title, box, ui_dir / f"{name}.png", shape, flood_mode)
+    inpaint_background(
+        title,
+        [(0.286, 0.57, 0.712, 0.711), (0.286, 0.714, 0.713, 0.845), (0.870, 0.815, 0.993, 0.979)],
+        bg_dir / "title-background-clean.webp",
+    )
+
+    # Fractions refer to the native Cat Base screenshot, so these crops scale if
+    # the community wiki replaces the screen capture with a higher-resolution copy.
+    base_sprites = {
+        "base-start": ((0.014, 0.218, 0.329, 0.325), "round", "base"),
+        "base-upgrade": ((0.014, 0.355, 0.329, 0.461), "round", "base"),
+        "base-equip": ((0.014, 0.487, 0.329, 0.591), "round", "base"),
+        "base-menu": ((0.024, 0.625, 0.115, 0.754), "flood", "base"),
+        "base-gamatoto": ((0.122, 0.624, 0.223, 0.755), "flood", "base"),
+        "base-missions": ((0.225, 0.622, 0.312, 0.755), "flood", "base"),
+        "base-storage": ((0.338, 0.693, 0.422, 0.834), "flood", "base"),
+        "base-cat-capsule": ((0.429, 0.693, 0.519, 0.834), "flood", "base"),
+        "base-rare-capsule": ((0.521, 0.693, 0.611, 0.834), "flood", "base"),
+        "base-back": ((0.002, 0.849, 0.082, 0.999), "flood", "base"),
+        "base-store": ((0.541, 0.858, 0.741, 0.941), "round", "base"),
+        "base-cat-food": ((0.748, 0.859, 0.904, 0.994), "flood", "base"),
+    }
+    for name, (box, shape, mode) in base_sprites.items():
+        crop_save(base, box, ui_dir / f"{name}.png", shape, mode)
+
+    # Mask the original controls from the backdrop. The sprites are then the
+    # visible UI elements, rather than invisible hitboxes over a full screenshot.
+    base_masks = [
+        (0.006, 0.207, 0.337, 0.336),
+        (0.006, 0.344, 0.337, 0.471),
+        (0.006, 0.476, 0.337, 0.602),
+        (0.017, 0.615, 0.322, 0.766),
+        (0.328, 0.682, 0.620, 0.846),
+        (0.000, 0.842, 0.086, 1.000),
+        (0.532, 0.851, 0.747, 0.949),
+        (0.739, 0.850, 0.913, 1.000),
+    ]
+    inpaint_background(base, base_masks, bg_dir / "cat-base-background-clean.webp")
+
+    # The main Cat Base background itself stays as an actual game capture. Only
+    # UI areas are cleaned; the top HUD, door, cat character, and wall art remain.
+    manifest = {
+        "titleBackground": "sprites/backgrounds/title-background-clean.webp",
+        "titleButtons": {
+            name: f"sprites/ui/{name}.png" for name in ("title-play", "title-settings", "title-mailbox")
+        },
+        "catBaseBackground": "sprites/backgrounds/cat-base-background-clean.webp",
+        "catBaseButtons": {name: f"sprites/ui/{name}.png" for name in base_sprites},
+        "source": "Cropped from local Battle Cats Wiki menu captures; see sprites/original_sheets/index.json for source links."
+    }
+    manifest_path = SPRITES / "ui" / "sprite-map.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    written.append(manifest_path.relative_to(ROOT).as_posix())
+    return written
+
 def main() -> int:
     SPRITES.mkdir(parents=True, exist_ok=True)
     # Import the real menu screenshot as a local asset first; the SVG remains a
@@ -347,9 +528,14 @@ def main() -> int:
         print("No menu sheets were imported from the category; screenshot assets are still attempted.")
 
     if not (SPRITES / "title-screen.webp").exists():
-        print("ERROR: The local title screenshot is missing; title screen will use its SVG fallback.")
-        # A failure to fetch upstream art must not prevent the app from deploying.
+        print("ERROR: The local title screenshot is missing; cannot split menu sprites.")
         return 0
+    try:
+        sprite_files = build_ui_sprite_assets()
+        print(f"Generated {len(sprite_files)} individual UI sprite assets.")
+    except Exception as exc:
+        print(f"WARNING: Could not generate separate UI sprites: {exc}")
+        raise
     return 0
 
 
