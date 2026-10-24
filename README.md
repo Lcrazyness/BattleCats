@@ -1,60 +1,36 @@
 # Battle Cats Remake
 
-A fan-made remake, built in plain HTML5 canvas + JavaScript. No build step, no dependencies.
+A fan-made, browser-based Battle Cats-inspired menu and progression demo built with plain HTML, CSS, and JavaScript. No build step or external dependencies required.
 
-**Run it:** open `index.html` in a browser (or serve the folder, e.g. `python3 -m http.server`).
-Opening via `file://` works, but some browsers block loading `assets/manifest.json` that way, in which case the game runs on placeholder art. Serving the folder avoids that.
+**Play locally:** open `index.html` in a browser, or serve the folder with `python3 -m http.server`.
 
-## Status
+## Current features
 
-| Screen | State |
-| --- | --- |
-| Title (Play / Settings / Mailbox) | built |
-| Cat Base (Start, Upgrade, Equip, Menu, Gamatoto, Missions, Storage, capsules, Store, HUD, bubble) | built, navigation works |
-| Everything else | stub screens with a back arrow |
+- Title screen with Play, Settings, Mailbox, and About.
+- Cat Base hub with Battle, Upgrade, Cats, Equip, Gamatoto, Missions, Storage, Capsules, Store, Menu, Mailbox, and Settings.
+- Stage selection and a simple battle-preview/reward loop.
+- Cat collection, unit upgrades, ticket-based cat recruitment, and rank progression.
+- Settings and utility screens with working navigation and feedback.
+- Local save data through `localStorage`; progress remains on the same browser/device.
+- Responsive layout for desktop and mobile screens.
+- Escape returns to the previous hub.
 
-## Layout
+## Project structure
 
 ```
-index.html            entry point (classic <script> tags, load order matters)
-assets/
-  manifest.json       maps asset names -> image files; null = use placeholder
-  ui/ sprites/ bg/    drop your own art here
+index.html       Page shell and top resource bar
 src/
-  main.js             boot, input, game loop, scene registration
-  style.css
-  engine/
-    assets.js         manifest loader
-    draw.js           canvas helpers (outlined text, buttons, placeholders)
-    widgets.js        button / icon / counter / banner / bubble / ... built from data
-    scenes.js         Scene base class + SceneManager (history, fade)
-  data/
-    layout.js         every menu position, as data. Tweak and refresh.
-    save.js           localStorage save (xp, money, cat food, capsule counts)
-  scenes/
-    TitleScene.js
-    CatBaseScene.js
-    StubScene.js      placeholder for unbuilt screens
+  style.css      Responsive menu theme and reusable UI components
+  main.js        Screen rendering, navigation, game actions, local save
+Assets/
+  manifest.js    Planned image asset mapping
+README.md        Project notes
 ```
 
-## Adding art
+## Art and next steps
 
-1. Put the image in `assets/ui/`, `assets/sprites/` or `assets/bg/`.
-2. Set its path in `assets/manifest.json`, e.g. `"ui.button": "ui/button.png"`.
-
-Nothing in the code depends on any image existing; missing art falls back to a generated placeholder.
-Use art you made or have the rights to use.
-
-## Adding a screen
-
-1. Create `src/scenes/YourScene.js` extending `Scene` (see `CatBaseScene.js`), add its `<script>` tag in `index.html`.
-2. In `src/main.js`, replace the matching stub with `game.scenes.register('name', (g, p) => new YourScene(g, p))`.
-
-## Dev tips
-
-- In the browser console: `game.save.set('catFood', 99999)`, `game.save.reset()`.
-- `Esc` goes back.
+The current interface uses CSS shapes and emoji placeholders so it can run without bundled game art. You can replace these with original artwork or assets you have permission to use. The next major step is to connect proper illustrations, animations, audio, and fully playable battle mechanics.
 
 ## Legal
 
-Fan project, not affiliated with or endorsed by the original game's publisher. No original game assets are included.
+This is an unofficial fan-made project and is not affiliated with or endorsed by the creators or publisher of The Battle Cats. It does not include original game assets.
