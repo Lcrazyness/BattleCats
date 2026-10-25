@@ -1,17 +1,19 @@
 # Battle Cats audio assets
 
-Selected audio files are downloaded by \`scripts/import_battlecats_sounds.py\` from the file pages listed in \`source-index.json\`.
+The importer downloads selected audio files from community Battle Cats Wiki file pages. Source details are recorded in source-index.json.
 
-Expected local files:
-- \`button-click.ogg\` — pressing a button
-- \`menu-select.ogg\` — navigating selections
-- \`cat-base-door.ogg\` — opening the Cat Base door
-- \`enter-battle.ogg\` — entering battle
-- \`victory.ogg\` and \`defeat.ogg\` — battle outcomes
-- \`reward.ogg\` — reward obtained
-- \`capsule-draw.ogg\` — drawing a cat capsule
-- \`menu-theme.ogg\` and \`battle-theme.ogg\` — background music
+Sound effects:
+- button-click.ogg — standard in-game button press (Snd011)
+- menu-select.ogg — scrolling through selections (Snd010)
+- cat-base-door.ogg — Cat Base door sound (Snd046)
+- enter-battle.ogg — Enter Battle (Snd007)
+- victory.ogg and defeat.ogg — battle outcomes
+- reward.ogg — reward obtained
+- capsule-draw.ogg — drawing a Cat Capsule
 
-The project loads these local Ogg files; no sound hotlink is required while the game is running. Audio begins only after a player interaction so browser autoplay restrictions are respected.
+Music:
+- title-theme.ogg — title-screen theme (Snd001)
+- menu-theme.ogg — Cat Base/menu theme selected for this remake (Snd000)
+- battle-theme.ogg — battle/stage theme (Snd003)
 
-These are copyrighted game assets from community wiki file pages, not public-domain sounds. Check rights and source-page notes before redistributing the files in a public build.
+The game loads these local Ogg files; audio playback starts after a player interaction to respect browser autoplay restrictions. The game audio is copyrighted and is not public domain; verify permissions before redistributing a public build.
