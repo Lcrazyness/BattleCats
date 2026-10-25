@@ -25,5 +25,17 @@
     "bg.base": "sprites/backgrounds/bg_restored.png",
     "sprites.cat_icon": "sprites/original_sheets/normal-cat-right-icon.webp",
     "sprites.cat_base_icon": "sprites/original_sheets/cat-base-menu-icon.webp"
+  },
+  "audio": {
+    "effects.button": "sounds/button-click.ogg",
+    "effects.select": "sounds/menu-select.ogg",
+    "effects.cat_base_door": "sounds/cat-base-door.ogg",
+    "effects.enter_battle": "sounds/enter-battle.ogg",
+    "effects.victory": "sounds/victory.ogg",
+    "effects.defeat": "sounds/defeat.ogg",
+    "effects.reward": "sounds/reward.ogg",
+    "effects.capsule_draw": "sounds/capsule-draw.ogg",
+    "music.menu": "sounds/menu-theme.ogg",
+    "music.battle": "sounds/battle-theme.ogg"
   }
 }
