@@ -29,7 +29,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-12";
+const AUDIO_VERSION = "20261026-13";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -52,26 +52,34 @@ let audioUnlocked = false;
 let musicPlayer = null;
 let currentMusicKey = "";
 
+const mainScript = document.querySelector('script[src*="src/main.js"]');
+const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
+
 function audioPath(path) {
-  return path + "?v=" + AUDIO_VERSION;
+  return new URL(path + "?v=" + AUDIO_VERSION, APP_BASE_URL).href;
 }
 
 function playSfx(key) {
   if (!save.sound || !SOUND_FILES[key] || typeof Audio === "undefined") return;
   let player;
   try {
-    player = new Audio(new URL(audioPath(SOUND_FILES[key]), document.baseURI).href);
+    player = new Audio(audioPath(SOUND_FILES[key]));
     player.preload = "auto";
     player.volume = key === "door" || key === "enterBattle" || key === "stageSelect" ? 0.62 : 0.48;
     activeSfxPlayers.add(player);
     const cleanup = () => activeSfxPlayers.delete(player);
     player.addEventListener("ended", cleanup, {once:true});
-    player.addEventListener("error", cleanup, {once:true});
+    player.addEventListener("error", () => {
+      cleanup();
+      console.error("Battle Cats sound asset failed to load:", key, player.currentSrc, player.error);
+      notify("Couldn't load sound: " + key);
+    }, {once:true});
     const promise = player.play();
     if (promise && typeof promise.catch === "function") {
       promise.catch(error => {
         cleanup();
-        console.warn("Battle Cats sound failed to play:", key, player.currentSrc, error);
+        console.error("Battle Cats sound failed to play:", key, player.currentSrc, error);
+        notify("Couldn't play sound: " + key);
       });
     }
   } catch (error) {
@@ -507,7 +515,7 @@ function perform(action) {
         persist(); navigate("title"); notify("Progress reset.");
       }
       break;
-    case "sound": save.sound=!save.sound; render(); notify("Sound effects "+(save.sound?"on":"off")); break;
+    case "sound": save.sound=!save.sound; render(); notify("Sound effects "+(save.sound?"on":"off")); if (save.sound) playSfx("button"); break;
     case "music": save.music=!save.music; render(); notify("Music "+(save.music?"on":"off")); break;
     case "locked": notify("This stage is locked in the menu demo."); break;
     case "noop": notify("This item is for display in the menu demo."); break;
