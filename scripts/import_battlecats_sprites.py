@@ -435,17 +435,36 @@ def build_ui_sprite_assets() -> list[str]:
         cleaned = cv2.inpaint(bgr, mask, 4, cv2.INPAINT_TELEA)
 
         if image.size == base.size:
-            # Remove the embedded sample account's numbers and bake a single
-            # zero into the exported background. The browser does not overlay
-            # a second number on top of old digits from the reference image.
+            # Detect only yellow number glyphs; do not erase a rectangular HUD
+            # patch because the Cat Base character can extend behind the footer.
             stat_mask = np.zeros((h, w), dtype=np.uint8)
-            for box in (
-                (0.875, 0.000, 0.999, 0.082),  # XP digits in the top HUD
-                (0.895, 0.820, 0.999, 0.999),  # Cat Food digits in the footer
-            ):
+            number_boxes = (
+                (0.875, 0.000, 0.999, 0.082),  # XP digits
+                (0.895, 0.820, 0.999, 0.999),  # Cat Food digits
+            )
+            for box in number_boxes:
                 left, top, right, bottom = box_pixels(box, image.size)
-                stat_mask[top:bottom, left:right] = 255
-            cleaned = cv2.inpaint(cleaned, stat_mask, 5, cv2.INPAINT_TELEA)
+                region_bgr = cleaned[top:bottom, left:right]
+                region_rgb = cv2.cvtColor(region_bgr, cv2.COLOR_BGR2RGB)
+                red = region_rgb[:, :, 0].astype(np.int16)
+                green = region_rgb[:, :, 1].astype(np.int16)
+                blue = region_rgb[:, :, 2].astype(np.int16)
+                # Bright yellow fill used by the large resource digits.
+                yellow = (
+                    (red > 175) &
+                    (green > 105) &
+                    (blue < 135) &
+                    ((red - green) > 12) &
+                    ((green - blue) > 70)
+                ).astype(np.uint8) * 255
+                # Grow from the yellow fill into its white/black outline, still
+                # following the shape of the characters rather than the whole box.
+                kernel = np.ones((11, 11), dtype=np.uint8)
+                glyph_mask = cv2.dilate(yellow, kernel, iterations=1)
+                stat_mask[top:bottom, left:right] = cv2.bitwise_or(
+                    stat_mask[top:bottom, left:right], glyph_mask
+                )
+            cleaned = cv2.inpaint(cleaned, stat_mask, 6, cv2.INPAINT_TELEA)
             result = Image.fromarray(cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB))
             draw = ImageDraw.Draw(result)
             try:
