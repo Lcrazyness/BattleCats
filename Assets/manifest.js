@@ -3,7 +3,7 @@
   "images": {
     "ui.button": null,
     "ui.button_pressed": null,
-    "ui.back_arrow": "sprites/ui/base-back.png",
+    "ui.back_arrow": "sprites/ui/backbutton.png",
     "ui.info": null,
     "ui.calendar": null,
     "ui.icon_menu": "sprites/ui/menubutton.png",
