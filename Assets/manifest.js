@@ -20,7 +20,7 @@
     "ui.title_settings": "sprites/ui/title-settings.png",
     "ui.start": "sprites/ui/startbutton.png",
     "ui.upgrade": "sprites/ui/upgradebutton.png",
-    "ui.equip": "sprites/ui/base-equip.png",
+    "ui.equip": "sprites/ui/equipbutton.png",
     "bg.title": "sprites/backgrounds/title-background-clean.webp",
     "bg.base": "sprites/backgrounds/bg_restored.png",
     "sprites.cat_icon": "sprites/original_sheets/normal-cat-right-icon.webp",
