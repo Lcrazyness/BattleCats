@@ -5,7 +5,7 @@
     "title-settings": "sprites/ui/title-settings.png",
     "title-mailbox": "sprites/ui/title-mailbox.png"
   },
-  "catBaseBackground": "sprites/backgrounds/cat-base-background-clean.webp",
+  "catBaseBackground": "sprites/backgrounds/bg_restored.png",
   "catBaseButtons": {
     "base-start": "sprites/ui/startbutton.png",
     "base-upgrade": "sprites/ui/upgradebutton.png",
