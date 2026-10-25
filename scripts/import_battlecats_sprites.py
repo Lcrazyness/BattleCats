@@ -517,7 +517,7 @@ def build_ui_sprite_assets() -> list[str]:
         "base-rare-capsule": ((0.508, 0.684, 0.620, 0.844), "rect", "base"),
         "base-back": ((0.002, 0.849, 0.082, 0.999), "rect", "base"),
         "base-store": ((0.542, 0.860, 0.740, 0.939), "rect", "base"),
-        "base-cat-food": ((0.740, 0.850, 0.915, 0.999), "rect", "base"),
+        "base-cat-food": ((0.740, 0.850, 0.895, 0.999), "rect", "base"),
     }
     for name, (box, shape, mode) in base_sprites.items():
         crop_save(base, box, ui_dir / f"{name}.png", shape, mode)
