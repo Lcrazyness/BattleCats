@@ -1,0 +1,58 @@
+name: Import Battle Cats Audio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/import_battlecats_sounds.py"
+      - ".github/workflows/import-battlecats-sounds.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-battlecats-audio
+  cancel-in-progress: false
+
+jobs:
+  import-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install importer dependency
+        run: python -m pip install requests
+
+      - name: Download selected Battle Cats audio files
+        run: python scripts/import_battlecats_sounds.py
+
+      - name: Commit and push downloaded audio assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sounds/
+          if git diff --cached --quiet; then
+            echo "No new sound assets."
+            exit 0
+          fi
+          git commit -m "Bundle Battle Cats audio effects and themes"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push raced with another main-branch update; rebasing and retrying."
+          done
+          echo "Could not push audio assets after three attempts."
+          exit 1
