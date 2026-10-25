@@ -31,6 +31,8 @@
     "effects.select": "sounds/menu-select.ogg",
     "effects.cat_base_door": "sounds/cat-base-door.ogg",
     "effects.enter_battle": "sounds/enter-battle.ogg",
+    "effects.stage_select": "sounds/enter-battle.ogg",
+    "effects.upgrade": "sounds/upgrade.ogg",
     "effects.victory": "sounds/victory.ogg",
     "effects.defeat": "sounds/defeat.ogg",
     "effects.reward": "sounds/reward.ogg",
