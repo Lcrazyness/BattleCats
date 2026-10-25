@@ -45,6 +45,7 @@ const MUSIC_FILES = {
   battle: "sounds/battle-theme.ogg"
 };
 const soundTemplates = new Map();
+const activeSfxPlayers = new Set();
 let audioUnlocked = false;
 let musicPlayer = null;
 let currentMusicKey = "";
@@ -64,8 +65,12 @@ function playSfx(key) {
     }
     const player = template.cloneNode();
     player.volume = key === "door" || key === "enterBattle" ? 0.62 : 0.48;
+    activeSfxPlayers.add(player);
+    player.addEventListener("ended", () => activeSfxPlayers.delete(player), {once:true});
     const promise = player.play();
-    if (promise && typeof promise.catch === "function") promise.catch(() => {});
+    if (promise && typeof promise.catch === "function") {
+      promise.catch(() => activeSfxPlayers.delete(player));
+    }
   } catch {}
 }
 
@@ -115,11 +120,20 @@ function playActionAudio(action) {
     playSfx("victory");
   } else if (action === "lose") {
     playSfx("defeat");
-  } else if (action === "rare" || action === "normal") {
+  } else if (
+    (action === "rare" && save.rareTickets > 0) ||
+    (action === "normal" && save.normalTickets > 0)
+  ) {
     playSfx("capsule");
-  } else if (["collect", "daily", "dailyfood", "mission", "mailgift"].includes(action)) {
+  } else if (
+    action === "collect" ||
+    action === "dailyfood" ||
+    action === "mission" ||
+    (action === "daily" && save.missions > 0) ||
+    (action === "mailgift" && save.mail)
+  ) {
     playSfx("reward");
-  } else if (action.startsWith("go:") || action.startsWith("stage:")) {
+  } else if (action.startsWith("stage:")) {
     playSfx("select");
   } else {
     playSfx("button");
