@@ -331,6 +331,8 @@ def import_relevant_sheets() -> list[dict]:
 def build_ui_sprite_assets() -> list[str]:
     """Split the real game menu screenshots into individual, transparent UI sprites."""
     from collections import deque
+    import cv2
+    import numpy as np
     from PIL import Image, ImageDraw
 
     ui_dir = SPRITES / "ui"
@@ -420,39 +422,41 @@ def build_ui_sprite_assets() -> list[str]:
         written.append(output.relative_to(ROOT).as_posix())
         print(f"Built sprite {output.relative_to(ROOT)} ({rgba.width}x{rgba.height})")
 
-    def inpaint_background(image: Image.Image, boxes: list[tuple[float, float, float, float]], output: Path) -> None:
-        """Replace areas under extracted UI sprites without blur streaks."""
-        if not boxes:
-            clean = image.copy()
-            clean.save(output, format="WEBP", quality=94, method=6)
-            written.append(output.relative_to(ROOT).as_posix())
-            print(f"Saved local screen backdrop {output.relative_to(ROOT)} ({image.width}x{image.height})")
-            return
-
-        # The original Cat Base wallpaper is a repeated green swirl design. Use
-        # a clean sample of that exact wallpaper for the hidden areas, and a
-        # brown footer sample for buttons on the bottom bar. This prevents the
-        # long blur trails caused by inpainting entire button rectangles.
-        if image.size == base.size:
-            wall_tile = image.crop(box_pixels((0.355, 0.14, 0.465, 0.405), image.size))
-            footer_tile = image.crop(box_pixels((0.16, 0.865, 0.48, 0.945), image.size))
-        else:
-            wall_tile = image.crop(box_pixels((0.08, 0.18, 0.24, 0.38), image.size))
-            footer_tile = wall_tile
-
-        clean = image.copy()
-        for box in boxes:
-            rect = box_pixels(box, image.size)
-            x1, y1, x2, y2 = rect
-            if x2 <= x1 or y2 <= y1:
+    def clean_background_with_sprites(
+        image: Image.Image,
+        sprite_specs: dict[str, tuple[float, float, float, float]] | dict[str, tuple[tuple[float, float, float, float], str, str]],
+        output: Path,
+    ) -> None:
+        """Remove just each sprite's opaque pixels, keeping the surrounding scene intact."""
+        rgb = np.asarray(image.convert("RGB"))
+        h, w = rgb.shape[:2]
+        mask = np.zeros((h, w), dtype=np.uint8)
+        for name, spec in sprite_specs.items():
+            box = spec[0] if isinstance(spec[0], tuple) else spec
+            left, top, right, bottom = box_pixels(box, image.size)
+            sprite_path = ui_dir / f"{name}.png"
+            if not sprite_path.exists():
                 continue
-            tile = footer_tile if y1 > image.height * 0.80 else wall_tile
-            tile = tile.resize((x2 - x1, y2 - y1), Image.Resampling.LANCZOS)
-            clean.paste(tile, (x1, y1))
+            sprite = Image.open(sprite_path).convert("RGBA")
+            sprite_alpha = np.asarray(sprite.getchannel("A"))
+            expected_w, expected_h = right - left, bottom - top
+            if sprite_alpha.shape[1] != expected_w or sprite_alpha.shape[0] != expected_h:
+                sprite_alpha = np.asarray(
+                    Image.fromarray(sprite_alpha).resize((expected_w, expected_h), Image.Resampling.NEAREST)
+                )
+            region = mask[top:bottom, left:right]
+            region[sprite_alpha > 0] = 255
+
+        # All cleared pixels are covered by the matching sprite at runtime, so
+        # any texture the algorithm reconstructs stays hidden beneath the art.
+        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+        cleaned = cv2.inpaint(bgr, mask, 4, cv2.INPAINT_TELEA)
+        cleaned = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
+        result = Image.fromarray(cleaned)
         output.parent.mkdir(parents=True, exist_ok=True)
-        clean.save(output, format="WEBP", quality=94, method=6)
+        result.save(output, format="WEBP", quality=95, method=6)
         written.append(output.relative_to(ROOT).as_posix())
-        print(f"Built texture-patched background {output.relative_to(ROOT)} ({image.width}x{image.height})")
+        print(f"Built sprite-cleaned background {output.relative_to(ROOT)} ({w}x{h})")
 
     # The screenshot's two large title buttons become independent sprites. The
     # old button pixels are inpainted from the scene before the sprites are placed.
@@ -465,9 +469,7 @@ def build_ui_sprite_assets() -> list[str]:
         shape = "flood" if name == "title-mailbox" else "round"
         flood_mode = "mailbox" if name == "title-mailbox" else "base"
         crop_save(title, box, ui_dir / f"{name}.png", shape, flood_mode)
-    # Keep the title scene intact underneath the tightly-cropped button images;
-    # the transparent sprites are now actual clickable image elements.
-    inpaint_background(title, [], bg_dir / "title-background-clean.webp")
+    clean_background_with_sprites(title, title_boxes, bg_dir / "title-background-clean.webp")
 
     # Fractions refer to the native Cat Base screenshot, so these crops scale if
     # the community wiki replaces the screen capture with a higher-resolution copy.
@@ -488,20 +490,7 @@ def build_ui_sprite_assets() -> list[str]:
     for name, (box, shape, mode) in base_sprites.items():
         crop_save(base, box, ui_dir / f"{name}.png", shape, mode)
 
-    # Mask the original controls from the backdrop. The sprites are then the
-    # visible UI elements, rather than invisible hitboxes over a full screenshot.
-    base_masks = [
-        (0.015, 0.218, 0.327, 0.324),
-        (0.015, 0.355, 0.327, 0.459),
-        (0.015, 0.484, 0.327, 0.587),
-        (0.028, 0.630, 0.115, 0.757),
-        (0.121, 0.624, 0.222, 0.757),
-        (0.224, 0.624, 0.313, 0.757),
-        (0.001, 0.848, 0.083, 1.000),
-        (0.540, 0.858, 0.742, 0.941),
-        (0.746, 0.858, 0.906, 0.996),
-    ]
-    inpaint_background(base, base_masks, bg_dir / "cat-base-background-clean.webp")
+    clean_background_with_sprites(base, base_sprites, bg_dir / "cat-base-background-clean.webp")
 
     # The main Cat Base background itself stays as an actual game capture. Only
     # UI areas are cleaned; the top HUD, door, cat character, and wall art remain.
