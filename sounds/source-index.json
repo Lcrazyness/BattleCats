@@ -39,6 +39,15 @@
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
+      "file": "sounds/victory.ogg",
+      "wiki_file": "VictoryChime.ogg",
+      "role": "Snd008 victory sound / simulated win",
+      "bytes": 124825,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:VictoryChime.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
       "file": "sounds/upgrade.ogg",
       "wiki_file": "Snd014.ogg",
       "role": "Successful player rank or cat upgrade",
@@ -102,8 +111,6 @@
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     }
   ],
-  "failed_assets": [
-    "victory.ogg"
-  ],
+  "failed_assets": [],
   "note": "Audio is included for a private/unofficial fan remake prototype. The game audio is not public domain and remains the property of its rights holders."
 }
