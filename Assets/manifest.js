@@ -6,7 +6,7 @@
     "ui.back_arrow": "sprites/ui/base-back.png",
     "ui.info": null,
     "ui.calendar": null,
-    "ui.icon_menu": "sprites/ui/base-menu.png",
+    "ui.icon_menu": "sprites/ui/menubutton.png",
     "ui.icon_gamatoto": "sprites/ui/base-gamatoto.png",
     "ui.icon_missions": "sprites/ui/base-missions.png",
     "ui.storage": "sprites/ui/base-storage.png",
