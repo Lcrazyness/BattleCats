@@ -402,72 +402,73 @@ def build_ui_sprite_assets() -> list[str]:
         image: Image.Image,
         box: tuple[float, float, float, float],
         output: Path,
-        shape: str = "round",
+        shape: str = "rect",
         flood_mode: str = "base",
     ) -> None:
-        crop = image.crop(box_pixels(box, image.size))
-        if shape == "round":
-            rgba = crop.convert("RGBA")
-            alpha = Image.new("L", rgba.size, 0)
-            draw = ImageDraw.Draw(alpha)
-            radius = max(4, round(min(rgba.size) * 0.16))
-            draw.rounded_rectangle((0, 0, rgba.width - 1, rgba.height - 1), radius=radius, fill=255)
-            rgba.putalpha(alpha)
-        elif shape == "flood":
-            rgba = flood_alpha(crop, flood_mode)
-        elif shape == "mailbox":
-            rgba = crop.convert("RGBA")
-            alpha = Image.new("L", rgba.size, 0)
-            draw = ImageDraw.Draw(alpha)
-            w, h = rgba.size
-            outline = [
-                (0.22*w,0.08*h),(0.37*w,0.02*h),(0.55*w,0.04*h),
-                (0.69*w,0.15*h),(0.82*w,0.07*h),(0.97*w,0.16*h),
-                (0.99*w,0.53*h),(0.90*w,0.65*h),(0.94*w,0.74*h),
-                (0.87*w,0.88*h),(0.74*w,0.96*h),(0.22*w,0.96*h),
-                (0.08*w,0.88*h),(0.03*w,0.75*h),(0.10*w,0.63*h),
-                (0.02*w,0.52*h),(0.05*w,0.25*h),(0.13*w,0.14*h)
-            ]
-            draw.polygon(outline, fill=255)
-            rgba.putalpha(alpha)
-        else:
-            rgba = crop.convert("RGBA")
+        # Every UI sprite is a precise, fully opaque rectangular crop from the
+        # same source image used as the scene background. Its element and crop
+        # share the exact same fractional coordinates, so there are no guessed
+        # alpha masks cutting holes into letters or icons.
+        crop = image.crop(box_pixels(box, image.size)).convert("RGBA")
         output.parent.mkdir(parents=True, exist_ok=True)
-        rgba.save(output, format="PNG", optimize=True)
+        crop.save(output, format="PNG", optimize=True)
         written.append(output.relative_to(ROOT).as_posix())
-        print(f"Built sprite {output.relative_to(ROOT)} ({rgba.width}x{rgba.height})")
-
+        print(f"Built exact sprite {output.relative_to(ROOT)} ({crop.width}x{crop.height})")
     def clean_background_with_sprites(
         image: Image.Image,
-        sprite_specs: dict[str, tuple[float, float, float, float]] | dict[str, tuple[tuple[float, float, float, float], str, str]],
+        sprite_specs: dict,
         output: Path,
     ) -> None:
-        """Remove just each sprite's opaque pixels, keeping the surrounding scene intact."""
+        """Erase the original control rectangles underneath the independent UI sprites."""
         rgb = np.asarray(image.convert("RGB"))
         h, w = rgb.shape[:2]
         mask = np.zeros((h, w), dtype=np.uint8)
-        for name, spec in sprite_specs.items():
+        for spec in sprite_specs.values():
             box = spec[0] if isinstance(spec[0], tuple) else spec
             left, top, right, bottom = box_pixels(box, image.size)
-            sprite_path = ui_dir / f"{name}.png"
-            if not sprite_path.exists():
-                continue
-            sprite = Image.open(sprite_path).convert("RGBA")
-            sprite_alpha = np.asarray(sprite.getchannel("A"))
-            expected_w, expected_h = right - left, bottom - top
-            if sprite_alpha.shape[1] != expected_w or sprite_alpha.shape[0] != expected_h:
-                sprite_alpha = np.asarray(
-                    Image.fromarray(sprite_alpha).resize((expected_w, expected_h), Image.Resampling.NEAREST)
-                )
-            region = mask[top:bottom, left:right]
-            region[sprite_alpha > 0] = 255
+            # Cropped UI assets are fully opaque rectangles, therefore mask the
+            # same whole rectangle here. The matching sprite covers this region
+            # in the browser and keeps every edge pixel from the original source.
+            mask[top:bottom, left:right] = 255
 
-        # All cleared pixels are covered by the matching sprite at runtime, so
-        # any texture the algorithm reconstructs stays hidden beneath the art.
         bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
         cleaned = cv2.inpaint(bgr, mask, 4, cv2.INPAINT_TELEA)
-        cleaned = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
-        result = Image.fromarray(cleaned)
+
+        if image.size == base.size:
+            # Remove the embedded sample account's numbers and bake a single
+            # zero into the exported background. The browser does not overlay
+            # a second number on top of old digits from the reference image.
+            stat_mask = np.zeros((h, w), dtype=np.uint8)
+            for box in (
+                (0.905, 0.000, 0.999, 0.075),  # XP
+                (0.914, 0.856, 0.999, 0.999),  # Cat Food
+            ):
+                left, top, right, bottom = box_pixels(box, image.size)
+                stat_mask[top:bottom, left:right] = 255
+            cleaned = cv2.inpaint(cleaned, stat_mask, 5, cv2.INPAINT_TELEA)
+            result = Image.fromarray(cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB))
+            draw = ImageDraw.Draw(result)
+            try:
+                from PIL import ImageFont
+                font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf"
+                font = ImageFont.truetype(font_path, max(24, round(h * 0.062)))
+            except Exception:
+                from PIL import ImageFont
+                font = ImageFont.load_default()
+            # Dark outer stroke, pale highlight, and yellow face match the game's
+            # chunky number style. These zeros are part of the saved image.
+            size_px = max(24, round(h * 0.062))
+            for x, baseline in (
+                (round(w * 0.994), round(h * 0.065)),
+                (round(w * 0.994), round(h * 0.994)),
+            ):
+                draw.text((x, baseline), "0", font=font, fill="#ffd72a",
+                          stroke_width=max(2, round(size_px * 0.075)), stroke_fill="#171009", anchor="rs")
+                draw.text((x, baseline), "0", font=font, fill="#ffe33a",
+                          stroke_width=max(1, round(size_px * 0.025)), stroke_fill="#fff1a4", anchor="rs")
+        else:
+            result = Image.fromarray(cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB))
+
         output.parent.mkdir(parents=True, exist_ok=True)
         result.save(output, format="WEBP", quality=95, method=6)
         written.append(output.relative_to(ROOT).as_posix())
@@ -481,26 +482,24 @@ def build_ui_sprite_assets() -> list[str]:
         "title-mailbox": (0.875, 0.814, 0.992, 0.980),
     }
     for name, box in title_boxes.items():
-        shape = "mailbox" if name == "title-mailbox" else "round"
-        flood_mode = "mailbox" if name == "title-mailbox" else "base"
-        crop_save(title, box, ui_dir / f"{name}.png", shape, flood_mode)
+        crop_save(title, box, ui_dir / f"{name}.png", "rect")
     clean_background_with_sprites(title, title_boxes, bg_dir / "title-background-clean.webp")
 
     # Fractions refer to the native Cat Base screenshot, so these crops scale if
     # the community wiki replaces the screen capture with a higher-resolution copy.
     base_sprites = {
-        "base-start": ((0.016, 0.219, 0.326, 0.323), "round", "base"),
-        "base-upgrade": ((0.016, 0.356, 0.326, 0.458), "round", "base"),
-        "base-equip": ((0.016, 0.485, 0.326, 0.586), "round", "base"),
-        "base-menu": ((0.020, 0.615, 0.122, 0.771), "flood", "base"),
-        "base-gamatoto": ((0.112, 0.610, 0.231, 0.771), "flood", "base"),
-        "base-missions": ((0.215, 0.610, 0.322, 0.771), "flood", "base"),
-        "base-storage": ((0.326, 0.684, 0.432, 0.844), "flood", "base"),
-        "base-cat-capsule": ((0.417, 0.684, 0.530, 0.844), "flood", "base"),
-        "base-rare-capsule": ((0.508, 0.684, 0.620, 0.844), "flood", "base"),
-        "base-back": ((0.002, 0.849, 0.082, 0.999), "round", "base"),
-        "base-store": ((0.542, 0.860, 0.740, 0.939), "round", "base"),
-        "base-cat-food": ((0.740, 0.850, 0.915, 0.999), "flood", "base"),
+        "base-start": ((0.016, 0.219, 0.326, 0.323), "rect", "base"),
+        "base-upgrade": ((0.016, 0.356, 0.326, 0.458), "rect", "base"),
+        "base-equip": ((0.016, 0.485, 0.326, 0.586), "rect", "base"),
+        "base-menu": ((0.020, 0.615, 0.122, 0.771), "rect", "base"),
+        "base-gamatoto": ((0.112, 0.610, 0.231, 0.771), "rect", "base"),
+        "base-missions": ((0.215, 0.610, 0.322, 0.771), "rect", "base"),
+        "base-storage": ((0.326, 0.684, 0.432, 0.844), "rect", "base"),
+        "base-cat-capsule": ((0.417, 0.684, 0.530, 0.844), "rect", "base"),
+        "base-rare-capsule": ((0.508, 0.684, 0.620, 0.844), "rect", "base"),
+        "base-back": ((0.002, 0.849, 0.082, 0.999), "rect", "base"),
+        "base-store": ((0.542, 0.860, 0.740, 0.939), "rect", "base"),
+        "base-cat-food": ((0.740, 0.850, 0.915, 0.999), "rect", "base"),
     }
     for name, (box, shape, mode) in base_sprites.items():
         crop_save(base, box, ui_dir / f"{name}.png", shape, mode)
