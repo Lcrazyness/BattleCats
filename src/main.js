@@ -38,37 +38,37 @@ const bottomBar = (back="base") =>
     '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
 const catHead = (className="") =>
-  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp" alt="" draggable="false">';
+  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261024-12" alt="" draggable="false">';
 
 function renderTitle() {
   return '<section class="screen title-screen real-title-screen">'+
     '<div class="real-title-frame">'+
-      '<img class="title-background-sprite" src="sprites/backgrounds/title-background-clean.webp" alt="" draggable="false">'+
-      '<button class="title-hotspot title-sprite-button title-play" data-go="go:base" aria-label="Play"><img src="sprites/ui/title-play.png" alt="" draggable="false"></button>'+
-      '<button class="title-hotspot title-sprite-button title-settings" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png" alt="" draggable="false"></button>'+
-      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png" alt="" draggable="false"></button>'+
+      '<img class="title-background-sprite" src="sprites/backgrounds/title-background-clean.webp?v=20261024-12" alt="" draggable="false">'+
+      '<button class="title-hotspot title-sprite-button title-play" data-go="go:base" aria-label="Play"><img src="sprites/ui/title-play.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-settings" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png?v=20261024-12" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
 function renderBase() {
   return '<section class="screen base-sprite-screen">'+
     '<div class="base-sprite-frame">'+
-      '<img class="base-background-sprite" src="sprites/backgrounds/cat-base-background-clean.webp" alt="" draggable="false">'+
+      '<img class="base-background-sprite" src="sprites/backgrounds/cat-base-background-clean.webp?v=20261024-12" alt="" draggable="false">'+
       '<div class="base-dynamic-stat base-stat-rank">'+money(save.level)+'</div>'+
       '<div class="base-dynamic-stat base-stat-xp">'+money(save.xp)+'</div>'+
       '<div class="base-dynamic-stat base-stat-food">'+money(save.catFood)+'</div>'+
-      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/base-start.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/base-upgrade.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/base-equip.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/base-menu.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/base-gamatoto.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/base-missions.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/base-back.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/base-start.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/base-upgrade.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/base-equip.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/base-menu.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/base-gamatoto.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/base-missions.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/base-back.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png?v=20261024-12" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261024-12" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
