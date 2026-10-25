@@ -540,6 +540,32 @@ def build_ui_sprite_assets() -> list[str]:
     written.append(manifest_path.relative_to(ROOT).as_posix())
     return written
 
+
+def normalize_mislabeled_pngs() -> int:
+    """Convert uploaded WebP files with .png names to real PNGs for reliable browser loading."""
+    from PIL import Image
+
+    ui_dir = SPRITES / "ui"
+    if not ui_dir.exists():
+        return 0
+
+    converted = 0
+    for path in ui_dir.glob("*.png"):
+        try:
+            with path.open("rb") as stream:
+                header = stream.read(12)
+            if header[:4] != b"RIFF" or header[8:12] != b"WEBP":
+                continue
+            temp_path = path.with_name(path.stem + ".normalized.png")
+            with Image.open(path) as image:
+                image.convert("RGBA").save(temp_path, format="PNG", optimize=True)
+            temp_path.replace(path)
+            converted += 1
+            print(f"Converted mislabeled WebP to proper PNG: {path.relative_to(ROOT)}")
+        except Exception as exc:
+            print(f"WARNING: couldn't normalize {path.name}: {exc}")
+    return converted
+
 def main() -> int:
     SPRITES.mkdir(parents=True, exist_ok=True)
     # Import the real menu screenshot as a local asset first; the SVG remains a
@@ -565,6 +591,8 @@ def main() -> int:
     try:
         sprite_files = build_ui_sprite_assets()
         print(f"Generated {len(sprite_files)} individual UI sprite assets.")
+        normalized = normalize_mislabeled_pngs()
+        print(f"Normalized {normalized} mislabeled PNG file(s).")
     except Exception as exc:
         print(f"WARNING: Could not generate separate UI sprites: {exc}")
         raise
