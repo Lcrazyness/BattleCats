@@ -319,36 +319,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   color:transparent;text-shadow:none;cursor:pointer;transform:none;
 }
 .base-hitbox:hover{opacity:1;background:rgba(255,255,255,.04);outline:2px solid rgba(255,245,170,.65);}
-.base-dynamic-stat{
-  position:absolute;z-index:10;display:flex;align-items:center;justify-content:flex-end;
-  box-sizing:border-box;overflow:hidden;white-space:nowrap;padding:0 3px;
-  font-family:Impact,"Arial Narrow",sans-serif;font-weight:1000;line-height:1;
-  color:#ffe12b;-webkit-text-stroke:1.15px #100d08;paint-order:stroke fill;
-  text-shadow:2px 2px 0 #100d08, -1px -1px 0 #100d08;
-  pointer-events:none;
-}
-.base-stat-rank{
-  left:5.4%;top:12.4%;width:13.6%;height:7.7%;
-  justify-content:center;border-radius:999px;background:#090807;
-  border:2px solid #23150d;box-shadow:inset 0 0 0 1px #b5792c;
-  font-size:clamp(15px,2.6vw,40px);padding:0 2px;
-}
-.base-stat-xp{
-  top:.2%;right:.35%;width:8.5%;height:7.1%;
-  justify-content:flex-end;padding-right:.45%;
-  background:linear-gradient(90deg,#d5a56a,#ead1a0);
-  font-size:clamp(18px,2.7vw,42px);
-}
-.base-stat-food{
-  right:.3%;bottom:.3%;width:6.2%;height:5.5%;
-  justify-content:flex-end;padding-right:.35%;
-  background:linear-gradient(90deg,#bc8c51,#ead19b);
-  font-size:clamp(16px,2.7vw,40px);
-}
 @media(max-width:600px){
-  .base-stat-rank{font-size:clamp(13px,3vw,24px);border-width:1px;}
-  .base-stat-xp{font-size:clamp(15px,3.2vw,24px);}
-  .base-stat-food{font-size:clamp(14px,3.1vw,23px);}
   .base-hitbox{border-radius:4px;}
 }
 
@@ -402,10 +373,6 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .base-back{left:.2%;top:84.9%;width:8%;height:15%}
 .base-store{left:54.2%;top:86%;width:19.8%;height:7.9%}
 .base-cat-food{left:74%;top:85%;width:17.5%;height:14.9%}
-.base-sprite-frame .base-dynamic-stat{z-index:18}
-.base-sprite-frame .base-stat-rank{left:5.4%;top:12.2%;width:13.6%;height:7.6%;font-size:clamp(14px,2.4vw,39px)}
-.base-sprite-frame .base-stat-xp{right:.35%;top:.2%;width:8.5%;height:7.1%;font-size:clamp(17px,2.7vw,42px)}
-.base-sprite-frame .base-stat-food{right:.3%;bottom:.3%;width:6.2%;height:5.5%;font-size:clamp(16px,2.7vw,40px)}
 @media(max-width:600px){
  .real-title-frame .title-play{left:30%;top:58.4%;width:40%;height:11.1%}
  .real-title-frame .title-settings{left:30%;top:72.7%;width:40%;height:10.6%}
