@@ -399,3 +399,29 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   object-fit: contain;
   object-position: center;
 }
+
+
+/* Main Cat Base buttons align with the Menu button's left edge and Missions' right edge. */
+.base-start,
+.base-upgrade,
+.base-equip {
+  left: 2%;
+  width: 30.2%;
+  height: 8.5%;
+}
+.base-start { top: 32%; }
+.base-upgrade { top: 41.2%; }
+.base-equip { top: 50.4%; }
+
+@media (max-width: 600px) {
+  .base-start,
+  .base-upgrade,
+  .base-equip {
+    left: 2%;
+    width: 30.2%;
+    height: 8.5%;
+  }
+  .base-start { top: 32%; }
+  .base-upgrade { top: 41.2%; }
+  .base-equip { top: 50.4%; }
+}
