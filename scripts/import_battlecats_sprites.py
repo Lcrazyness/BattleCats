@@ -440,7 +440,7 @@ def build_ui_sprite_assets() -> list[str]:
             stat_mask = np.zeros((h, w), dtype=np.uint8)
             number_boxes = (
                 (0.875, 0.000, 0.999, 0.082),  # XP digits
-                (0.895, 0.820, 0.999, 0.999),  # Cat Food digits
+                (0.895, 0.720, 0.999, 0.999),  # Cat Food digits
             )
             for box in number_boxes:
                 left, top, right, bottom = box_pixels(box, image.size)
