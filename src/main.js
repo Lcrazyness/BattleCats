@@ -29,7 +29,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-10";
+const AUDIO_VERSION = "20261026-11";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -134,7 +134,16 @@ function syncMusicForScene(targetScene = scene) {
 function playActionAudio(action) {
   audioUnlocked = true;
   syncMusicForScene(scene);
-  if (action === "rank" || action.startsWith("unit:")) return;
+  if (action === "rank") {
+    if (save.xp < 500) playSfx("button");
+    return;
+  }
+  if (action.startsWith("unit:")) {
+    const unit = save.units[Number(action.split(":")[1])];
+    const cost = unit ? (unit.upgradeCost || 100) * unit.level : Infinity;
+    if (!unit || save.xp < cost) playSfx("button");
+    return;
+  }
   if (action === "go:base" && scene === "title") {
     playSfx("button");
   } else if (action === "go:fight") {
