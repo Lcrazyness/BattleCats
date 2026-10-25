@@ -76,10 +76,10 @@
     },
     {
       "file": "sounds/title-theme.ogg",
-      "wiki_file": "Snd000.ogg",
+      "wiki_file": "Snd001.ogg",
       "role": "Title screen music",
-      "bytes": 2070597,
-      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd000.ogg",
+      "bytes": 1731888,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd001.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
