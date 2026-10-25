@@ -419,28 +419,17 @@ def build_ui_sprite_assets() -> list[str]:
         sprite_specs: dict,
         output: Path,
     ) -> None:
-        """Erase the original control rectangles underneath the independent UI sprites."""
-        rgb = np.asarray(image.convert("RGB"))
+        """Keep source artwork pristine under matching button crops; only zero HUD values."""
+        rgb = np.asarray(image.convert("RGB")).copy()
         h, w = rgb.shape[:2]
-        mask = np.zeros((h, w), dtype=np.uint8)
-        for spec in sprite_specs.values():
-            box = spec[0] if isinstance(spec[0], tuple) else spec
-            left, top, right, bottom = box_pixels(box, image.size)
-            # Cropped UI assets are fully opaque rectangles, therefore mask the
-            # same whole rectangle here. The matching sprite covers this region
-            # in the browser and keeps every edge pixel from the original source.
-            mask[top:bottom, left:right] = 255
+        result_rgb = rgb.copy()
 
-        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-        cleaned = cv2.inpaint(bgr, mask, 4, cv2.INPAINT_TELEA)
-
+        # Every visible button is an opaque crop from this exact source image.
+        # Keep the same pixels beneath the sprite: when the crop is placed at its
+        # source coordinates it matches pixel-for-pixel and there are no blurred
+        # boxes or cleanup artifacts around the icons.
         if image.size == base.size:
-            # Mask the yellow resource digits themselves and their dark outline.
-            # The Cat Base cat is behind the Cat Food counter, so never repaint a
-            # rectangular field there: that erases the cat. Only digit-shaped
-            # pixels and a small dilated border should be inpainted.
-            result_rgb = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
-            h, w = result_rgb.shape[:2]
+            source_bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
             stat_mask = np.zeros((h, w), dtype=np.uint8)
             number_boxes = (
                 (0.875, 0.000, 0.999, 0.082),  # XP digits
@@ -448,11 +437,10 @@ def build_ui_sprite_assets() -> list[str]:
             )
             for box in number_boxes:
                 left, top, right, bottom = box_pixels(box, image.size)
-                region = result_rgb[top:bottom, left:right, :].astype(np.int16)
+                region = rgb[top:bottom, left:right, :].astype(np.int16)
                 red = region[:, :, 0]
                 green = region[:, :, 1]
                 blue = region[:, :, 2]
-                # Bright yellow fill of the game's resource digits.
                 yellow = (
                     (red > 160) &
                     (green > 90) &
@@ -460,42 +448,49 @@ def build_ui_sprite_assets() -> list[str]:
                     ((red - blue) > 45) &
                     ((green - blue) > 25)
                 ).astype(np.uint8) * 255
-                # Expand only around segmented digit pixels; preserve the cat
-                # face/body visible between and around the foreground numbers.
+                # Only expand around the yellow digit fill to remove its black
+                # outline. This preserves nearby cat artwork outside the digits.
                 kernel = np.ones((23, 23), dtype=np.uint8)
                 glyph_mask = cv2.dilate(yellow, kernel, iterations=1)
                 stat_mask[top:bottom, left:right] = cv2.bitwise_or(
                     stat_mask[top:bottom, left:right], glyph_mask
                 )
-            cleaned = cv2.inpaint(cv2.cvtColor(result_rgb, cv2.COLOR_RGB2BGR), stat_mask, 5, cv2.INPAINT_TELEA)
-            result_rgb = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
+
+            cleaned_bgr = cv2.inpaint(source_bgr, stat_mask, 5, cv2.INPAINT_TELEA)
+            result_rgb = cv2.cvtColor(cleaned_bgr, cv2.COLOR_BGR2RGB)
             result = Image.fromarray(result_rgb)
             draw = ImageDraw.Draw(result)
             try:
                 from PIL import ImageFont
-                font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf"
-                font = ImageFont.truetype(font_path, max(24, round(h * 0.062)))
+                font = ImageFont.truetype(
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf",
+                    max(24, round(h * 0.062)),
+                )
             except Exception:
                 from PIL import ImageFont
                 font = ImageFont.load_default()
-            # Dark outer stroke, pale highlight, and yellow face match the game's
-            # chunky number style. These zeros are part of the saved image.
             size_px = max(24, round(h * 0.062))
             for x, baseline in (
                 (round(w * 0.994), round(h * 0.065)),
                 (round(w * 0.994), round(h * 0.994)),
             ):
-                draw.text((x, baseline), "0", font=font, fill="#ffd72a",
-                          stroke_width=max(2, round(size_px * 0.075)), stroke_fill="#171009", anchor="rs")
-                draw.text((x, baseline), "0", font=font, fill="#ffe33a",
-                          stroke_width=max(1, round(size_px * 0.025)), stroke_fill="#fff1a4", anchor="rs")
+                draw.text(
+                    (x, baseline), "0", font=font, fill="#ffd72a",
+                    stroke_width=max(2, round(size_px * 0.075)), stroke_fill="#171009", anchor="rs"
+                )
+                draw.text(
+                    (x, baseline), "0", font=font, fill="#ffe33a",
+                    stroke_width=max(1, round(size_px * 0.025)), stroke_fill="#fff1a4", anchor="rs"
+                )
         else:
-            result = Image.fromarray(cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB))
+            # Leave the title artwork alone too. Its Play/Settings/Mailbox sprites
+            # are crops from the same source and cover the original pixels exactly.
+            result = Image.fromarray(result_rgb)
 
         output.parent.mkdir(parents=True, exist_ok=True)
         result.save(output, format="WEBP", quality=95, method=6)
         written.append(output.relative_to(ROOT).as_posix())
-        print(f"Built sprite-cleaned background {output.relative_to(ROOT)} ({w}x{h})")
+        print(f"Built source-aligned background {output.relative_to(ROOT)} ({w}x{h})")
 
     # The screenshot's two large title buttons become independent sprites. The
     # old button pixels are inpainted from the scene before the sprites are placed.
