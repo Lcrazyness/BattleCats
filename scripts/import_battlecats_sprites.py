@@ -435,32 +435,40 @@ def build_ui_sprite_assets() -> list[str]:
         cleaned = cv2.inpaint(bgr, mask, 4, cv2.INPAINT_TELEA)
 
         if image.size == base.size:
-            # Clear the old screenshot values by extending the adjacent clean HUD
-            # background horizontally across the number field. The result stays
-            # inside the flat top/footer panels, so the cat and other icons remain
-            # untouched. We then draw one zero directly into this exported image.
+            # Mask the yellow resource digits themselves and their dark outline.
+            # The Cat Base cat is behind the Cat Food counter, so never repaint a
+            # rectangular field there: that erases the cat. Only digit-shaped
+            # pixels and a small dilated border should be inpainted.
             result_rgb = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
-            w = image.width
-            h = image.height
-            resource_fields = (
-                # (field left, field top, field right, field bottom, sample left, sample right)
-                (0.880, 0.000, 0.999, 0.082, 0.855, 0.875),  # XP HUD number strip
-                (0.910, 0.730, 0.999, 0.999, 0.890, 0.905),  # Cat Food footer number strip
+            h, w = result_rgb.shape[:2]
+            stat_mask = np.zeros((h, w), dtype=np.uint8)
+            number_boxes = (
+                (0.875, 0.000, 0.999, 0.082),  # XP digits
+                (0.890, 0.745, 0.999, 0.999),  # Cat Food digits over the cat/footer
             )
-            for field_left, field_top, field_right, field_bottom, sample_left, sample_right in resource_fields:
-                left, top, right, bottom = box_pixels(
-                    (field_left, field_top, field_right, field_bottom), image.size
+            for box in number_boxes:
+                left, top, right, bottom = box_pixels(box, image.size)
+                region = result_rgb[top:bottom, left:right, :].astype(np.int16)
+                red = region[:, :, 0]
+                green = region[:, :, 1]
+                blue = region[:, :, 2]
+                # Bright yellow fill of the game's resource digits.
+                yellow = (
+                    (red > 160) &
+                    (green > 90) &
+                    (blue < 145) &
+                    ((red - blue) > 45) &
+                    ((green - blue) > 25)
+                ).astype(np.uint8) * 255
+                # Expand only around segmented digit pixels; preserve the cat
+                # face/body visible between and around the foreground numbers.
+                kernel = np.ones((23, 23), dtype=np.uint8)
+                glyph_mask = cv2.dilate(yellow, kernel, iterations=1)
+                stat_mask[top:bottom, left:right] = cv2.bitwise_or(
+                    stat_mask[top:bottom, left:right], glyph_mask
                 )
-                sample_x1 = max(0, round(sample_left * w))
-                sample_x2 = min(w, round(sample_right * w))
-                for y in range(top, bottom):
-                    swatch = result_rgb[y, sample_x1:sample_x2, :]
-                    if swatch.size == 0:
-                        continue
-                    # Median preserves each row's local color/gradient without
-                    # cloning any text or icon from the surrounding HUD.
-                    color = np.median(swatch, axis=0).astype(np.uint8)
-                    result_rgb[y, left:right, :] = color
+            cleaned = cv2.inpaint(cv2.cvtColor(result_rgb, cv2.COLOR_RGB2BGR), stat_mask, 5, cv2.INPAINT_TELEA)
+            result_rgb = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
             result = Image.fromarray(result_rgb)
             draw = ImageDraw.Draw(result)
             try:
