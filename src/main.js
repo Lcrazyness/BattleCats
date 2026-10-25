@@ -3,18 +3,18 @@
 const $ = (selector, root=document) => root.querySelector(selector);
 const money = value => Number(value || 0).toLocaleString();
 const defaults = {
-  xp:0, catFood:30, rareTickets:0, normalTickets:0,
+  xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, level:1, exp:0, stageClears:0,
   units:[
     {id:1,name:"Cat",level:1,deployCost:50,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:2.5}
   ],
-  equipped:[1], mail:0, missions:0, sound:true, music:true, menuVersion:3
+  equipped:[1], mail:0, missions:0, sound:true, music:true, menuVersion:4
 };
-const SAVE_KEY = "battleCatsSave_v3";
+const SAVE_KEY = "battleCatsSave_v4";
 let save;
 try {
   const old = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
-  save = old && old.menuVersion === 3 ? {...defaults, ...old} : {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
+  save = old && old.menuVersion === 4 ? {...defaults, ...old} : {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
   if (!Array.isArray(save.units) || !save.units.length) save.units = defaults.units.map(unit => ({...unit}));
   if (!Array.isArray(save.equipped)) save.equipped = save.units.slice(0,1).map(unit => unit.id);
 } catch {
@@ -54,9 +54,6 @@ function renderBase() {
   return '<section class="screen base-sprite-screen">'+
     '<div class="base-sprite-frame">'+
       '<img class="base-background-sprite" src="sprites/backgrounds/cat-base-background-clean.webp?v=20261024-12" alt="" draggable="false">'+
-      '<div class="base-dynamic-stat base-stat-rank">'+money(save.level)+'</div>'+
-      '<div class="base-dynamic-stat base-stat-xp">'+money(save.xp)+'</div>'+
-      '<div class="base-dynamic-stat base-stat-food">'+money(save.catFood)+'</div>'+
       '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/base-start.png?v=20261024-12" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/base-upgrade.png?v=20261024-12" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/base-equip.png?v=20261024-12" alt="" draggable="false"></button>'+
