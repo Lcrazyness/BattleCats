@@ -10,7 +10,7 @@
     "base-start": "sprites/ui/startbutton.png",
     "base-upgrade": "sprites/ui/upgradebutton.png",
     "base-equip": "sprites/ui/equipbutton.png",
-    "base-menu": "sprites/ui/base-menu.png",
+    "base-menu": "sprites/ui/menubutton.png",
     "base-gamatoto": "sprites/ui/base-gamatoto.png",
     "base-missions": "sprites/ui/base-missions.png",
     "base-storage": "sprites/ui/base-storage.png",
