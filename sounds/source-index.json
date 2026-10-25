@@ -1,0 +1,98 @@
+{
+  "source": "The Battle Cats Wiki \u2014 Music / Sound Effects",
+  "source_page": "https://battle-cats.fandom.com/wiki/Music",
+  "assets": [
+    {
+      "file": "sounds/button-click.ogg",
+      "wiki_file": "Snd011.ogg",
+      "role": "Common UI button press",
+      "bytes": 18336,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd011.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/menu-select.ogg",
+      "wiki_file": "Snd010.ogg",
+      "role": "Menu selection / navigation",
+      "bytes": 5884,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd010.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/cat-base-door.ogg",
+      "wiki_file": "Snd046.ogg",
+      "role": "Opening the Cat Base door",
+      "bytes": 32621,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd046.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/enter-battle.ogg",
+      "wiki_file": "Snd007.ogg",
+      "role": "Entering battle",
+      "bytes": 156612,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd007.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/victory.ogg",
+      "wiki_file": "VictoryChime.ogg",
+      "role": "Victory screen / simulated win",
+      "bytes": 124825,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:VictoryChime.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/defeat.ogg",
+      "wiki_file": "Defeat.ogg",
+      "role": "Defeat sound for future loss handling",
+      "bytes": 118284,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Defeat.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/reward.ogg",
+      "wiki_file": "TreasureObtained.ogg",
+      "role": "Reward obtained",
+      "bytes": 75295,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:TreasureObtained.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/capsule-draw.ogg",
+      "wiki_file": "Snd043.ogg",
+      "role": "Drawing a Cat Capsule",
+      "bytes": 186462,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd043.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/menu-theme.ogg",
+      "wiki_file": "Snd001.ogg",
+      "role": "Menu background music",
+      "bytes": 1731888,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd001.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/battle-theme.ogg",
+      "wiki_file": "Snd003.ogg",
+      "role": "Battle/stage background music",
+      "bytes": 1442890,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd003.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
+      "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    }
+  ],
+  "failed_assets": [],
+  "note": "Audio is included for a private/unofficial fan remake prototype. The game audio is not public domain and remains the property of its rights holders."
+}
