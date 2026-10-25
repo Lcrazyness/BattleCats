@@ -36,6 +36,7 @@
     "effects.reward": "sounds/reward.ogg",
     "effects.capsule_draw": "sounds/capsule-draw.ogg",
     "music.menu": "sounds/menu-theme.ogg",
-    "music.battle": "sounds/battle-theme.ogg"
+    "music.battle": "sounds/battle-theme.ogg",
+    "music.title": "sounds/title-theme.ogg"
   }
 }
