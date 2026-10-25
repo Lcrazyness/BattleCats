@@ -32,7 +32,7 @@ ASSETS: list[dict[str, Any]] = [
     {"file": "menu-select.ogg", "wiki_file": "Snd010.ogg", "role": "Menu selection / navigation"},
     {"file": "cat-base-door.ogg", "wiki_file": "Snd046.ogg", "role": "Opening the Cat Base door"},
     {"file": "enter-battle.ogg", "wiki_file": "Snd007.ogg", "role": "Stage selection (for example, Japan) / entering battle"},
-    {"file": "victory.ogg", "wiki_file": "Snd008.ogg", "role": "Victory sound / simulated win", "refresh": True},
+    {"file": "victory.ogg", "wiki_file": "VictoryChime.ogg", "role": "Snd008 victory sound / simulated win", "refresh": True},
     {"file": "upgrade.ogg", "wiki_file": "Snd014.ogg", "role": "Successful player rank or cat upgrade", "refresh": True},
     {"file": "defeat.ogg", "wiki_file": "Defeat.ogg", "role": "Defeat sound for future loss handling"},
     {"file": "reward.ogg", "wiki_file": "TreasureObtained.ogg", "role": "Reward obtained"},
