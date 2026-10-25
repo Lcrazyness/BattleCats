@@ -76,19 +76,19 @@
     },
     {
       "file": "sounds/title-theme.ogg",
-      "wiki_file": "Snd001.ogg",
+      "wiki_file": "Snd000.ogg",
       "role": "Title screen music",
-      "bytes": 1731888,
-      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd001.ogg",
+      "bytes": 2070597,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd000.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
       "file": "sounds/menu-theme.ogg",
-      "wiki_file": "Snd000.ogg",
-      "role": "Cat Base/menu background music",
-      "bytes": 2070597,
-      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd000.ogg",
+      "wiki_file": "Snd002.ogg",
+      "role": "Cat Base/main menu music",
+      "bytes": 1563099,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd002.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
