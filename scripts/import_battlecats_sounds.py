@@ -27,7 +27,7 @@ session = requests.Session()
 session.headers.update({"User-Agent": USER_AGENT})
 
 # Output filename -> wiki filename / what the clip is used for in this project.
-ASSETS: list[dict[str, str]] = [
+ASSETS: list[dict[str, Any]] = [
     {"file": "button-click.ogg", "wiki_file": "Snd011.ogg", "role": "Common UI button press"},
     {"file": "menu-select.ogg", "wiki_file": "Snd010.ogg", "role": "Menu selection / navigation"},
     {"file": "cat-base-door.ogg", "wiki_file": "Snd046.ogg", "role": "Opening the Cat Base door"},
@@ -36,7 +36,8 @@ ASSETS: list[dict[str, str]] = [
     {"file": "defeat.ogg", "wiki_file": "Defeat.ogg", "role": "Defeat sound for future loss handling"},
     {"file": "reward.ogg", "wiki_file": "TreasureObtained.ogg", "role": "Reward obtained"},
     {"file": "capsule-draw.ogg", "wiki_file": "Snd043.ogg", "role": "Drawing a Cat Capsule"},
-    {"file": "menu-theme.ogg", "wiki_file": "Snd001.ogg", "role": "Menu background music"},
+    {"file": "title-theme.ogg", "wiki_file": "Snd001.ogg", "role": "Title screen music", "refresh": True},
+    {"file": "menu-theme.ogg", "wiki_file": "Snd000.ogg", "role": "Cat Base/menu background music", "refresh": True},
     {"file": "battle-theme.ogg", "wiki_file": "Snd003.ogg", "role": "Battle/stage background music"},
 ]
 
@@ -123,7 +124,7 @@ def main() -> int:
         filename = asset["file"]
         wiki_file = asset["wiki_file"]
         destination = SOUNDS / filename
-        if valid_ogg(destination):
+        if valid_ogg(destination) and not asset.get("refresh", False):
             print(f"Already present: sounds/{filename}")
             file_size = destination.stat().st_size
             api = ""
