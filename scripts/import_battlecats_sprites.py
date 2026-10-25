@@ -440,8 +440,8 @@ def build_ui_sprite_assets() -> list[str]:
             # a second number on top of old digits from the reference image.
             stat_mask = np.zeros((h, w), dtype=np.uint8)
             for box in (
-                (0.850, 0.000, 0.999, 0.082),  # XP digits
-                (0.850, 0.720, 0.999, 0.999),  # Cat Food digits
+                (0.875, 0.000, 0.999, 0.082),  # XP digits in the top HUD
+                (0.895, 0.820, 0.999, 0.999),  # Cat Food digits in the footer
             ):
                 left, top, right, bottom = box_pixels(box, image.size)
                 stat_mask[top:bottom, left:right] = 255
