@@ -16,7 +16,7 @@
     "base-storage": "sprites/ui/base-storage.png",
     "base-cat-capsule": "sprites/ui/base-cat-capsule.png",
     "base-rare-capsule": "sprites/ui/base-rare-capsule.png",
-    "base-back": "sprites/ui/base-back.png",
+    "base-back": "sprites/ui/backbutton.png",
     "base-store": "sprites/ui/base-store.png",
     "base-cat-food": "sprites/ui/base-cat-food.png"
   },
