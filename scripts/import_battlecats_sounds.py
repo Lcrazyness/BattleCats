@@ -36,7 +36,7 @@ ASSETS: list[dict[str, Any]] = [
     {"file": "defeat.ogg", "wiki_file": "Defeat.ogg", "role": "Defeat sound for future loss handling"},
     {"file": "reward.ogg", "wiki_file": "TreasureObtained.ogg", "role": "Reward obtained"},
     {"file": "capsule-draw.ogg", "wiki_file": "Snd043.ogg", "role": "Drawing a Cat Capsule"},
-    {"file": "title-theme.ogg", "wiki_file": "Snd000.ogg", "role": "Title screen music", "refresh": True},
+    {"file": "title-theme.ogg", "wiki_file": "Snd001.ogg", "role": "Title screen music", "refresh": True},
     {"file": "menu-theme.ogg", "wiki_file": "Snd002.ogg", "role": "Cat Base/main menu music", "refresh": True},
     {"file": "battle-theme.ogg", "wiki_file": "Snd003.ogg", "role": "Battle/stage background music"},
 ]
