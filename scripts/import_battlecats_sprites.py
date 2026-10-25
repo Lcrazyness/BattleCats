@@ -459,7 +459,7 @@ def build_ui_sprite_assets() -> list[str]:
                 ).astype(np.uint8) * 255
                 # Grow from the yellow fill into its white/black outline, still
                 # following the shape of the characters rather than the whole box.
-                kernel = np.ones((11, 11), dtype=np.uint8)
+                kernel = np.ones((25, 25), dtype=np.uint8)
                 glyph_mask = cv2.dilate(yellow, kernel, iterations=1)
                 stat_mask[top:bottom, left:right] = cv2.bitwise_or(
                     stat_mask[top:bottom, left:right], glyph_mask
