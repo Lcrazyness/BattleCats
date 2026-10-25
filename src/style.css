@@ -372,7 +372,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .base-rare-capsule{left:50.8%;top:68.4%;width:11.2%;height:16%}
 .base-back{left:.2%;top:84.9%;width:8%;height:15%}
 .base-store{left:54.2%;top:86%;width:19.8%;height:7.9%}
-.base-cat-food{left:74%;top:85%;width:17.5%;height:14.9%}
+.base-cat-food{left:74%;top:85%;width:15.5%;height:14.9%}
 @media(max-width:600px){
  .real-title-frame .title-play{left:30%;top:58.4%;width:40%;height:11.1%}
  .real-title-frame .title-settings{left:30%;top:72.7%;width:40%;height:10.6%}
@@ -389,5 +389,5 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
  .base-rare-capsule{left:50.8%;top:68.4%;width:11.2%;height:16%}
  .base-back{left:.2%;top:84.9%;width:8%;height:15%}
  .base-store{left:54.2%;top:86%;width:19.8%;height:7.9%}
- .base-cat-food{left:74%;top:85%;width:17.5%;height:14.9%}
+ .base-cat-food{left:74%;top:85%;width:15.5%;height:14.9%}
 }
