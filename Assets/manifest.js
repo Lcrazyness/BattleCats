@@ -16,7 +16,7 @@
     "ui.cat_food": "sprites/ui/base-cat-food.png",
     "ui.xp": null,
     "ui.mailbox": "sprites/ui/title-mailbox.png",
-    "ui.title_play": "sprites/ui/title-play.png",
+    "ui.title_play": "sprites/ui/Play_button.png",
     "ui.title_settings": "sprites/ui/title-settings.png",
     "ui.start": "sprites/ui/base-start.png",
     "ui.upgrade": "sprites/ui/base-upgrade.png",
