@@ -32,19 +32,19 @@
     {
       "file": "sounds/enter-battle.ogg",
       "wiki_file": "Snd007.ogg",
-      "role": "Entering battle",
+      "role": "Stage selection (for example, Japan) / entering battle",
       "bytes": 156612,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd007.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/victory.ogg",
-      "wiki_file": "VictoryChime.ogg",
-      "role": "Victory screen / simulated win",
-      "bytes": 124825,
-      "source_page": "https://battle-cats.fandom.com/wiki/File:VictoryChime.ogg",
-      "lookup_api": "",
+      "file": "sounds/upgrade.ogg",
+      "wiki_file": "Snd014.ogg",
+      "role": "Successful player rank or cat upgrade",
+      "bytes": 43362,
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd014.ogg",
+      "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
@@ -102,6 +102,8 @@
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     }
   ],
-  "failed_assets": [],
+  "failed_assets": [
+    "victory.ogg"
+  ],
   "note": "Audio is included for a private/unofficial fan remake prototype. The game audio is not public domain and remains the property of its rights holders."
 }
