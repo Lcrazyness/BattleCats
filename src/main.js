@@ -29,12 +29,14 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-9";
+const AUDIO_VERSION = "20261026-10";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
   door: "sounds/cat-base-door.ogg",
   enterBattle: "sounds/enter-battle.ogg",
+  stageSelect: "sounds/enter-battle.ogg",
+  upgrade: "sounds/upgrade.ogg",
   victory: "sounds/victory.ogg",
   defeat: "sounds/defeat.ogg",
   reward: "sounds/reward.ogg",
@@ -66,7 +68,7 @@ function playSfx(key) {
       soundTemplates.set(key, template);
     }
     const player = template.cloneNode();
-    player.volume = key === "door" || key === "enterBattle" ? 0.62 : 0.48;
+    player.volume = key === "door" || key === "enterBattle" || key === "stageSelect" ? 0.62 : 0.48;
     activeSfxPlayers.add(player);
     player.addEventListener("ended", () => activeSfxPlayers.delete(player), {once:true});
     const promise = player.play();
@@ -132,9 +134,12 @@ function syncMusicForScene(targetScene = scene) {
 function playActionAudio(action) {
   audioUnlocked = true;
   syncMusicForScene(scene);
+  if (action === "rank" || action.startsWith("unit:")) return;
   if (action === "go:base" && scene === "title") {
     playSfx("button");
-  } else if (["go:fight", "fight"].includes(action)) {
+  } else if (action === "go:fight") {
+    playSfx("stageSelect");
+  } else if (action === "fight") {
     playSfx("enterBattle");
   } else if (action === "win") {
     playSfx("victory");
@@ -426,6 +431,7 @@ function perform(action) {
     const cost = (unit.upgradeCost || 100)*unit.level;
     if (save.xp < cost) return notify("Not enough XP!");
     save.xp -= cost; unit.level++;
+    playSfx("upgrade");
     render(); notify(unit.name+" upgraded!");
     return;
   }
@@ -463,7 +469,7 @@ function perform(action) {
     }
     case "rank":
       if (save.xp < 500) return notify("Not enough XP!");
-      save.xp -= 500; save.level++; render(); notify("Rank increased!"); break;
+      save.xp -= 500; save.level++; playSfx("upgrade"); render(); notify("Rank increased!"); break;
     case "rare":
       if (save.rareTickets < 1) return notify("You need a Rare Ticket.");
       save.rareTickets--; recruit(true); break;
