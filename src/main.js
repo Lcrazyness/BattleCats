@@ -29,7 +29,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-2";
+const AUDIO_VERSION = "20261026-3";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -86,7 +86,7 @@ function syncMusicForScene(targetScene = scene) {
     return;
   }
 
-  const nextKey = ["battle", "stage", "fight"].includes(targetScene) ? "battle" : "menu";
+  const nextKey = ["stage", "fight"].includes(targetScene) ? "battle" : "menu";
   if (musicPlayer && currentMusicKey === nextKey && !musicPlayer.paused) return;
 
   if (musicPlayer) {
@@ -114,7 +114,7 @@ function playActionAudio(action) {
   audioUnlocked = true;
   if (action === "go:base" && scene === "title") {
     playSfx("door");
-  } else if (["go:battle", "go:fight", "fight"].includes(action)) {
+  } else if (["go:fight", "fight"].includes(action)) {
     playSfx("enterBattle");
   } else if (action === "win") {
     playSfx("victory");
@@ -153,36 +153,36 @@ const bottomBar = (back="base") =>
     '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
 const catHead = (className="") =>
-  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-2" alt="" draggable="false">';
+  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-3" alt="" draggable="false">';
 
 function renderTitle() {
   const animateButtons = titleIntroPending;
   titleIntroPending = false;
   return '<section class="screen title-screen real-title-screen">'+
     '<div class="real-title-frame">'+
-      '<img class="title-background-sprite" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-2" alt="" draggable="false">'+
-      '<button class="title-hotspot title-sprite-button title-play'+(animateButtons?' title-intro-play':'')+'" data-go="go:base" aria-label="Play"><img src="sprites/ui/Play_button.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="title-hotspot title-sprite-button title-settings'+(animateButtons?' title-intro-settings':'')+'" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png?v=20261026-2" alt="" draggable="false"></button>'+
+      '<img class="title-background-sprite" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-3" alt="" draggable="false">'+
+      '<button class="title-hotspot title-sprite-button title-play'+(animateButtons?' title-intro-play':'')+'" data-go="go:base" aria-label="Play"><img src="sprites/ui/Play_button.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-settings'+(animateButtons?' title-intro-settings':'')+'" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png?v=20261026-3" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
 function renderBase() {
   return '<section class="screen base-sprite-screen">'+
     '<div class="base-sprite-frame">'+
-      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261026-2" alt="" draggable="false">'+
-      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/missionsbutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png?v=20261026-2" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261026-2" alt="" draggable="false"></button>'+
+      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261026-3" alt="" draggable="false">'+
+      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/missionsbutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png?v=20261026-3" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261026-3" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
