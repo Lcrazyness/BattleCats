@@ -29,7 +29,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-11";
+const AUDIO_VERSION = "20261026-12";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -47,7 +47,6 @@ const MUSIC_FILES = {
   menu: "sounds/menu-theme.ogg",
   battle: "sounds/battle-theme.ogg"
 };
-const soundTemplates = new Map();
 const activeSfxPlayers = new Set();
 let audioUnlocked = false;
 let musicPlayer = null;
@@ -58,24 +57,27 @@ function audioPath(path) {
 }
 
 function playSfx(key) {
-  if (!save.sound || !audioUnlocked) return;
-  if (!SOUND_FILES[key] || typeof Audio === "undefined") return;
+  if (!save.sound || !SOUND_FILES[key] || typeof Audio === "undefined") return;
+  let player;
   try {
-    let template = soundTemplates.get(key);
-    if (!template) {
-      template = new Audio(audioPath(SOUND_FILES[key]));
-      template.preload = "auto";
-      soundTemplates.set(key, template);
-    }
-    const player = template.cloneNode();
+    player = new Audio(new URL(audioPath(SOUND_FILES[key]), document.baseURI).href);
+    player.preload = "auto";
     player.volume = key === "door" || key === "enterBattle" || key === "stageSelect" ? 0.62 : 0.48;
     activeSfxPlayers.add(player);
-    player.addEventListener("ended", () => activeSfxPlayers.delete(player), {once:true});
+    const cleanup = () => activeSfxPlayers.delete(player);
+    player.addEventListener("ended", cleanup, {once:true});
+    player.addEventListener("error", cleanup, {once:true});
     const promise = player.play();
     if (promise && typeof promise.catch === "function") {
-      promise.catch(() => activeSfxPlayers.delete(player));
+      promise.catch(error => {
+        cleanup();
+        console.warn("Battle Cats sound failed to play:", key, player.currentSrc, error);
+      });
     }
-  } catch {}
+  } catch (error) {
+    if (player) activeSfxPlayers.delete(player);
+    console.warn("Battle Cats sound could not be started:", key, error);
+  }
 }
 
 function unlockAndStartCurrentMusic() {
