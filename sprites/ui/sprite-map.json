@@ -1,7 +1,7 @@
 {
   "titleBackground": "sprites/backgrounds/title-background-clean.webp",
   "titleButtons": {
-    "title-play": "sprites/ui/title-play.png",
+    "title-play": "sprites/ui/Play_button.png",
     "title-settings": "sprites/ui/title-settings.png",
     "title-mailbox": "sprites/ui/title-mailbox.png"
   },
