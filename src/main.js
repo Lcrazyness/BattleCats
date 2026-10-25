@@ -29,6 +29,105 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
+const AUDIO_VERSION = "20261026-1";
+const SOUND_FILES = {
+  button: "sounds/button-click.ogg",
+  select: "sounds/menu-select.ogg",
+  door: "sounds/cat-base-door.ogg",
+  enterBattle: "sounds/enter-battle.ogg",
+  victory: "sounds/victory.ogg",
+  defeat: "sounds/defeat.ogg",
+  reward: "sounds/reward.ogg",
+  capsule: "sounds/capsule-draw.ogg"
+};
+const MUSIC_FILES = {
+  menu: "sounds/menu-theme.ogg",
+  battle: "sounds/battle-theme.ogg"
+};
+const soundTemplates = new Map();
+let audioUnlocked = false;
+let musicPlayer = null;
+let currentMusicKey = "";
+
+function audioPath(path) {
+  return path + "?v=" + AUDIO_VERSION;
+}
+
+function playSfx(key) {
+  if (!save.sound || !audioUnlocked || !SOUND_FILES[key] || typeof Audio === "undefined") return;
+  try {
+    let template = soundTemplates.get(key);
+    if (!template) {
+      template = new Audio(audioPath(SOUND_FILES[key]));
+      template.preload = "auto";
+      soundTemplates.set(key, template);
+    }
+    const player = template.cloneNode();
+    player.volume = key === "door" || key === "enterBattle" ? 0.62 : 0.48;
+    const promise = player.play();
+    if (promise && typeof promise.catch === "function") promise.catch(() => {});
+  } catch {}
+}
+
+function syncMusicForScene(targetScene = scene) {
+  if (!audioUnlocked || typeof Audio === "undefined") return;
+  if (!save.music) {
+    if (musicPlayer) {
+      musicPlayer.pause();
+      musicPlayer.currentTime = 0;
+    }
+    musicPlayer = null;
+    currentMusicKey = "";
+    return;
+  }
+
+  const nextKey = ["battle", "stage", "fight"].includes(targetScene) ? "battle" : "menu";
+  if (musicPlayer && currentMusicKey === nextKey && !musicPlayer.paused) return;
+
+  if (musicPlayer) {
+    musicPlayer.pause();
+    musicPlayer.currentTime = 0;
+  }
+  musicPlayer = new Audio(audioPath(MUSIC_FILES[nextKey]));
+  musicPlayer.loop = true;
+  musicPlayer.preload = "auto";
+  musicPlayer.volume = 0.24;
+  currentMusicKey = nextKey;
+  const activePlayer = musicPlayer;
+  const promise = activePlayer.play();
+  if (promise && typeof promise.catch === "function") {
+    promise.catch(() => {
+      if (musicPlayer === activePlayer) {
+        musicPlayer = null;
+        currentMusicKey = "";
+      }
+    });
+  }
+}
+
+function playActionAudio(action) {
+  audioUnlocked = true;
+  if (action === "go:base" && scene === "title") {
+    playSfx("door");
+  } else if (["go:battle", "go:fight", "fight"].includes(action)) {
+    playSfx("enterBattle");
+  } else if (action === "win") {
+    playSfx("victory");
+  } else if (action === "lose") {
+    playSfx("defeat");
+  } else if (action === "rare" || action === "normal") {
+    playSfx("capsule");
+  } else if (["collect", "daily", "dailyfood", "mission", "mailgift"].includes(action)) {
+    playSfx("reward");
+  } else if (action.startsWith("go:") || action.startsWith("stage:")) {
+    playSfx("select");
+  } else {
+    playSfx("button");
+  }
+
+  const nextScene = action.startsWith("go:") ? action.slice(3) : scene;
+  syncMusicForScene(nextScene);
+}
 const gold = (label, action, small=false) =>
   '<button class="gold-button'+(small?' small':'')+'" data-go="'+action+'">'+label+'</button>';
 const headBar = (label) =>
@@ -40,36 +139,36 @@ const bottomBar = (back="base") =>
     '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
 const catHead = (className="") =>
-  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261025-13" alt="" draggable="false">';
+  '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-1" alt="" draggable="false">';
 
 function renderTitle() {
   const animateButtons = titleIntroPending;
   titleIntroPending = false;
   return '<section class="screen title-screen real-title-screen">'+
     '<div class="real-title-frame">'+
-      '<img class="title-background-sprite" src="sprites/backgrounds/titlescreenmenu.png?v=20261025-13" alt="" draggable="false">'+
-      '<button class="title-hotspot title-sprite-button title-play'+(animateButtons?' title-intro-play':'')+'" data-go="go:base" aria-label="Play"><img src="sprites/ui/Play_button.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="title-hotspot title-sprite-button title-settings'+(animateButtons?' title-intro-settings':'')+'" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png?v=20261025-13" alt="" draggable="false"></button>'+
+      '<img class="title-background-sprite" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-1" alt="" draggable="false">'+
+      '<button class="title-hotspot title-sprite-button title-play'+(animateButtons?' title-intro-play':'')+'" data-go="go:base" aria-label="Play"><img src="sprites/ui/Play_button.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-settings'+(animateButtons?' title-intro-settings':'')+'" data-go="go:settings" aria-label="Settings"><img src="sprites/ui/title-settings.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="title-hotspot title-sprite-button title-mailbox" data-go="go:mailbox" aria-label="Mailbox"><img src="sprites/ui/title-mailbox.png?v=20261026-1" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
 function renderBase() {
   return '<section class="screen base-sprite-screen">'+
     '<div class="base-sprite-frame">'+
-      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261025-13" alt="" draggable="false">'+
-      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/missionsbutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png?v=20261025-13" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261025-13" alt="" draggable="false"></button>'+
+      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261026-1" alt="" draggable="false">'+
+      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/missionsbutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Cat Capsule"><img src="sprites/ui/base-cat-capsule.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img src="sprites/ui/base-rare-capsule.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png?v=20261026-1" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261026-1" alt="" draggable="false"></button>'+
     '</div>'+
   '</section>';
 }
@@ -229,6 +328,7 @@ function render() {
     icon.addEventListener("error", () => { icon.src = "sprites/original_sheets/cat-base-menu-icon.webp"; }, {once:true});
   });
   persist();
+  syncMusicForScene();
 }
 function navigate(next) {
   if (navigationTimer !== null) {
@@ -367,7 +467,11 @@ function perform(action) {
 }
 stage.addEventListener("click", event=>{
   const button = event.target.closest("[data-go]");
-  if (button) perform(button.dataset.go);
+  if (button) {
+    const action = button.dataset.go;
+    playActionAudio(action);
+    perform(action);
+  }
 });
 document.addEventListener("keydown", event=>{
   if (event.key==="Escape") {
