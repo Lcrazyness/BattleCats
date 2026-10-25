@@ -345,8 +345,8 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   background:#f7e8ee;
 }
 .base-sprite-frame{
-  position:relative;flex:0 0 auto;width:min(100vw,179.31dvh);height:min(100dvh,55.77vw);
-  aspect-ratio:1664/928;overflow:hidden;background:#f7e8ee;
+  position:relative;flex:0 0 auto;width:min(100vw,200dvh);height:min(100dvh,50vw);
+  aspect-ratio:2/1;overflow:hidden;background:#f7e8ee;
 }
 .base-background-sprite{
   position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-drag:none;
@@ -377,7 +377,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
  .real-title-frame .title-play{left:30%;top:58.4%;width:40%;height:11.1%}
  .real-title-frame .title-settings{left:30%;top:72.7%;width:40%;height:10.6%}
  .real-title-frame .title-sprite-button.title-mailbox{left:87.5%;top:81.4%;width:11.7%;height:16.6%}
- .base-sprite-frame{width:min(100vw,179.31dvh);height:min(100dvh,55.77vw)}
+ .base-sprite-frame{width:min(100vw,200dvh);height:min(100dvh,50vw)}
  .base-start{left:1.6%;top:21.9%;width:31%;height:10.4%}
  .base-upgrade{left:1.6%;top:35.6%;width:31%;height:10.2%}
  .base-equip{left:1.6%;top:48.5%;width:31%;height:10.1%}
