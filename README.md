@@ -35,6 +35,8 @@ This is an unofficial fan project, not affiliated with or endorsed by PONOS. Ori
 
 ## Audio
 
-The current build uses local files in \`sounds/\` for button clicks, menu selection, the Cat Base door, battle entry, capsule draws, rewards, and victory/defeat cues. The **Sound Effects** and **Music** toggles in Settings control the corresponding playback. Menu music and battle music loop separately. Browsers block autoplay, so audio starts after the first player click.
+The build uses local audio files in the sounds folder. The title screen uses title-theme.ogg (Snd001); the Cat Base and regular menus use menu-theme.ogg (Snd000); the battle preview uses battle-theme.ogg (Snd003). Button clicks use the standard Battle Cats button-press sound, not the Cat Base door sound.
 
-Audio files are sourced from the community [Battle Cats Wiki Music page](https://battle-cats.fandom.com/wiki/Music); the source file pages are recorded in \`sounds/source-index.json\`. These are copyrighted game assets, not public-domain audio.
+The Sound Effects and Music toggles in Settings control playback. Music begins after the first player interaction because browsers block autoplay before user input. Music changes with the current screen.
+
+Audio sources are recorded in sounds/source-index.json and come from community Battle Cats Wiki file pages. These game assets are copyrighted and are not public-domain audio.
