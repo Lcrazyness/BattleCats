@@ -435,37 +435,33 @@ def build_ui_sprite_assets() -> list[str]:
         cleaned = cv2.inpaint(bgr, mask, 4, cv2.INPAINT_TELEA)
 
         if image.size == base.size:
-            # Detect only yellow number glyphs; do not erase a rectangular HUD
-            # patch because the Cat Base character can extend behind the footer.
-            stat_mask = np.zeros((h, w), dtype=np.uint8)
-            number_boxes = (
-                (0.875, 0.000, 0.999, 0.082),  # XP digits
-                (0.895, 0.720, 0.999, 0.999),  # Cat Food digits
+            # Clear the old screenshot values by extending the adjacent clean HUD
+            # background horizontally across the number field. The result stays
+            # inside the flat top/footer panels, so the cat and other icons remain
+            # untouched. We then draw one zero directly into this exported image.
+            result_rgb = cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB)
+            w = image.width
+            h = image.height
+            resource_fields = (
+                # (field left, field top, field right, field bottom, sample left, sample right)
+                (0.880, 0.000, 0.999, 0.082, 0.855, 0.875),  # XP HUD number strip
+                (0.910, 0.730, 0.999, 0.999, 0.890, 0.905),  # Cat Food footer number strip
             )
-            for box in number_boxes:
-                left, top, right, bottom = box_pixels(box, image.size)
-                region_bgr = cleaned[top:bottom, left:right]
-                region_rgb = cv2.cvtColor(region_bgr, cv2.COLOR_BGR2RGB)
-                red = region_rgb[:, :, 0].astype(np.int16)
-                green = region_rgb[:, :, 1].astype(np.int16)
-                blue = region_rgb[:, :, 2].astype(np.int16)
-                # Bright yellow fill used by the large resource digits.
-                yellow = (
-                    (red > 175) &
-                    (green > 105) &
-                    (blue < 135) &
-                    ((red - green) > 12) &
-                    ((green - blue) > 70)
-                ).astype(np.uint8) * 255
-                # Grow from the yellow fill into its white/black outline, still
-                # following the shape of the characters rather than the whole box.
-                kernel = np.ones((25, 25), dtype=np.uint8)
-                glyph_mask = cv2.dilate(yellow, kernel, iterations=1)
-                stat_mask[top:bottom, left:right] = cv2.bitwise_or(
-                    stat_mask[top:bottom, left:right], glyph_mask
+            for field_left, field_top, field_right, field_bottom, sample_left, sample_right in resource_fields:
+                left, top, right, bottom = box_pixels(
+                    (field_left, field_top, field_right, field_bottom), image.size
                 )
-            cleaned = cv2.inpaint(cleaned, stat_mask, 6, cv2.INPAINT_TELEA)
-            result = Image.fromarray(cv2.cvtColor(cleaned, cv2.COLOR_BGR2RGB))
+                sample_x1 = max(0, round(sample_left * w))
+                sample_x2 = min(w, round(sample_right * w))
+                for y in range(top, bottom):
+                    swatch = result_rgb[y, sample_x1:sample_x2, :]
+                    if swatch.size == 0:
+                        continue
+                    # Median preserves each row's local color/gradient without
+                    # cloning any text or icon from the surrounding HUD.
+                    color = np.median(swatch, axis=0).astype(np.uint8)
+                    result_rgb[y, left:right, :] = color
+            result = Image.fromarray(result_rgb)
             draw = ImageDraw.Draw(result)
             try:
                 from PIL import ImageFont
