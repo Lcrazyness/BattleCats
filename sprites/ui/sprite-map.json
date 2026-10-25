@@ -1,5 +1,5 @@
 {
-  "titleBackground": "sprites/backgrounds/title-background-clean.webp",
+  "titleBackground": "sprites/backgrounds/titlescreenmenu.png",
   "titleButtons": {
     "title-play": "sprites/ui/Play_button.png",
     "title-settings": "sprites/ui/title-settings.png",
@@ -11,8 +11,8 @@
     "base-upgrade": "sprites/ui/upgradebutton.png",
     "base-equip": "sprites/ui/equipbutton.png",
     "base-menu": "sprites/ui/menubutton.png",
-    "base-gamatoto": "sprites/ui/base-gamatoto.png",
-    "base-missions": "sprites/ui/base-missions.png",
+    "base-gamatoto": "sprites/ui/gamatotobutton.png",
+    "base-missions": "sprites/ui/missionsbutton.png",
     "base-storage": "sprites/ui/base-storage.png",
     "base-cat-capsule": "sprites/ui/base-cat-capsule.png",
     "base-rare-capsule": "sprites/ui/base-rare-capsule.png",
