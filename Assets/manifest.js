@@ -22,7 +22,7 @@
     "ui.upgrade": "sprites/ui/base-upgrade.png",
     "ui.equip": "sprites/ui/base-equip.png",
     "bg.title": "sprites/backgrounds/title-background-clean.webp",
-    "bg.base": "sprites/backgrounds/cat-base-background-clean.webp",
+    "bg.base": "sprites/backgrounds/bg_restored.png",
     "sprites.cat_icon": "sprites/original_sheets/normal-cat-right-icon.webp",
     "sprites.cat_base_icon": "sprites/original_sheets/cat-base-menu-icon.webp"
   }
