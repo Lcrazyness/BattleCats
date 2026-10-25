@@ -415,6 +415,21 @@ def build_ui_sprite_assets() -> list[str]:
             rgba.putalpha(alpha)
         elif shape == "flood":
             rgba = flood_alpha(crop, flood_mode)
+        elif shape == "mailbox":
+            rgba = crop.convert("RGBA")
+            alpha = Image.new("L", rgba.size, 0)
+            draw = ImageDraw.Draw(alpha)
+            w, h = rgba.size
+            outline = [
+                (0.22*w,0.08*h),(0.37*w,0.02*h),(0.55*w,0.04*h),
+                (0.69*w,0.15*h),(0.82*w,0.07*h),(0.97*w,0.16*h),
+                (0.99*w,0.53*h),(0.90*w,0.65*h),(0.94*w,0.74*h),
+                (0.87*w,0.88*h),(0.74*w,0.96*h),(0.22*w,0.96*h),
+                (0.08*w,0.88*h),(0.03*w,0.75*h),(0.10*w,0.63*h),
+                (0.02*w,0.52*h),(0.05*w,0.25*h),(0.13*w,0.14*h)
+            ]
+            draw.polygon(outline, fill=255)
+            rgba.putalpha(alpha)
         else:
             rgba = crop.convert("RGBA")
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -463,10 +478,10 @@ def build_ui_sprite_assets() -> list[str]:
     title_boxes = {
         "title-play": (0.300, 0.584, 0.700, 0.695),
         "title-settings": (0.300, 0.727, 0.700, 0.833),
-        "title-mailbox": (0.881, 0.824, 0.986, 0.971),
+        "title-mailbox": (0.875, 0.814, 0.992, 0.980),
     }
     for name, box in title_boxes.items():
-        shape = "flood" if name == "title-mailbox" else "round"
+        shape = "mailbox" if name == "title-mailbox" else "round"
         flood_mode = "mailbox" if name == "title-mailbox" else "base"
         crop_save(title, box, ui_dir / f"{name}.png", shape, flood_mode)
     clean_background_with_sprites(title, title_boxes, bg_dir / "title-background-clean.webp")
@@ -477,15 +492,15 @@ def build_ui_sprite_assets() -> list[str]:
         "base-start": ((0.016, 0.219, 0.326, 0.323), "round", "base"),
         "base-upgrade": ((0.016, 0.356, 0.326, 0.458), "round", "base"),
         "base-equip": ((0.016, 0.485, 0.326, 0.586), "round", "base"),
-        "base-menu": ((0.030, 0.632, 0.113, 0.755), "flood", "base"),
-        "base-gamatoto": ((0.123, 0.626, 0.220, 0.755), "flood", "base"),
-        "base-missions": ((0.226, 0.626, 0.311, 0.755), "flood", "base"),
-        "base-storage": ((0.338, 0.695, 0.420, 0.833), "flood", "base"),
-        "base-cat-capsule": ((0.430, 0.695, 0.517, 0.833), "flood", "base"),
-        "base-rare-capsule": ((0.522, 0.695, 0.609, 0.833), "flood", "base"),
+        "base-menu": ((0.020, 0.615, 0.122, 0.771), "flood", "base"),
+        "base-gamatoto": ((0.112, 0.610, 0.231, 0.771), "flood", "base"),
+        "base-missions": ((0.215, 0.610, 0.322, 0.771), "flood", "base"),
+        "base-storage": ((0.326, 0.684, 0.432, 0.844), "flood", "base"),
+        "base-cat-capsule": ((0.417, 0.684, 0.530, 0.844), "flood", "base"),
+        "base-rare-capsule": ((0.508, 0.684, 0.620, 0.844), "flood", "base"),
         "base-back": ((0.002, 0.849, 0.082, 0.999), "round", "base"),
         "base-store": ((0.542, 0.860, 0.740, 0.939), "round", "base"),
-        "base-cat-food": ((0.748, 0.860, 0.904, 0.994), "flood", "base"),
+        "base-cat-food": ((0.740, 0.850, 0.915, 0.999), "flood", "base"),
     }
     for name, (box, shape, mode) in base_sprites.items():
         crop_save(base, box, ui_dir / f"{name}.png", shape, mode)
