@@ -17,7 +17,7 @@ A browser-based Battle Cats menu fan remake using local screenshots, individual 
 - src/style.css — responsive screen sizing and placement of individual menu sprites.
 - src/main.js — screen navigation, sprite elements, and local save.
 - sprites/ui/ — individual cropped button and icon images.
-- sprites/backgrounds/ — local title and Cat Base backgrounds with their separate button regions removed.
+- sprites/backgrounds/ — local title background and `bg_restored.png`, the current Cat Base background.
 - sprites/original_sheets/ — locally bundled Battle Cats Wiki source images.
 - sprites/ui/sprite-map.json — generated map of button sprite paths.
 - scripts/import_battlecats_sprites.py — downloads source images and crops the UI components.
