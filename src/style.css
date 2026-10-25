@@ -361,9 +361,9 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 .base-sprite-button:hover{filter:brightness(1.06);transform:scale(1.025)}
 .base-sprite-button:active{filter:brightness(.92);transform:scale(.99)}
-.base-start{left:2.2%;top:15%;width:30%;height:11.3%}
-.base-upgrade{left:2.2%;top:30.2%;width:30%;height:11.2%}
-.base-equip{left:2.2%;top:45.5%;width:30%;height:11.2%}
+.base-start{left:4.2%;top:32%;width:28%;height:8.5%}
+.base-upgrade{left:4.2%;top:41.2%;width:28%;height:8.5%}
+.base-equip{left:4.2%;top:50.4%;width:28%;height:8.5%}
 .base-menu{left:2%;top:61.5%;width:10.2%;height:15.6%}
 .base-gamatoto{left:11.2%;top:61%;width:11.9%;height:16.1%}
 .base-missions{left:21.5%;top:61%;width:10.7%;height:16.1%}
@@ -378,9 +378,9 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
  .real-title-frame .title-settings{left:30%;top:72.7%;width:40%;height:10.6%}
  .real-title-frame .title-sprite-button.title-mailbox{left:87.5%;top:81.4%;width:11.7%;height:16.6%}
  .base-sprite-frame{width:min(100vw,166.087dvh);height:min(100dvh,60.21vw)}
- .base-start{left:2.2%;top:15%;width:30%;height:11.3%}
- .base-upgrade{left:2.2%;top:30.2%;width:30%;height:11.2%}
- .base-equip{left:2.2%;top:45.5%;width:30%;height:11.2%}
+ .base-start{left:4.2%;top:32%;width:28%;height:8.5%}
+ .base-upgrade{left:4.2%;top:41.2%;width:28%;height:8.5%}
+ .base-equip{left:4.2%;top:50.4%;width:28%;height:8.5%}
  .base-menu{left:2%;top:61.5%;width:10.2%;height:15.6%}
  .base-gamatoto{left:11.2%;top:61%;width:11.9%;height:16.1%}
  .base-missions{left:21.5%;top:61%;width:10.7%;height:16.1%}
