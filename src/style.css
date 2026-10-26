@@ -482,3 +482,50 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     animation-delay: 0ms !important;
   }
 }
+
+
+/* Clickable capsule sprites for the Rare and Normal Cat Capsule menus. */
+.capsule-sprite-options{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  align-items:start;
+  margin:14px auto;
+  width:100%;
+  max-width:620px;
+}
+.capsule-sprite-button{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  min-width:0;
+  padding:8px;
+  border:2px solid #8a552c;
+  border-radius:10px;
+  background:linear-gradient(#fff2c8,#e8b96e);
+  color:#4d2818;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 3px 0 #774022;
+}
+.capsule-sprite-button img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:260px;
+  object-fit:contain;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.capsule-sprite-button span{
+  font-size:clamp(10px,2.4vw,14px);
+  text-align:center;
+}
+.capsule-sprite-button:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.capsule-sprite-button:active{transform:translateY(2px);box-shadow:0 1px 0 #774022}
+@media(max-width:420px){
+  .capsule-sprite-options{gap:6px}
+  .capsule-sprite-button{padding:5px;border-radius:7px}
+}
