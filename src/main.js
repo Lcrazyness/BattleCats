@@ -166,6 +166,7 @@ function playActionAudio(action) {
   }
 
   if (action === "go:base" && scene === "title") {
+    playSfx("button");
     playSfx("door");
   } else if (action === "go:base" || action === "go:battle" || action === "go:title") {
     playSfx("back");
