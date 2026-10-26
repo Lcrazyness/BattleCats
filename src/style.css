@@ -550,7 +550,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .capsule-option-action{padding:6px;font-size:10px}
 }
 
-/* Draw the capsule icons as explicit overlay layers on Cat Base buttons. */
+/* Enlarge the capsule icons in Cat Base without changing their click areas. */
 .base-sprite-button.base-cat-capsule::after,
 .base-sprite-button.base-rare-capsule::after {
   content:"";
@@ -559,8 +559,8 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   left:50%;
   top:50%;
   display:block;
-  width:58%;
-  height:58%;
+  width:80%;
+  height:80%;
   transform:translate(-50%,-50%);
   background-position:center;
   background-repeat:no-repeat;
@@ -568,10 +568,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   pointer-events:none;
 }
 .base-sprite-button.base-cat-capsule::after {
-  background-image:url("../sprites/ui/Normalcapsule.png?v=20261026-22");
+  background-image:url("../sprites/ui/Normalcapsule.png?v=20261026-27");
 }
 .base-sprite-button.base-rare-capsule::after {
-  background-image:url("../sprites/ui/rarecapsules.png?v=20261026-22");
+  background-image:url("../sprites/ui/rarecapsules.png?v=20261026-27");
 }
 
 /* These illustrated Cat Base capsule buttons should not show the generic keyboard focus box. */
@@ -612,7 +612,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .base-storage,
 .base-cat-capsule,
 .base-rare-capsule {
-  top:74%;
+  top:76.5%;
 }
 .base-sprite-button.base-storage img {
   width:70%;
@@ -620,7 +620,60 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 .base-backboard-sprite {
   left:33.9%;
-  top:77.3%;
+  top:79.8%;
   width:26.8%;
   height:9.4%;
+}
+
+/* The new Cat Food icon sits beside the player's saved Cat Food balance. */
+.base-sprite-button.base-cat-food {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:2%;
+  overflow:visible;
+}
+.base-sprite-button.base-cat-food .base-cat-food-icon {
+  display:block;
+  flex:0 0 43%;
+  width:43%;
+  height:76%;
+  object-fit:contain;
+  position:static;
+}
+.base-sprite-button.base-cat-food .base-cat-food-count {
+  flex:1 1 auto;
+  min-width:0;
+  color:#fff8db;
+  font-family:Impact,"Arial Narrow","Liberation Sans Narrow",sans-serif;
+  font-size:clamp(16px,2.35vw,30px);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-.025em;
+  text-align:left;
+  white-space:nowrap;
+  -webkit-text-stroke:1.5px #392014;
+  paint-order:stroke fill;
+  text-shadow:1.5px 2px 0 #392014,-1px -1px 0 #392014;
+}
+
+/* Move the Store button down with the lower Cat Base controls. */
+.base-store {
+  top:88.5%;
+}
+
+/* Subtle, slow vertical drift on the Cat Base background. */
+.base-background-sprite {
+  transform-origin:center;
+  animation:cat-base-background-drift 7s ease-in-out infinite;
+}
+@keyframes cat-base-background-drift {
+  0%,100% { transform:translateY(-.35%) scale(1.025); }
+  50% { transform:translateY(.35%) scale(1.025); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .base-background-sprite {
+    animation:none;
+    transform:scale(1.025);
+  }
 }
