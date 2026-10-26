@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-16";
+const AUDIO_VERSION = "20261026-17";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -57,6 +57,7 @@ const MUSIC_FILES = {
   battle: "sounds/battle-theme.ogg"
 };
 const activeSfxPlayers = new Set();
+let battleStartPlayer = null;
 let audioUnlocked = false;
 let musicPlayer = null;
 let currentMusicKey = "";
@@ -76,7 +77,14 @@ function playSfx(key) {
     player.preload = "auto";
     player.volume = key === "door" || key === "enterBattle" || key === "stageSelect" ? 0.62 : 0.48;
     activeSfxPlayers.add(player);
-    const cleanup = () => activeSfxPlayers.delete(player);
+    const cleanup = () => {
+      activeSfxPlayers.delete(player);
+      if ((key === "enterBattle" || key === "stageSelect") && battleStartPlayer === player) {
+        battleStartPlayer = null;
+        if (scene === "fight") syncMusicForScene("fight");
+      }
+    };
+    if (key === "enterBattle" || key === "stageSelect") battleStartPlayer = player;
     player.addEventListener("ended", cleanup, {once:true});
     player.addEventListener("error", () => {
       cleanup();
@@ -118,6 +126,17 @@ function syncMusicForScene(targetScene = scene) {
   }
 
   const nextKey = targetScene === "title" ? "title" : targetScene === "fight" ? "battle" : "menu";
+
+  // Let the battle-entry sound finish before starting the battle theme.
+  if (targetScene === "fight" && battleStartPlayer && !battleStartPlayer.ended) {
+    if (musicPlayer) {
+      musicPlayer.pause();
+      musicPlayer.currentTime = 0;
+    }
+    musicPlayer = null;
+    currentMusicKey = "";
+    return;
+  }
 
   // Keep the current track running while navigating between menus within the same area.
   // Only replace it when the major area changes (title, menus/base, or battle).
