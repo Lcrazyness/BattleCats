@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-19";
+const AUDIO_VERSION = "20261026-20";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -287,10 +287,18 @@ function renderTreasure() {
 }
 function renderGeneric(key) {
   if (key === "capsules") {
-    const body = pageCopy("Choose a capsule to draw. You have " + save.rareTickets + " Rare Ticket(s) and " + save.normalTickets + " Normal Ticket(s).") +
+    const body = pageCopy("Choose a capsule to draw. Your ticket count is shown on each option.") +
       '<div class="capsule-sprite-options">' +
-        '<button class="capsule-sprite-button" data-go="rare" aria-label="Draw Rare Cat Capsule"><img src="sprites/ui/rarecapsule.png?v=20261026-19" alt="Rare Cat Capsule" draggable="false"><span>RARE TICKETS: '+save.rareTickets+'</span></button>' +
-        '<button class="capsule-sprite-button" data-go="normal" aria-label="Draw Normal Cat Capsule"><img src="sprites/ui/Normalcapsule.png?v=20261026-19" alt="Normal Cat Capsule" draggable="false"><span>NORMAL TICKETS: '+save.normalTickets+'</span></button>' +
+        '<button class="capsule-sprite-button" data-go="rare" aria-label="Draw Rare Cat Capsule">' +
+          '<img class="capsule-option-icon" src="sprites/ui/rarecapsules.png?v=20261026-20" alt="" draggable="false">' +
+          '<span class="capsule-option-copy"><strong>Rare Cat Capsule</strong><small>RARE TICKETS: '+save.rareTickets+'</small></span>' +
+          '<span class="capsule-option-action">DRAW</span>' +
+        '</button>' +
+        '<button class="capsule-sprite-button" data-go="normal" aria-label="Draw Normal Cat Capsule">' +
+          '<img class="capsule-option-icon" src="sprites/ui/Normalcapsule.png?v=20261026-20" alt="" draggable="false">' +
+          '<span class="capsule-option-copy"><strong>Normal Cat Capsule</strong><small>NORMAL TICKETS: '+save.normalTickets+'</small></span>' +
+          '<span class="capsule-option-action">DRAW</span>' +
+        '</button>' +
       '</div>';
     return renderWindow("Cat Capsules", body, "base");
   }
