@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-21";
+const AUDIO_VERSION = "20261026-22";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -210,8 +210,8 @@ function renderBase() {
       '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-missions" data-go="go:missions" aria-label="Missions"><img src="sprites/ui/missionsbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-storage" data-go="go:storage" aria-label="Storage"><img src="sprites/ui/base-storage.png?v=20261026-9" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Normal Cat Capsule"><img class="base-button-frame" src="sprites/ui/base-cat-capsule.png?v=20261026-9" alt="" draggable="false"><img class="base-button-icon base-button-normal-icon" src="sprites/ui/Normalcapsule.png?v=20261026-21" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img class="base-button-frame" src="sprites/ui/base-rare-capsule.png?v=20261026-9" alt="" draggable="false"><img class="base-button-icon base-button-rare-icon" src="sprites/ui/rarecapsules.png?v=20261026-21" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-capsule" data-go="go:capsules" aria-label="Normal Cat Capsule"><img class="base-button-frame" src="sprites/ui/base-cat-capsule.png?v=20261026-9" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"><img class="base-button-frame" src="sprites/ui/base-rare-capsule.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/base-store.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261026-9" alt="" draggable="false"></button>'+
