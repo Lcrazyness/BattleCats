@@ -580,3 +580,18 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   outline:0;
   outline-offset:0;
 }
+
+
+/* Wooden board behind the Storage and capsule buttons on Cat Base. */
+.base-backboard-sprite {
+  position:absolute;
+  z-index:8;
+  left:31.5%;
+  top:67.1%;
+  width:31%;
+  height:18.2%;
+  object-fit:fill;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
