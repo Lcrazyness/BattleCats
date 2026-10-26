@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-15";
+const AUDIO_VERSION = "20261026-16";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -499,6 +499,7 @@ stage.addEventListener("click", event => {
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
   const action = button.dataset.go || "";
+  const isStageChoice = scene === "stage" && Boolean(button.closest(".game-row"));
   prepareAudioForAction();
 
   if (action === "sound" && !save.sound) {
@@ -507,7 +508,7 @@ stage.addEventListener("click", event => {
     return;
   }
 
-  playSfx("button");
+  playSfx(isStageChoice ? "enterBattle" : "button");
   if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
