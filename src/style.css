@@ -484,48 +484,68 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 
-/* Clickable capsule sprites for the Rare and Normal Cat Capsule menus. */
+/* Compact capsule icons inside the Rare and Normal draw buttons. */
 .capsule-sprite-options{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  align-items:start;
-  margin:14px auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
   width:100%;
-  max-width:620px;
+  max-width:540px;
+  margin:14px auto;
 }
 .capsule-sprite-button{
   display:flex;
-  flex-direction:column;
   align-items:center;
-  justify-content:flex-start;
-  gap:8px;
+  gap:12px;
+  width:100%;
   min-width:0;
-  padding:8px;
+  padding:10px 12px;
   border:2px solid #8a552c;
-  border-radius:10px;
+  border-radius:9px;
   background:linear-gradient(#fff2c8,#e8b96e);
   color:#4d2818;
-  font-weight:900;
+  text-align:left;
   cursor:pointer;
   box-shadow:0 3px 0 #774022;
 }
-.capsule-sprite-button img{
+.capsule-option-icon{
   display:block;
-  width:100%;
-  height:auto;
-  max-height:260px;
+  flex:0 0 64px;
+  width:64px;
+  height:64px;
   object-fit:contain;
   user-select:none;
   -webkit-user-drag:none;
 }
-.capsule-sprite-button span{
-  font-size:clamp(10px,2.4vw,14px);
-  text-align:center;
+.capsule-option-copy{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  gap:5px;
+  min-width:0;
+}
+.capsule-option-copy strong{
+  font-size:clamp(14px,2.5vw,18px);
+  line-height:1.15;
+}
+.capsule-option-copy small{
+  font-size:clamp(10px,2vw,12px);
+  line-height:1.25;
+}
+.capsule-option-action{
+  flex:0 0 auto;
+  padding:7px 10px;
+  border:1px solid #75401f;
+  border-radius:5px;
+  background:#7d321d;
+  color:#fff0c6;
+  font-size:12px;
+  font-weight:900;
 }
 .capsule-sprite-button:hover{filter:brightness(1.06);transform:translateY(-1px)}
 .capsule-sprite-button:active{transform:translateY(2px);box-shadow:0 1px 0 #774022}
 @media(max-width:420px){
-  .capsule-sprite-options{gap:6px}
-  .capsule-sprite-button{padding:5px;border-radius:7px}
+  .capsule-sprite-button{gap:8px;padding:8px}
+  .capsule-option-icon{flex-basis:48px;width:48px;height:48px}
+  .capsule-option-action{padding:6px;font-size:10px}
 }
