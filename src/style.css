@@ -615,8 +615,8 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   top:74%;
 }
 .base-sprite-button.base-storage img {
-  width:48%;
-  height:48%;
+  width:70%;
+  height:70%;
 }
 .base-backboard-sprite {
   left:33.9%;
