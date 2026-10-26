@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-14";
+const AUDIO_VERSION = "20261026-15";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -150,56 +150,9 @@ function syncMusicForScene(targetScene = scene) {
   }
 }
 
-function playActionAudio(action) {
+function prepareAudioForAction() {
   audioUnlocked = true;
   syncMusicForScene(scene);
-
-  if (action === "rank") {
-    if (save.xp < 500) playSfx("blocked");
-    return;
-  }
-  if (action.startsWith("unit:")) {
-    const unit = save.units[Number(action.split(":")[1])];
-    const cost = unit ? (unit.upgradeCost || 100) * unit.level : Infinity;
-    if (!unit || save.xp < cost) playSfx("blocked");
-    return;
-  }
-
-  if (action === "go:base" && scene === "title") {
-    playSfx("button");
-    playSfx("door");
-  } else if (action === "go:base" || action === "go:battle" || action === "go:title") {
-    playSfx("back");
-  } else if (action === "go:fight" || action === "fight") {
-    playSfx("enterBattle");
-  } else if (action === "win") {
-    playSfx("victory");
-  } else if (action === "lose") {
-    playSfx("defeat");
-  } else if (action === "locked" || action === "daily" && !save.missions ||
-             (action === "rare" && save.rareTickets < 1) ||
-             (action === "normal" && save.normalTickets < 1) ||
-             (action === "mailgift" && !save.mail)) {
-    playSfx("blocked");
-  } else if (action === "mailgift" && save.mail) {
-    playSfx("loginReward");
-  } else if (
-    (action === "rare" && save.rareTickets > 0) ||
-    (action === "normal" && save.normalTickets > 0)
-  ) {
-    playSfx("capsule");
-  } else if (
-    action === "collect" ||
-    action === "dailyfood" ||
-    action === "mission" ||
-    (action === "daily" && save.missions > 0)
-  ) {
-    playSfx("reward");
-  } else if (action.startsWith("stage:")) {
-    playSfx("select");
-  } else {
-    playSfx("button");
-  }
 }
 
 const gold = (label, action, small=false) =>
@@ -493,7 +446,9 @@ function perform(action) {
   }
   switch(action) {
     case "fight": navigate("fight"); break;
+    case "lose": playSfx("defeat"); navigate("battle"); break;
     case "win": {
+      playSfx("victory");
       save.xp += 250; save.missions = (save.missions||0)+1; save.stageClears = (save.stageClears||0)+1;
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
       let reward = "Victory! +250 XP";
@@ -509,23 +464,23 @@ function perform(action) {
       save.xp -= 500; save.level++; playSfx("upgrade"); render(); notify("Rank increased!"); break;
     case "rare":
       if (save.rareTickets < 1) return notify("You need a Rare Ticket.");
-      save.rareTickets--; recruit(true); break;
+      save.rareTickets--; playSfx("capsule"); recruit(true); break;
     case "normal":
       if (save.normalTickets < 1) return notify("You need a Normal Ticket.");
-      save.normalTickets--; recruit(false); break;
+      save.normalTickets--; playSfx("capsule"); recruit(false); break;
     case "daily":
       if (save.missions < 1) return notify("Complete a stage first!");
-      save.missions = 0; save.xp += 300; render(); notify("Mission reward: +300 XP"); break;
+      save.missions = 0; save.xp += 300; playSfx("reward"); render(); notify("Mission reward: +300 XP"); break;
     case "dailyfood":
-      save.catFood += 1; render(); notify("+1 Cat Food"); break;
+      save.catFood += 1; playSfx("reward"); render(); notify("+1 Cat Food"); break;
     case "mission":
-      save.xp += 100; save.missions = (save.missions||0)+1; render(); notify("Mission complete! +100 XP"); break;
+      save.xp += 100; save.missions = (save.missions||0)+1; playSfx("reward"); render(); notify("Mission complete! +100 XP"); break;
     case "mailgift":
       if (!save.mail) return notify("You have already claimed this gift.");
-      save.mail = 0; save.xp += 1000; render(); notify("Welcome gift claimed: +1,000 XP"); break;
+      save.mail = 0; save.xp += 1000; playSfx("loginReward"); render(); notify("Welcome gift claimed: +1,000 XP"); break;
     case "expedition": notify("Gamatoto has left on an expedition."); break;
     case "collect":
-      save.xp += 100; render(); notify("Collected a demo reward: +100 XP"); break;
+      save.xp += 100; playSfx("reward"); render(); notify("Collected a demo reward: +100 XP"); break;
     case "save": persist(); notify("Game saved on this device."); break;
     case "reset":
       if (confirm("Reset all local demo progress? This cannot be undone.")) {
@@ -540,13 +495,20 @@ function perform(action) {
     default: notify("Coming soon!");
   }
 }
-stage.addEventListener("click", event=>{
-  const button = event.target.closest("[data-go]");
-  if (button) {
-    const action = button.dataset.go;
-    playActionAudio(action);
+stage.addEventListener("click", event => {
+  const button = event.target.closest("button");
+  if (!button || !stage.contains(button)) return;
+  const action = button.dataset.go || "";
+  prepareAudioForAction();
+
+  if (action === "sound" && !save.sound) {
     perform(action);
+    playSfx("button");
+    return;
   }
+
+  playSfx("button");
+  if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
   if (event.key==="Escape") {
