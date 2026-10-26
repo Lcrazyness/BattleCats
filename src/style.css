@@ -606,3 +606,21 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   object-fit:contain;
   transform:translate(-50%,-50%);
 }
+
+
+/* Final sizing and lower placement for the Cat Base Storage/capsule group. */
+.base-storage,
+.base-cat-capsule,
+.base-rare-capsule {
+  top:71%;
+}
+.base-sprite-button.base-storage img {
+  width:30%;
+  height:30%;
+}
+.base-backboard-sprite {
+  left:33.9%;
+  top:74.3%;
+  width:26.8%;
+  height:9.4%;
+}
