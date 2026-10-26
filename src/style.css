@@ -549,3 +549,20 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .capsule-option-icon{flex-basis:48px;width:48px;height:48px}
   .capsule-option-action{padding:6px;font-size:10px}
 }
+
+/* Overlay the supplied capsule icons on the two Cat Base capsule buttons. */
+.base-sprite-button .base-button-frame {
+  position:relative;
+  z-index:0;
+}
+.base-sprite-button .base-button-icon {
+  position:absolute;
+  z-index:1;
+  left:50%;
+  top:50%;
+  width:72%;
+  height:72%;
+  object-fit:contain;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
