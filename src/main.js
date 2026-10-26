@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-26";
+const AUDIO_VERSION = "20261026-27";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -215,7 +215,7 @@ function renderBase() {
       '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"></button>'+
       '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/storebutton.png?v=20261026-26" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img src="sprites/ui/base-cat-food.png?v=20261026-9" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img class="base-cat-food-icon" src="sprites/ui/Cat_Food.png?v=20261026-27" alt="" draggable="false"><span class="base-cat-food-count" aria-label="Cat Food balance">'+money(save.catFood)+'</span></button>'+
     '</div>'+
   '</section>';
 }
