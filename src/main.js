@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-27";
+const AUDIO_VERSION = "20261026-28";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -65,8 +65,21 @@ let currentMusicKey = "";
 const mainScript = document.querySelector('script[src*="src/main.js"]');
 const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
 
+const PREFERRED_AUDIO_FORMAT = (() => {
+  try {
+    if (typeof Audio === "undefined") return "ogg";
+    const probe = new Audio();
+    return probe.canPlayType && probe.canPlayType("audio/mpeg") ? "mp3" : "ogg";
+  } catch {
+    return "ogg";
+  }
+})();
+
 function audioPath(path) {
-  return new URL(path + "?v=" + AUDIO_VERSION, APP_BASE_URL).href;
+  const compatiblePath = PREFERRED_AUDIO_FORMAT === "mp3"
+    ? path.replace(/\.ogg$/i, ".mp3")
+    : path;
+  return new URL(compatiblePath + "?v=" + AUDIO_VERSION, APP_BASE_URL).href;
 }
 
 function playSfx(key) {
@@ -106,12 +119,12 @@ function playSfx(key) {
 }
 
 function unlockAndStartCurrentMusic() {
-  if (audioUnlocked) return;
+  if (typeof Audio === "undefined") return;
   audioUnlocked = true;
   syncMusicForScene(scene);
 }
-document.addEventListener("pointerdown", unlockAndStartCurrentMusic, {capture:true, once:true});
-document.addEventListener("keydown", unlockAndStartCurrentMusic, {capture:true, once:true});
+document.addEventListener("pointerdown", unlockAndStartCurrentMusic, {capture:true});
+document.addEventListener("keydown", unlockAndStartCurrentMusic, {capture:true});
 
 function syncMusicForScene(targetScene = scene) {
   if (!audioUnlocked || typeof Audio === "undefined") return;
