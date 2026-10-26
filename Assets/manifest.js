@@ -29,6 +29,8 @@
   "audio": {
     "effects.button": "sounds/button-click.ogg",
     "effects.select": "sounds/menu-select.ogg",
+    "effects.back_cancel": "sounds/back-cancel.ogg",
+    "effects.blocked_action": "sounds/blocked-action.ogg",
     "effects.cat_base_door": "sounds/cat-base-door.ogg",
     "effects.enter_battle": "sounds/enter-battle.ogg",
     "effects.stage_select": "sounds/enter-battle.ogg",
@@ -36,6 +38,7 @@
     "effects.victory": "sounds/victory.ogg",
     "effects.defeat": "sounds/defeat.ogg",
     "effects.reward": "sounds/reward.ogg",
+    "effects.login_reward": "sounds/login-reward.ogg",
     "effects.capsule_draw": "sounds/capsule-draw.ogg",
     "music.menu": "sounds/menu-theme.ogg",
     "music.battle": "sounds/battle-theme.ogg",
