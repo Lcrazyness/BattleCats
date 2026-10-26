@@ -8,17 +8,23 @@ const defaults = {
   units:[
     {id:1,name:"Cat",level:1,deployCost:50,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:2.5}
   ],
-  equipped:[1], mail:0, missions:0, sound:true, music:true, menuVersion:4
+  equipped:[1], mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
 };
 const SAVE_KEY = "battleCatsSave_v4";
 let save;
+let savedSoundSettingsVersion = 0;
 try {
   const old = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+  if (old) savedSoundSettingsVersion = Number(old.soundSettingsVersion || 0);
   save = old && old.menuVersion === 4 ? {...defaults, ...old} : {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
   if (!Array.isArray(save.units) || !save.units.length) save.units = defaults.units.map(unit => ({...unit}));
   if (!Array.isArray(save.equipped)) save.equipped = save.units.slice(0,1).map(unit => unit.id);
 } catch {
   save = {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
+}
+if (savedSoundSettingsVersion < 1) {
+  save.sound = true;
+  save.soundSettingsVersion = 1;
 }
 let scene = "title";
 let currentRegion = "empire";
@@ -29,10 +35,12 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-13";
+const AUDIO_VERSION = "20261026-14";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
+  back: "sounds/back-cancel.ogg",
+  blocked: "sounds/blocked-action.ogg",
   door: "sounds/cat-base-door.ogg",
   enterBattle: "sounds/enter-battle.ogg",
   stageSelect: "sounds/enter-battle.ogg",
@@ -40,6 +48,7 @@ const SOUND_FILES = {
   victory: "sounds/victory.ogg",
   defeat: "sounds/defeat.ogg",
   reward: "sounds/reward.ogg",
+  loginReward: "sounds/login-reward.ogg",
   capsule: "sounds/capsule-draw.ogg"
 };
 const MUSIC_FILES = {
@@ -144,26 +153,35 @@ function syncMusicForScene(targetScene = scene) {
 function playActionAudio(action) {
   audioUnlocked = true;
   syncMusicForScene(scene);
+
   if (action === "rank") {
-    if (save.xp < 500) playSfx("button");
+    if (save.xp < 500) playSfx("blocked");
     return;
   }
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
     const cost = unit ? (unit.upgradeCost || 100) * unit.level : Infinity;
-    if (!unit || save.xp < cost) playSfx("button");
+    if (!unit || save.xp < cost) playSfx("blocked");
     return;
   }
+
   if (action === "go:base" && scene === "title") {
-    playSfx("button");
-  } else if (action === "go:fight") {
-    playSfx("stageSelect");
-  } else if (action === "fight") {
+    playSfx("door");
+  } else if (action === "go:base" || action === "go:battle" || action === "go:title") {
+    playSfx("back");
+  } else if (action === "go:fight" || action === "fight") {
     playSfx("enterBattle");
   } else if (action === "win") {
     playSfx("victory");
   } else if (action === "lose") {
     playSfx("defeat");
+  } else if (action === "locked" || action === "daily" && !save.missions ||
+             (action === "rare" && save.rareTickets < 1) ||
+             (action === "normal" && save.normalTickets < 1) ||
+             (action === "mailgift" && !save.mail)) {
+    playSfx("blocked");
+  } else if (action === "mailgift" && save.mail) {
+    playSfx("loginReward");
   } else if (
     (action === "rare" && save.rareTickets > 0) ||
     (action === "normal" && save.normalTickets > 0)
@@ -173,8 +191,7 @@ function playActionAudio(action) {
     action === "collect" ||
     action === "dailyfood" ||
     action === "mission" ||
-    (action === "daily" && save.missions > 0) ||
-    (action === "mailgift" && save.mail)
+    (action === "daily" && save.missions > 0)
   ) {
     playSfx("reward");
   } else if (action.startsWith("stage:")) {
@@ -182,8 +199,8 @@ function playActionAudio(action) {
   } else {
     playSfx("button");
   }
-
 }
+
 const gold = (label, action, small=false) =>
   '<button class="gold-button'+(small?' small':'')+'" data-go="'+action+'">'+label+'</button>';
 const headBar = (label) =>
