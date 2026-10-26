@@ -573,3 +573,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .base-sprite-button.base-rare-capsule::after {
   background-image:url("../sprites/ui/rarecapsules.png?v=20261026-22");
 }
+
+/* These illustrated Cat Base capsule buttons should not show the generic keyboard focus box. */
+.base-sprite-button.base-cat-capsule:focus-visible,
+.base-sprite-button.base-rare-capsule:focus-visible {
+  outline:0;
+  outline-offset:0;
+}
