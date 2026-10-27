@@ -30,6 +30,7 @@ let scene = "intro";
 let currentRegion = "empire";
 let toastTimer = 0;
 let titleIntroPending = true;
+let titleFadeFromBlack = false;
 let navigationTimer = null;
 const stage = $(".stage");
 const persist = () => {
@@ -306,8 +307,10 @@ function renderIntro() {
 }
 function renderTitle() {
   const animateButtons = titleIntroPending;
+  const fadeFromBlack = titleFadeFromBlack;
   titleIntroPending = false;
-  return '<section class="screen title-screen real-title-screen">'+
+  titleFadeFromBlack = false;
+  return '<section class="screen title-screen real-title-screen'+(fadeFromBlack?' title-fade-from-black':'')+'">'+
     '<div class="real-title-frame">'+
       '<img class="title-background-sprite" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-9" alt="" draggable="false">'+
       '<button class="title-hotspot title-sprite-button title-play'+(animateButtons?' title-intro-play':'')+'" data-go="go:base" aria-label="Play"><img src="sprites/ui/Play_button.png?v=20261026-9" alt="" draggable="false"></button>'+
@@ -503,6 +506,7 @@ function render() {
   const introScreen = stage.querySelector(".intro-screen");
   if (introScreen) introScreen.addEventListener("animationend", event => {
     if (event.target === introScreen && scene === "intro" && introScreen.classList.contains("intro-leaving")) {
+      titleFadeFromBlack = true;
       navigate("title");
     }
   });
