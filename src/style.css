@@ -452,26 +452,27 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 /* On first load, Play and Settings smoothly slide into their final positions. */
 .real-title-frame .title-sprite-button.title-intro-play {
-  animation: title-play-arrive 820ms cubic-bezier(.18,.82,.26,1) both;
+  animation: title-play-arrive 900ms cubic-bezier(.18,.82,.26,1) both;
 }
 .real-title-frame .title-sprite-button.title-intro-settings {
-  animation: title-settings-arrive 820ms cubic-bezier(.18,.82,.26,1) 130ms both;
+  animation: title-settings-arrive 900ms cubic-bezier(.18,.82,.26,1) 120ms both;
 }
 @keyframes title-play-arrive {
-  0% { opacity: 0; transform: translateY(-72px) scale(.96); }
-  72% { opacity: 1; transform: translateY(4px) scale(1.01); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% { opacity: 0; transform: translateX(110vw) scale(.96); }
+  76% { opacity: 1; transform: translateX(-1.5%) scale(1.015); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
 }
 @keyframes title-settings-arrive {
-  0% { opacity: 0; transform: translateY(72px) scale(.96); }
-  72% { opacity: 1; transform: translateY(-4px) scale(1.01); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% { opacity: 0; transform: translateX(-110vw) scale(.96); }
+  76% { opacity: 1; transform: translateX(1.5%) scale(1.015); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 /* Use the newly supplied Back sprite without stretching its circular shape. */
 .base-back img { object-fit: contain; object-position: center; }
 
 @media (prefers-reduced-motion: reduce) {
+  .intro-screen.intro-leaving,
   .screen-exit-to-base,
   .screen-exit-to-title,
   .screen-enter-from-title,
@@ -820,4 +821,15 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 @media (prefers-reduced-motion: reduce) {
   .intro-story { animation-duration:120s; }
+}
+
+
+/* Fade the intro away before showing the title screen. */
+.intro-screen.intro-leaving {
+  pointer-events:none !important;
+  animation:intro-screen-fade-out 620ms ease-in both;
+}
+@keyframes intro-screen-fade-out {
+  from { opacity:1; filter:brightness(1); transform:scale(1); }
+  to { opacity:0; filter:brightness(.55); transform:scale(1.015); }
 }
