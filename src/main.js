@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-28";
+const AUDIO_VERSION = "20261026-29";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -69,24 +69,37 @@ const PREFERRED_AUDIO_FORMAT = (() => {
   try {
     if (typeof Audio === "undefined") return "ogg";
     const probe = new Audio();
-    return probe.canPlayType && probe.canPlayType("audio/mpeg") ? "mp3" : "ogg";
+    const mp3Support = probe.canPlayType ? probe.canPlayType("audio/mpeg") : "";
+    return mp3Support === "probably" || mp3Support === "maybe" ? "mp3" : "ogg";
   } catch {
     return "ogg";
   }
 })();
 
-function audioPath(path) {
-  const compatiblePath = PREFERRED_AUDIO_FORMAT === "mp3"
-    ? path.replace(/\.ogg$/i, ".mp3")
-    : path;
-  return new URL(compatiblePath + "?v=" + AUDIO_VERSION, APP_BASE_URL).href;
+// Add both formats in preferred order so browsers can skip unsupported audio
+// and try the alternate format if the first file cannot be loaded or decoded.
+function createAudioPlayer(path) {
+  const player = new Audio();
+  player.preload = "auto";
+  const basePath = path.replace(/\.(?:ogg|mp3)$/i, "");
+  const formats = PREFERRED_AUDIO_FORMAT === "mp3" ? ["mp3", "ogg"] : ["ogg", "mp3"];
+
+  formats.forEach(format => {
+    const source = document.createElement("source");
+    source.src = new URL(`${basePath}.${format}?v=${AUDIO_VERSION}`, APP_BASE_URL).href;
+    source.type = format === "mp3" ? "audio/mpeg" : 'audio/ogg; codecs="vorbis"';
+    player.appendChild(source);
+  });
+
+  player.load();
+  return player;
 }
 
 function playSfx(key) {
   if (!save.sound || !SOUND_FILES[key] || typeof Audio === "undefined") return;
   let player;
   try {
-    player = new Audio(audioPath(SOUND_FILES[key]));
+    player = createAudioPlayer(SOUND_FILES[key]);
     player.preload = "auto";
     player.volume = key === "door" || key === "enterBattle" || key === "stageSelect" ? 0.62 : 0.48;
     activeSfxPlayers.add(player);
@@ -165,7 +178,7 @@ function syncMusicForScene(targetScene = scene) {
     musicPlayer.pause();
     musicPlayer.currentTime = 0;
   }
-  musicPlayer = new Audio(audioPath(MUSIC_FILES[nextKey]));
+  musicPlayer = createAudioPlayer(MUSIC_FILES[nextKey]);
   musicPlayer.loop = true;
   musicPlayer.preload = "auto";
   musicPlayer.volume = 0.24;
