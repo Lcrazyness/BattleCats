@@ -712,3 +712,112 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   -webkit-text-stroke:1px #392014;
   text-shadow:1px 1px 0 #392014,-.5px -.5px 0 #392014;
 }
+
+
+/* First-run scrolling story over the supplied original burning-city frame. */
+.intro-screen {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#050302;
+  color:#fff8e9;
+  isolation:isolate;
+}
+.intro-frame {
+  position:relative;
+  flex:0 0 auto;
+  width:min(100vw,178.87dvh);
+  height:min(100dvh,55.91vw);
+  aspect-ratio:1143/639;
+  overflow:hidden;
+  background:#050302;
+}
+.intro-background {
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.intro-story {
+  position:absolute;
+  z-index:2;
+  top:100%;
+  left:50%;
+  width:min(79%,900px);
+  padding:0 1.5% 3%;
+  color:#fff8ec;
+  font:700 clamp(15px,1.72vw,23px)/1.55 Arial,sans-serif;
+  text-align:center;
+  text-shadow:2px 3px 5px #000,0 0 9px #000,0 0 15px #792500;
+  pointer-events:none;
+  animation:intro-story-scroll 165s linear forwards;
+}
+.intro-story h1 {
+  margin:0 0 1.4em;
+  color:#ffcf9b;
+  font:1000 clamp(28px,4.5vw,55px)/1 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  letter-spacing:.025em;
+  text-shadow:3px 4px 0 #240b04,0 0 16px #d33c0d;
+}
+.intro-story p {
+  margin:0 0 1.3em;
+}
+@keyframes intro-story-scroll {
+  from { transform:translate(-50%,0); }
+  to { transform:translate(-50%,calc(-100% - 100dvh)); }
+}
+.intro-back,
+.intro-skip {
+  position:absolute;
+  z-index:5;
+  display:block;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.intro-back {
+  left:.4%;
+  bottom:.5%;
+  width:14%;
+  height:22%;
+  overflow:visible;
+}
+.intro-back img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.intro-back:active { transform:scale(.96); }
+.intro-skip {
+  right:0;
+  bottom:0;
+  width:15.5%;
+  height:12.5%;
+  cursor:pointer;
+}
+.intro-skip:focus-visible {
+  outline:3px solid #fff;
+  outline-offset:-4px;
+  border-radius:16%;
+}
+@media (max-width:600px) {
+  .intro-story { width:88%; font-size:clamp(14px,2.5vw,18px); }
+  .intro-story h1 { font-size:clamp(24px,5.5vw,38px); }
+  .intro-back { width:15%; height:22%; }
+  .intro-skip { width:16%; height:13%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-story { animation-duration:120s; }
+}

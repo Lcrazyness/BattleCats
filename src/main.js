@@ -26,7 +26,7 @@ if (savedSoundSettingsVersion < 1) {
   save.sound = true;
   save.soundSettingsVersion = 1;
 }
-let scene = "title";
+let scene = "intro";
 let currentRegion = "empire";
 let toastTimer = 0;
 let titleIntroPending = true;
@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-31";
+const AUDIO_VERSION = "20261027-1";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -52,6 +52,7 @@ const SOUND_FILES = {
   capsule: "sounds/capsule-draw.ogg"
 };
 const MUSIC_FILES = {
+  intro: "sounds/intro-theme.ogg",
   title: "sounds/title-theme.ogg",
   menu: "sounds/menu-theme.ogg",
   battle: "sounds/battle-theme.ogg"
@@ -183,7 +184,7 @@ document.addEventListener("click", unlockAndStartCurrentMusic, {capture:true});
 document.addEventListener("keydown", unlockAndStartCurrentMusic, {capture:true});
 
 function syncMusicForScene(targetScene = scene) {
-  if (!audioUnlocked || typeof Audio === "undefined") return;
+  if ((!audioUnlocked && targetScene !== "intro") || typeof Audio === "undefined") return;
   if (!save.music) {
     if (musicPlayer) {
       musicPlayer.pauseCompat();
@@ -194,7 +195,7 @@ function syncMusicForScene(targetScene = scene) {
     return;
   }
 
-  const nextKey = targetScene === "title" ? "title" : targetScene === "fight" ? "battle" : "menu";
+  const nextKey = targetScene === "intro" ? "intro" : targetScene === "title" ? "title" : targetScene === "fight" ? "battle" : "menu";
 
   // Let the battle-entry sound finish before starting the battle theme.
   if (targetScene === "fight" && battleStartPlayer && !battleStartPlayer.ended) {
@@ -248,7 +249,7 @@ function syncMusicForScene(targetScene = scene) {
         musicPlayer = null;
         currentMusicKey = "";
         if (error && error.name === "NotAllowedError") {
-          notify("The browser blocked music playback. Check this site's sound permission and device volume.");
+          if (targetScene !== "intro") notify("The browser blocked music playback. Check this site's sound permission and device volume.");
         } else {
           notify("Couldn't play music: " + nextKey + ". Check the loaded audio file.");
         }
@@ -275,6 +276,34 @@ const bottomBar = (back="base") =>
 const catHead = (className="") =>
   '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-9" alt="" draggable="false">';
 
+function renderIntro() {
+  return '<section class="screen intro-screen" aria-label="Story intro">'+
+    '<div class="intro-frame">'+
+      '<img class="intro-background" src="sprites/backgrounds/intro-burning-city.webp?v=20261027-1" alt="" draggable="false">'+
+      '<div class="intro-story" aria-label="The invasion begins">'+
+        '<h1>THE INVASION BEGINS</h1>'+
+        '<p>For generations, the world moved to a familiar rhythm. Cities grew, roads crossed the land, and people believed that tomorrow would look much like today. The distant hills were quiet, the skies were calm, and the strange stories told around old campfires belonged to another age.</p>'+
+        '<p>Then the first reports arrived from the outskirts. Travelers spoke of unusual shapes beyond the roads. Watchmen saw small silhouettes moving through the mist. At night, witnesses described pairs of red eyes glowing between abandoned buildings. Nobody could agree on what they had seen, and most people dismissed the stories as rumors.</p>'+
+        '<p>Until the smoke appeared.</p>'+
+        '<p>One by one, lights vanished from the outer districts. Warning bells rang across the towns, and the horizon became a wall of fire. Through the ash came an army unlike any the world had prepared for: strange little Cats with round faces, tiny expressions, and a determination that no one could understand.</p>'+
+        '<p>They did not negotiate. They did not retreat when shouted at. They kept advancing, padding across broken streets and gathering beneath the burning skyline. Some looked almost harmless. Others carried themselves like seasoned warriors. Together, they pushed through gates and barriers as if the world itself were simply another obstacle to cross.</p>'+
+        '<p>Humanity raised barricades, sent out scouts, and tried to hold every crossing. For a while, the defenders believed their walls would be enough. But whenever one wave was turned back, more Cats appeared beyond the smoke. Every victory bought a little time; every lost stronghold brought the flames closer to the heart of the world.</p>'+
+        '<p>No one knew who had called the Cat Army into being, or what waited at the end of its march. The Cats left no declaration, carried no familiar flag, and offered no explanation. Their purpose remained hidden behind those blank, smiling faces. The only certainty was that the invasion was spreading.</p>'+
+        '<p>Far from the worst of the fires, an abandoned command station flickered back to life. Beneath dust and broken equipment, an old battle console still held power. Its maps showed distant lands, locked routes, and strongholds that had not yet fallen. More importantly, it could organize the Cats into a fighting force and send them wherever a commander was willing to lead.</p>'+
+        '<p>The console could not explain where the Cats came from. It could not tell whether they were heroes, invaders, or something stranger. But it offered a way to answer an invasion with an army of your own. Each Cat had different strengths. Some were quick and inexpensive to deploy; others could withstand heavy attacks or strike from a safer distance. Choosing the right lineup would matter as much as charging forward.</p>'+
+        '<p>There would be resources to manage, new units to discover, and stronger enemies waiting behind every frontier. A careless commander could lose ground in moments. A patient one could build a team, learn the rhythm of each battle, and turn a scattered group of recruits into a force capable of changing the course of the war.</p>'+
+        '<p>The first steps would take you across familiar countries and the ruins left behind by the opening assault. Beyond them lay unfamiliar territories, distant futures, and eventually places far above the world. Each new horizon promised tougher resistance and more questions about the mysterious army that had started it all.</p>'+
+        '<p>Perhaps the Cats were chasing something. Perhaps they were searching for a place of their own. Or perhaps the world had simply become the next target in a march that began long before anyone noticed. Whatever the truth, it was buried somewhere beyond the smoke, waiting to be uncovered one battle at a time.</p>'+
+        '<p>Now the command station is yours. Gather your Cats. Train the ones who stand beside you. Spend your resources wisely, protect your base, and push back the darkness spreading across the land. The road ahead will not be easy, and the army beyond the flames will not stop simply because the world is afraid.</p>'+
+        '<p>Every great campaign begins with a single order. This is yours.</p>'+
+        '<h1>THE BATTLE CATS</h1>'+
+        '<p>The invasion has begun.</p>'+
+      '</div>'+
+      '<button class="intro-back" data-go="intro-back" aria-label="Back"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
+      '<button class="intro-skip" data-go="intro-skip" aria-label="Skip intro"></button>'+
+    '</div>'+
+  '</section>';
+}
 function renderTitle() {
   const animateButtons = titleIntroPending;
   titleIntroPending = false;
@@ -454,6 +483,7 @@ function renderGeneric(key) {
 function render() {
   let html;
   switch(scene) {
+    case "intro": html=renderIntro(); break;
     case "title": html=renderTitle(); break;
     case "base": html=renderBase(); break;
     case "battle": html=renderBattle(); break;
@@ -466,6 +496,10 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  const introStory = stage.querySelector(".intro-story");
+  if (introStory) introStory.addEventListener("animationend", () => {
+    if (scene === "intro" && introStory.isConnected) navigate("title");
+  }, {once:true});
   stage.querySelectorAll(".title-intro-play, .title-intro-settings").forEach(button => {
     button.addEventListener("animationend", () => {
       button.classList.remove("title-intro-play", "title-intro-settings");
@@ -537,6 +571,7 @@ function recruit(rare) {
 }
 function perform(action) {
   if (!action) return;
+  if (action === "intro-back" || action === "intro-skip") return navigate("title");
   if (action.startsWith("go:")) return navigate(action.slice(3));
   if (action.startsWith("stage:")) { currentRegion = action.slice(6); return navigate("stage"); }
   if (action.startsWith("unit:")) {
@@ -632,11 +667,12 @@ stage.addEventListener("click", event => {
     return;
   }
 
-  playSfx(isStageChoice ? "enterBattle" : "button");
+  playSfx(action === "intro-back" ? "back" : isStageChoice ? "enterBattle" : "button");
   if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
   if (event.key==="Escape") {
+    if (scene==="intro") { navigate("title"); return; }
     if (scene==="title") return;
     if (scene==="base") navigate("title");
     else if (scene==="stage") navigate("battle");

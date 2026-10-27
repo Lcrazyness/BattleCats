@@ -1,5 +1,5 @@
 {
-  "source": "The Battle Cats Wiki \u2014 Music / Sound Effects",
+  "source": "The Battle Cats Wiki — Music / Sound Effects",
   "source_page": "https://battle-cats.fandom.com/wiki/Music",
   "assets": [
     {
@@ -109,6 +109,14 @@
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd043.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
+    },
+    {
+      "file": "sounds/intro-theme.ogg",
+      "wiki_file": "Snd000.ogg",
+      "role": "Scrolling opening story music — The Invasion Begins",
+      "source_page": "https://battle-cats.fandom.com/wiki/File:Snd000.ogg",
+      "lookup_api": "https://raw.githubusercontent.com/sinsuirakv0/KBC-rakv0-assets/8e9dca31e3845e3c7dcdc515e6c85d5480538fc0/jp/Local/jp-1507021-2c1ac20b9c424404/assets/snd000.ogg",
+      "source_note": "Mirrored community game asset. Audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistribution."
     },
     {
       "file": "sounds/title-theme.ogg",

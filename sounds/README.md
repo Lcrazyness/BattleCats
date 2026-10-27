@@ -12,8 +12,9 @@ Sound effects:
 - capsule-draw.ogg — drawing a Cat Capsule
 
 Music:
-- title-theme.ogg — title-screen theme (Snd001)
-- menu-theme.ogg — Cat Base/menu theme selected for this remake (Snd000)
-- battle-theme.ogg — battle/stage theme (Snd003)
+- intro-theme.ogg — scrolling opening story (SND000, “Shinryaku no Hajimari” / “The Invasion Begins”)
+- title-theme.ogg — title-screen theme (SND001, “Atsumare! Nyanko Gundan” / “Assemble! Cat Army”)
+- menu-theme.ogg — Cat Base/menu theme (SND002, “Shutsujin” / “Leaving for the Front”)
+- battle-theme.ogg — battle/stage theme (SND003, “Nihon Shinryaku!” / “Invading Japan!”)
 
 The game loads these local Ogg files; audio playback starts after a player interaction to respect browser autoplay restrictions. The game audio is copyrighted and is not public domain; verify permissions before redistributing a public build.
