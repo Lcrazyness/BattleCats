@@ -4,7 +4,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#291b12}
 body{user-select:none;-webkit-tap-highlight-color:transparent}
 button{font:inherit;cursor:pointer;color:inherit;border:0}
 button:focus-visible{outline:3px solid #fff;outline-offset:2px}
-.game,.stage{position:relative;width:100%;height:100%;height:100dvh;overflow:hidden}
+.game,.stage{position:relative;width:100%;height:100%;height:100dvh;overflow:hidden;background:#000}
 .screen{position:absolute;inset:0;overflow:hidden}
 button:active{filter:brightness(.91);transform:translateY(2px)}
 /* Main title */
@@ -477,6 +477,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .screen-exit-to-title,
   .screen-enter-from-title,
   .screen-enter-from-base,
+  .real-title-screen.title-fade-from-black,
   .real-title-frame .title-sprite-button.title-intro-play,
   .real-title-frame .title-sprite-button.title-intro-settings {
     animation-duration: 1ms !important;
@@ -824,12 +825,21 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 
-/* Fade the intro away before showing the title screen. */
+/* Fade fully to black, then let the title screen emerge slowly. */
 .intro-screen.intro-leaving {
   pointer-events:none !important;
-  animation:intro-screen-fade-out 620ms ease-in both;
+  animation:intro-screen-fade-out 1.05s ease-in-out both;
 }
 @keyframes intro-screen-fade-out {
-  from { opacity:1; filter:brightness(1); transform:scale(1); }
-  to { opacity:0; filter:brightness(.55); transform:scale(1.015); }
+  0% { opacity:1; filter:brightness(1); transform:scale(1); }
+  75% { filter:brightness(.12); }
+  100% { opacity:0; filter:brightness(0); transform:scale(1.012); }
+}
+.real-title-screen.title-fade-from-black {
+  animation:title-screen-fade-in 1.35s ease-out both;
+  background:#000;
+}
+@keyframes title-screen-fade-in {
+  from { opacity:0; }
+  to { opacity:1; }
 }
