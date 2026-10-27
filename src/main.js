@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-30";
+const AUDIO_VERSION = "20261026-31";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -65,33 +65,74 @@ let currentMusicKey = "";
 const mainScript = document.querySelector('script[src*="src/main.js"]');
 const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
 
-const PREFERRED_AUDIO_FORMAT = (() => {
-  try {
-    if (typeof Audio === "undefined") return "ogg";
-    const probe = new Audio();
-    const mp3Support = probe.canPlayType ? probe.canPlayType("audio/mpeg") : "";
-    return mp3Support === "probably" || mp3Support === "maybe" ? "mp3" : "ogg";
-  } catch {
-    return "ogg";
-  }
-})();
-
-// Add both formats in preferred order so browsers can skip unsupported audio
-// and try the alternate format if the first file cannot be loaded or decoded.
+// Try MP3 first because it is supported by the broadest range of devices.
+// Switch to OGG explicitly if MP3 fails to load or decode.
 function createAudioPlayer(path) {
   const player = new Audio();
   player.preload = "auto";
   const basePath = path.replace(/\.(?:ogg|mp3)$/i, "");
-  const formats = PREFERRED_AUDIO_FORMAT === "mp3" ? ["mp3", "ogg"] : ["ogg", "mp3"];
+  const formats = ["mp3", "ogg"];
+  let formatIndex = 0;
+  let wantsPlayback = false;
 
-  formats.forEach(format => {
-    const source = document.createElement("source");
-    source.src = new URL(`${basePath}.${format}?v=${AUDIO_VERSION}`, APP_BASE_URL).href;
-    source.type = format === "mp3" ? "audio/mpeg" : 'audio/ogg; codecs="vorbis"';
-    player.appendChild(source);
+  const loadCurrentFormat = () => {
+    const format = formats[formatIndex];
+    player.src = new URL(`${basePath}.${format}?v=${AUDIO_VERSION}`, APP_BASE_URL).href;
+    player.load();
+  };
+
+  const switchFormat = retryPlayback => {
+    if (formatIndex >= formats.length - 1) return false;
+    formatIndex++;
+    player.audioFallbackUsed = true;
+    loadCurrentFormat();
+    if (retryPlayback && wantsPlayback) {
+      const retry = player.play();
+      if (retry && typeof retry.catch === "function") {
+        retry.catch(error => {
+          console.warn("Battle Cats audio retry failed:", player.currentSrc, error);
+        });
+      }
+    }
+    return true;
+  };
+
+  player.playCompat = () => {
+    wantsPlayback = true;
+    const attemptedSource = player.src;
+    let promise;
+    try {
+      promise = player.play();
+    } catch (error) {
+      if (error.name !== "NotAllowedError" && switchFormat(false)) return player.play();
+      throw error;
+    }
+    if (promise && typeof promise.catch === "function") {
+      return promise.catch(error => {
+        // The media error event may already have switched to the alternate format.
+        if (player.src !== attemptedSource) return;
+        if (error.name !== "NotAllowedError" && switchFormat(false)) return player.play();
+        throw error;
+      });
+    }
+    return promise;
+  };
+
+  player.pauseCompat = () => {
+    wantsPlayback = false;
+    player.pause();
+  };
+
+  player.addEventListener("error", () => {
+    if (switchFormat(true)) return;
+    if (typeof player.onAudioFailure === "function") {
+      player.onAudioFailure();
+    } else {
+      console.error("Battle Cats audio failed in both formats:", player.currentSrc, player.error);
+    }
   });
 
-  player.load();
+  loadCurrentFormat();
   return player;
 }
 
@@ -112,12 +153,12 @@ function playSfx(key) {
     };
     if (key === "enterBattle" || key === "stageSelect") battleStartPlayer = player;
     player.addEventListener("ended", cleanup, {once:true});
-    player.addEventListener("error", () => {
+    player.onAudioFailure = () => {
       cleanup();
-      console.error("Battle Cats sound asset failed to load:", key, player.currentSrc, player.error);
+      console.error("Battle Cats sound asset failed in both formats:", key, player.currentSrc, player.error);
       notify("Couldn't load sound: " + key);
-    }, {once:true});
-    const promise = player.play();
+    };
+    const promise = player.playCompat();
     if (promise && typeof promise.catch === "function") {
       promise.catch(error => {
         cleanup();
@@ -137,13 +178,15 @@ function unlockAndStartCurrentMusic() {
   syncMusicForScene(scene);
 }
 document.addEventListener("pointerdown", unlockAndStartCurrentMusic, {capture:true});
+document.addEventListener("touchstart", unlockAndStartCurrentMusic, {capture:true, passive:true});
+document.addEventListener("click", unlockAndStartCurrentMusic, {capture:true});
 document.addEventListener("keydown", unlockAndStartCurrentMusic, {capture:true});
 
 function syncMusicForScene(targetScene = scene) {
   if (!audioUnlocked || typeof Audio === "undefined") return;
   if (!save.music) {
     if (musicPlayer) {
-      musicPlayer.pause();
+      musicPlayer.pauseCompat();
       musicPlayer.currentTime = 0;
     }
     musicPlayer = null;
@@ -156,7 +199,7 @@ function syncMusicForScene(targetScene = scene) {
   // Let the battle-entry sound finish before starting the battle theme.
   if (targetScene === "fight" && battleStartPlayer && !battleStartPlayer.ended) {
     if (musicPlayer) {
-      musicPlayer.pause();
+      musicPlayer.pauseCompat();
       musicPlayer.currentTime = 0;
     }
     musicPlayer = null;
@@ -168,14 +211,19 @@ function syncMusicForScene(targetScene = scene) {
   // Only replace it when the major area changes (title, menus/base, or battle).
   if (musicPlayer && currentMusicKey === nextKey) {
     if (musicPlayer.paused) {
-      const resumePromise = musicPlayer.play();
-      if (resumePromise && typeof resumePromise.catch === "function") resumePromise.catch(() => {});
+      const resumePromise = musicPlayer.playCompat();
+      if (resumePromise && typeof resumePromise.catch === "function") {
+        resumePromise.catch(error => {
+          console.error("Battle Cats music resume failed:", musicPlayer.currentSrc, error);
+          if (error.name === "NotAllowedError") notify("Tap the game to allow music playback.");
+        });
+      }
     }
     return;
   }
 
   if (musicPlayer) {
-    musicPlayer.pause();
+    musicPlayer.pauseCompat();
     musicPlayer.currentTime = 0;
   }
   musicPlayer = createAudioPlayer(MUSIC_FILES[nextKey]);
@@ -184,10 +232,15 @@ function syncMusicForScene(targetScene = scene) {
   musicPlayer.volume = 0.24;
   currentMusicKey = nextKey;
   const activePlayer = musicPlayer;
-  activePlayer.addEventListener("error", () => {
-    console.error("Battle Cats music asset failed to load:", nextKey, activePlayer.currentSrc, activePlayer.error);
-  }, {once:true});
-  const promise = activePlayer.play();
+  activePlayer.onAudioFailure = () => {
+    console.error("Battle Cats music asset failed in both formats:", nextKey, activePlayer.currentSrc, activePlayer.error);
+    if (musicPlayer === activePlayer) {
+      musicPlayer = null;
+      currentMusicKey = "";
+      notify("Couldn't load music: " + nextKey);
+    }
+  };
+  const promise = activePlayer.playCompat();
   if (promise && typeof promise.catch === "function") {
     promise.catch(error => {
       console.error("Battle Cats music failed to play:", nextKey, activePlayer.currentSrc, error);
