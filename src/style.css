@@ -688,3 +688,27 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   top:89%;
   height:10.5%;
 }
+
+
+/* Move Store lower and keep Cat Food compact in the lower-right corner. */
+.base-sprite-button.base-store {
+  top:92%;
+  height:5.5%;
+}
+.base-sprite-button.base-cat-food {
+  left:87%;
+  top:91%;
+  width:11.5%;
+  height:7.5%;
+  gap:0;
+}
+.base-sprite-button.base-cat-food .base-cat-food-icon {
+  flex:0 0 43%;
+  width:43%;
+  height:70%;
+}
+.base-sprite-button.base-cat-food .base-cat-food-count {
+  font-size:clamp(10px,1.45vw,18px);
+  -webkit-text-stroke:1px #392014;
+  text-shadow:1px 1px 0 #392014,-.5px -.5px 0 #392014;
+}
