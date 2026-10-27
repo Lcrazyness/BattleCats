@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261027-1";
+const AUDIO_VERSION = "20261027-2";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -498,8 +498,14 @@ function render() {
   stage.innerHTML = html;
   const introStory = stage.querySelector(".intro-story");
   if (introStory) introStory.addEventListener("animationend", () => {
-    if (scene === "intro" && introStory.isConnected) navigate("title");
+    if (scene === "intro" && introStory.isConnected) leaveIntro();
   }, {once:true});
+  const introScreen = stage.querySelector(".intro-screen");
+  if (introScreen) introScreen.addEventListener("animationend", event => {
+    if (event.target === introScreen && scene === "intro" && introScreen.classList.contains("intro-leaving")) {
+      navigate("title");
+    }
+  });
   stage.querySelectorAll(".title-intro-play, .title-intro-settings").forEach(button => {
     button.addEventListener("animationend", () => {
       button.classList.remove("title-intro-play", "title-intro-settings");
@@ -569,9 +575,21 @@ function recruit(rare) {
   render();
   notify("New cat recruited: "+picked.name+"!");
 }
+function leaveIntro() {
+  if (scene !== "intro") return;
+  const introScreen = stage.querySelector(".intro-screen");
+  if (!introScreen) {
+    navigate("title");
+    return;
+  }
+  if (introScreen.classList.contains("intro-leaving")) return;
+  introScreen.classList.add("intro-leaving");
+  introScreen.style.pointerEvents = "none";
+}
+
 function perform(action) {
   if (!action) return;
-  if (action === "intro-back" || action === "intro-skip") return navigate("title");
+  if (action === "intro-back" || action === "intro-skip") return leaveIntro();
   if (action.startsWith("go:")) return navigate(action.slice(3));
   if (action.startsWith("stage:")) { currentRegion = action.slice(6); return navigate("stage"); }
   if (action.startsWith("unit:")) {
@@ -672,7 +690,7 @@ stage.addEventListener("click", event => {
 });
 document.addEventListener("keydown", event=>{
   if (event.key==="Escape") {
-    if (scene==="intro") { navigate("title"); return; }
+    if (scene==="intro") { leaveIntro(); return; }
     if (scene==="title") return;
     if (scene==="base") navigate("title");
     else if (scene==="stage") navigate("battle");
