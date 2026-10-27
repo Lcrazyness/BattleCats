@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" role="img" aria-label="Smiling white cat">
+  <path d="M54 900V545C32 494 24 439 30 374C38 281 78 215 144 177L123 45L226 128C273 104 327 104 374 128L477 45L456 177C522 215 562 281 570 374C576 439 568 494 546 545V900Z" fill="#fff" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+  <circle cx="211" cy="321" r="19" fill="#080808"/>
+  <circle cx="389" cy="321" r="19" fill="#080808"/>
+  <path d="M278 380C286 390 293 395 300 395C307 395 314 390 322 380M300 394V425C300 445 281 450 267 435C255 422 254 408 261 400M300 425C300 445 319 450 333 435C345 422 346 408 339 400" fill="none" stroke="#111" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
