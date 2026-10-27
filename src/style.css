@@ -843,3 +843,70 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   from { opacity:0; }
   to { opacity:1; }
 }
+
+
+/* Asset loading screen: black background, white text, yellow progress bar. */
+.loading-screen {
+  z-index:100;
+  display:grid;
+  place-items:center;
+  background:#000;
+  color:#fff;
+  padding:5vw;
+}
+.loading-panel {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  width:min(82vw,740px);
+  gap:clamp(13px,2.5vh,24px);
+}
+.loading-game-title {
+  color:#fff;
+  font:1000 clamp(28px,5.8vw,64px)/.95 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  letter-spacing:.025em;
+  text-align:center;
+  text-shadow:3px 4px 0 #3b210e;
+}
+.loading-heading {
+  color:#fff;
+  font:900 clamp(17px,2.4vw,27px)/1 Arial,sans-serif;
+  letter-spacing:.24em;
+  text-align:center;
+}
+.loading-progress {
+  width:100%;
+  height:clamp(22px,3.1vh,34px);
+  padding:3px;
+  overflow:hidden;
+  border:2px solid #fff0a0;
+  border-radius:5px;
+  background:#1a1208;
+  box-shadow:0 0 0 2px #68400d,0 4px 14px #000;
+}
+.loading-progress-fill {
+  width:0;
+  height:100%;
+  border-radius:2px;
+  background:linear-gradient(180deg,#fff54b 0%,#ffdc00 50%,#f0a500 100%);
+  box-shadow:inset 0 2px 0 #fffba0,0 0 10px #ffd9008c;
+  transition:width 100ms linear;
+}
+.loading-progress-row {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  color:#fff;
+  font:700 clamp(12px,1.65vw,17px)/1.35 Arial,sans-serif;
+}
+.loading-status {
+  flex:1;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.loading-percent {
+  color:#fff;
+  font:900 clamp(14px,1.8vw,20px)/1 Arial,sans-serif;
+  font-variant-numeric:tabular-nums;
+}

@@ -26,7 +26,7 @@ if (savedSoundSettingsVersion < 1) {
   save.sound = true;
   save.soundSettingsVersion = 1;
 }
-let scene = "intro";
+let scene = "loading";
 let currentRegion = "empire";
 let toastTimer = 0;
 let titleIntroPending = true;
@@ -36,7 +36,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261027-2";
+const AUDIO_VERSION = "20261027-3";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -66,6 +66,204 @@ let currentMusicKey = "";
 
 const mainScript = document.querySelector('script[src*="src/main.js"]');
 const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
+
+const LOADING_IMAGE_ASSETS = [
+  {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
+  {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
+  {path:"sprites/backgrounds/titlescreenmenu.png?v=20261026-9",bytes:1513970},
+  {path:"sprites/ui/Play_button.png?v=20261026-9",bytes:5844},
+  {path:"sprites/ui/title-settings.png?v=20261026-9",bytes:38154},
+  {path:"sprites/ui/title-mailbox.png?v=20261026-9",bytes:48748},
+  {path:"sprites/backgrounds/bg_restored.png?v=20261026-9",bytes:203596},
+  {path:"sprites/ui/backboard.png?v=20261026-25",bytes:62313},
+  {path:"sprites/ui/startbutton.png?v=20261026-9",bytes:111427},
+  {path:"sprites/ui/upgradebutton.png?v=20261026-9",bytes:137546},
+  {path:"sprites/ui/equipbutton.png?v=20261026-9",bytes:117674},
+  {path:"sprites/ui/menubutton.png?v=20261026-9",bytes:60432},
+  {path:"sprites/ui/gamatotobutton.png?v=20261026-9",bytes:71513},
+  {path:"sprites/ui/missionsbutton.png?v=20261026-9",bytes:76462},
+  {path:"sprites/ui/storagebutton.png?v=20261026-24",bytes:25503},
+  {path:"sprites/ui/storebutton.png?v=20261026-26",bytes:80376},
+  {path:"sprites/ui/Cat_Food.png?v=20261026-27",bytes:5358},
+  {path:"sprites/ui/Normalcapsule.png?v=20261026-27",bytes:8770},
+  {path:"sprites/ui/rarecapsules.png?v=20261026-27",bytes:107426},
+  {path:"sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-9",bytes:2738},
+  {path:"sprites/original_sheets/basic-cat-bcp.webp",bytes:16942},
+  {path:"sprites/original_sheets/basic-cat-e-bcp.webp",bytes:18608},
+  {path:"sprites/original_sheets/basic-cat-tf-bcp.webp",bytes:18914},
+  {path:"sprites/original_sheets/cat-base-accessory-icon.webp",bytes:6458},
+  {path:"sprites/original_sheets/cat-base-menu-icon.webp",bytes:4800},
+  {path:"sprites/original_sheets/cat-base-menu.webp",bytes:227100},
+  {path:"sprites/original_sheets/main-menu-ver-10-10.webp",bytes:392714},
+  {path:"sprites/cat-base-reference.jpg",bytes:85938},
+  {path:"sprites/title-screen.webp",bytes:186052},
+  {path:"sprites/ui/title-play.png",bytes:32980}
+];
+const LOADING_AUDIO_ASSETS = [
+  {path:"sounds/intro-theme.mp3?v="+AUDIO_VERSION,bytes:2363802},
+  {path:"sounds/intro-theme.ogg?v="+AUDIO_VERSION,bytes:2070597},
+  {path:"sounds/title-theme.mp3?v="+AUDIO_VERSION,bytes:2129985},
+  {path:"sounds/title-theme.ogg?v="+AUDIO_VERSION,bytes:1731888},
+  {path:"sounds/menu-theme.mp3?v="+AUDIO_VERSION,bytes:1751520},
+  {path:"sounds/menu-theme.ogg?v="+AUDIO_VERSION,bytes:1563099},
+  {path:"sounds/battle-theme.mp3?v="+AUDIO_VERSION,bytes:1649181},
+  {path:"sounds/battle-theme.ogg?v="+AUDIO_VERSION,bytes:1442890},
+  {path:"sounds/button-click.mp3?v="+AUDIO_VERSION,bytes:6799},
+  {path:"sounds/button-click.ogg?v="+AUDIO_VERSION,bytes:18336},
+  {path:"sounds/menu-select.mp3?v="+AUDIO_VERSION,bytes:1505},
+  {path:"sounds/menu-select.ogg?v="+AUDIO_VERSION,bytes:5884},
+  {path:"sounds/back-cancel.mp3?v="+AUDIO_VERSION,bytes:6117},
+  {path:"sounds/back-cancel.ogg?v="+AUDIO_VERSION,bytes:17232},
+  {path:"sounds/blocked-action.mp3?v="+AUDIO_VERSION,bytes:2679},
+  {path:"sounds/blocked-action.ogg?v="+AUDIO_VERSION,bytes:8138},
+  {path:"sounds/cat-base-door.mp3?v="+AUDIO_VERSION,bytes:14782},
+  {path:"sounds/cat-base-door.ogg?v="+AUDIO_VERSION,bytes:32621},
+  {path:"sounds/enter-battle.mp3?v="+AUDIO_VERSION,bytes:48487},
+  {path:"sounds/enter-battle.ogg?v="+AUDIO_VERSION,bytes:156612},
+  {path:"sounds/capsule-draw.mp3?v="+AUDIO_VERSION,bytes:63025},
+  {path:"sounds/capsule-draw.ogg?v="+AUDIO_VERSION,bytes:186462},
+  {path:"sounds/login-reward.mp3?v="+AUDIO_VERSION,bytes:11626},
+  {path:"sounds/login-reward.ogg?v="+AUDIO_VERSION,bytes:45291},
+  {path:"sounds/reward.mp3?v="+AUDIO_VERSION,bytes:78497},
+  {path:"sounds/reward.ogg?v="+AUDIO_VERSION,bytes:75295},
+  {path:"sounds/upgrade.mp3?v="+AUDIO_VERSION,bytes:16941},
+  {path:"sounds/upgrade.ogg?v="+AUDIO_VERSION,bytes:43362},
+  {path:"sounds/victory.mp3?v="+AUDIO_VERSION,bytes:116845},
+  {path:"sounds/victory.ogg?v="+AUDIO_VERSION,bytes:124825},
+  {path:"sounds/defeat.mp3?v="+AUDIO_VERSION,bytes:107818},
+  {path:"sounds/defeat.ogg?v="+AUDIO_VERSION,bytes:118284}
+];
+const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
+let loadingAssetsStarted = false;
+let loadingBytesFinished = 0;
+const preloadedImageCache = [];
+
+function renderLoading() {
+  return '<section class="screen loading-screen" aria-label="Loading game assets">'+
+    '<div class="loading-panel">'+
+      '<div class="loading-game-title">THE BATTLE CATS</div>'+
+      '<div class="loading-heading">LOADING</div>'+
+      '<div class="loading-progress" role="progressbar" aria-label="Game asset loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress-fill"></div></div>'+
+      '<div class="loading-progress-row"><span class="loading-status">Preparing game assets...</span><strong class="loading-percent">0%</strong></div>'+
+    '</div>'+
+  '</section>';
+}
+
+function updateLoadingProgress(label, currentBytes=0) {
+  const percent = Math.max(0,Math.min(100,((loadingBytesFinished+currentBytes)/LOADING_TOTAL_BYTES)*100));
+  const fill = stage.querySelector(".loading-progress-fill");
+  const text = stage.querySelector(".loading-status");
+  const number = stage.querySelector(".loading-percent");
+  const bar = stage.querySelector(".loading-progress");
+  if (fill) fill.style.width = percent.toFixed(2)+"%";
+  if (text) text.textContent = label;
+  if (number) number.textContent = Math.floor(percent)+"%";
+  if (bar) bar.setAttribute("aria-valuenow",String(Math.floor(percent)));
+}
+
+function loadImageAssetSequentially(asset) {
+  return new Promise(resolve => {
+    let attempts = 0;
+    const tryLoad = () => {
+      const image = new Image();
+      let eventFinished = false;
+      const finish = success => {
+        if (eventFinished) return;
+        eventFinished = true;
+        if (!success) {
+          if (attempts < 1) {
+            attempts++;
+            tryLoad();
+          } else {
+            resolve(false);
+          }
+          return;
+        }
+        const keepDecoded = () => {
+          preloadedImageCache.push(image);
+          resolve(true);
+        };
+        if (typeof image.decode === "function") image.decode().then(keepDecoded).catch(keepDecoded);
+        else keepDecoded();
+      };
+      image.onload = () => finish(true);
+      image.onerror = () => finish(false);
+      image.src = new URL(asset.path,APP_BASE_URL).href;
+      if (image.complete && image.naturalWidth > 0) finish(true);
+    };
+    tryLoad();
+  });
+}
+
+async function loadAudioAssetSequentially(asset, statusText) {
+  for (let attempt=0; attempt<2; attempt++) {
+    try {
+      const response = await fetch(new URL(asset.path,APP_BASE_URL).href,{cache:"force-cache"});
+      if (!response.ok) throw new Error("HTTP "+response.status+" for "+asset.path);
+      const contentLength = Number(response.headers.get("content-length")) || asset.bytes;
+      if (response.body && typeof response.body.getReader === "function") {
+        const reader = response.body.getReader();
+        let received = 0;
+        while (true) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          received += chunk.value.byteLength;
+          const weightedBytes = Math.min(asset.bytes,received*(asset.bytes/contentLength));
+          updateLoadingProgress(statusText,weightedBytes);
+        }
+      } else {
+        await response.arrayBuffer();
+        updateLoadingProgress(statusText,asset.bytes);
+      }
+      return true;
+    } catch (error) {
+      updateLoadingProgress(statusText,0);
+      if (attempt === 1) console.warn("Battle Cats loader skipped an audio asset after retry:",asset.path,error);
+    }
+  }
+  return false;
+}
+
+async function startGameAssetLoading() {
+  if (loadingAssetsStarted || scene !== "loading") return;
+  loadingAssetsStarted = true;
+  let failedAssets = 0;
+  const imageCount = LOADING_IMAGE_ASSETS.length;
+  const audioCount = LOADING_AUDIO_ASSETS.length;
+
+  for (let i=0; i<imageCount; i++) {
+    const asset = LOADING_IMAGE_ASSETS[i];
+    const name = asset.path.split("/").pop().split("?")[0];
+    const status = "Loading image "+(i+1)+"/"+imageCount+" — "+name;
+    updateLoadingProgress(status);
+    const loaded = await loadImageAssetSequentially(asset);
+    if (!loaded) {
+      failedAssets++;
+      console.warn("Battle Cats loader could not load image:",asset.path);
+    }
+    loadingBytesFinished += asset.bytes;
+    updateLoadingProgress(status);
+  }
+
+  for (let i=0; i<audioCount; i++) {
+    const asset = LOADING_AUDIO_ASSETS[i];
+    const name = asset.path.split("/").pop().split("?")[0];
+    const status = "Loading audio "+(i+1)+"/"+audioCount+" — "+name;
+    updateLoadingProgress(status);
+    const loaded = await loadAudioAssetSequentially(asset,status);
+    if (!loaded) failedAssets++;
+    loadingBytesFinished += asset.bytes;
+    updateLoadingProgress(status);
+  }
+
+  updateLoadingProgress(failedAssets ? "Ready — "+failedAssets+" asset(s) could not be cached." : "Everything loaded. Starting story...");
+  setTimeout(() => {
+    if (scene === "loading") {
+      scene = "intro";
+      render();
+    }
+  },650);
+}
 
 // Try MP3 first because it is supported by the broadest range of devices.
 // Switch to OGG explicitly if MP3 fails to load or decode.
@@ -185,7 +383,17 @@ document.addEventListener("click", unlockAndStartCurrentMusic, {capture:true});
 document.addEventListener("keydown", unlockAndStartCurrentMusic, {capture:true});
 
 function syncMusicForScene(targetScene = scene) {
-  if ((!audioUnlocked && targetScene !== "intro") || typeof Audio === "undefined") return;
+  if (typeof Audio === "undefined") return;
+  if (targetScene === "loading") {
+    if (musicPlayer) {
+      musicPlayer.pauseCompat();
+      musicPlayer.currentTime = 0;
+    }
+    musicPlayer = null;
+    currentMusicKey = "";
+    return;
+  }
+  if (!audioUnlocked && targetScene !== "intro") return;
   if (!save.music) {
     if (musicPlayer) {
       musicPlayer.pauseCompat();
@@ -486,6 +694,7 @@ function renderGeneric(key) {
 function render() {
   let html;
   switch(scene) {
+    case "loading": html=renderLoading(); break;
     case "intro": html=renderIntro(); break;
     case "title": html=renderTitle(); break;
     case "base": html=renderBase(); break;
@@ -693,6 +902,7 @@ stage.addEventListener("click", event => {
   if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
+  if (scene === "loading") return;
   if (event.key==="Escape") {
     if (scene==="intro") { leaveIntro(); return; }
     if (scene==="title") return;
@@ -703,4 +913,5 @@ document.addEventListener("keydown", event=>{
   }
 });
 render();
+if (scene === "loading") setTimeout(startGameAssetLoading,0);
 })();
