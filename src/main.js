@@ -35,7 +35,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261026-29";
+const AUDIO_VERSION = "20261026-30";
 const SOUND_FILES = {
   button: "sounds/button-click.ogg",
   select: "sounds/menu-select.ogg",
@@ -184,12 +184,21 @@ function syncMusicForScene(targetScene = scene) {
   musicPlayer.volume = 0.24;
   currentMusicKey = nextKey;
   const activePlayer = musicPlayer;
+  activePlayer.addEventListener("error", () => {
+    console.error("Battle Cats music asset failed to load:", nextKey, activePlayer.currentSrc, activePlayer.error);
+  }, {once:true});
   const promise = activePlayer.play();
   if (promise && typeof promise.catch === "function") {
-    promise.catch(() => {
+    promise.catch(error => {
+      console.error("Battle Cats music failed to play:", nextKey, activePlayer.currentSrc, error);
       if (musicPlayer === activePlayer) {
         musicPlayer = null;
         currentMusicKey = "";
+        if (error && error.name === "NotAllowedError") {
+          notify("The browser blocked music playback. Check this site's sound permission and device volume.");
+        } else {
+          notify("Couldn't play music: " + nextKey + ". Check the loaded audio file.");
+        }
       }
     });
   }
