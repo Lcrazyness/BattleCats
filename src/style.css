@@ -1143,7 +1143,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   position:absolute;
   z-index:12;
   left:50%;
-  top:68.5%;
+  top:64%;
   width:25%;
   height:10%;
   display:grid;

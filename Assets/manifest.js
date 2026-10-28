@@ -27,21 +27,21 @@
     "sprites.cat_base_icon": "sprites/original_sheets/cat-base-menu-icon.webp"
   },
   "audio": {
-    "effects.button": "sounds/button-click.ogg",
-    "effects.select": "sounds/menu-select.ogg",
-    "effects.back_cancel": "sounds/back-cancel.ogg",
-    "effects.blocked_action": "sounds/blocked-action.ogg",
-    "effects.cat_base_door": "sounds/cat-base-door.ogg",
-    "effects.enter_battle": "sounds/enter-battle.ogg",
-    "effects.stage_select": "sounds/enter-battle.ogg",
-    "effects.upgrade": "sounds/upgrade.ogg",
-    "effects.victory": "sounds/victory.ogg",
-    "effects.defeat": "sounds/defeat.ogg",
-    "effects.reward": "sounds/reward.ogg",
-    "effects.login_reward": "sounds/login-reward.ogg",
-    "effects.capsule_draw": "sounds/capsule-draw.ogg",
-    "music.menu": "sounds/menu-theme.ogg",
-    "music.battle": "sounds/battle-theme.ogg",
-    "music.title": "sounds/title-theme.ogg"
+    "effects.button": "sounds/button-click.mp3",
+    "effects.select": "sounds/menu-select.mp3",
+    "effects.back_cancel": "sounds/back-cancel.mp3",
+    "effects.blocked_action": "sounds/blocked-action.mp3",
+    "effects.cat_base_door": "sounds/cat-base-door.mp3",
+    "effects.enter_battle": "sounds/enter-battle.mp3",
+    "effects.stage_select": "sounds/enter-battle.mp3",
+    "effects.upgrade": "sounds/upgrade.mp3",
+    "effects.victory": "sounds/victory.mp3",
+    "effects.defeat": "sounds/defeat.mp3",
+    "effects.reward": "sounds/reward.mp3",
+    "effects.login_reward": "sounds/login-reward.mp3",
+    "effects.capsule_draw": "sounds/capsule-draw.mp3",
+    "music.menu": "sounds/menu-theme.mp3",
+    "music.battle": "sounds/battle-theme.mp3",
+    "music.title": "sounds/title-theme.mp3"
   }
 }

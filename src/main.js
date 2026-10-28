@@ -40,27 +40,27 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261027-3";
+const AUDIO_VERSION = "20261029-12";
 const SOUND_FILES = {
-  button: "sounds/button-click.ogg",
-  select: "sounds/menu-select.ogg",
-  back: "sounds/back-cancel.ogg",
-  blocked: "sounds/blocked-action.ogg",
-  door: "sounds/cat-base-door.ogg",
-  enterBattle: "sounds/enter-battle.ogg",
-  stageSelect: "sounds/enter-battle.ogg",
-  upgrade: "sounds/upgrade.ogg",
-  victory: "sounds/victory.ogg",
-  defeat: "sounds/defeat.ogg",
-  reward: "sounds/reward.ogg",
-  loginReward: "sounds/login-reward.ogg",
-  capsule: "sounds/capsule-draw.ogg"
+  button: "sounds/button-click.mp3",
+  select: "sounds/menu-select.mp3",
+  back: "sounds/back-cancel.mp3",
+  blocked: "sounds/blocked-action.mp3",
+  door: "sounds/cat-base-door.mp3",
+  enterBattle: "sounds/enter-battle.mp3",
+  stageSelect: "sounds/enter-battle.mp3",
+  upgrade: "sounds/upgrade.mp3",
+  victory: "sounds/victory.mp3",
+  defeat: "sounds/defeat.mp3",
+  reward: "sounds/reward.mp3",
+  loginReward: "sounds/login-reward.mp3",
+  capsule: "sounds/capsule-draw.mp3"
 };
 const MUSIC_FILES = {
-  intro: "sounds/intro-theme.ogg",
-  title: "sounds/title-theme.ogg",
-  menu: "sounds/menu-theme.ogg",
-  battle: "sounds/battle-theme.ogg"
+  intro: "sounds/intro-theme.mp3",
+  title: "sounds/title-theme.mp3",
+  menu: "sounds/menu-theme.mp3",
+  battle: "sounds/battle-theme.mp3"
 };
 const activeSfxPlayers = new Set();
 let battleStartPlayer = null;
@@ -106,37 +106,21 @@ const LOADING_IMAGE_ASSETS = [
 ];
 const LOADING_AUDIO_ASSETS = [
   {path:"sounds/intro-theme.mp3?v="+AUDIO_VERSION,bytes:2363802},
-  {path:"sounds/intro-theme.ogg?v="+AUDIO_VERSION,bytes:2070597},
   {path:"sounds/title-theme.mp3?v="+AUDIO_VERSION,bytes:2129985},
-  {path:"sounds/title-theme.ogg?v="+AUDIO_VERSION,bytes:1731888},
   {path:"sounds/menu-theme.mp3?v="+AUDIO_VERSION,bytes:1751520},
-  {path:"sounds/menu-theme.ogg?v="+AUDIO_VERSION,bytes:1563099},
   {path:"sounds/battle-theme.mp3?v="+AUDIO_VERSION,bytes:1649181},
-  {path:"sounds/battle-theme.ogg?v="+AUDIO_VERSION,bytes:1442890},
   {path:"sounds/button-click.mp3?v="+AUDIO_VERSION,bytes:6799},
-  {path:"sounds/button-click.ogg?v="+AUDIO_VERSION,bytes:18336},
   {path:"sounds/menu-select.mp3?v="+AUDIO_VERSION,bytes:1505},
-  {path:"sounds/menu-select.ogg?v="+AUDIO_VERSION,bytes:5884},
   {path:"sounds/back-cancel.mp3?v="+AUDIO_VERSION,bytes:6117},
-  {path:"sounds/back-cancel.ogg?v="+AUDIO_VERSION,bytes:17232},
   {path:"sounds/blocked-action.mp3?v="+AUDIO_VERSION,bytes:2679},
-  {path:"sounds/blocked-action.ogg?v="+AUDIO_VERSION,bytes:8138},
   {path:"sounds/cat-base-door.mp3?v="+AUDIO_VERSION,bytes:14782},
-  {path:"sounds/cat-base-door.ogg?v="+AUDIO_VERSION,bytes:32621},
   {path:"sounds/enter-battle.mp3?v="+AUDIO_VERSION,bytes:48487},
-  {path:"sounds/enter-battle.ogg?v="+AUDIO_VERSION,bytes:156612},
   {path:"sounds/capsule-draw.mp3?v="+AUDIO_VERSION,bytes:63025},
-  {path:"sounds/capsule-draw.ogg?v="+AUDIO_VERSION,bytes:186462},
   {path:"sounds/login-reward.mp3?v="+AUDIO_VERSION,bytes:11626},
-  {path:"sounds/login-reward.ogg?v="+AUDIO_VERSION,bytes:45291},
   {path:"sounds/reward.mp3?v="+AUDIO_VERSION,bytes:78497},
-  {path:"sounds/reward.ogg?v="+AUDIO_VERSION,bytes:75295},
   {path:"sounds/upgrade.mp3?v="+AUDIO_VERSION,bytes:16941},
-  {path:"sounds/upgrade.ogg?v="+AUDIO_VERSION,bytes:43362},
   {path:"sounds/victory.mp3?v="+AUDIO_VERSION,bytes:116845},
-  {path:"sounds/victory.ogg?v="+AUDIO_VERSION,bytes:124825},
   {path:"sounds/defeat.mp3?v="+AUDIO_VERSION,bytes:107818},
-  {path:"sounds/defeat.ogg?v="+AUDIO_VERSION,bytes:118284}
 ];
 const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
@@ -276,13 +260,12 @@ async function startGameAssetLoading() {
   },650);
 }
 
-// Try MP3 first because it is supported by the broadest range of devices.
-// Switch to OGG explicitly if MP3 fails to load or decode.
+// Use MP3-only playback; all bundled audio assets are MP3.
 function createAudioPlayer(path) {
   const player = new Audio();
   player.preload = "auto";
-  const basePath = path.replace(/\.(?:ogg|mp3)$/i, "");
-  const formats = ["mp3", "ogg"];
+  const basePath = path.replace(/\.mp3$/i, "");
+  const formats = ["mp3"];
   let formatIndex = 0;
   let wantsPlayback = false;
 

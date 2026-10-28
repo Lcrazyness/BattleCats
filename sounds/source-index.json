@@ -3,144 +3,145 @@
   "source_page": "https://battle-cats.fandom.com/wiki/Music",
   "assets": [
     {
-      "file": "sounds/button-click.ogg",
+      "file": "sounds/button-click.mp3",
       "wiki_file": "Snd011.ogg",
       "role": "Common UI button press",
-      "bytes": 18336,
+      "bytes": 6799,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd011.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/menu-select.ogg",
+      "file": "sounds/menu-select.mp3",
       "wiki_file": "Snd010.ogg",
       "role": "Menu selection / navigation",
-      "bytes": 5884,
+      "bytes": 1505,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd010.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/back-cancel.ogg",
+      "file": "sounds/back-cancel.mp3",
       "wiki_file": "Snd012.ogg",
       "role": "Back / cancel from menus",
-      "bytes": 17232,
+      "bytes": 6117,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd012.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/blocked-action.ogg",
+      "file": "sounds/blocked-action.mp3",
       "wiki_file": "Snd015.ogg",
       "role": "Blocked or unavailable action",
-      "bytes": 8138,
+      "bytes": 2679,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd015.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/cat-base-door.ogg",
+      "file": "sounds/cat-base-door.mp3",
       "wiki_file": "Snd046.ogg",
       "role": "Opening the Cat Base door",
-      "bytes": 32621,
+      "bytes": 14782,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd046.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/enter-battle.ogg",
+      "file": "sounds/enter-battle.mp3",
       "wiki_file": "Snd007.ogg",
       "role": "Entering a stage such as Japan / beginning battle",
-      "bytes": 156612,
+      "bytes": 48487,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd007.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/victory.ogg",
+      "file": "sounds/victory.mp3",
       "wiki_file": "VictoryChime.ogg",
       "role": "Snd008 victory sound / simulated win",
-      "bytes": 124825,
+      "bytes": 116845,
       "source_page": "https://battle-cats.fandom.com/wiki/File:VictoryChime.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/upgrade.ogg",
+      "file": "sounds/upgrade.mp3",
       "wiki_file": "Snd014.ogg",
       "role": "Upgrade action (user-requested mapping)",
-      "bytes": 43362,
+      "bytes": 16941,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd014.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/defeat.ogg",
+      "file": "sounds/defeat.mp3",
       "wiki_file": "Defeat.ogg",
       "role": "Snd009 defeat sound",
-      "bytes": 118284,
+      "bytes": 107818,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Defeat.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/reward.ogg",
+      "file": "sounds/reward.mp3",
       "wiki_file": "TreasureObtained.ogg",
       "role": "Snd029 reward obtained",
-      "bytes": 75295,
+      "bytes": 78497,
       "source_page": "https://battle-cats.fandom.com/wiki/File:TreasureObtained.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/login-reward.ogg",
+      "file": "sounds/login-reward.mp3",
       "wiki_file": "Snd041.ogg",
       "role": "Login reward / cat stamp",
-      "bytes": 45291,
+      "bytes": 11626,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd041.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/capsule-draw.ogg",
+      "file": "sounds/capsule-draw.mp3",
       "wiki_file": "Snd043.ogg",
       "role": "Drawing a Cat Capsule",
-      "bytes": 186462,
+      "bytes": 63025,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd043.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/intro-theme.ogg",
+      "file": "sounds/intro-theme.mp3",
       "wiki_file": "Snd000.ogg",
       "role": "Scrolling opening story music — The Invasion Begins",
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd000.ogg",
       "lookup_api": "https://raw.githubusercontent.com/sinsuirakv0/KBC-rakv0-assets/8e9dca31e3845e3c7dcdc515e6c85d5480538fc0/jp/Local/jp-1507021-2c1ac20b9c424404/assets/snd000.ogg",
-      "source_note": "Mirrored community game asset. Audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistribution."
+      "source_note": "Mirrored community game asset. Audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistribution.",
+      "bytes": 2363802
     },
     {
-      "file": "sounds/title-theme.ogg",
+      "file": "sounds/title-theme.mp3",
       "wiki_file": "Snd001.ogg",
       "role": "Title screen music",
-      "bytes": 1731888,
+      "bytes": 2129985,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd001.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/menu-theme.ogg",
+      "file": "sounds/menu-theme.mp3",
       "wiki_file": "Snd002.ogg",
       "role": "Cat Base/main menu music",
-      "bytes": 1563099,
+      "bytes": 1751520,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd002.ogg",
       "lookup_api": "https://battle-cats.fandom.com/api.php",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."
     },
     {
-      "file": "sounds/battle-theme.ogg",
+      "file": "sounds/battle-theme.mp3",
       "wiki_file": "Snd003.ogg",
       "role": "Battle/stage background music",
-      "bytes": 1442890,
+      "bytes": 1649181,
       "source_page": "https://battle-cats.fandom.com/wiki/File:Snd003.ogg",
       "lookup_api": "",
       "source_note": "Community wiki file page. Battle Cats audio remains copyrighted by PONOS/respective rights holders; verify permissions before redistributing."

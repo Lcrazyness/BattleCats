@@ -3,18 +3,18 @@
 The importer downloads selected audio files from community Battle Cats Wiki file pages. Source details are recorded in source-index.json.
 
 Sound effects:
-- button-click.ogg — standard in-game button press (Snd011)
-- menu-select.ogg — scrolling through selections (Snd010)
-- cat-base-door.ogg — Cat Base door sound (Snd046)
-- enter-battle.ogg — Enter Battle (Snd007)
-- victory.ogg and defeat.ogg — battle outcomes
-- reward.ogg — reward obtained
-- capsule-draw.ogg — drawing a Cat Capsule
+- button-click.mp3 — standard in-game button press (Snd011)
+- menu-select.mp3 — scrolling through selections (Snd010)
+- cat-base-door.mp3 — Cat Base door sound (Snd046)
+- enter-battle.mp3 — Enter Battle (Snd007)
+- victory.mp3 and defeat.mp3 — battle outcomes
+- reward.mp3 — reward obtained
+- capsule-draw.mp3 — drawing a Cat Capsule
 
 Music:
-- intro-theme.ogg — scrolling opening story (SND000, “Shinryaku no Hajimari” / “The Invasion Begins”)
-- title-theme.ogg — title-screen theme (SND001, “Atsumare! Nyanko Gundan” / “Assemble! Cat Army”)
-- menu-theme.ogg — Cat Base/menu theme (SND002, “Shutsujin” / “Leaving for the Front”)
-- battle-theme.ogg — battle/stage theme (SND003, “Nihon Shinryaku!” / “Invading Japan!”)
+- intro-theme.mp3 — scrolling opening story (SND000, “Shinryaku no Hajimari” / “The Invasion Begins”)
+- title-theme.mp3 — title-screen theme (SND001, “Atsumare! Nyanko Gundan” / “Assemble! Cat Army”)
+- menu-theme.mp3 — Cat Base/menu theme (SND002, “Shutsujin” / “Leaving for the Front”)
+- battle-theme.mp3 — battle/stage theme (SND003, “Nihon Shinryaku!” / “Invading Japan!”)
 
-The game loads these local Ogg files; audio playback starts after a player interaction to respect browser autoplay restrictions. The game audio is copyrighted and is not public domain; verify permissions before redistributing a public build.
+The game loads the bundled MP3 files only; audio playback starts after a player interaction to respect browser autoplay restrictions. The game audio is copyrighted and is not public domain; verify permissions before redistributing a public build.
