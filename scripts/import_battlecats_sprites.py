@@ -956,9 +956,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
             # (normal Cat form). Do not use generic filenames containing only "Cat".
             # The gallery also labels the normal Cat's in-battle image as "Uni000 f00".
             # Try that exact normal-form sprite if the generated atlas filename is unavailable.
-            wiki_sheet_title = find_unit_asset(
-                api, ["Uni000 f00", "Uni000_f00", "000 BCP"], excluded=form_exclusions
-            )
+            wiki_sheet_title = find_unit_asset(api, ["000 BCP"], excluded=form_exclusions)
             wiki_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-unit-000") if wiki_sheet_title else None
             if wiki_sheet:
                 frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
