@@ -571,14 +571,72 @@ def normalize_mislabeled_pngs() -> int:
     return converted
 
 
+def normalized_wiki_file_title(value: str) -> str:
+    value = value.lower().strip()
+    if value.startswith("file:"):
+        value = value[5:]
+    value = re.sub(r"\.(png|webp|jpg|jpeg|gif|bmp|tif|tiff)$", "", value, flags=re.I)
+    value = re.sub(r"['’]s\b", "", value)
+    value = value.replace("’", " ").replace("'", " ")
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", value)).strip()
+
+
 def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = (), excluded: tuple[str, ...] = ()) -> str | None:
-    """Find a specific Cat/Doge image file by its Battle Cats Wiki file-page name."""
+    """Resolve only exact Cat/Doge file titles; never accept loosely related art."""
+    expected = [normalized_wiki_file_title(query) for query in queries]
+    expected = [phrase for phrase in expected if phrase]
+    if not expected:
+        return None
+
+    # Try exact MediaWiki file pages first. The title list helps avoid fuzzy search results
+    # such as God Cat, Legend Cat, or unrelated Doge fan art.
+    direct_titles = []
+    extensions = (".png", ".gif", ".webp", ".jpg", ".jpeg", ".bmp")
+    for query in queries:
+        base = query.strip()
+        if base.lower().startswith("file:"):
+            base = base[5:]
+        if re.search(r"\.(png|webp|jpg|jpeg|gif|bmp)$", base, flags=re.I):
+            direct_titles.append("File:" + base)
+        else:
+            direct_titles.extend("File:" + base + extension for extension in extensions)
+    for offset in range(0, len(direct_titles), 35):
+        params = {
+            "action": "query",
+            "titles": "|".join(direct_titles[offset:offset + 35]),
+            "prop": "imageinfo",
+            "iiprop": "url|mime|size",
+            "format": "json",
+        }
+        try:
+            response = session.get(api, params=params, timeout=30)
+            response.raise_for_status()
+            pages = response.json().get("query", {}).get("pages", {})
+            for page in pages.values():
+                title = page.get("title", "")
+                normalized = normalized_wiki_file_title(title)
+                if page.get("missing") is not None or normalized not in expected:
+                    continue
+                if not page.get("imageinfo"):
+                    continue
+                lowered = normalized.lower()
+                if any(normalized_wiki_file_title(term) in lowered for term in excluded):
+                    continue
+                if required and not all(term.lower() in lowered for term in required):
+                    continue
+                print(f"Matched exact Battle Cats asset: {title}")
+                return title
+        except Exception as exc:
+            print(f"WARNING: exact file lookup failed for {queries[0]!r}: {exc}")
+
+    # Fall back to the wiki's search index, but still require the complete normalized
+    # requested title, so search ranking can never substitute a different character.
     candidates: dict[str, dict] = {}
     for query in queries:
         params = {
             "action": "query",
             "list": "search",
-            "srsearch": query,
+            "srsearch": "file:" + query,
             "srnamespace": "6",
             "srlimit": "20",
             "format": "json",
@@ -588,32 +646,23 @@ def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = ()
             response.raise_for_status()
             for item in response.json().get("query", {}).get("search", []):
                 title = item.get("title", "")
-                lowered = title.lower().removeprefix("file:")
-                if not title or any(term in lowered for term in excluded):
+                normalized = normalized_wiki_file_title(title)
+                if normalized not in expected:
                     continue
-                if required and not all(term in lowered for term in required):
+                if any(normalized_wiki_file_title(term) in normalized for term in excluded):
+                    continue
+                if required and not all(term.lower() in normalized for term in required):
                     continue
                 candidates[title] = item
         except Exception as exc:
-            print(f"WARNING: asset search failed for {query!r}: {exc}")
+            print(f"WARNING: exact title search failed for {query!r}: {exc}")
         time.sleep(0.08)
 
     if not candidates:
+        print("No exact Battle Cats file matched: " + " / ".join(queries))
         return None
-
-    def score(title: str) -> tuple[int, int, str]:
-        lowered = title.lower().removeprefix("file:")
-        exact = 0
-        for query in queries:
-            cleaned = query.lower().replace("'", "").replace("’", "")
-            if cleaned in lowered.replace("'", "").replace("’", ""):
-                exact += 100
-        # Favor the requested base form rather than evolved versions or screenshots.
-        penalties = sum(1 for word in ("macho", "mohawk", "evolved", "true form", "screenshot", "icon") if word in lowered)
-        return (-exact, penalties, lowered)
-
-    title = sorted(candidates, key=score)[0]
-    print(f"Selected Battle Cats image source: {title}")
+    title = sorted(candidates, key=lambda item: normalized_wiki_file_title(item))[0]
+    print(f"Matched exact Battle Cats asset: {title}")
     return title
 
 
@@ -755,57 +804,79 @@ def copy_as_png(source: Path, destination: Path) -> bool:
 
 
 def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -> dict:
-    """Build Cats/cat or enemys/doge with local move/attack/damaged/slot imagery."""
+    """Build Cats/cat or enemys/doge with correctly matched local Battle Cats artwork."""
     moving_dir = folder / "moving"
     attack_dir = folder / "attack"
     damaged_dir = folder / "damaged"
-    moving_dir.mkdir(parents=True, exist_ok=True)
-    attack_dir.mkdir(parents=True, exist_ok=True)
-    damaged_dir.mkdir(parents=True, exist_ok=True)
+    for directory in (moving_dir, attack_dir, damaged_dir):
+        directory.mkdir(parents=True, exist_ok=True)
 
     title = "Doge" if enemy else "Cat"
-    excluded_forms = ("macho", "mohawk", "true form", "evolved")
+    excluded_forms = ("Macho", "Mohawk", "God Cat", "Legend Cat", "True Form", "Evolved")
+    form_exclusions = excluded_forms if not enemy else ()
+
+    # Remove old generated damage/slot files first; otherwise a failed lookup could leave
+    # the unrelated Blob Doge or another Cat variant in the live game.
+    for path in damaged_dir.iterdir():
+        if path.is_file():
+            path.unlink()
+    old_slot = folder / "slot.png"
+    if old_slot.exists():
+        old_slot.unlink()
+    if not enemy:
+        old_upgrade = folder / "upgrade.png"
+        if old_upgrade.exists():
+            old_upgrade.unlink()
+
     sheet_title = find_unit_asset(
         api,
-        [f"{title}'s spritesheet", f"{title} spritesheet", f"{title} sprite sheet"],
+        [f"{title}'s spritesheet", f"{title} spritesheet"],
         required=(title.lower(), "sprite"),
-        excluded=excluded_forms if not enemy else (),
+        excluded=form_exclusions,
     )
     sheet_path = download_wiki_image(api, sheet_title, moving_dir / f"{name}-spritesheet") if sheet_title else None
 
+    # The existing source archive's Basic Cat image is an exact basic-Cat reference;
+    # use it rather than keeping a prior fuzzy search result if the wiki lookup fails.
     if not sheet_path and not enemy:
-        existing_sheet = SHEETS / "basic-cat-bcp.webp"
-        if existing_sheet.exists():
-            from PIL import Image
-            sheet_path = moving_dir / "cat-spritesheet.png"
-            with Image.open(existing_sheet) as opened:
-                opened.convert("RGBA").save(sheet_path, format="PNG", optimize=True)
-            print("Used the existing bundled Basic Cat sheet as the Cat source fallback.")
+        for candidate in (SHEETS / "basic-cat-bcp.webp", SHEETS / "basic-cat-bcp.png"):
+            if candidate.exists():
+                from PIL import Image
+                sheet_path = moving_dir / f"{name}-spritesheet.png"
+                with Image.open(candidate) as opened:
+                    opened.convert("RGBA").save(sheet_path, format="PNG", optimize=True)
+                print("Used the bundled Basic Cat source as the exact Cat sprite fallback.")
+                break
     frame_paths = split_unit_sheet(sheet_path, moving_dir) if sheet_path else []
 
     attack_title = find_unit_asset(
         api,
-        [f"{title}'s attack animation", f"{title} attack animation"],
+        [f"{title}'s attack animation", f"{title} attack animation", f"{title} attack"],
         required=(title.lower(), "attack"),
-        excluded=excluded_forms if not enemy else (),
+        excluded=form_exclusions,
     )
     attack_path = download_wiki_image(api, attack_title, attack_dir / f"{name}-attack", preserve_gif=True) if attack_title else None
+    if not attack_path and frame_paths:
+        attack_path = attack_dir / f"{name}-attack.png"
+        copy_as_png(frame_paths[-1], attack_path)
 
-    damage_title = find_unit_asset(
-        api,
-        [f"{title}'s damage animation", f"{title}'s hurt animation", f"{title} taking damage", f"{title} hurt animation"],
-        required=(title.lower(),),
-        excluded=("macho", "mohawk", "attack", "icon", "upgrade"),
-    )
-    damage_path = download_wiki_image(api, damage_title, damaged_dir / f"{name}-damaged", preserve_gif=True) if damage_title else None
-    if not damage_path and frame_paths:
-        damage_path = damaged_dir / f"{name}-damaged.png"
-        copy_as_png(frame_paths[-1], damage_path)
+    # The wiki does not always expose a separate damaged animation for basic units.
+    # Use a real frame from the same unit's sheet rather than fuzzy-matching unrelated art.
+    damaged_path = damaged_dir / f"{name}-damaged.png" if frame_paths else None
+    if damaged_path and not copy_as_png(frame_paths[-1], damaged_path):
+        damaged_path = None
 
-    slot_queries = [f"{title}'s icon", f"{title} icon", f"{title}'s sprite in the Storage", f"{title} sprite in the Storage"]
+    slot_queries = [
+        f"{title}'s icon",
+        f"{title} icon",
+        f"{title}'s sprite in the Storage",
+        f"{title} sprite in the Storage",
+    ]
     slot_title = find_unit_asset(
-        api, slot_queries, required=(title.lower(),),
-        excluded=("macho", "mohawk", "upgrade", "attack", "true form", "evolved"),
+        api,
+        slot_queries,
+        required=(title.lower(),),
+        excluded=form_exclusions + (("attack", "upgrade", "spritesheet") if not enemy else ("attack", "spritesheet")),
     )
     slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
     if not slot_path and frame_paths:
@@ -818,7 +889,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
             api,
             ["Cat's Upgrade Menu icon", "Cat Upgrade Menu icon"],
             required=("cat", "upgrade"),
-            excluded=("macho", "mohawk", "true form", "evolved"),
+            excluded=form_exclusions,
         )
         upgrade_path = download_wiki_image(api, upgrade_title, folder / "upgrade") if upgrade_title else None
         if not upgrade_path and slot_path:
@@ -831,16 +902,16 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         frames = [fallback.relative_to(ROOT).as_posix()] if fallback.exists() else []
     manifest = {
         "name": name,
-        "source": "Battle Cats Wiki community assets; original art belongs to its respective rights holders.",
+        "source": "Battle Cats Wiki community assets. The original game artwork belongs to its respective rights holders.",
         "moving": frames,
         "attack": attack_path.relative_to(ROOT).as_posix() if attack_path else (frames[0] if frames else None),
-        "damaged": damage_path.relative_to(ROOT).as_posix() if damage_path else (frames[-1] if frames else None),
+        "damaged": damaged_path.relative_to(ROOT).as_posix() if damaged_path else (frames[-1] if frames else None),
         "slot": slot_path.relative_to(ROOT).as_posix() if slot_path else None,
         "upgrade": upgrade_path.relative_to(ROOT).as_posix() if upgrade_path else None,
     }
     (folder / "assets.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     (moving_dir / "frames.json").write_text(json.dumps({"frames": frames}, indent=2), encoding="utf-8")
-    print(f"Wrote {folder.relative_to(ROOT)}/assets.json with {len(frames)} movement frame(s).")
+    print(f"Wrote {folder.relative_to(ROOT)}/assets.json with {len(frames)} moving frame(s).")
     return manifest
 
 
