@@ -1,11 +1,18 @@
 {
   "name": "cat",
-  "source": "Battle Cats Wiki community assets; the original game artwork belongs to its respective rights holders.",
+  "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/",
   "moving": [
     "Cats/cat/moving/frame-001.png"
   ],
-  "attack": "Cats/cat/attack/cat-attack.png",
-  "damaged": "Cats/cat/damaged/cat-damaged.png",
+  "attacks": [
+    "Cats/cat/attack/frame-001.png"
+  ],
+  "attack": "Cats/cat/attack/frame-001.png",
+  "damagedFrames": [
+    "Cats/cat/damaged/frame-001.png"
+  ],
+  "damaged": "Cats/cat/damaged/frame-001.png",
   "slot": "Cats/cat/slot.png",
   "upgrade": "Cats/cat/upgrade.png"
 }

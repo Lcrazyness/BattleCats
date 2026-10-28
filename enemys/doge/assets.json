@@ -1,11 +1,36 @@
 {
   "name": "doge",
-  "source": "Battle Cats Wiki community assets; the original game artwork belongs to its respective rights holders.",
+  "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://battle-cats.fandom.com/wiki/Doge/Gallery",
   "moving": [
-    "enemys/doge/moving/frame-001.png"
+    "enemys/doge/moving/frame-001.png",
+    "enemys/doge/moving/frame-002.png",
+    "enemys/doge/moving/frame-003.png",
+    "enemys/doge/moving/frame-004.png",
+    "enemys/doge/moving/frame-005.png",
+    "enemys/doge/moving/frame-006.png",
+    "enemys/doge/moving/frame-007.png",
+    "enemys/doge/moving/frame-008.png",
+    "enemys/doge/moving/frame-009.png",
+    "enemys/doge/moving/frame-010.png"
   ],
-  "attack": "enemys/doge/attack/doge-attack.gif",
-  "damaged": "enemys/doge/damaged/doge-damaged.png",
+  "attacks": [
+    "enemys/doge/attack/frame-001.png",
+    "enemys/doge/attack/frame-002.png",
+    "enemys/doge/attack/frame-003.png",
+    "enemys/doge/attack/frame-004.png",
+    "enemys/doge/attack/frame-005.png",
+    "enemys/doge/attack/frame-006.png",
+    "enemys/doge/attack/frame-007.png",
+    "enemys/doge/attack/frame-008.png",
+    "enemys/doge/attack/frame-009.png",
+    "enemys/doge/attack/frame-010.png"
+  ],
+  "attack": "enemys/doge/attack/frame-001.png",
+  "damagedFrames": [
+    "enemys/doge/damaged/frame-001.png"
+  ],
+  "damaged": "enemys/doge/damaged/frame-001.png",
   "slot": "enemys/doge/slot.png",
   "upgrade": null
 }
