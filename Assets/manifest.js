@@ -22,6 +22,7 @@
     "ui.upgrade": "sprites/ui/upgradebutton.png",
     "ui.equip": "sprites/ui/equipbutton.png",
     "bg.title": "sprites/backgrounds/titlescreenmenu.png",
+    "bg.empire_map": "sprites/backgrounds/empire-of-cats-map.png",
     "bg.base": "sprites/backgrounds/bg_restored.png",
     "sprites.cat_icon": "sprites/original_sheets/normal-cat-right-icon.webp",
     "sprites.cat_base_icon": "sprites/original_sheets/cat-base-menu-icon.webp"
