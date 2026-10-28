@@ -1107,3 +1107,116 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     animation-delay:0ms !important;
   }
 }
+
+
+/* Match Chapter Select to the existing title-screen stage, without extra labels. */
+.chapter-select-screen {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:linear-gradient(180deg,#ff7900 0%,#ffb800 60%,#ffdf29 100%);
+  isolation:isolate;
+}
+.chapter-select-frame {
+  position:relative;
+  flex:0 0 auto;
+  width:min(100vw,142.2222dvh);
+  height:min(100dvh,70.3125vw);
+  aspect-ratio:1280/900;
+  overflow:hidden;
+  background:#ff9a00;
+}
+.chapter-select-background {
+  position:absolute;
+  inset:0;
+  z-index:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.chapter-banner {
+  position:absolute;
+  z-index:12;
+  left:50%;
+  top:70.75%;
+  width:56%;
+  height:24.9%;
+  display:grid;
+  place-items:center;
+  margin:0;
+  padding:0;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  transform:translate(-50%,-50%);
+  animation:chapter-banner-arrive 1050ms cubic-bezier(.17,.8,.22,1) both;
+}
+.chapter-banner img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 5px 6px #0008);
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+@keyframes chapter-banner-arrive {
+  0% { opacity:0; transform:translate(calc(-50% + 110vw),-50%) scale(.96); }
+  76% { opacity:1; transform:translate(calc(-50% - .8%),-50%) scale(1.01); }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+.chapter-back {
+  position:absolute;
+  z-index:20;
+  left:.8%;
+  bottom:.8%;
+  width:8%;
+  height:11.1%;
+  display:grid;
+  place-items:center;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  box-shadow:none;
+}
+.chapter-back img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.chapter-select-screen.chapter-leaving {
+  pointer-events:none !important;
+  animation:chapter-select-to-black 850ms ease-in-out both;
+}
+@keyframes chapter-select-to-black {
+  0% { opacity:1; filter:brightness(1); }
+  72% { filter:brightness(0); }
+  100% { opacity:0; filter:brightness(0); }
+}
+@media(max-aspect-ratio:1/1) {
+  .chapter-select-frame { width:100vw;height:70.3125vw;max-height:100dvh; }
+  .chapter-banner { width:74%;height:24.9%; }
+  .chapter-back { width:12%;height:11.1%; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .chapter-select-screen,
+  .chapter-banner,
+  .chapter-select-screen.chapter-leaving {
+    animation-duration:1ms !important;
+    animation-delay:0ms !important;
+  }
+}

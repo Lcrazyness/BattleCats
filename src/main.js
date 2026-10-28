@@ -414,7 +414,7 @@ function syncMusicForScene(targetScene = scene) {
     return;
   }
 
-  const nextKey = targetScene === "intro" ? "intro" : targetScene === "title" ? "title" : targetScene === "fight" ? "battle" : "menu";
+  const nextKey = targetScene === "intro" ? "intro" : (targetScene === "title" || targetScene === "chapters") ? "title" : targetScene === "fight" ? "battle" : "menu";
 
   // Let the battle-entry sound finish before starting the battle theme.
   if (targetScene === "fight" && battleStartPlayer && !battleStartPlayer.ended) {
@@ -541,15 +541,15 @@ function renderTitle() {
 }
 function renderChapterSelect() {
   return '<section class="screen chapter-select-screen" aria-label="Chapter selection">'+
-    '<div class="chapter-select-glow"></div>'+
-    '<div class="chapter-select-heading">CHAPTER SELECT</div>'+
-    '<div class="chapter-select-subtitle">Choose your campaign</div>'+
-    '<button class="chapter-banner" data-go="chapter-enter" aria-label="Empire of Cats">'+
-      '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="Empire of Cats" draggable="false">'+
-    '</button>'+
-    '<button class="chapter-back" data-go="chapter-back" aria-label="Back to title">'+
-      '<img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false">'+
-    '</button>'+
+    '<div class="chapter-select-frame">'+
+      '<img class="chapter-select-background" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-9" alt="" draggable="false">'+
+      '<button class="chapter-banner" data-go="chapter-enter" aria-label="Empire of Cats">'+
+        '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="Empire of Cats" draggable="false">'+
+      '</button>'+
+      '<button class="chapter-back" data-go="chapter-back" aria-label="Back to title">'+
+        '<img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false">'+
+      '</button>'+
+    '</div>'+
   '</section>';
 }
 function renderBase() {
@@ -759,12 +759,17 @@ function render() {
     if (scene === "intro" && introStory.isConnected) leaveIntro();
   }, {once:true});
   const introScreen = stage.querySelector(".intro-screen");
-  if (introScreen) introScreen.addEventListener("animationend", event => {
-    if (event.target === introScreen && scene === "intro" && introScreen.classList.contains("intro-leaving")) {
-      titleFadeFromBlack = true;
-      navigate("title");
-    }
-  });
+  if (introScreen) {
+    introScreen.addEventListener("click", () => {
+      if (scene === "intro") leaveIntro();
+    });
+    introScreen.addEventListener("animationend", event => {
+      if (event.target === introScreen && scene === "intro" && introScreen.classList.contains("intro-leaving")) {
+        titleFadeFromBlack = true;
+        navigate("title");
+      }
+    });
+  }
   stage.querySelectorAll(".title-intro-play, .title-intro-settings").forEach(button => {
     button.addEventListener("animationend", () => {
       button.classList.remove("title-intro-play", "title-intro-settings");
