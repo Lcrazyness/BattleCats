@@ -34,8 +34,8 @@ let battleTimer = null;
 let battleAssetsPromise = null;
 const BATTLE_ASSET_VERSION = "20261029-17";
 const BATTLE_ASSETS = {
-  cat: {moving:["Cats/cat/moving/frame-001.png"],attack:"Cats/cat/moving/frame-001.png",damaged:"Cats/cat/moving/frame-001.png",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
-  doge: {moving:["enemys/doge/moving/frame-001.png"],attack:"enemys/doge/moving/frame-001.png",damaged:"enemys/doge/moving/frame-001.png",slot:"enemys/doge/slot.png"}
+  cat: {moving:["Cats/cat/moving/frame-001.png"],attacks:[],attack:"Cats/cat/moving/frame-001.png",damagedFrames:[],damaged:"Cats/cat/moving/frame-001.png",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
+  doge: {moving:["enemys/doge/moving/frame-001.png"],attacks:[],attack:"enemys/doge/moving/frame-001.png",damagedFrames:[],damaged:"enemys/doge/moving/frame-001.png",slot:"enemys/doge/slot.png"}
 };
 const EMPIRE_CHAPTER_ONE = [
   {
@@ -323,7 +323,22 @@ const mainScript = document.querySelector('script[src*="src/main.js"]');
 const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
 
 const LOADING_IMAGE_ASSETS = [
-  {path:"Levels/Korea/background.png?v=20261029-1",bytes:140000},
+  {path:"Levels/Korea/background.png?v=20261029-1",bytes:215583},
+  {path:"Cats/cat/moving/frame-001.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/moving/frame-002.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/moving/frame-003.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/attack/frame-001.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/attack/frame-002.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/attack/frame-003.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/damaged/frame-001.png?v=20261029-18",bytes:7000},
+  {path:"Cats/cat/slot.png?v=20261029-18",bytes:9000},
+  {path:"Cats/cat/upgrade.png?v=20261029-18",bytes:9000},
+  {path:"enemys/doge/moving/frame-001.png?v=20261029-18",bytes:9000},
+  {path:"enemys/doge/attack/frame-001.png?v=20261029-18",bytes:9000},
+  {path:"enemys/doge/attack/frame-002.png?v=20261029-18",bytes:9000},
+  {path:"enemys/doge/attack/frame-003.png?v=20261029-18",bytes:9000},
+  {path:"enemys/doge/damaged/frame-001.png?v=20261029-18",bytes:9000},
+  {path:"enemys/doge/slot.png?v=20261029-18",bytes:9000},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -902,6 +917,8 @@ function loadBattleAssetManifests() {
       const data = await response.json();
       const current = BATTLE_ASSETS[kind];
       if (Array.isArray(data.moving) && data.moving.length) current.moving = data.moving;
+      if (Array.isArray(data.attacks) && data.attacks.length) current.attacks = data.attacks;
+      if (Array.isArray(data.damagedFrames) && data.damagedFrames.length) current.damagedFrames = data.damagedFrames;
       if (data.attack) current.attack = data.attack;
       if (data.damaged) current.damaged = data.damaged;
       if (data.slot) current.slot = data.slot;
@@ -935,10 +952,19 @@ function battleSlotImage(unit) {
 }
 function battleImageFor(entity) {
   const assets = BATTLE_ASSETS[entity.kind] || BATTLE_ASSETS.cat;
-  if (entity.mode==="attack") return battleAssetUrl(assets.attack || assets.moving[0]);
-  if (entity.mode==="damaged") return battleAssetUrl(assets.damaged || assets.moving[0]);
+  const elapsed = battleState ? battleState.elapsed : 0;
+  if (entity.mode==="attack") {
+    const attacks = assets.attacks && assets.attacks.length ? assets.attacks : [];
+    if (attacks.length) return battleAssetUrl(attacks[Math.floor(elapsed*12+(entity.frameAt||0))%attacks.length]);
+    return battleAssetUrl(assets.attack || assets.moving[0]);
+  }
+  if (entity.mode==="damaged") {
+    const damaged = assets.damagedFrames && assets.damagedFrames.length ? assets.damagedFrames : [];
+    if (damaged.length) return battleAssetUrl(damaged[Math.floor(elapsed*10+(entity.frameAt||0))%damaged.length]);
+    return battleAssetUrl(assets.damaged || assets.moving[0]);
+  }
   const frames = assets.moving && assets.moving.length ? assets.moving : [assets.slot];
-  const index = Math.floor((battleState ? battleState.elapsed : 0)*5 + (entity.frameAt||0)) % frames.length;
+  const index = Math.floor(elapsed*5 + (entity.frameAt||0)) % frames.length;
   return battleAssetUrl(frames[index] || frames[0] || assets.slot);
 }
 function findBattleEntity(key) {
