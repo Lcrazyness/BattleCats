@@ -626,8 +626,9 @@ def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = ()
         return all(term.lower() in normalized for term in required)
 
     def has_query_words(normalized: str, query: str) -> bool:
-        words = [word for word in normalized_wiki_file_title(query).split() if len(word) > 1]
-        return bool(words) and all(word in normalized for word in words)
+        phrase = normalized_wiki_file_title(query)
+        # Unit name/state must be a prefix, so "Ice Cat Attack Animation" cannot match "Cat Attack Animation".
+        return bool(phrase) and (normalized == phrase or normalized.startswith(phrase + " "))
 
     # Exact titles avoid mistakenly importing another character's art.
     direct_titles = []
@@ -991,7 +992,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
     elif not attack_frames:
         attack_title = find_unit_asset(
             api,
-            ["Cat's attack animation", "Cat attack animation"],
+            ["Cat's attack animation", "Cat attack animation", "Cat attack"],
             required=("cat", "attack"),
             excluded=form_exclusions + ("icon", "upgrade", "spritesheet", "storage"),
         )
@@ -1020,6 +1021,10 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         if copy_as_png(slot_path, first_frame):
             frame_paths = [first_frame]
     if not attack_frames and frame_paths:
+        if not enemy:
+            for stale in attack_dir.iterdir():
+                if stale.is_file() and (stale.name.startswith("frame-") or stale.name == "cat-attack.gif" or stale.name == "cat-attack.png"):
+                    stale.unlink()
         attack_frame = attack_dir / "frame-001.png"
         if copy_as_png(frame_paths[-1], attack_frame):
             attack_frames = [attack_frame]
@@ -1039,6 +1044,10 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 if copy_as_png(damage_path, damaged_frame):
                     damaged_frames = [damaged_frame]
     if not damaged_frames and frame_paths:
+        if not enemy:
+            for stale in damaged_dir.iterdir():
+                if stale.is_file() and (stale.name.startswith("frame-") or stale.name.startswith("cat-damaged")):
+                    stale.unlink()
         damaged_frame = damaged_dir / "frame-001.png"
         if copy_as_png(frame_paths[-1], damaged_frame):
             damaged_frames = [damaged_frame]
