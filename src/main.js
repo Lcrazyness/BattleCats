@@ -344,6 +344,7 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/original_sheets/cat-base-menu.webp",bytes:227100},
   {path:"sprites/original_sheets/main-menu-ver-10-10.webp",bytes:392714},
   {path:"sprites/cat-base-reference.jpg",bytes:85938},
+  {path:"sprites/backgrounds/empire-of-cats-map.png?v=20261029-14",bytes:511164},
   {path:"sprites/title-screen.webp",bytes:186052},
   {path:"sprites/ui/title-play.png",bytes:32980}
 ];
@@ -1231,6 +1232,7 @@ function perform(action) {
     case "win": {
       playSfx("victory");
       save.xp += 250; save.missions = (save.missions||0)+1; save.stageClears = (save.stageClears||0)+1;
+      selectedLevelIndex = Math.min(Math.max(0,save.stageClears),47);
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
