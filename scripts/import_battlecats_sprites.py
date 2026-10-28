@@ -100,42 +100,58 @@ def safe_slug(title: str) -> str:
 
 
 def download(url: str, destination: Path) -> bool:
-    try:
-        headers = {}
-        if "spriters-resource.com" in url.lower():
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-                "Referer": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/",
-                "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-            }
-        response = session.get(url, headers=headers, timeout=45, stream=True)
-        response.raise_for_status()
-        content_type = response.headers.get("content-type", "").lower()
-        if not content_type.startswith("image/"):
-            print(f"Skip non-image response for {destination.name}: {content_type}")
+    urls = [url]
+    is_spriters = "spriters-resource.com" in url.lower()
+    if is_spriters:
+        # The original host rejects automated CI requests; try image proxies as a fallback.
+        clean_url = url.replace("https://", "").replace("http://", "")
+        urls.extend([
+            "https://wsrv.nl/?url=" + quote(clean_url, safe=""),
+            "https://images.weserv.nl/?url=" + quote(clean_url, safe=""),
+        ])
+    last_error = None
+    for candidate_url in urls:
+        try:
+            headers = {}
+            if "spriters-resource.com" in candidate_url.lower():
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+                    "Referer": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/",
+                    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                }
+            else:
+                headers = {"User-Agent": "Mozilla/5.0 (compatible; BattleCatsFanRemakeAssetImporter/1.0)"}
+            response = session.get(candidate_url, headers=headers, timeout=45, stream=True)
+            response.raise_for_status()
+            content_type = response.headers.get("content-type", "").lower()
+            if not content_type.startswith("image/"):
+                print(f"Skip non-image response for {destination.name} from {candidate_url}: {content_type}")
+                response.close()
+                continue
+            tmp = destination.with_suffix(destination.suffix + ".part")
+            total = 0
+            with tmp.open("wb") as output:
+                for chunk in response.iter_content(128 * 1024):
+                    if not chunk:
+                        continue
+                    total += len(chunk)
+                    if total > MAX_FILE_BYTES:
+                        raise ValueError(f"file exceeds {MAX_FILE_BYTES} byte safety limit")
+                    output.write(chunk)
             response.close()
-            return False
-        tmp = destination.with_suffix(destination.suffix + ".part")
-        total = 0
-        with tmp.open("wb") as output:
-            for chunk in response.iter_content(128 * 1024):
-                if not chunk:
-                    continue
-                total += len(chunk)
-                if total > MAX_FILE_BYTES:
-                    raise ValueError(f"file exceeds {MAX_FILE_BYTES} byte safety limit")
-                output.write(chunk)
-        response.close()
-        if total < 128:
-            tmp.unlink(missing_ok=True)
-            print(f"Skip suspiciously small image: {destination.name}")
-            return False
-        tmp.replace(destination)
-        print(f"Downloaded {destination.relative_to(ROOT)} ({total:,} bytes)")
-        return True
-    except Exception as exc:
-        print(f"WARNING: could not download {url}: {exc}")
-        return False
+            if total < 128:
+                tmp.unlink(missing_ok=True)
+                print(f"Skip suspiciously small image: {destination.name}")
+                continue
+            tmp.replace(destination)
+            print(f"Downloaded {destination.relative_to(ROOT)} ({total:,} bytes) from {candidate_url}")
+            return True
+        except Exception as exc:
+            last_error = exc
+            print(f"WARNING: could not download {candidate_url}: {exc}")
+    if last_error:
+        print(f"WARNING: exhausted download sources for {destination.name}.")
+    return False
 
 
 PAGE_REFERENCES = [
