@@ -1536,7 +1536,7 @@ function perform(action) {
     case "retry-battle": battleState=createBattleState(); navigate("fight"); break;
     case "lose": playSfx("defeat"); navigate("battle"); break;
     case "win": {
-      playSfx("victory");
+      if (!battleState || battleState.ended!=="win") playSfx("victory");
       save.xp += 250; save.missions = (save.missions||0)+1; save.stageClears = (save.stageClears||0)+1;
       selectedLevelIndex = Math.min(Math.max(0,save.stageClears),47);
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
