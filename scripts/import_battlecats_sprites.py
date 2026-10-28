@@ -570,6 +570,327 @@ def normalize_mislabeled_pngs() -> int:
             print(f"WARNING: couldn't normalize {path.name}: {exc}")
     return converted
 
+
+def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = (), excluded: tuple[str, ...] = ()) -> str | None:
+    """Find a specific Cat/Doge image file by its Battle Cats Wiki file-page name."""
+    candidates: dict[str, dict] = {}
+    for query in queries:
+        params = {
+            "action": "query",
+            "list": "search",
+            "srsearch": query,
+            "srnamespace": "6",
+            "srlimit": "20",
+            "format": "json",
+        }
+        try:
+            response = session.get(api, params=params, timeout=30)
+            response.raise_for_status()
+            for item in response.json().get("query", {}).get("search", []):
+                title = item.get("title", "")
+                lowered = title.lower().removeprefix("file:")
+                if not title or any(term in lowered for term in excluded):
+                    continue
+                if required and not all(term in lowered for term in required):
+                    continue
+                candidates[title] = item
+        except Exception as exc:
+            print(f"WARNING: asset search failed for {query!r}: {exc}")
+        time.sleep(0.08)
+
+    if not candidates:
+        return None
+
+    def score(title: str) -> tuple[int, int, str]:
+        lowered = title.lower().removeprefix("file:")
+        exact = 0
+        for query in queries:
+            cleaned = query.lower().replace("'", "").replace("’", "")
+            if cleaned in lowered.replace("'", "").replace("’", ""):
+                exact += 100
+        # Favor the requested base form rather than evolved versions or screenshots.
+        penalties = sum(1 for word in ("macho", "mohawk", "evolved", "true form", "screenshot", "icon") if word in lowered)
+        return (-exact, penalties, lowered)
+
+    title = sorted(candidates, key=score)[0]
+    print(f"Selected Battle Cats image source: {title}")
+    return title
+
+
+def download_wiki_image(api: str, title: str, destination_base: Path, preserve_gif: bool = False) -> Path | None:
+    """Download a wiki file locally, converting still artwork to a real PNG."""
+    try:
+        params = {
+            "action": "query",
+            "titles": title,
+            "prop": "imageinfo",
+            "iiprop": "url|mime|size",
+            "format": "json",
+        }
+        response = session.get(api, params=params, timeout=30)
+        response.raise_for_status()
+        pages = response.json().get("query", {}).get("pages", {})
+        info = next(iter(pages.values())).get("imageinfo", [{}])[0]
+        url = info.get("url")
+        mime = info.get("mime", "")
+        if not url or not mime.startswith("image/"):
+            print(f"WARNING: no image URL for {title}")
+            return None
+
+        destination_base.parent.mkdir(parents=True, exist_ok=True)
+        source_ext = {
+            "image/png": ".png",
+            "image/jpeg": ".jpg",
+            "image/webp": ".webp",
+            "image/gif": ".gif",
+            "image/bmp": ".bmp",
+        }.get(mime, Path(url.split("?")[0]).suffix or ".img")
+        temp = destination_base.with_name(destination_base.name + ".source" + source_ext)
+        if not download(url, temp):
+            return None
+
+        if preserve_gif and mime == "image/gif":
+            final = destination_base.with_suffix(".gif")
+            temp.replace(final)
+        else:
+            from PIL import Image
+            final = destination_base.with_suffix(".png")
+            with Image.open(temp) as opened:
+                opened.seek(0)
+                opened.convert("RGBA").save(final, format="PNG", optimize=True)
+            temp.unlink(missing_ok=True)
+
+        print(f"Saved Battle Cats artwork: {final.relative_to(ROOT)}")
+        return final
+    except Exception as exc:
+        print(f"WARNING: failed to import wiki image {title}: {exc}")
+        return None
+
+
+def split_unit_sheet(sheet_path: Path, moving_dir: Path) -> list[Path]:
+    """Cut a transparent unit sheet into frame PNGs where the sheet has separable frames."""
+    import numpy as np
+    from PIL import Image
+
+    moving_dir.mkdir(parents=True, exist_ok=True)
+    frames: list[Path] = []
+    try:
+        with Image.open(sheet_path) as opened:
+            opened.seek(0)
+            sheet = opened.convert("RGBA")
+        alpha = np.asarray(sheet.getchannel("A"))
+        occupied_x = np.any(alpha > 8, axis=0)
+        occupied_y = np.any(alpha > 8, axis=1)
+
+        def runs(mask: "np.ndarray") -> list[tuple[int, int]]:
+            raw = []
+            start = None
+            for index, value in enumerate(mask.tolist()):
+                if value and start is None:
+                    start = index
+                elif not value and start is not None:
+                    raw.append((start, index))
+                    start = None
+            if start is not None:
+                raw.append((start, len(mask)))
+            merged = []
+            join_gap = max(2, min(8, len(mask) // 180))
+            for left, right in raw:
+                if merged and left - merged[-1][1] <= join_gap:
+                    merged[-1] = (merged[-1][0], right)
+                else:
+                    merged.append((left, right))
+            return merged
+
+        columns = runs(occupied_x)
+        if len(columns) < 2 and sheet.width >= sheet.height * 1.7:
+            count = max(2, min(16, round(sheet.width / max(1, sheet.height))))
+            columns = [(round(i * sheet.width / count), round((i + 1) * sheet.width / count)) for i in range(count)]
+        if len(columns) < 2:
+            rows = runs(occupied_y)
+            if len(rows) < 2 and sheet.height >= sheet.width * 1.7:
+                count = max(2, min(16, round(sheet.height / max(1, sheet.width))))
+                rows = [(round(i * sheet.height / count), round((i + 1) * sheet.height / count)) for i in range(count)]
+            if len(rows) >= 2:
+                for top, bottom in rows:
+                    crop = sheet.crop((0, top, sheet.width, bottom))
+                    box = crop.getchannel("A").getbbox()
+                    if box:
+                        frames.append(crop.crop(box))
+        else:
+            for left, right in columns:
+                crop = sheet.crop((left, 0, right, sheet.height))
+                box = crop.getchannel("A").getbbox()
+                if box:
+                    frames.append(crop.crop(box))
+
+        if not frames:
+            box = sheet.getchannel("A").getbbox()
+            frames = [sheet.crop(box) if box else sheet]
+        # Very large atlas images can have accidental extra regions; cap frame count.
+        frames = frames[:24]
+        frame_paths = []
+        for index, frame in enumerate(frames, start=1):
+            path = moving_dir / f"frame-{index:03d}.png"
+            frame.save(path, format="PNG", optimize=True)
+            frame_paths.append(path)
+        print(f"Cut {len(frame_paths)} frame(s) from {sheet_path.relative_to(ROOT)}")
+        return frame_paths
+    except Exception as exc:
+        print(f"WARNING: could not split sprite sheet {sheet_path}: {exc}")
+        return []
+
+
+def copy_as_png(source: Path, destination: Path) -> bool:
+    try:
+        from PIL import Image
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with Image.open(source) as opened:
+            opened.seek(0)
+            opened.convert("RGBA").save(destination, format="PNG", optimize=True)
+        return True
+    except Exception as exc:
+        print(f"WARNING: unable to copy sprite frame to {destination}: {exc}")
+        return False
+
+
+def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -> dict:
+    """Build Cats/cat or enemys/doge with local move/attack/damaged/slot imagery."""
+    moving_dir = folder / "moving"
+    attack_dir = folder / "attack"
+    damaged_dir = folder / "damaged"
+    moving_dir.mkdir(parents=True, exist_ok=True)
+    attack_dir.mkdir(parents=True, exist_ok=True)
+    damaged_dir.mkdir(parents=True, exist_ok=True)
+
+    title = "Doge" if enemy else "Cat"
+    excluded_forms = ("macho", "mohawk", "true form", "evolved")
+    sheet_title = find_unit_asset(
+        api,
+        [f"{title}'s spritesheet", f"{title} spritesheet", f"{title} sprite sheet"],
+        required=(title.lower(), "sprite"),
+        excluded=excluded_forms if not enemy else (),
+    )
+    sheet_path = download_wiki_image(api, sheet_title, moving_dir / f"{name}-spritesheet") if sheet_title else None
+
+    if not sheet_path and not enemy:
+        existing_sheet = SHEETS / "basic-cat-bcp.webp"
+        if existing_sheet.exists():
+            from PIL import Image
+            sheet_path = moving_dir / "cat-spritesheet.png"
+            with Image.open(existing_sheet) as opened:
+                opened.convert("RGBA").save(sheet_path, format="PNG", optimize=True)
+            print("Used the existing bundled Basic Cat sheet as the Cat source fallback.")
+    frame_paths = split_unit_sheet(sheet_path, moving_dir) if sheet_path else []
+
+    attack_title = find_unit_asset(
+        api,
+        [f"{title}'s attack animation", f"{title} attack animation"],
+        required=(title.lower(), "attack"),
+        excluded=excluded_forms if not enemy else (),
+    )
+    attack_path = download_wiki_image(api, attack_title, attack_dir / f"{name}-attack", preserve_gif=True) if attack_title else None
+
+    damage_title = find_unit_asset(
+        api,
+        [f"{title}'s damage animation", f"{title}'s hurt animation", f"{title} taking damage", f"{title} hurt animation"],
+        required=(title.lower(),),
+        excluded=("macho", "mohawk", "attack", "icon", "upgrade"),
+    )
+    damage_path = download_wiki_image(api, damage_title, damaged_dir / f"{name}-damaged", preserve_gif=True) if damage_title else None
+    if not damage_path and frame_paths:
+        damage_path = damaged_dir / f"{name}-damaged.png"
+        copy_as_png(frame_paths[-1], damage_path)
+
+    slot_queries = [f"{title}'s icon", f"{title} icon", f"{title}'s sprite in the Storage", f"{title} sprite in the Storage"]
+    slot_title = find_unit_asset(
+        api, slot_queries, required=(title.lower(),),
+        excluded=("macho", "mohawk", "upgrade", "attack", "true form", "evolved"),
+    )
+    slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
+    if not slot_path and frame_paths:
+        slot_path = folder / "slot.png"
+        copy_as_png(frame_paths[0], slot_path)
+
+    upgrade_path = None
+    if not enemy:
+        upgrade_title = find_unit_asset(
+            api,
+            ["Cat's Upgrade Menu icon", "Cat Upgrade Menu icon"],
+            required=("cat", "upgrade"),
+            excluded=("macho", "mohawk", "true form", "evolved"),
+        )
+        upgrade_path = download_wiki_image(api, upgrade_title, folder / "upgrade") if upgrade_title else None
+        if not upgrade_path and slot_path:
+            upgrade_path = folder / "upgrade.png"
+            copy_as_png(slot_path, upgrade_path)
+
+    frames = [path.relative_to(ROOT).as_posix() for path in frame_paths]
+    if not frames:
+        fallback = folder / "slot.png"
+        frames = [fallback.relative_to(ROOT).as_posix()] if fallback.exists() else []
+    manifest = {
+        "name": name,
+        "source": "Battle Cats Wiki community assets; original art belongs to its respective rights holders.",
+        "moving": frames,
+        "attack": attack_path.relative_to(ROOT).as_posix() if attack_path else (frames[0] if frames else None),
+        "damaged": damage_path.relative_to(ROOT).as_posix() if damage_path else (frames[-1] if frames else None),
+        "slot": slot_path.relative_to(ROOT).as_posix() if slot_path else None,
+        "upgrade": upgrade_path.relative_to(ROOT).as_posix() if upgrade_path else None,
+    }
+    (folder / "assets.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (moving_dir / "frames.json").write_text(json.dumps({"frames": frames}, indent=2), encoding="utf-8")
+    print(f"Wrote {folder.relative_to(ROOT)}/assets.json with {len(frames)} movement frame(s).")
+    return manifest
+
+
+def import_korea_background(api: str) -> Path | None:
+    """Prefer the real daytime overworld background; crop a clean patch from a Korea screenshot only as a fallback."""
+    level_dir = ROOT / "Levels" / "Korea"
+    level_dir.mkdir(parents=True, exist_ok=True)
+
+    background_title = find_unit_asset(
+        api,
+        ["day overworld background", "overworld background", "EoC day background", "Korea stage background"],
+        required=("background",),
+        excluded=("night", "title", "menu", "map"),
+    )
+    if background_title:
+        result = download_wiki_image(api, background_title, level_dir / "background")
+        if result:
+            if result != level_dir / "background.png":
+                result.replace(level_dir / "background.png")
+            return level_dir / "background.png"
+
+    screenshot_url = "https://img.utdstc.com/screen/dd5/107/dd5107d5976887edeb3a4613e7c12d6f2f20409939e180f7bb0754c6b21ba62d%3A600"
+    temp = level_dir / "korea-gameplay-reference.jpg"
+    try:
+        if not temp.exists() or temp.stat().st_size < 1000:
+            if not download(screenshot_url, temp):
+                return None
+        from PIL import Image
+        with Image.open(temp) as opened:
+            image = opened.convert("RGB")
+            width, height = image.size
+            crop = image.crop((round(width * 0.45), round(height * 0.05), round(width * 0.98), round(height * 0.74)))
+            crop.save(level_dir / "background.png", format="PNG", optimize=True)
+        temp.unlink(missing_ok=True)
+        print("Created Levels/Korea/background.png from a clean section of an actual Korea-stage screenshot.")
+        return level_dir / "background.png"
+    except Exception as exc:
+        print(f"WARNING: could not create Korea background asset: {exc}")
+        return None
+
+
+def import_battle_scene_assets(api: str) -> None:
+    """Create the exact content folders used by the first playable Korea battle."""
+    (ROOT / "Cats").mkdir(parents=True, exist_ok=True)
+    (ROOT / "enemys").mkdir(parents=True, exist_ok=True)
+    (ROOT / "Levels" / "Korea").mkdir(parents=True, exist_ok=True)
+    import_unit_assets(api, ROOT / "Cats" / "cat", "cat", enemy=False)
+    import_unit_assets(api, ROOT / "enemys" / "doge", "doge", enemy=True)
+    import_korea_background(api)
+
 def main() -> int:
     SPRITES.mkdir(parents=True, exist_ok=True)
     # Import the real menu screenshot as a local asset first; the SVG remains a
@@ -579,6 +900,12 @@ def main() -> int:
             print(f"Already present: {destination.relative_to(ROOT)}")
             continue
         download(url, destination)
+
+    try:
+        api, _ = get_category_files()
+        import_battle_scene_assets(api)
+    except Exception as exc:
+        print(f"WARNING: could not import first-battle assets: {exc}")
 
     sheets = import_relevant_sheets()
     index_path = SPRITES / "original_sheets" / "index.json"
