@@ -1,0 +1,11 @@
+{
+  "name": "doge",
+  "source": "Battle Cats Wiki community assets; original art belongs to its respective rights holders.",
+  "moving": [
+    "enemys/doge/slot.png"
+  ],
+  "attack": "enemys/doge/attack/doge-attack.gif",
+  "damaged": "enemys/doge/damaged/doge-damaged.png",
+  "slot": "enemys/doge/slot.png",
+  "upgrade": null
+}
