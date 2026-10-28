@@ -32,6 +32,7 @@ let selectedLevelIndex = 0;
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
+const BATTLE_ASSET_VERSION = "20261029-17";
 const BATTLE_ASSETS = {
   cat: {moving:["Cats/cat/moving/frame-001.png"],attack:"Cats/cat/moving/frame-001.png",damaged:"Cats/cat/moving/frame-001.png",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:["enemys/doge/moving/frame-001.png"],attack:"enemys/doge/moving/frame-001.png",damaged:"enemys/doge/moving/frame-001.png",slot:"enemys/doge/slot.png"}
@@ -917,22 +918,28 @@ function loadBattleAssetManifests() {
       stage.querySelectorAll("[data-battle-slot]").forEach(button => {
         const unit = save.units.find(item => String(item.id)===button.dataset.battleSlot);
         const img = button.querySelector("img");
-        if (img && unit) img.src = unit.name.toLowerCase()==="cat" ? BATTLE_ASSETS.cat.slot : BATTLE_ASSETS.cat.slot;
+        if (img && unit) img.src = battleSlotImage(unit);
       });
     }
   });
   return battleAssetsPromise;
 }
+function battleAssetUrl(path) {
+  if (!path) return "";
+  return /[?&]v=/.test(path) ? path : path+"?v="+BATTLE_ASSET_VERSION;
+}
 function battleSlotImage(unit) {
-  return unit.name.toLowerCase()==="cat" ? BATTLE_ASSETS.cat.slot : BATTLE_ASSETS.cat.slot;
+  const key = unit.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const assets = BATTLE_ASSETS[key];
+  return battleAssetUrl(unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp");
 }
 function battleImageFor(entity) {
   const assets = BATTLE_ASSETS[entity.kind] || BATTLE_ASSETS.cat;
-  if (entity.mode==="attack") return assets.attack || assets.moving[0];
-  if (entity.mode==="damaged") return assets.damaged || assets.moving[0];
+  if (entity.mode==="attack") return battleAssetUrl(assets.attack || assets.moving[0]);
+  if (entity.mode==="damaged") return battleAssetUrl(assets.damaged || assets.moving[0]);
   const frames = assets.moving && assets.moving.length ? assets.moving : [assets.slot];
   const index = Math.floor((battleState ? battleState.elapsed : 0)*5 + (entity.frameAt||0)) % frames.length;
-  return frames[index] || frames[0] || assets.slot;
+  return battleAssetUrl(frames[index] || frames[0] || assets.slot);
 }
 function findBattleEntity(key) {
   if (!battleState) return null;
