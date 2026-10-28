@@ -1414,3 +1414,20 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
  .fight-cannon{width:48px;border-width:2px}.fight-cannon span{font-size:25px}.fight-cannon small{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.fight-unit-sprite,.fight-unit.is-attacking .fight-unit-sprite,.fight-unit.is-damaged .fight-unit-sprite{animation:none}}
+
+/* Prevent placeholder floors and animated idle bob from obscuring the actual stage art. */
+.fight-screen::before,
+.fight-screen::after,
+.fight-screen .fight-ground,
+.fight-screen .battle-ground,
+.fight-screen .ground-strip {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.fight-unit,
+.fight-unit-sprite {
+  animation: none !important;
+  filter: none !important;
+}
+.fight-unit-health { display: none !important; }

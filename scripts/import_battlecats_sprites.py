@@ -956,8 +956,9 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
             # The Battle Cats Wiki's exact unit-000 source filename is "000 BCP.png"
             # (normal Cat form). Do not use generic filenames containing only "Cat".
             # Do not substitute generic images just because their titles contain "Cat".
-            wiki_sheet_title = find_unit_asset(api, ["000 BCP"], excluded=form_exclusions)
-            wiki_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-unit-000") if wiki_sheet_title else None
+            local_unit_sheet = SHEETS / "cat-unit-000.png"
+            wiki_sheet_title = find_unit_asset(api, ["000 BCP"], excluded=form_exclusions) if not local_unit_sheet.exists() else None
+            wiki_sheet = local_unit_sheet if local_unit_sheet.exists() else (download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-unit-000") if wiki_sheet_title else None)
             if wiki_sheet:
                 frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
             else:
