@@ -29,6 +29,13 @@ if (savedSoundSettingsVersion < 1) {
 let scene = "loading";
 let currentRegion = "empire";
 let selectedLevelIndex = 0;
+let battleState = null;
+let battleTimer = null;
+let battleAssetsPromise = null;
+const BATTLE_ASSETS = {
+  cat: {moving:["Cats/cat/moving/frame-001.png"],attack:"Cats/cat/moving/frame-001.png",damaged:"Cats/cat/moving/frame-001.png",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
+  doge: {moving:["enemys/doge/moving/frame-001.png"],attack:"enemys/doge/moving/frame-001.png",damaged:"enemys/doge/moving/frame-001.png",slot:"enemys/doge/slot.png"}
+};
 const EMPIRE_CHAPTER_ONE = [
   {
     "name": "Korea",
@@ -315,6 +322,7 @@ const mainScript = document.querySelector('script[src*="src/main.js"]');
 const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
 
 const LOADING_IMAGE_ASSETS = [
+  {path:"Levels/Korea/background.png?v=20261029-1",bytes:140000},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -872,15 +880,304 @@ function renderStage() {
     '</div>'+
   '</section>';
 }
+
+function createBattleState() {
+  return {
+    elapsed:0, money:50, maxMoney:150, playerUnits:[],
+    enemies:[{key:"doge-1",kind:"doge",x:11,hp:90,maxHp:90,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt:0}],
+    nextEnemySpawn:20, enemyBaseHp:500, enemyBaseMaxHp:500, catBaseHp:1000, catBaseMaxHp:1000,
+    cooldowns:{}, nextUnitKey:1, ended:"", workerLevel:1
+  };
+}
+function loadBattleAssetManifests() {
+  if (battleAssetsPromise) return battleAssetsPromise;
+  battleAssetsPromise = Promise.all([
+    ["cat","Cats/cat/assets.json"],
+    ["doge","enemys/doge/assets.json"]
+  ].map(async ([kind,path]) => {
+    try {
+      const response = await fetch(new URL(path,APP_BASE_URL).href,{cache:"force-cache"});
+      if (!response.ok) return;
+      const data = await response.json();
+      const current = BATTLE_ASSETS[kind];
+      if (Array.isArray(data.moving) && data.moving.length) current.moving = data.moving;
+      if (data.attack) current.attack = data.attack;
+      if (data.damaged) current.damaged = data.damaged;
+      if (data.slot) current.slot = data.slot;
+      if (data.upgrade && kind==="cat") current.upgrade = data.upgrade;
+    } catch (error) {
+      console.warn("Battle Cats sprite manifest could not load:",path,error);
+    }
+  })).then(() => {
+    if (scene==="fight") {
+      stage.querySelectorAll("[data-battle-entity]").forEach(element => {
+        const entity = findBattleEntity(element.dataset.battleEntity);
+        if (entity) updateBattleEntityView(entity);
+      });
+      stage.querySelectorAll("[data-battle-slot]").forEach(button => {
+        const unit = save.units.find(item => String(item.id)===button.dataset.battleSlot);
+        const img = button.querySelector("img");
+        if (img && unit) img.src = unit.name.toLowerCase()==="cat" ? BATTLE_ASSETS.cat.slot : BATTLE_ASSETS.cat.slot;
+      });
+    }
+  });
+  return battleAssetsPromise;
+}
+function battleSlotImage(unit) {
+  return unit.name.toLowerCase()==="cat" ? BATTLE_ASSETS.cat.slot : BATTLE_ASSETS.cat.slot;
+}
+function battleImageFor(entity) {
+  const assets = BATTLE_ASSETS[entity.kind] || BATTLE_ASSETS.cat;
+  if (entity.mode==="attack") return assets.attack || assets.moving[0];
+  if (entity.mode==="damaged") return assets.damaged || assets.moving[0];
+  const frames = assets.moving && assets.moving.length ? assets.moving : [assets.slot];
+  const index = Math.floor((battleState ? battleState.elapsed : 0)*5 + (entity.frameAt||0)) % frames.length;
+  return frames[index] || frames[0] || assets.slot;
+}
+function findBattleEntity(key) {
+  if (!battleState) return null;
+  return [...battleState.playerUnits,...battleState.enemies].find(entity=>entity.key===key) || null;
+}
+function battleEntityMarkup(entity) {
+  const source = battleImageFor(entity);
+  return '<div class="fight-unit '+(entity.kind==="cat"?"fight-unit-cat":"fight-unit-doge")+'" data-battle-entity="'+entity.key+'" style="left:'+entity.x+'%">'+
+    '<div class="fight-unit-health"><span style="width:'+Math.max(0,entity.hp/entity.maxHp*100)+'%"></span></div>'+
+    '<img class="fight-unit-sprite" src="'+source+'" alt="'+(entity.kind==="cat"?"Cat":"Doge")+'" draggable="false">'+
+  '</div>';
+}
+function startBattleRuntime() {
+  if (!battleState) battleState = createBattleState();
+  loadBattleAssetManifests();
+  if (battleTimer===null) battleTimer=setInterval(tickBattle,100);
+  updateFightUI();
+}
+function stopBattleRuntime() {
+  if (battleTimer!==null) clearInterval(battleTimer);
+  battleTimer=null;
+  battleState=null;
+}
+function ensureBattleEntityNode(entity) {
+  let element = stage.querySelector('[data-battle-entity="'+entity.key+'"]');
+  if (element) return element;
+  const layer = stage.querySelector(".fight-unit-layer");
+  if (!layer) return null;
+  layer.insertAdjacentHTML("beforeend",battleEntityMarkup(entity));
+  element = stage.querySelector('[data-battle-entity="'+entity.key+'"]');
+  return element;
+}
+function updateBattleEntityView(entity) {
+  const element = ensureBattleEntityNode(entity);
+  if (!element) return;
+  element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
+  element.classList.toggle("is-attacking",entity.mode==="attack");
+  element.classList.toggle("is-damaged",entity.mode==="damaged");
+  const health = element.querySelector(".fight-unit-health span");
+  if (health) health.style.width = Math.max(0,entity.hp/entity.maxHp*100)+"%";
+  const sprite = element.querySelector(".fight-unit-sprite");
+  const source = battleImageFor(entity);
+  if (sprite && sprite.dataset.activeSource!==source) {
+    sprite.dataset.activeSource=source;
+    sprite.onerror = () => {
+      sprite.onerror = null;
+      sprite.classList.add("sprite-load-failed");
+    };
+    sprite.src=source;
+  }
+}
+function spawnPlayerCat(unit) {
+  if (!battleState || battleState.ended) return;
+  const cost = Number(unit.deployCost||50);
+  const cooldown = Number(battleState.cooldowns[unit.id]||0);
+  if (battleState.money < cost) return notify("Not enough money to deploy "+unit.name+".");
+  if (cooldown > 0.05) return notify(unit.name+" is recharging.");
+  battleState.money -= cost;
+  battleState.cooldowns[unit.id] = Number(unit.recharge||2.5);
+  const entity = {
+    key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
+    x:82,hp:Number(unit.hp||100),maxHp:Number(unit.hp||100),attackPower:Number(unit.attack||8),
+    speed:Number(unit.speed||10),range:Number(unit.range||140),mode:"moving",attackTimer:0,
+    animUntil:0,hitUntil:0,frameAt:Math.random()*5
+  };
+  battleState.playerUnits.push(entity);
+  ensureBattleEntityNode(entity);
+  updateBattleEntityView(entity);
+  updateFightUI();
+}
+function damageBattleEntity(target, amount, now) {
+  target.hp = Math.max(0,target.hp-amount);
+  target.mode = "damaged";
+  target.hitUntil = now+0.3;
+  if (target.hp<=0) {
+    const element=stage.querySelector('[data-battle-entity="'+target.key+'"]');
+    if (element) element.remove();
+  }
+}
+function attackBattleBase(attacker,now) {
+  if (attacker.kind==="cat") {
+    battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-attacker.attackPower);
+  } else {
+    battleState.catBaseHp=Math.max(0,battleState.catBaseHp-8);
+  }
+  attacker.mode="attack";
+  attacker.animUntil=now+0.55;
+  attacker.attackTimer=attacker.kind==="cat"?1.05:1.55;
+}
+function tickBattle() {
+  if (scene!=="fight" || !battleState || battleState.ended) return;
+  const state=battleState;
+  const dt=0.1;
+  state.elapsed+=dt;
+  state.money=Math.min(state.maxMoney,state.money+2.6*dt);
+  Object.keys(state.cooldowns).forEach(key=>state.cooldowns[key]=Math.max(0,state.cooldowns[key]-dt));
+
+  if (state.elapsed>=state.nextEnemySpawn && state.enemies.length<3 && state.enemyBaseHp>0) {
+    const count=Math.floor(state.elapsed/7.5);
+    state.enemies.push({key:"doge-"+(count+1),kind:"doge",x:9,hp:90,maxHp:90,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt:count});
+    state.nextEnemySpawn+=7.5;
+  }
+
+  const now=state.elapsed;
+  for (const cat of state.playerUnits) {
+    if (cat.hp<=0) continue;
+    cat.attackTimer=Math.max(0,cat.attackTimer-dt);
+    if (cat.hitUntil>now) cat.mode="damaged";
+    else if (cat.animUntil>now) cat.mode="attack";
+    else cat.mode="moving";
+    const target=state.enemies.filter(enemy=>enemy.hp>0 && enemy.x<cat.x+2).sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
+    if (target) {
+      const distance=cat.x-target.x;
+      const reach=Math.max(5,Math.min(14,Number(cat.range||140)/12));
+      if (distance<=reach) {
+        if (cat.attackTimer<=0) {
+          damageBattleEntity(target,cat.attackPower,now);
+          cat.attackTimer=1.15;
+          cat.animUntil=now+0.62;
+          cat.mode="attack";
+        }
+      } else {
+        cat.x=Math.max(7,cat.x-(cat.speed*0.45)*dt);
+      }
+    } else if (state.enemyBaseHp>0) {
+      if (cat.x>8) cat.x=Math.max(5,cat.x-(cat.speed*0.45)*dt);
+      else if (cat.attackTimer<=0) attackBattleBase(cat,now);
+    }
+    updateBattleEntityView(cat);
+  }
+
+  state.enemies=state.enemies.filter(enemy=>enemy.hp>0);
+  for (const enemy of state.enemies) {
+    enemy.attackTimer=Math.max(0,enemy.attackTimer-dt);
+    if (enemy.hitUntil>now) enemy.mode="damaged";
+    else if (enemy.animUntil>now) enemy.mode="attack";
+    else enemy.mode="moving";
+    const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.x>enemy.x-2).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
+    if (target && target.x-enemy.x<=Math.max(5,110/12)) {
+      if (enemy.attackTimer<=0) {
+        damageBattleEntity(target,8,now);
+        enemy.attackTimer=1.55;
+        enemy.animUntil=now+0.5;
+        enemy.mode="attack";
+      }
+    } else if (enemy.x<89) {
+      enemy.x=Math.min(91,enemy.x+2.8*dt);
+    } else if (enemy.attackTimer<=0) {
+      attackBattleBase(enemy,now);
+    }
+    updateBattleEntityView(enemy);
+  }
+  state.playerUnits=state.playerUnits.filter(cat=>cat.hp>0);
+  state.enemies=state.enemies.filter(enemy=>enemy.hp>0);
+
+  if (state.enemyBaseHp<=0) finishBattle("win");
+  else if (state.catBaseHp<=0) finishBattle("lose");
+  updateFightUI();
+}
+function finishBattle(result) {
+  if (!battleState || battleState.ended) return;
+  battleState.ended=result;
+  playSfx(result==="win"?"victory":"defeat");
+  const overlay=stage.querySelector(".fight-result");
+  const title=stage.querySelector(".fight-result-title");
+  const copy=stage.querySelector(".fight-result-copy");
+  const button=stage.querySelector(".fight-result-button");
+  if (overlay) overlay.hidden=false;
+  if (title) title.textContent=result==="win"?"STAGE CLEAR!":"DEFEAT";
+  if (copy) copy.textContent=result==="win"?"Korea cleared! Claim your reward.":"Your Cat Base was destroyed. Try deploying more Cats.";
+  if (button) {
+    button.textContent=result==="win"?"CONTINUE":"RETRY STAGE";
+    button.dataset.go=result==="win"?"win":"retry-battle";
+  }
+}
+function updateFightUI() {
+  if (!battleState || scene!=="fight") return;
+  const state=battleState;
+  const moneyText=stage.querySelector(".fight-money-value");
+  const timerText=stage.querySelector(".fight-timer");
+  const enemyHpText=stage.querySelector(".fight-enemy-hp");
+  const catHpText=stage.querySelector(".fight-cat-hp");
+  const enemyBar=stage.querySelector(".fight-enemy-hp-bar span");
+  const catBar=stage.querySelector(".fight-cat-hp-bar span");
+  if (moneyText) moneyText.textContent=Math.floor(state.money)+"/"+state.maxMoney+"¢";
+  if (timerText) timerText.textContent=Math.floor(state.elapsed/60).toString().padStart(2,"0")+":"+Math.floor(state.elapsed%60).toString().padStart(2,"0");
+  if (enemyHpText) enemyHpText.textContent=Math.ceil(state.enemyBaseHp)+" / "+state.enemyBaseMaxHp;
+  if (catHpText) catHpText.textContent=Math.ceil(state.catBaseHp)+" / "+state.catBaseMaxHp;
+  if (enemyBar) enemyBar.style.width=Math.max(0,state.enemyBaseHp/state.enemyBaseMaxHp*100)+"%";
+  if (catBar) catBar.style.width=Math.max(0,state.catBaseHp/state.catBaseMaxHp*100)+"%";
+  const slots=stage.querySelectorAll("[data-battle-slot]");
+  slots.forEach(button=>{
+    const id=button.dataset.battleSlot;
+    const unit=save.units.find(item=>String(item.id)===id);
+    if (!unit) return;
+    const cost=Number(unit.deployCost||50);
+    const cooldown=Number(state.cooldowns[id]||0);
+    button.disabled=Boolean(state.ended)||state.money<cost||cooldown>0.05;
+    button.classList.toggle("is-recharging",cooldown>0.05);
+    const cooldownText=button.querySelector(".fight-slot-cooldown");
+    if (cooldownText) cooldownText.textContent=cooldown>0.05?Math.ceil(cooldown):String(cost)+"¢";
+    const img=button.querySelector("img");
+    if (img) img.src=battleSlotImage(unit);
+  });
+  const message=stage.querySelector(".fight-message");
+  if (message) {
+    const available=save.units.find(unit=>save.equipped.includes(unit.id) && state.money>=Number(unit.deployCost||50) && Number(state.cooldowns[unit.id]||0)<=0.05);
+    message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "COLLECTING MONEY · "+Math.floor(state.money)+"¢";
+  }
+}
+
 function renderFight() {
-  const body = pageCopy("BATTLE DEMO")+
-    '<div class="cat-grid">'+
-      '<div class="cat-tile"><div class="cat-tile-art">'+catHead()+'</div><strong>Your Cats</strong><small>'+save.equipped.length+' equipped</small></div>'+
-      '<div class="cat-tile"><div class="cat-tile-art">?</div><strong>Enemy Base</strong><small>Stage 1</small></div>'+
-    '</div>'+
-    pageCopy("The full side-scrolling battle is not implemented yet. This button simulates a win so you can test menu progression.")+
-    row("Stage Reward","+250 XP","win","SIMULATE WIN");
-  return renderWindow("Battle Preview",body,"battle");
+  if (!battleState) battleState=createBattleState();
+  const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
+    const cost=Number(unit.deployCost||50);
+    const cooldown=Number(battleState.cooldowns[unit.id]||0);
+    const disabled=battleState.money<cost||cooldown>0.05||Boolean(battleState.ended);
+    return '<button class="fight-unit-slot'+(disabled?" is-recharging":"")+'" data-go="deploy:'+unit.id+'" data-battle-slot="'+unit.id+'" aria-label="Deploy '+unit.name+'" '+(disabled?"disabled":"")+'>'+
+      '<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">'+
+      '<strong>'+unit.name+'</strong><span class="fight-slot-cooldown">'+(cooldown>0.05?Math.ceil(cooldown):cost+"¢")+'</span>'+
+    '</button>';
+  }).join("");
+  const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
+  return '<section class="screen fight-screen" aria-label="Korea battle">'+
+    '<img class="fight-background-art" src="Levels/Korea/background.png?v=20261029-1" alt="" draggable="false">'+
+    '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
+    '<header class="fight-topbar">'+
+      '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
+      '<div class="fight-stage-label"><strong>EMPIRE OF CATS</strong><span>KOREA · CHAPTER 1</span></div>'+
+      '<div class="fight-timer">00:00</div>'+
+      '<div class="fight-money"><span>MONEY</span><strong class="fight-money-value">50/150¢</strong></div>'+
+    '</header>'+
+    '<div class="fight-base-hud fight-enemy-hud"><span>ENEMY BASE</span><strong class="fight-enemy-hp">500 / 500</strong><div class="fight-enemy-hp-bar"><span style="width:100%"></span></div></div>'+
+    '<div class="fight-base-hud fight-player-hud"><span>CAT BASE</span><strong class="fight-cat-hp">1000 / 1000</strong><div class="fight-cat-hp-bar"><span style="width:100%"></span></div></div>'+
+    '<div class="fight-base enemy-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div></div>'+
+    '<div class="fight-base player-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div><div class="fight-cat-cannon"></div></div>'+
+    '<div class="fight-unit-layer">'+entities+'</div>'+
+    '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
+    '<footer class="fight-bottom">'+
+      '<div class="fight-worker-cat"><span>WORKER CAT</span><strong>LEVEL 1</strong><div class="fight-worker-bar"><span></span></div></div>'+
+      '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
+      '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><span>◉</span><small>CANNON</small></button>'+
+    '</footer>'+
+    '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
+  '</section>';
 }
 function renderUpgrade() {
   const body = pageCopy("Spend XP to increase your rank and strengthen your cats.")+
@@ -1005,6 +1302,7 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  if (scene==="fight") startBattleRuntime(); else if (battleTimer!==null || battleState) stopBattleRuntime();
   const worldMapArt = stage.querySelector(".world-map-art-background");
   if (worldMapArt) worldMapArt.addEventListener("error", () => {
     worldMapArt.src = "https://static.wikia.nocookie.net/battle-cats/images/7/71/EOC_map.png/revision/latest?cb=20211025210429";
@@ -1195,7 +1493,14 @@ function perform(action) {
   }
   if (action === "stage-battle") {
     if (selectedLevelIndex > Math.min(47,Number(save.stageClears)||0)) return notify("Clear previous stages to unlock this one.");
+    if (selectedLevelIndex!==0) return notify("Korea is the first playable stage. More levels will be added next.");
+    battleState=createBattleState();
     return navigate("fight");
+  }
+  if (action.startsWith("deploy:")) {
+    const unit=save.units.find(item=>String(item.id)===action.slice(7));
+    if (unit) spawnPlayerCat(unit);
+    return;
   }
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
@@ -1227,7 +1532,8 @@ function perform(action) {
     render(); return;
   }
   switch(action) {
-    case "fight": navigate("fight"); break;
+    case "fight": battleState=createBattleState(); navigate("fight"); break;
+    case "retry-battle": battleState=createBattleState(); navigate("fight"); break;
     case "lose": playSfx("defeat"); navigate("battle"); break;
     case "win": {
       playSfx("victory");
