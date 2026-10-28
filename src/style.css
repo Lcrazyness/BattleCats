@@ -1334,3 +1334,83 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .world-level-node span { font-size:clamp(7px,1.4vw,9px); }
   .world-level-node.is-selected { border-width:2px;outline-width:2px; }
 }
+
+
+/* First playable Battle Cats stage: Korea */
+.fight-screen{isolation:isolate;overflow:hidden;background:linear-gradient(#6cc8f4 0%,#d2f4ff 44%,#edf8e4 58%,#76b73e 59%,#55962b 72%,#704326 73%,#4d2a18 100%);color:#fff;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif}
+.fight-background-art{position:absolute;z-index:-2;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+.fight-sky-wash{position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,#72c9f01f 0%,#dff7ff14 48%,#4a8a2420 64%,#2e190c26 100%);pointer-events:none}
+.fight-ground{position:absolute;z-index:0;left:0;right:0;bottom:0;height:38%;background:linear-gradient(180deg,#7bbd3a 0%,#5c9b2d 17%,#8d572c 18%,#684023 100%);border-top:3px solid #5b8328;clip-path:polygon(0 0,5% 3%,11% 0,17% 2%,24% 0,31% 2%,38% 0,45% 2%,52% 0,60% 2%,68% 0,75% 2%,83% 0,91% 2%,100% 0,100% 100%,0 100%)}
+.fight-topbar{position:absolute;z-index:12;left:0;right:0;top:0;height:8.8%;min-height:50px;display:flex;align-items:center;gap:clamp(8px,1.8vw,24px);padding:0 1.5%;background:linear-gradient(#2d8cbded,#135d8de8);border-bottom:4px solid #123b50;box-shadow:0 3px 8px #1b1c1e6e;text-shadow:2px 2px #143348}
+.fight-back{display:grid;place-items:center;flex:0 0 auto;width:clamp(36px,5vh,52px);height:clamp(36px,5vh,52px);border:3px solid #fdf3c8;border-radius:50%;background:linear-gradient(#c85d3f,#92311e);box-shadow:0 2px 0 #532417;font:1000 clamp(27px,4vh,43px)/1 Arial,sans-serif}
+.fight-stage-label{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px;line-height:1.05}
+.fight-stage-label strong{font-size:clamp(15px,2.4vw,29px);letter-spacing:.035em;white-space:nowrap}
+.fight-stage-label span{font:900 clamp(9px,1.2vw,13px)/1 Arial,sans-serif;letter-spacing:.06em;color:#ffed9b}
+.fight-timer{min-width:58px;text-align:center;font-size:clamp(18px,2.7vw,31px);font-variant-numeric:tabular-nums;color:#fff3b6}
+.fight-money{display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:5px 10px;border:2px solid #5c3b18;border-radius:7px;background:linear-gradient(#fff7b4,#f8c64b);color:#4b2911;text-shadow:1px 1px #fff2b0;box-shadow:inset 0 2px #fff}
+.fight-money span{font:900 clamp(8px,.9vw,11px)/1 Arial,sans-serif;letter-spacing:.08em}
+.fight-money strong{font:1000 clamp(17px,2.1vw,26px)/1 Impact,Haettenschweiler,sans-serif;white-space:nowrap}
+.fight-base-hud{position:absolute;z-index:7;top:10.5%;width:clamp(120px,20vw,260px);padding:7px 10px;border:3px solid #392319;border-radius:7px;background:linear-gradient(#4c3c31e8,#241c18e8);box-shadow:0 3px 0 #18110d8c;text-shadow:1px 2px #170e09}
+.fight-base-hud>span{display:block;font:900 clamp(9px,1.1vw,13px)/1 Arial,sans-serif;letter-spacing:.07em;color:#ffeaa7}
+.fight-base-hud>strong{display:block;margin-top:3px;font-size:clamp(14px,1.6vw,20px);font-variant-numeric:tabular-nums}
+.fight-enemy-hud{left:2%}.fight-player-hud{right:2%;text-align:right}
+.fight-enemy-hp-bar,.fight-cat-hp-bar{height:8px;margin-top:5px;border:2px solid #1c1511;background:#251710;overflow:hidden}
+.fight-enemy-hp-bar span,.fight-cat-hp-bar span{display:block;height:100%;background:linear-gradient(#ff7873,#c32522);transition:width .1s linear}
+.fight-cat-hp-bar span{background:linear-gradient(#b8f75e,#45952b)}
+.fight-base{position:absolute;z-index:2;bottom:19%;width:clamp(56px,7vw,102px);height:clamp(105px,24vh,185px);filter:drop-shadow(3px 4px 0 #342417a6)}
+.enemy-castle{left:2.5%}.player-castle{right:2.5%;height:clamp(122px,28vh,220px)}
+.fight-castle-body{position:absolute;left:14%;right:14%;top:25%;bottom:0;border:4px solid #41271b;background:repeating-linear-gradient(0deg,#9c5734 0 18px,#63351f 19px 22px);box-shadow:inset 5px 0 #d49b5d}
+.enemy-castle .fight-castle-roof{position:absolute;top:9%;left:4%;right:4%;height:23%;border:4px solid #47251b;background:linear-gradient(135deg,#dd8245,#8e3e24);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.enemy-castle .fight-castle-body:before{content:"";position:absolute;left:24%;right:24%;top:-30%;height:30%;border:4px solid #40251a;background:#a24c2c;clip-path:polygon(0 100%,0 35%,30% 35%,30% 0,70% 0,70% 35%,100% 35%,100% 100%)}
+.fight-castle-door{position:absolute;left:34%;right:34%;bottom:0;height:31%;border:3px solid #28180f;border-bottom:0;border-radius:40% 40% 0 0;background:#352119}
+.player-castle .fight-castle-body{left:6%;right:6%;top:20%;background:repeating-linear-gradient(0deg,#f1dca2 0 17px,#caa96c 18px 22px);border-color:#5a4731;box-shadow:inset 5px 0 #fff1c7}
+.player-castle .fight-castle-roof{position:absolute;top:0;left:-4%;right:-4%;height:29%;background:#e4d1a1;border:4px solid #5a4731;clip-path:polygon(0 100%,8% 33%,19% 70%,31% 0,44% 62%,58% 4%,72% 72%,87% 30%,100% 100%)}
+.player-castle .fight-castle-door{border-color:#5a4731;background:#736044}
+.fight-cat-cannon{position:absolute;top:29%;left:26%;right:26%;height:22%;border:4px solid #5a4731;border-radius:40% 40% 0 0;background:linear-gradient(90deg,#fff7d5,#b5aa8e)}
+.fight-cat-cannon:after{content:"";position:absolute;top:-24%;left:37%;width:26%;height:32%;border:3px solid #53452f;border-radius:50%;background:#312a1e}
+.fight-unit-layer{position:absolute;z-index:5;inset:16% 0 19%;pointer-events:none}
+.fight-unit{position:absolute;bottom:0;width:clamp(54px,7.3vw,96px);height:clamp(78px,18vh,145px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transition:left .08s linear;filter:drop-shadow(2px 3px 0 #231b168c)}
+.fight-unit-sprite{display:block;width:100%;height:calc(100% - 9px);object-fit:contain;image-rendering:auto;animation:fight-unit-idle .7s ease-in-out infinite alternate;transform-origin:bottom center}
+.fight-unit.is-attacking .fight-unit-sprite{animation:fight-unit-attack .28s ease-in-out 2 alternate}
+.fight-unit.is-damaged .fight-unit-sprite{animation:fight-unit-hit .14s linear 2;filter:brightness(1.5) sepia(.7) saturate(2)}
+.fight-unit-sprite.sprite-load-failed{visibility:hidden}
+.fight-unit-health{position:relative;z-index:2;width:65%;height:7px;flex:0 0 7px;border:1px solid #24160f;background:#21180f;box-shadow:0 1px 0 #fff7ce}
+.fight-unit-health span{display:block;height:100%;background:#5eec47;transition:width .1s linear}
+.fight-unit-doge .fight-unit-health span{background:#e3e23f}
+.fight-message{position:absolute;z-index:8;left:50%;bottom:19.5%;transform:translateX(-50%);padding:6px 13px;border:2px solid #4b301b;border-radius:5px;background:#302016d9;color:#fff0ad;font:900 clamp(9px,1.15vw,13px)/1 Arial,sans-serif;text-align:center;white-space:nowrap;text-shadow:1px 1px #27160d;pointer-events:none}
+.fight-bottom{position:absolute;z-index:10;left:0;right:0;bottom:0;height:18.5%;min-height:106px;display:flex;align-items:stretch;gap:clamp(6px,1vw,14px);padding:7px 1.5% 8px;background:linear-gradient(#5b351f,#271910);border-top:4px solid #1f150f;box-shadow:0 -5px 12px #24170980}
+.fight-worker-cat{width:clamp(82px,12vw,160px);flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:7px;border:3px solid #2c1a10;background:linear-gradient(#f9dc88,#c58c43);color:#4b2a13;box-shadow:inset 0 2px #fff1bb}
+.fight-worker-cat span{font:900 clamp(8px,.9vw,12px)/1 Arial,sans-serif;white-space:nowrap}.fight-worker-cat strong{font:1000 clamp(13px,1.6vw,20px)/1 Impact,Haettenschweiler,sans-serif}
+.fight-worker-bar{height:8px;border:2px solid #54351b;background:#5a3d20}.fight-worker-bar span{display:block;width:10%;height:100%;background:#ffdb35}
+.fight-unit-slots{display:flex;flex:1;min-width:0;align-items:stretch;justify-content:center;gap:clamp(4px,.8vw,11px);overflow-x:auto;overflow-y:hidden;padding:1px 1px 4px}
+.fight-unit-slot{position:relative;flex:0 0 clamp(64px,9vw,112px);min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 5px;border:3px solid #382319;background:linear-gradient(#fff0c6,#ddb471);box-shadow:inset 0 2px #fffbdc,0 2px 0 #1c120b;color:#462815;text-shadow:0 1px #fff0ba;overflow:hidden}
+.fight-unit-slot img{width:clamp(35px,5vw,58px);height:clamp(35px,5vw,58px);object-fit:contain;pointer-events:none}
+.fight-unit-slot strong{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:900 clamp(9px,1vw,13px)/1 Arial,sans-serif}
+.fight-slot-cooldown{font:1000 clamp(12px,1.3vw,16px)/1 Impact,Haettenschweiler,sans-serif;color:#a4481b}
+.fight-unit-slot.is-recharging{filter:saturate(.6);background:linear-gradient(#b5a68b,#7c6a52);color:#eee0bc;text-shadow:1px 1px #493321}
+.fight-unit-slot.is-recharging img{opacity:.55}
+.fight-unit-slot:disabled{cursor:not-allowed}
+.fight-cannon{width:clamp(60px,8vw,96px);flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:3px solid #22160e;background:linear-gradient(#b8b8ad,#65645b);color:#f9edcb;text-shadow:1px 2px #2d2419}
+.fight-cannon span{font-size:clamp(28px,4vw,46px);line-height:1}
+.fight-cannon small{font:900 clamp(8px,.9vw,11px)/1 Arial,sans-serif}
+.fight-cannon:disabled{filter:grayscale(.6);opacity:.75}
+.fight-no-slots{display:flex;align-items:center;justify-content:center;padding:8px;color:#fff0bf;font:800 12px Arial,sans-serif}
+.fight-result{position:absolute;z-index:20;inset:0;display:flex;align-items:center;justify-content:center;background:#100b07b8;backdrop-filter:blur(3px)}
+.fight-result[hidden]{display:none}
+.fight-result-panel{width:min(88%,520px);padding:clamp(20px,4vw,38px);border:5px solid #4a2a17;border-radius:12px;background:linear-gradient(#fdf0c2,#dbb575);box-shadow:inset 0 0 0 3px #fff9d6,0 8px 0 #20130c;color:#4a2915;text-align:center}
+.fight-result-title{display:block;font:1000 clamp(32px,7vw,64px)/.95 Impact,Haettenschweiler,sans-serif;color:#ef9723;-webkit-text-stroke:1px #432513;text-shadow:2px 3px #fff1b7}
+.fight-result-copy{margin:13px 0 19px;font:800 clamp(13px,2vw,18px)/1.35 Arial,sans-serif}
+.fight-result-button{min-width:150px;padding:12px 22px;border:3px solid #7e4b14;border-radius:8px;background:linear-gradient(#fff24d,#ffb30b);box-shadow:inset 0 2px #fff9b5,0 3px 0 #3a2110;color:#fff;font:1000 clamp(18px,3vw,25px)/1 Impact,Haettenschweiler,sans-serif;-webkit-text-stroke:.6px #492a11;text-shadow:1px 2px #432710}
+@keyframes fight-unit-idle{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+@keyframes fight-unit-attack{from{transform:translateX(0) scaleX(1)}to{transform:translateX(-7px) scaleX(1.04)}}
+@keyframes fight-unit-hit{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
+@media(max-width:650px){
+ .fight-topbar{height:8%;min-height:45px;gap:6px;padding:0 1.5%}.fight-back{width:34px;height:34px}.fight-stage-label strong{font-size:clamp(12px,3.2vw,19px)}.fight-stage-label span{font-size:8px}.fight-timer{font-size:16px;min-width:43px}.fight-money{padding:4px 6px}.fight-money span{font-size:7px}.fight-money strong{font-size:15px}
+ .fight-base-hud{top:10%;width:37%;padding:5px 6px}.fight-base-hud>span{font-size:8px}.fight-base-hud>strong{font-size:12px}.fight-enemy-hud{left:1%}.fight-player-hud{right:1%}
+ .fight-base{bottom:24%;width:14vw;height:19vh}.player-castle{height:22vh}.fight-unit-layer{bottom:24%}.fight-unit{width:clamp(42px,11vw,68px);height:clamp(67px,15vh,96px)}
+ .fight-message{bottom:24%;font-size:8px;padding:5px 7px}.fight-bottom{height:24%;min-height:114px;gap:4px;padding:5px 5px}
+ .fight-worker-cat{width:66px;padding:4px;gap:4px;border-width:2px}.fight-worker-cat span{font-size:7px}.fight-worker-cat strong{font-size:12px}.fight-worker-bar{height:6px}
+ .fight-unit-slots{justify-content:flex-start;gap:4px}.fight-unit-slot{flex-basis:clamp(57px,17vw,83px);padding:3px;border-width:2px}.fight-unit-slot img{width:clamp(32px,8vw,42px);height:clamp(32px,8vw,42px)}.fight-unit-slot strong{font-size:8px}.fight-slot-cooldown{font-size:11px}
+ .fight-cannon{width:48px;border-width:2px}.fight-cannon span{font-size:25px}.fight-cannon small{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){.fight-unit-sprite,.fight-unit.is-attacking .fight-unit-sprite,.fight-unit.is-damaged .fight-unit-sprite{animation:none}}
