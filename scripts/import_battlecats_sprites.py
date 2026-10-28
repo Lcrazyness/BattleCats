@@ -954,8 +954,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         else:
             # The Battle Cats Wiki's exact unit-000 source filename is "000 BCP.png"
             # (normal Cat form). Do not use generic filenames containing only "Cat".
-            # The gallery also labels the normal Cat's in-battle image as "Uni000 f00".
-            # Try that exact normal-form sprite if the generated atlas filename is unavailable.
+            # Do not substitute generic images just because their titles contain "Cat".
             wiki_sheet_title = find_unit_asset(api, ["000 BCP"], excluded=form_exclusions)
             wiki_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-unit-000") if wiki_sheet_title else None
             if wiki_sheet:
@@ -980,6 +979,20 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         doge_sheet = SHEETS / "battlecats-doge-spritesheet.png"
         if doge_sheet.exists():
             print(f"Available Doge source sheet: {doge_sheet.relative_to(ROOT)}")
+
+    elif not attack_frames:
+        attack_title = find_unit_asset(
+            api,
+            ["Cat's attack animation", "Cat attack animation"],
+            required=("cat", "attack"),
+            excluded=form_exclusions + ("icon", "upgrade", "spritesheet", "storage"),
+        )
+        if attack_title:
+            attack_path = download_wiki_image(api, attack_title, attack_dir / "cat-attack", preserve_gif=True)
+            if attack_path and attack_path.suffix.lower() == ".gif":
+                attack_frames = extract_gif_frames(attack_path, attack_dir)
+            elif attack_path:
+                attack_frames = [attack_path]
 
     if enemy:
         attack_title = find_unit_asset(api, ["Doge attack", "Doge's attack animation", "Doge attack animation"])
@@ -1011,6 +1024,21 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         attack_frame = attack_dir / "frame-001.png"
         if copy_as_png(frame_paths[-1], attack_frame):
             attack_frames = [attack_frame]
+    if not enemy and not damaged_frames:
+        damage_title = find_unit_asset(
+            api,
+            ["Cat's damage animation", "Cat hurt animation", "Cat damaged animation"],
+            required=("cat",),
+            excluded=form_exclusions + ("icon", "attack", "upgrade", "spritesheet", "storage"),
+        )
+        if damage_title:
+            damage_path = download_wiki_image(api, damage_title, damaged_dir / "cat-damaged", preserve_gif=True)
+            if damage_path and damage_path.suffix.lower() == ".gif":
+                damaged_frames = extract_gif_frames(damage_path, damaged_dir)
+            elif damage_path:
+                damaged_frame = damaged_dir / "frame-001.png"
+                if copy_as_png(damage_path, damaged_frame):
+                    damaged_frames = [damaged_frame]
     if not damaged_frames and frame_paths:
         damaged_frame = damaged_dir / "frame-001.png"
         if copy_as_png(frame_paths[-1], damaged_frame):
