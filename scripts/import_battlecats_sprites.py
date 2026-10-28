@@ -686,7 +686,7 @@ def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = ()
                         continue
                     # With required terms, accept a title only if it shares at least the query's
                     # meaningful words. This permits suffixes like "(EN)" without matching "God Cat".
-                    if not has_query_words(normalized, query) and not any(word in normalized for word in expected[0].split()):
+                    if not has_query_words(normalized, query):
                         continue
                     candidates[title] = item
             except Exception as exc:
@@ -928,14 +928,17 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         bad_screenshot = SHEETS / "cat-spritesheet.png"
         if bad_screenshot.exists():
             bad_screenshot.unlink()
+        wrong_wiki_sheet = moving_dir / "cat-wiki-spritesheet.png"
+        if wrong_wiki_sheet.exists():
+            wrong_wiki_sheet.unlink()
 
     title = "Doge" if enemy else "Cat"
-    excluded_forms = ("Macho Cat", "Mohawk Cat", "God Cat", "Legend Cat", "True Form", "Evolved", "Dark Cat", "Crazed Cat", "Basic Cat (bcp)")
+    excluded_forms = ("Macho Cat", "Mohawk Cat", "God Cat", "Legend Cat", "True Form", "Evolved", "Dark Cat", "Crazed Cat", "Basic Cat (bcp)", "MangaCat", "Manga Cat", "PopoCat", "MangaCatMangaPopoCat")
     form_exclusions = excluded_forms if not enemy else ()
     source_url = (
         "https://www.spriters-resource.com/mobile/thebattlecats/asset/84887/"
         if enemy else
-        "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/"
+        "https://battle-cats.fandom.com/wiki/Cat_%28Normal_Cat%29/Gallery"
     )
     frame_paths: list[Path] = []
     attack_frames: list[Path] = []
