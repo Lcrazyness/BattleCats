@@ -952,17 +952,25 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 sheet_path, moving_dir, attack_dir, damaged_dir
             )
         else:
-            wiki_sheet_title = find_unit_asset(
-                api,
-                ["Cat's spritesheet", "Cat spritesheet", "Cat sprite sheet"],
-                required=("cat", "sprite"),
-                excluded=form_exclusions + ("icon", "attack", "upgrade", "storage", "basic cat bcp"),
-            )
-            wiki_sheet = download_wiki_image(api, wiki_sheet_title, moving_dir / "cat-wiki-spritesheet") if wiki_sheet_title else None
+            # The Battle Cats Wiki's exact unit-000 source filename is "000 BCP.png"
+            # (normal Cat form). Do not use generic filenames containing only "Cat".
+            wiki_sheet_title = find_unit_asset(api, ["000 BCP"], excluded=form_exclusions)
+            wiki_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-unit-000") if wiki_sheet_title else None
             if wiki_sheet:
                 frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
             else:
-                print("Normal Cat sheet unavailable; using the bundled Normal Cat icon as a safe fallback.")
+                wiki_sheet_title = find_unit_asset(
+                    api,
+                    ["Cat's spritesheet", "Cat spritesheet", "Cat sprite sheet"],
+                    required=("cat", "sprite"),
+                    excluded=form_exclusions + ("icon", "attack", "upgrade", "storage", "basic cat bcp"),
+                )
+                wiki_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-wiki-spritesheet") if wiki_sheet_title else None
+                if wiki_sheet:
+                    frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
+                else:
+                    print("Normal Cat sheet unavailable; using the bundled Normal Cat icon as a safe fallback.")
+
     else:
         # The Doge attack file is the true in-game animation from the Battle Cats Wiki.
         # The larger SpriteResource sheet is retained as a source if it downloads, but not
@@ -982,10 +990,13 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
 
     slot_path: Path | None = None
     if not enemy:
-        normal_icon = SHEETS / "normal-cat-right-icon.webp"
-        if normal_icon.exists():
-            slot_path = folder / "slot.png"
-            copy_as_png(normal_icon, slot_path)
+        slot_title = find_unit_asset(api, ["Uni000 BCP00"], excluded=form_exclusions)
+        slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
+        if not slot_path:
+            normal_icon = SHEETS / "normal-cat-right-icon.webp"
+            if normal_icon.exists():
+                slot_path = folder / "slot.png"
+                copy_as_png(normal_icon, slot_path)
     else:
         slot_title = find_unit_asset(api, ["Enemy icon 000", "Doge icon"])
         slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
@@ -1005,7 +1016,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
 
     upgrade_path: Path | None = None
     if not enemy:
-        upgrade_title = find_unit_asset(api, ["Cat's Upgrade Menu icon"], required=("cat", "upgrade"), excluded=form_exclusions + ("attack", "spritesheet", "storage", "basic cat bcp"))
+        upgrade_title = find_unit_asset(api, ["Udi000 BCP"], excluded=form_exclusions) or find_unit_asset(api, ["Cat's Upgrade Menu icon"], required=("cat", "upgrade"), excluded=form_exclusions + ("attack", "spritesheet", "storage", "basic cat bcp"))
         upgrade_path = download_wiki_image(api, upgrade_title, folder / "upgrade") if upgrade_title else None
         if not upgrade_path and slot_path:
             upgrade_path = folder / "upgrade.png"
