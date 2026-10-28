@@ -32,6 +32,7 @@ let toastTimer = 0;
 let titleIntroPending = true;
 let titleFadeFromBlack = false;
 let introFadeFromBlack = false;
+let introExitTimer = null;
 let baseFadeFromBlack = false;
 let chapterLeavingDestination = "";
 let navigationTimer = null;
@@ -764,9 +765,8 @@ function render() {
       if (scene === "intro") leaveIntro();
     });
     introScreen.addEventListener("animationend", event => {
-      if (event.target === introScreen && scene === "intro" && introScreen.classList.contains("intro-leaving")) {
-        titleFadeFromBlack = true;
-        navigate("title");
+      if (event.target === introScreen && event.animationName === "intro-screen-fade-out") {
+        finishIntroExit(introScreen);
       }
     });
   }
@@ -878,16 +878,29 @@ function leaveChapterSelect(destination) {
   chapterScreen.style.pointerEvents = "none";
 }
 
+function finishIntroExit(introScreen) {
+  if (scene !== "intro" || !introScreen || !introScreen.classList.contains("intro-leaving")) return;
+  if (introExitTimer !== null) {
+    clearTimeout(introExitTimer);
+    introExitTimer = null;
+  }
+  titleFadeFromBlack = true;
+  navigate("title");
+}
+
 function leaveIntro() {
   if (scene !== "intro") return;
   const introScreen = stage.querySelector(".intro-screen");
   if (!introScreen) {
+    titleFadeFromBlack = true;
     navigate("title");
     return;
   }
   if (introScreen.classList.contains("intro-leaving")) return;
   introScreen.classList.add("intro-leaving");
   introScreen.style.pointerEvents = "none";
+  if (introExitTimer !== null) clearTimeout(introExitTimer);
+  introExitTimer = setTimeout(() => finishIntroExit(introScreen), 1200);
 }
 
 function perform(action) {
