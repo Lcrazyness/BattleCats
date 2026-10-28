@@ -43,6 +43,10 @@ SCREENSHOT_SOURCES = [
         "https://static.wikia.nocookie.net/battle-cats/images/7/71/EOC_map.png/revision/latest?cb=20211025210429",
         SPRITES / "backgrounds" / "empire-of-cats-map.png",
     ),
+    (
+        "https://www.spriters-resource.com/media/assets/78/81040.png?updated=1755474485",
+        SHEETS / "battlecats-cat-spritesheet.png",
+    ),
 ]
 
 KEYWORDS = (
@@ -803,101 +807,208 @@ def copy_as_png(source: Path, destination: Path) -> bool:
         return False
 
 
+def crop_sprite_strip(sheet_path: Path, bounds: tuple[int, int, int, int], output_dir: Path) -> list[Path]:
+    """Crop a single animation row from an organized Battle Cats sprite sheet."""
+    from PIL import Image
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    temp_path = output_dir / ".animation-strip.png"
+    try:
+        with Image.open(sheet_path) as opened:
+            opened.seek(0)
+            sheet = opened.convert("RGBA")
+            strip = sheet.crop(bounds)
+            box = strip.getchannel("A").getbbox()
+            if box:
+                strip = strip.crop(box)
+            strip.save(temp_path, format="PNG", optimize=True)
+        frames = split_unit_sheet(temp_path, output_dir)
+        return frames
+    except Exception as exc:
+        print(f"WARNING: couldn't crop a Battle Cats sprite strip from {sheet_path.name}: {exc}")
+        return []
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+def crop_default_cat_sheet(sheet_path: Path, moving_dir: Path, attack_dir: Path, damaged_dir: Path) -> tuple[list[Path], list[Path], list[Path]]:
+    """Crop just normal Cat (left group) from the real Cat/Macho/Mohawk sheet."""
+    from PIL import Image
+
+    try:
+        with Image.open(sheet_path) as opened:
+            sheet = opened.convert("RGBA")
+        width, height = sheet.size
+        # The sheet labels the three forms side by side. Normal Cat is the leftmost group.
+        right = min(width, round(width * 0.17))
+        moving = crop_sprite_strip(sheet_path, (0, round(height * 0.12), right, round(height * 0.32)), moving_dir)
+        attacks = crop_sprite_strip(sheet_path, (0, round(height * 0.41), right, round(height * 0.63)), attack_dir)
+        damaged = crop_sprite_strip(sheet_path, (0, round(height * 0.73), right, round(height * 0.94)), damaged_dir)
+        print(f"Extracted normal Cat only from {sheet_path.name}: {len(moving)} walk, {len(attacks)} attack, {len(damaged)} hurt frame(s).")
+        return moving, attacks, damaged
+    except Exception as exc:
+        print(f"WARNING: couldn't crop normal Cat's spritesheet: {exc}")
+        return [], [], []
+
+
+def extract_gif_frames(animation_path: Path, output_dir: Path, limit: int = 20) -> list[Path]:
+    """Extract the authentic Doge animation GIF into individual transparent PNG frames."""
+    from PIL import Image
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for existing in output_dir.glob("frame-*.png"):
+        existing.unlink()
+    frames: list[Path] = []
+    try:
+        with Image.open(animation_path) as opened:
+            total = min(int(getattr(opened, "n_frames", 1)), limit)
+            for index in range(total):
+                opened.seek(index)
+                frame = opened.convert("RGBA")
+                box = frame.getchannel("A").getbbox()
+                if box:
+                    frame = frame.crop(box)
+                path = output_dir / f"frame-{index + 1:03d}.png"
+                frame.save(path, format="PNG", optimize=True)
+                frames.append(path)
+        print(f"Extracted {len(frames)} authentic frame(s) from {animation_path.relative_to(ROOT)}.")
+    except Exception as exc:
+        print(f"WARNING: couldn't extract animation frames from {animation_path}: {exc}")
+    return frames
+
+
 def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -> dict:
-    """Build the requested per-unit folders using Battle Cats Wiki filenames."""
+    """Build Cats/cat or enemys/doge with locally bundled Battle Cats sprites."""
     moving_dir = folder / "moving"
     attack_dir = folder / "attack"
     damaged_dir = folder / "damaged"
     for directory in (moving_dir, attack_dir, damaged_dir):
         directory.mkdir(parents=True, exist_ok=True)
     for path in moving_dir.iterdir():
-        if path.is_file() and (path.name.startswith("frame-") or path.name.startswith(f"{name}-spritesheet")):
+        if path.is_file():
             path.unlink()
     for directory in (attack_dir, damaged_dir):
         for path in directory.iterdir():
             if path.is_file():
                 path.unlink()
 
+    old_slot = folder / "slot.png"
+    if old_slot.exists():
+        old_slot.unlink()
+    if not enemy:
+        old_upgrade = folder / "upgrade.png"
+        if old_upgrade.exists():
+            old_upgrade.unlink()
+
     title = "Doge" if enemy else "Cat"
     excluded_forms = ("Macho", "Mohawk", "God Cat", "Legend Cat", "True Form", "Evolved")
     form_exclusions = excluded_forms if not enemy else ()
+    source_url = (
+        "https://battle-cats.fandom.com/wiki/Doge/Gallery"
+        if enemy else
+        "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/"
+    )
+
+    frame_paths: list[Path] = []
+    attack_frames: list[Path] = []
+    damaged_frames: list[Path] = []
+    attack_gif: Path | None = None
+
+    if not enemy and (SHEETS / "battlecats-cat-spritesheet.png").exists():
+        frame_paths, attack_frames, damaged_frames = crop_default_cat_sheet(
+            SHEETS / "battlecats-cat-spritesheet.png", moving_dir, attack_dir, damaged_dir
+        )
+    else:
+        if enemy:
+            sheet_queries = ["Doge's spritesheet", "Doge spritesheet", "Doge sprites", "Enemy 000 spritesheet", "Enemy000"]
+        else:
+            sheet_queries = ["Basic Cat(bcp)", "000 BCP"]
+        sheet_title = find_unit_asset(api, sheet_queries, excluded=form_exclusions)
+        sheet_path = download_wiki_image(api, sheet_title, SHEETS / f"{name}-spritesheet") if sheet_title else None
+        if not sheet_path and not enemy:
+            for candidate in (SHEETS / "basic-cat-bcp.webp", SHEETS / "basic-cat-bcp.png"):
+                if candidate.exists():
+                    sheet_path = candidate
+                    break
+        if sheet_path:
+            frame_paths = split_unit_sheet(sheet_path, moving_dir)
 
     if enemy:
-        sheet_queries = ["Doge's spritesheet", "Doge spritesheet", "Enemy 000 spritesheet", "Enemy 000", "Enemy000"]
         attack_queries = ["Doge attack", "Doge's attack animation", "Doge attack animation"]
-        slot_queries = ["Enemy icon 000", "Doge icon"]
-        upgrade_queries = []
+        attack_title = find_unit_asset(api, attack_queries)
+        if attack_title:
+            attack_gif = download_wiki_image(api, attack_title, attack_dir / "doge-attack", preserve_gif=True)
+            if attack_gif and attack_gif.suffix.lower() == ".gif":
+                attack_frames = extract_gif_frames(attack_gif, attack_dir)
+                if not frame_paths:
+                    frame_paths = extract_gif_frames(attack_gif, moving_dir)
+    elif not attack_frames:
+        attack_title = find_unit_asset(api, ["Cat's attack animation", "Cat attack animation", "Cat attack"])
+        if attack_title:
+            attack_path = download_wiki_image(api, attack_title, attack_dir / "cat-attack", preserve_gif=True)
+            if attack_path:
+                attack_frames = [attack_path]
+
+    slot_path: Path | None = None
+    if not enemy:
+        # This is the bundled Normal Cat icon, not God Cat or an evolved form.
+        normal_icon = SHEETS / "normal-cat-right-icon.webp"
+        if normal_icon.exists():
+            slot_path = folder / "slot.png"
+            copy_as_png(normal_icon, slot_path)
+        else:
+            slot_title = find_unit_asset(api, ["Normal cat right icon", "Uni000 BCP00", "Cat's icon"])
+            slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
     else:
-        # These are the filenames generated by the Wiki's Module:Cats for Cat (unit 000, form BCP).
-        # They're exact data filenames, not fuzzy matches against another Cat's artwork.
-        sheet_queries = ["000 BCP"]
-        attack_queries = ["Cat's attack animation", "Cat attack animation", "Cat attack"]
-        slot_queries = ["Uni000 BCP00", "Cat's icon", "Cat icon"]
-        upgrade_queries = ["Udi000 BCP", "Cat's Upgrade Menu icon"]
-
-    sheet_title = find_unit_asset(api, sheet_queries, excluded=form_exclusions)
-    sheet_path = download_wiki_image(api, sheet_title, moving_dir / f"{name}-spritesheet") if sheet_title else None
-
-    if not sheet_path and not enemy:
-        for candidate in (SHEETS / "basic-cat-bcp.webp", SHEETS / "basic-cat-bcp.png"):
-            if candidate.exists():
-                from PIL import Image
-                sheet_path = moving_dir / f"{name}-spritesheet.png"
-                with Image.open(candidate) as opened:
-                    opened.convert("RGBA").save(sheet_path, format="PNG", optimize=True)
-                print("Used the bundled Basic Cat source as the exact Cat sprite fallback.")
-                break
-    frame_paths = split_unit_sheet(sheet_path, moving_dir) if sheet_path else []
-
-    attack_title = find_unit_asset(api, attack_queries, excluded=form_exclusions)
-    attack_path = download_wiki_image(api, attack_title, attack_dir / f"{name}-attack", preserve_gif=True) if attack_title else None
-
-    slot_title = find_unit_asset(api, slot_queries, excluded=form_exclusions)
-    slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
-    if not slot_path and frame_paths:
+        slot_title = find_unit_asset(api, ["Enemy icon 000", "Doge icon"])
+        slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
+    if not slot_path and attack_gif:
         slot_path = folder / "slot.png"
-        copy_as_png(frame_paths[0], slot_path)
-    # For Doge, the icon file is the correct basic Doge artwork and is a safer fallback
-    # than matching any file that merely contains "doge" in its title.
-    if not slot_path and attack_path:
-        slot_path = folder / "slot.png"
-        copy_as_png(attack_path, slot_path)
+        copy_as_png(attack_gif, slot_path)
 
     if not frame_paths and slot_path:
         first_frame = moving_dir / "frame-001.png"
         if copy_as_png(slot_path, first_frame):
             frame_paths = [first_frame]
-    if not attack_path and frame_paths:
-        attack_path = attack_dir / f"{name}-attack.png"
-        copy_as_png(frame_paths[-1], attack_path)
+    if not attack_frames and frame_paths:
+        attack_frame = attack_dir / "frame-001.png"
+        if copy_as_png(frame_paths[-1], attack_frame):
+            attack_frames = [attack_frame]
+    if not damaged_frames and frame_paths:
+        damaged_frame = damaged_dir / "frame-001.png"
+        if copy_as_png(frame_paths[-1], damaged_frame):
+            damaged_frames = [damaged_frame]
 
-    damaged_path = damaged_dir / f"{name}-damaged.png" if frame_paths else None
-    if damaged_path and not copy_as_png(frame_paths[-1], damaged_path):
-        damaged_path = None
-
-    upgrade_path = None
+    upgrade_path: Path | None = None
     if not enemy:
-        upgrade_title = find_unit_asset(api, upgrade_queries, excluded=form_exclusions)
+        upgrade_title = find_unit_asset(api, ["Udi000 BCP", "Cat's Upgrade Menu icon"])
         upgrade_path = download_wiki_image(api, upgrade_title, folder / "upgrade") if upgrade_title else None
         if not upgrade_path and slot_path:
             upgrade_path = folder / "upgrade.png"
             copy_as_png(slot_path, upgrade_path)
 
     frames = [path.relative_to(ROOT).as_posix() for path in frame_paths]
+    attacks = [path.relative_to(ROOT).as_posix() for path in attack_frames]
+    damaged = [path.relative_to(ROOT).as_posix() for path in damaged_frames]
     if not frames:
         frames = [slot_path.relative_to(ROOT).as_posix()] if slot_path else []
     manifest = {
         "name": name,
-        "source": "Battle Cats Wiki community assets; the original game artwork belongs to its respective rights holders.",
+        "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
+        "sourceUrl": source_url,
         "moving": frames,
-        "attack": attack_path.relative_to(ROOT).as_posix() if attack_path else (frames[0] if frames else None),
-        "damaged": damaged_path.relative_to(ROOT).as_posix() if damaged_path else (frames[-1] if frames else None),
+        "attacks": attacks,
+        "attack": attacks[0] if attacks else (attack_gif.relative_to(ROOT).as_posix() if attack_gif else (frames[0] if frames else None)),
+        "damagedFrames": damaged,
+        "damaged": damaged[0] if damaged else (frames[-1] if frames else None),
         "slot": slot_path.relative_to(ROOT).as_posix() if slot_path else None,
         "upgrade": upgrade_path.relative_to(ROOT).as_posix() if upgrade_path else None,
     }
     (folder / "assets.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     (moving_dir / "frames.json").write_text(json.dumps({"frames": frames}, indent=2), encoding="utf-8")
-    print(f"Wrote {folder.relative_to(ROOT)}/assets.json with {len(frames)} moving frame(s).")
+    (attack_dir / "frames.json").write_text(json.dumps({"frames": attacks}, indent=2), encoding="utf-8")
+    (damaged_dir / "frames.json").write_text(json.dumps({"frames": damaged}, indent=2), encoding="utf-8")
+    print(f"Wrote {folder.relative_to(ROOT)}/assets.json: {len(frames)} moving, {len(attacks)} attack, {len(damaged)} damaged frame(s).")
     return manifest
 
 
@@ -965,6 +1076,15 @@ def main() -> int:
         print(f"WARNING: could not import first-battle assets: {exc}")
 
     sheets = import_relevant_sheets()
+    cat_source = SHEETS / "battlecats-cat-spritesheet.png"
+    if cat_source.exists():
+        sheets.append({
+            "title": "Cat sprite sheet",
+            "path": cat_source.relative_to(ROOT).as_posix(),
+            "source": "The Spriters Resource — The Battle Cats",
+            "source_url": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/",
+            "license_note": "Sprite sheet uploaded by the community. Original artwork is owned by PONOS.",
+        })
     index_path = SPRITES / "original_sheets" / "index.json"
     if sheets:
         SHEETS.mkdir(parents=True, exist_ok=True)
