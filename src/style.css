@@ -1292,10 +1292,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 /* Use the actual Empire of Cats world-map art rather than drawn continents. */
 .world-map-art-background {
   z-index:0;
-  object-fit:cover;
+  object-fit:fill;
   object-position:center;
   opacity:1;
-  filter:saturate(.92) contrast(1.02);
+  filter:saturate(.96) contrast(1.02);
 }
 .world-level-node {
   width:clamp(17px,1.8vw,23px);
