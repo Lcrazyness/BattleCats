@@ -1220,3 +1220,70 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     animation-delay:0ms !important;
   }
 }
+
+
+/* Empire of Cats — Chapter 1 world-map stage selection. */
+.world-stage-screen{display:block;overflow:hidden;background:#a9ccce;color:#fff4ce;isolation:isolate}
+.world-stage-frame{position:absolute;inset:0;overflow:hidden;background:#b8d7d5;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif}
+.world-stage-header{position:absolute;z-index:10;top:0;left:0;right:0;height:9%;min-height:58px;display:flex;align-items:center;gap:1.1%;padding:0 1.5%;background:linear-gradient(#d0a06a 0%,#94572e 44%,#5b301e 100%);border-bottom:4px solid #392014;box-shadow:0 4px 9px #24190e70}
+.world-stage-back{flex:0 0 auto;display:grid;place-items:center;width:clamp(42px,6vh,65px);height:clamp(42px,6vh,65px);margin:0;padding:0;border:0;border-radius:50%;background:transparent;box-shadow:none}
+.world-stage-back img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
+.world-stage-title{display:flex;min-width:0;flex:1 1 auto;flex-direction:column;justify-content:center;gap:2px;line-height:1;text-shadow:2px 3px #28160d}
+.world-stage-title strong{color:#fff3c8;font-size:clamp(17px,2.3vw,31px);letter-spacing:.035em;white-space:nowrap}
+.world-stage-title span{color:#ffe49c;font:800 clamp(9px,1.1vw,14px)/1 Arial,sans-serif;letter-spacing:.09em}
+.world-stage-hud{display:flex;flex:0 1 auto;align-items:center;gap:clamp(7px,1.4vw,20px)}
+.world-hud-value{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0;color:#fff4ce;text-shadow:2px 2px #23150d}
+.world-hud-value span{color:#ffd85b;font:900 clamp(9px,1vw,13px)/1 Arial,sans-serif;letter-spacing:.07em}
+.world-hud-value strong{font:1000 clamp(15px,2vw,27px)/1 Arial,sans-serif;white-space:nowrap}
+.world-hud-value.xp strong{color:#72efff}.world-hud-value.energy strong{color:#d7ff85}.world-hud-value.catfood strong{color:#fff0a0}
+.world-level-map{position:absolute;z-index:1;top:9%;right:0;bottom:26%;left:0;overflow:hidden;background:#b5d5d5;background-image:radial-gradient(ellipse at 54% 40%,#d8e8d8a0 0%,#b7d7d5 55%,#90bcc3 100%);box-shadow:inset 0 0 22px #355f5f52}
+.world-map-art,.world-route-art{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.world-map-art{z-index:0}.world-continent path{filter:drop-shadow(2px 3px 0 #526b6440)}
+.map-region-label text{fill:#758875;font:900 17px Arial,sans-serif;letter-spacing:5px;text-anchor:middle;opacity:.72}
+.world-route-art{z-index:1}.world-route-art polyline{fill:none;stroke:#fff8d8;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:3 13;opacity:.95;vector-effect:non-scaling-stroke}
+.world-level-node{position:absolute;z-index:3;display:grid;place-items:center;width:clamp(22px,2.7vw,34px);height:clamp(22px,2.7vw,34px);min-width:0;min-height:0;margin:0;padding:0;border:2px solid #5f351e;border-radius:50% 50% 50% 12%;background:linear-gradient(145deg,#f9dc62,#e99a25);box-shadow:0 2px 0 #54351e,0 3px 5px #213a3966,inset 0 1px 1px #fff9c0;color:#442713;transform:translate(-50%,-50%) rotate(-45deg);transition:filter .14s ease,box-shadow .14s ease,scale .14s ease;-webkit-tap-highlight-color:transparent}
+.world-level-node span{display:block;font:1000 clamp(10px,1vw,13px)/1 Arial,sans-serif;transform:rotate(45deg);text-shadow:0 1px #fff2bd}
+.world-level-node.is-open{background:linear-gradient(145deg,#fff47d,#ffb41d)}
+.world-level-node.is-locked{border-color:#667775;background:linear-gradient(145deg,#a8b5ae,#667d7d);box-shadow:0 2px 0 #526464,0 3px 5px #213a3933,inset 0 1px #e4ece0;color:#e4ece6}
+.world-level-node.is-locked span{text-shadow:0 1px #526464}
+.world-level-node.is-selected{z-index:5;border:3px solid #fffbe2;outline:3px solid #d44324;box-shadow:0 0 0 5px #d4432440,0 4px 5px #38251a99,inset 0 1px #fff;scale:1.12}
+.world-level-node.is-frontier:not(.is-selected){animation:world-frontier-pulse 1.8s ease-in-out infinite}
+.world-level-node:active{transform:translate(-50%,-50%) rotate(-45deg) scale(.92)}
+.world-level-node:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@keyframes world-frontier-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.23)}}
+.world-map-compass{position:absolute;top:3%;left:1.3%;z-index:2;display:flex;flex-direction:column;align-items:center;color:#61452f;font:1000 12px/1 Arial,sans-serif;text-shadow:0 1px #fff;opacity:.85}
+.world-map-compass span{color:#c65a30;font-size:23px;line-height:1}
+.world-map-progress{position:absolute;z-index:2;right:1.2%;top:2%;display:flex;align-items:center;gap:8px;padding:7px 10px;border:2px solid #745033;border-radius:5px;background:#f6e8c9e8;box-shadow:0 2px 0 #9f825c;color:#5f4126;font:900 clamp(9px,1vw,12px)/1 Arial,sans-serif;letter-spacing:.04em}
+.world-map-progress strong{color:#a43b22;font:1000 clamp(13px,1.3vw,18px)/1 Arial,sans-serif}
+.world-stage-footer{position:absolute;z-index:8;left:0;right:0;bottom:0;height:26%;min-height:150px;display:flex;align-items:stretch;gap:2%;padding:1.4% 2%;border-top:4px solid #f0d59b;background:linear-gradient(#b67b43 0%,#86502d 17%,#4e2b1d 100%);box-shadow:0 -4px 12px #2b1a1380}
+.world-stage-info{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;justify-content:center;gap:clamp(4px,.8vh,9px);padding-right:1%}
+.world-stage-kicker{color:#ffe29b;font:900 clamp(10px,1.15vw,14px)/1 Arial,sans-serif;letter-spacing:.1em;text-shadow:1px 2px #402419}
+.world-stage-info h1{margin:0;color:#fff6d6;font:1000 clamp(27px,4vw,52px)/.95 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;letter-spacing:.025em;text-shadow:2px 3px 0 #3b2012,0 0 8px #2a180f}
+.world-stage-info p{margin:0;color:#f5deb2;font:800 clamp(10px,1.3vw,15px)/1.15 Arial,sans-serif;text-shadow:1px 1px #382014}
+.world-stage-progress{width:min(100%,420px);height:clamp(7px,1.3vh,12px);overflow:hidden;border:2px solid #362016;border-radius:99px;background:#3a2417;box-shadow:inset 0 1px 2px #1c1009}
+.world-stage-progress span{display:block;height:100%;background:linear-gradient(#ffed67,#e6a21b);box-shadow:inset 0 1px #fff4a1}
+.world-stage-actions{display:flex;flex:0 0 25%;align-items:center;justify-content:flex-end;gap:clamp(8px,1.5vw,20px)}
+.world-energy-cost{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;border:2px solid #3b2414;border-radius:8px;background:linear-gradient(#f7e2a9,#c9a45b);box-shadow:inset 0 2px #fff4c5,0 3px 0 #2e1a10;color:#4b301a;text-shadow:0 1px #fff4ce}
+.world-energy-cost span{font:900 clamp(9px,1vw,12px)/1 Arial,sans-serif}.world-energy-cost strong{font:1000 clamp(20px,2.4vw,31px)/1 Arial,sans-serif}
+.world-battle-button{display:flex;flex:1 1 auto;min-width:104px;max-width:260px;height:72%;min-height:68px;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 10px;border:4px solid #855016;border-radius:15px;background:linear-gradient(#fff34b 0%,#ffca16 42%,#ec8d09 100%);box-shadow:inset 0 3px #fffab0,inset 0 -4px #ce7100,0 4px 0 #2f1a10;color:#fff;text-shadow:2px 3px #302016}
+.world-battle-button span{font:1000 clamp(19px,2.8vw,36px)/.95 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;-webkit-text-stroke:1px #3f2410}
+.world-battle-button small{font:900 clamp(9px,1vw,12px)/1 Arial,sans-serif;letter-spacing:.12em;color:#fff5c8;text-shadow:1px 2px #60310c}
+.world-battle-button:hover:not(:disabled){filter:brightness(1.07)}
+.world-battle-button:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 3px #fffab0,0 1px 0 #2f1a10}
+.world-battle-button:disabled{cursor:not-allowed;filter:grayscale(1) brightness(.65)}
+@media(max-width:700px){
+ .world-stage-header{height:10%;min-height:53px;padding:0 2%;gap:2%}
+ .world-stage-title strong{font-size:clamp(13px,3.2vw,22px)}
+ .world-stage-title span{font-size:clamp(8px,1.7vw,11px);letter-spacing:.035em}
+ .world-stage-hud{gap:8px}.world-hud-value span{font-size:8px}.world-hud-value strong{font-size:clamp(11px,2.7vw,17px)}.world-hud-value.catfood{display:none}
+ .world-level-map{top:10%;bottom:29%}.world-map-art text{font-size:21px;letter-spacing:3px}
+ .world-level-node{width:clamp(18px,4.4vw,27px);height:clamp(18px,4.4vw,27px);border-width:1px}.world-level-node span{font-size:clamp(8px,2.1vw,11px)}.world-level-node.is-selected{border-width:2px;outline-width:2px}
+ .world-map-progress{padding:5px 7px;gap:5px}
+ .world-stage-footer{height:29%;min-height:135px;padding:3% 3%;gap:2%}.world-stage-info{gap:6px}
+ .world-stage-kicker{font-size:clamp(8px,2vw,11px);letter-spacing:.035em}.world-stage-info h1{font-size:clamp(24px,6vw,38px)}.world-stage-info p{font-size:clamp(9px,2vw,12px)}
+ .world-stage-actions{flex-basis:32%;gap:6px}.world-energy-cost{padding:6px 7px}.world-energy-cost span{font-size:8px}.world-energy-cost strong{font-size:22px}
+ .world-battle-button{min-width:76px;height:70%;min-height:58px;padding:4px;border-width:3px;border-radius:10px}.world-battle-button span{font-size:clamp(16px,4vw,25px)}.world-battle-button small{font-size:8px;letter-spacing:.04em}
+ .world-map-compass{display:none}
+}
+@media(max-height:480px) and (min-width:701px){.world-stage-header{min-height:42px}.world-stage-back{width:37px;height:37px}.world-stage-footer{min-height:110px}.world-stage-info h1{font-size:clamp(24px,4vw,38px)}.world-battle-button{min-height:52px}}
+@media(prefers-reduced-motion:reduce){.world-level-node.is-frontier:not(.is-selected){animation:none}}
