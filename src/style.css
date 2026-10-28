@@ -910,3 +910,200 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   font:900 clamp(14px,1.8vw,20px)/1 Arial,sans-serif;
   font-variant-numeric:tabular-nums;
 }
+
+
+/* Loading fades away into the scrolling story. */
+.loading-screen.loading-fading-out {
+  pointer-events:none !important;
+  animation:loading-screen-to-summary 900ms ease-in-out both;
+}
+@keyframes loading-screen-to-summary {
+  0% { opacity:1; filter:brightness(1); }
+  72% { filter:brightness(0); }
+  100% { opacity:0; filter:brightness(0); }
+}
+.intro-screen.intro-fade-from-black {
+  animation:summary-fade-in-from-black 950ms ease-out both;
+}
+@keyframes summary-fade-in-from-black {
+  from { opacity:0; filter:brightness(0); }
+  to { opacity:1; filter:brightness(1); }
+}
+
+/* Play and Settings leave in opposite directions before Chapter Select appears. */
+.real-title-screen.title-leaving-for-chapters {
+  background:#000 !important;
+}
+.real-title-screen.title-leaving-for-chapters .title-play {
+  animation:title-play-depart-left 820ms cubic-bezier(.62,0,.85,.25) both !important;
+}
+.real-title-screen.title-leaving-for-chapters .title-settings {
+  animation:title-settings-depart-right 820ms cubic-bezier(.62,0,.85,.25) both !important;
+}
+.real-title-screen.title-leaving-for-chapters .title-mailbox {
+  animation:title-mailbox-disappear 380ms ease-in both !important;
+}
+.real-title-screen.title-leaving-for-chapters .title-background-sprite {
+  animation:title-background-disappear 780ms ease-in both !important;
+}
+@keyframes title-play-depart-left {
+  from { opacity:1; transform:translateX(0); }
+  to { opacity:0; transform:translateX(-115vw); }
+}
+@keyframes title-settings-depart-right {
+  from { opacity:1; transform:translateX(0); }
+  to { opacity:0; transform:translateX(115vw); }
+}
+@keyframes title-mailbox-disappear {
+  from { opacity:1; }
+  to { opacity:0; }
+}
+@keyframes title-background-disappear {
+  from { opacity:1; }
+  to { opacity:0; }
+}
+
+/* Chapter Select: supplied Empire of Cats banner slides in from the right. */
+.chapter-select-screen {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:radial-gradient(ellipse at 50% 40%,#68452a 0%,#2b1a10 60%,#050403 100%);
+  color:#fff;
+  animation:chapter-screen-appear 420ms ease-out both;
+}
+@keyframes chapter-screen-appear {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+.chapter-select-glow {
+  position:absolute;
+  left:50%;
+  top:49%;
+  width:min(85vw,1100px);
+  height:42vh;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:#d88d2730;
+  filter:blur(50px);
+  pointer-events:none;
+}
+.chapter-select-heading {
+  position:absolute;
+  top:10%;
+  left:0;
+  right:0;
+  color:#fff6d9;
+  font:1000 clamp(30px,5vw,58px)/1 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  letter-spacing:.08em;
+  text-align:center;
+  -webkit-text-stroke:1.5px #2a160a;
+  paint-order:stroke fill;
+  text-shadow:0 4px 0 #201008,0 0 18px #000;
+}
+.chapter-select-subtitle {
+  position:absolute;
+  top:19%;
+  left:0;
+  right:0;
+  color:#f8d99d;
+  font:700 clamp(13px,1.8vw,20px)/1.2 Arial,sans-serif;
+  text-align:center;
+  text-shadow:0 2px 4px #000;
+}
+.chapter-banner {
+  position:absolute;
+  z-index:2;
+  left:50%;
+  top:53%;
+  width:min(78vw,1050px);
+  max-height:62vh;
+  display:block;
+  padding:0;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  transform:translate(-50%,-50%);
+  animation:chapter-banner-arrive 1050ms cubic-bezier(.17,.8,.22,1) both;
+}
+.chapter-banner img {
+  display:block;
+  width:100%;
+  max-height:62vh;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 12px 14px #000a);
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+@keyframes chapter-banner-arrive {
+  0% { opacity:0; transform:translate(calc(-50% + 115vw),-50%) scale(.94); }
+  76% { opacity:1; transform:translate(calc(-50% - 1.2vw),-50%) scale(1.015); }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+.chapter-back {
+  position:absolute;
+  z-index:4;
+  left:1%;
+  bottom:1%;
+  width:clamp(58px,8vw,100px);
+  height:clamp(58px,8vw,100px);
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  box-shadow:none;
+}
+.chapter-back img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.chapter-select-screen.chapter-leaving {
+  pointer-events:none !important;
+  animation:chapter-select-to-black 850ms ease-in-out both;
+}
+@keyframes chapter-select-to-black {
+  0% { opacity:1; filter:brightness(1); }
+  72% { filter:brightness(0); }
+  100% { opacity:0; filter:brightness(0); }
+}
+.base-sprite-screen.base-fade-from-black {
+  animation:base-fade-in-from-black 1050ms ease-out both;
+}
+@keyframes base-fade-in-from-black {
+  from { opacity:0; filter:brightness(0); }
+  to { opacity:1; filter:brightness(1); }
+}
+@media (max-width:600px) {
+  .chapter-select-heading { top:12%; }
+  .chapter-select-subtitle { top:21%; }
+  .chapter-banner { width:92vw; top:51%; }
+  .chapter-back { width:clamp(54px,12vw,76px); height:clamp(54px,12vw,76px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen.loading-fading-out,
+  .intro-screen.intro-fade-from-black,
+  .real-title-screen.title-leaving-for-chapters .title-play,
+  .real-title-screen.title-leaving-for-chapters .title-settings,
+  .real-title-screen.title-leaving-for-chapters .title-mailbox,
+  .real-title-screen.title-leaving-for-chapters .title-background-sprite,
+  .chapter-select-screen,
+  .chapter-banner,
+  .chapter-select-screen.chapter-leaving,
+  .base-sprite-screen.base-fade-from-black {
+    animation-duration:1ms !important;
+    animation-delay:0ms !important;
+  }
+}

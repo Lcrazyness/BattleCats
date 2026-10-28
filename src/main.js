@@ -31,6 +31,9 @@ let currentRegion = "empire";
 let toastTimer = 0;
 let titleIntroPending = true;
 let titleFadeFromBlack = false;
+let introFadeFromBlack = false;
+let baseFadeFromBlack = false;
+let chapterLeavingDestination = "";
 let navigationTimer = null;
 const stage = $(".stage");
 const persist = () => {
@@ -69,6 +72,7 @@ const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseU
 
 const LOADING_IMAGE_ASSETS = [
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
+  {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
   {path:"sprites/backgrounds/titlescreenmenu.png?v=20261026-9",bytes:1513970},
   {path:"sprites/ui/Play_button.png?v=20261026-9",bytes:5844},
@@ -258,10 +262,16 @@ async function startGameAssetLoading() {
 
   updateLoadingProgress(failedAssets ? "Ready — "+failedAssets+" asset(s) could not be cached." : "Everything loaded. Starting story...");
   setTimeout(() => {
-    if (scene === "loading") {
+    if (scene !== "loading") return;
+    const loadingScreen = stage.querySelector(".loading-screen");
+    if (!loadingScreen) {
+      introFadeFromBlack = true;
       scene = "intro";
       render();
+      return;
     }
+    loadingScreen.classList.add("loading-fading-out");
+    loadingScreen.style.pointerEvents = "none";
   },650);
 }
 
@@ -486,7 +496,9 @@ const catHead = (className="") =>
   '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-9" alt="" draggable="false">';
 
 function renderIntro() {
-  return '<section class="screen intro-screen" aria-label="Story intro">'+
+  const fadeFromBlack = introFadeFromBlack;
+  introFadeFromBlack = false;
+  return '<section class="screen intro-screen'+(fadeFromBlack?' intro-fade-from-black':'')+'" aria-label="Story intro">'+
     '<div class="intro-frame">'+
       '<img class="intro-background" src="sprites/backgrounds/intro-burning-city.webp?v=20261027-1" alt="" draggable="false">'+
       '<div class="intro-story" aria-label="The invasion begins">'+
@@ -527,8 +539,23 @@ function renderTitle() {
     '</div>'+
   '</section>';
 }
+function renderChapterSelect() {
+  return '<section class="screen chapter-select-screen" aria-label="Chapter selection">'+
+    '<div class="chapter-select-glow"></div>'+
+    '<div class="chapter-select-heading">CHAPTER SELECT</div>'+
+    '<div class="chapter-select-subtitle">Choose your campaign</div>'+
+    '<button class="chapter-banner" data-go="chapter-enter" aria-label="Empire of Cats">'+
+      '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="Empire of Cats" draggable="false">'+
+    '</button>'+
+    '<button class="chapter-back" data-go="chapter-back" aria-label="Back to title">'+
+      '<img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false">'+
+    '</button>'+
+  '</section>';
+}
 function renderBase() {
-  return '<section class="screen base-sprite-screen">'+
+  const fadeFromBlack = baseFadeFromBlack;
+  baseFadeFromBlack = false;
+  return '<section class="screen base-sprite-screen'+(fadeFromBlack?' base-fade-from-black':'')+'">'+
     '<div class="base-sprite-frame">'+
       '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261026-9" alt="" draggable="false">'+
     '<img class="base-backboard-sprite" src="sprites/ui/backboard.png?v=20261026-25" alt="" draggable="false">'+
@@ -697,6 +724,7 @@ function render() {
     case "loading": html=renderLoading(); break;
     case "intro": html=renderIntro(); break;
     case "title": html=renderTitle(); break;
+    case "chapters": html=renderChapterSelect(); break;
     case "base": html=renderBase(); break;
     case "battle": html=renderBattle(); break;
     case "stage": html=renderStage(); break;
@@ -708,6 +736,24 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  const loadingScreen = stage.querySelector(".loading-screen");
+  if (loadingScreen) loadingScreen.addEventListener("animationend", event => {
+    if (event.target === loadingScreen && scene === "loading" && loadingScreen.classList.contains("loading-fading-out")) {
+      introFadeFromBlack = true;
+      scene = "intro";
+      render();
+    }
+  });
+  const chapterScreen = stage.querySelector(".chapter-select-screen");
+  if (chapterScreen) chapterScreen.addEventListener("animationend", event => {
+    if (event.target === chapterScreen && scene === "chapters" && chapterScreen.classList.contains("chapter-leaving")) {
+      const destination = chapterLeavingDestination || "base";
+      chapterLeavingDestination = "";
+      if (destination === "base") baseFadeFromBlack = true;
+      if (destination === "title") titleFadeFromBlack = true;
+      navigate(destination);
+    }
+  });
   const introStory = stage.querySelector(".intro-story");
   if (introStory) introStory.addEventListener("animationend", () => {
     if (scene === "intro" && introStory.isConnected) leaveIntro();
@@ -788,6 +834,45 @@ function recruit(rare) {
   render();
   notify("New cat recruited: "+picked.name+"!");
 }
+function beginChapterSelection() {
+  if (scene !== "title") return;
+  if (navigationTimer !== null) {
+    clearTimeout(navigationTimer);
+    navigationTimer = null;
+  }
+  const titleScreen = stage.querySelector(".real-title-screen");
+  if (!titleScreen) {
+    scene = "chapters";
+    render();
+    return;
+  }
+  if (titleScreen.classList.contains("title-leaving-for-chapters")) return;
+  titleScreen.classList.add("title-leaving-for-chapters");
+  titleScreen.style.pointerEvents = "none";
+  navigationTimer = setTimeout(() => {
+    navigationTimer = null;
+    if (scene === "title") {
+      scene = "chapters";
+      render();
+    }
+  },850);
+}
+
+function leaveChapterSelect(destination) {
+  if (scene !== "chapters") return;
+  const chapterScreen = stage.querySelector(".chapter-select-screen");
+  if (!chapterScreen) {
+    if (destination === "base") baseFadeFromBlack = true;
+    if (destination === "title") titleFadeFromBlack = true;
+    navigate(destination);
+    return;
+  }
+  if (chapterScreen.classList.contains("chapter-leaving")) return;
+  chapterLeavingDestination = destination;
+  chapterScreen.classList.add("chapter-leaving");
+  chapterScreen.style.pointerEvents = "none";
+}
+
 function leaveIntro() {
   if (scene !== "intro") return;
   const introScreen = stage.querySelector(".intro-screen");
@@ -803,7 +888,13 @@ function leaveIntro() {
 function perform(action) {
   if (!action) return;
   if (action === "intro-back" || action === "intro-skip") return leaveIntro();
-  if (action.startsWith("go:")) return navigate(action.slice(3));
+  if (action === "chapter-enter") return leaveChapterSelect("base");
+  if (action === "chapter-back") return leaveChapterSelect("title");
+  if (action.startsWith("go:")) {
+    const target = action.slice(3);
+    if (scene === "title" && target === "base") return beginChapterSelection();
+    return navigate(target);
+  }
   if (action.startsWith("stage:")) { currentRegion = action.slice(6); return navigate("stage"); }
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
@@ -905,6 +996,7 @@ document.addEventListener("keydown", event=>{
   if (scene === "loading") return;
   if (event.key==="Escape") {
     if (scene==="intro") { leaveIntro(); return; }
+    if (scene==="chapters") { leaveChapterSelect("title"); return; }
     if (scene==="title") return;
     if (scene==="base") navigate("title");
     else if (scene==="stage") navigate("battle");
