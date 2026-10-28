@@ -1,24 +1,5 @@
 {
   "frames": [
-    "Cats/cat/attack/frame-001.png",
-    "Cats/cat/attack/frame-002.png",
-    "Cats/cat/attack/frame-003.png",
-    "Cats/cat/attack/frame-004.png",
-    "Cats/cat/attack/frame-005.png",
-    "Cats/cat/attack/frame-006.png",
-    "Cats/cat/attack/frame-007.png",
-    "Cats/cat/attack/frame-008.png",
-    "Cats/cat/attack/frame-009.png",
-    "Cats/cat/attack/frame-010.png",
-    "Cats/cat/attack/frame-011.png",
-    "Cats/cat/attack/frame-012.png",
-    "Cats/cat/attack/frame-013.png",
-    "Cats/cat/attack/frame-014.png",
-    "Cats/cat/attack/frame-015.png",
-    "Cats/cat/attack/frame-016.png",
-    "Cats/cat/attack/frame-017.png",
-    "Cats/cat/attack/frame-018.png",
-    "Cats/cat/attack/frame-019.png",
-    "Cats/cat/attack/frame-020.png"
+    "Cats/cat/attack/frame-001.png"
   ]
 }
