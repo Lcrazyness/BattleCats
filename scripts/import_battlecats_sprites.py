@@ -810,6 +810,13 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
     damaged_dir = folder / "damaged"
     for directory in (moving_dir, attack_dir, damaged_dir):
         directory.mkdir(parents=True, exist_ok=True)
+    for path in moving_dir.iterdir():
+        if path.is_file() and (path.name.startswith("frame-") or path.name.startswith(f"{name}-spritesheet")):
+            path.unlink()
+    for directory in (attack_dir, damaged_dir):
+        for path in directory.iterdir():
+            if path.is_file():
+                path.unlink()
 
     title = "Doge" if enemy else "Cat"
     excluded_forms = ("Macho", "Mohawk", "God Cat", "Legend Cat", "True Form", "Evolved")
