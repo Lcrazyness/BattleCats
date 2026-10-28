@@ -8,6 +8,7 @@ A browser-based Battle Cats menu fan remake using local screenshots, individual 
 - Cat Base: separate clickable Start!!, Upgrade, Equip, Menu, Gamatoto, Missions, Storage, Cat Capsule, Rare Cat Capsule, Back, Store, and Cat Food sprite images.
 - Cat Base follows the real layout: only Start!!, Upgrade, and Equip are the three large left-side buttons. Cat Guide, Enemy Guide, and Treasure are inside Menu.
 - Empire of Cats Chapter 1 has a dedicated stage-select map with all 48 stages in order, using the Empire of Cats map image from the Battle Cats Wiki gallery. Start!! opens this stage map directly.
+- Korea is the first playable battle: the basic Cat can be deployed from the bottom unit slot, Doges advance from the enemy side, bases have health bars, and the stage has money, cooldown, victory, defeat, and retry behavior.
 - Each visible button is its own image element with its own click action, not an invisible hitbox.
 - A fresh save starts with 0 XP, 0 Cat Food, 100 Energy, and the basic Cat at Level 1. The Cat Base image stores its initial zero values directly in the local background, not as duplicate number overlays.
 - Browser-local saving through localStorage; save version 4 starts fresh so old demo resources do not reappear.
@@ -19,6 +20,9 @@ A browser-based Battle Cats menu fan remake using local screenshots, individual 
 - src/main.js — screen navigation, sprite elements, and local save.
 - sprites/ui/ — individual cropped button and icon images.
 - sprites/backgrounds/ — local title background, Cat Base background, and the Battle Cats Empire of Cats world-map artwork.
+- `Cats/cat/` — default Cat assets: `moving/`, `attack/`, `damaged/`, `slot.png`, `upgrade.png`, and `assets.json`.
+- `enemys/doge/` — Doge assets: `moving/`, `attack/`, `damaged/`, `slot.png`, and `assets.json` (no enemy upgrade icon).
+- `Levels/Korea/` — the Korea battle background.
 - sprites/original_sheets/ — locally bundled Battle Cats Wiki source images.
 - sounds/ — local MP3 sound effects and menu/battle music, downloaded with `scripts/import_battlecats_sounds.py`.
 - sounds/source-index.json — source pages and notes for each audio asset.
@@ -29,9 +33,9 @@ A browser-based Battle Cats menu fan remake using local screenshots, individual 
 
 ## Asset sources and limitations
 
-The [Spriters Resource page for The Battle Cats](https://www.spriters-resource.com/mobile/thebattlecats/) provides assets such as Cat Base, Cat Icons, and Gamatoto, but it does not list the title-screen Play/Settings or Cat Base menu buttons as separate assets. Those UI buttons are therefore cropped into individual image files from the locally bundled menu references. Source image links and notes are recorded in sprites/original_sheets/index.json.
+The [Spriters Resource page for The Battle Cats](https://www.spriters-resource.com/mobile/thebattlecats/) provides menu and battle sprite-sheet references; the [Normal Cat sprite sheet](https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/) is used as the intended source for Cat animation frames. Doge's animation and icon are imported from Battle Cats community-wiki assets. Those UI buttons are therefore cropped into individual image files from the locally bundled menu references. Source image links and notes are recorded in sprites/original_sheets/index.json.
 
-This is an unofficial fan project, not affiliated with or endorsed by PONOS. Original game artwork belongs to its respective rights holders. Clicking Start opens the existing stage/battle demo, not the complete side-scrolling game.
+This is an unofficial fan project, not affiliated with or endorsed by PONOS. Original game artwork belongs to its respective rights holders. Korea is an early playable prototype; its UI and battle timing are still simplified and are intended to be polished in later passes.
 
 
 ## Audio
