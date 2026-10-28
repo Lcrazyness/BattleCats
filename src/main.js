@@ -786,7 +786,7 @@ function renderBase() {
     '<div class="base-sprite-frame">'+
       '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261026-9" alt="" draggable="false">'+
     '<img class="base-backboard-sprite" src="sprites/ui/backboard.png?v=20261026-25" alt="" draggable="false">'+
-      '<button class="base-sprite-button base-start" data-go="go:battle" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-start" data-go="stage:empire" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261026-9" alt="" draggable="false"></button>'+
@@ -813,15 +813,9 @@ const row = (label, detail, action, actionLabel="OPEN") =>
   '<div class="game-row"><div class="game-row-label">'+label+(detail?'<small>'+detail+'</small>':'')+'</div>'+gold(actionLabel,action,true)+'</div>';
 const pageCopy = text => '<p class="menu-copy">'+text+'</p>';
 function renderBattle() {
-  const body = pageCopy("Choose where to send your cats.")+
-    '<div class="menu-list">'+
-      row("Empire of Cats","The first steps to conquering the world.","stage:empire","CHOOSE")+
-      row("Into the Future","A new adventure beyond Earth.","stage:future","CHOOSE")+
-      row("Cats of the Cosmos","Explore the far reaches of space.","stage:cosmos","CHOOSE")+
-      row("Legend Stages","Special stages with powerful enemies.","stage:legend","CHOOSE")+
-      row("Event Stages","Limited-time challenges.","stage:event","CHOOSE")+
-    '</div>';
-  return renderWindow("Select a Stage",body,"base");
+  currentRegion = "empire";
+  selectedLevelIndex = Math.min(Math.max(0,Number(save.stageClears)||0),47);
+  return renderStage();
 }
 function renderStage() {
   if (currentRegion !== "empire") {
@@ -847,7 +841,7 @@ function renderStage() {
   return '<section class="screen world-stage-screen" aria-label="Empire of Cats Chapter 1 stage select">'+
     '<div class="world-stage-frame">'+
       '<header class="world-stage-header">'+
-        '<button class="world-stage-back" data-go="go:battle" aria-label="Back to chapter select"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
+        '<button class="world-stage-back" data-go="go:base" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
         '<div class="world-stage-title"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1 · WORLD TOUR</span></div>'+
         '<div class="world-stage-hud">'+
           '<div class="world-hud-value xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
@@ -856,23 +850,7 @@ function renderStage() {
         '</div>'+
       '</header>'+
       '<div class="world-level-map" aria-label="World map showing all 48 chapter stages">'+
-        '<svg class="world-map-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">'+
-          '<defs><pattern id="world-map-grid" width="48" height="42" patternUnits="userSpaceOnUse"><path d="M48 0H0V42" fill="none" stroke="#567e80" stroke-width="1" opacity=".21"/></pattern><linearGradient id="world-ocean" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#c8e0dc"/><stop offset="1" stop-color="#93c2c6"/></linearGradient><linearGradient id="world-land" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1e5bf"/><stop offset="1" stop-color="#ccb58a"/></linearGradient></defs>'+
-          '<rect width="1000" height="500" fill="url(#world-ocean)"/><rect width="1000" height="500" fill="url(#world-map-grid)"/>'+
-          '<g class="world-continent" fill="url(#world-land)" stroke="#9f8c67" stroke-width="3" stroke-linejoin="round">'+
-            '<path d="M55 91L84 64 130 43 167 50 205 43 244 66 249 91 232 116 207 124 193 149 177 158 161 190 142 211 121 199 111 172 91 161 71 133Z"/>'+
-            '<path d="M244 34L276 23 312 29 340 51 323 79 296 88 266 77 246 59Z"/>'+
-            '<path d="M218 213L249 224 278 247 289 278 276 309 264 349 247 392 233 361 225 326 208 291 207 251Z"/>'+
-            '<path d="M368 104L392 79 431 64 468 56 501 69 527 62 556 69 589 57 625 62 654 52 690 58 730 61 770 53 812 65 857 79 908 103 936 125 919 146 884 148 854 166 826 158 803 176 774 162 753 177 727 158 701 165 675 148 650 161 621 153 596 169 569 150 541 162 514 142 486 155 458 144 434 133 406 132 386 120Z"/>'+
-            '<path d="M433 155L464 159 493 169 516 192 530 225 521 263 505 297 489 332 470 346 455 319 444 285 428 257 415 228 420 196Z"/>'+
-            '<path d="M674 275L696 264 721 276 742 279 768 294 752 305 725 296 705 301 684 290Z"/>'+
-            '<path d="M733 338L770 321 810 327 846 344 867 367 848 391 813 403 778 393 749 374Z"/>'+
-            '<path d="M763 185L774 195 770 207 759 200Z"/><path d="M789 212L798 223 795 237 787 225Z"/><path d="M814 216L820 230 815 243 808 231Z"/>'+
-            '<path d="M806 267L836 270 857 280 847 288 821 283Z"/>'+
-          '</g>'+
-          '<g fill="#a8c0a5" stroke="#9f8c67" stroke-width="2"><path d="M825 227l7 4-4 9-7-4z"/><path d="M844 251l8 4-3 9-7-4z"/><path d="M872 269l8 4-4 8-7-5z"/><path d="M698 309l20 3 12 6-14 4-18-6z"/></g>'+
-          '<g class="map-region-label"><text x="132" y="112">NORTH AMERICA</text><text x="242" y="297">SOUTH AMERICA</text><text x="480" y="229">AFRICA</text><text x="650" y="111">ASIA</text><text x="772" y="363">AUSTRALIA</text><text x="455" y="39">EUROPE</text></g>'+
-        '</svg>'+
+        '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
         '<svg class="world-route-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+routePoints+'"/></svg>'+
         '<div class="world-map-compass" aria-hidden="true">N<span>▲</span></div>'+
         '<div class="world-map-progress">STAGES CLEARED <strong>'+completed+' / 48</strong></div>'+
@@ -1026,6 +1004,10 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  const worldMapArt = stage.querySelector(".world-map-art-background");
+  if (worldMapArt) worldMapArt.addEventListener("error", () => {
+    worldMapArt.src = "https://static.wikia.nocookie.net/battle-cats/images/7/71/EOC_map.png/revision/latest?cb=20211025210429";
+  }, {once:true});
   const loadingScreen = stage.querySelector(".loading-screen");
   if (loadingScreen) loadingScreen.addEventListener("animationend", event => {
     if (event.target === loadingScreen && scene === "loading" && loadingScreen.classList.contains("loading-fading-out")) {
