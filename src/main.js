@@ -28,6 +28,249 @@ if (savedSoundSettingsVersion < 1) {
 }
 let scene = "loading";
 let currentRegion = "empire";
+let selectedLevelIndex = 0;
+const EMPIRE_CHAPTER_ONE = [
+  {
+    "name": "Korea",
+    "x": 78,
+    "y": 29
+  },
+  {
+    "name": "Mongolia",
+    "x": 72,
+    "y": 23
+  },
+  {
+    "name": "China",
+    "x": 75,
+    "y": 34
+  },
+  {
+    "name": "Thailand",
+    "x": 72,
+    "y": 45
+  },
+  {
+    "name": "Cambodia",
+    "x": 75,
+    "y": 48
+  },
+  {
+    "name": "Philippines",
+    "x": 83,
+    "y": 49
+  },
+  {
+    "name": "Japan",
+    "x": 86,
+    "y": 32
+  },
+  {
+    "name": "Australia",
+    "x": 81,
+    "y": 76
+  },
+  {
+    "name": "Singapore",
+    "x": 76,
+    "y": 55
+  },
+  {
+    "name": "Maldives",
+    "x": 68,
+    "y": 62
+  },
+  {
+    "name": "India",
+    "x": 63,
+    "y": 42
+  },
+  {
+    "name": "Nepal",
+    "x": 66,
+    "y": 37
+  },
+  {
+    "name": "Dubai",
+    "x": 56,
+    "y": 48
+  },
+  {
+    "name": "Saudi Arabia",
+    "x": 55,
+    "y": 53
+  },
+  {
+    "name": "Kenya",
+    "x": 52,
+    "y": 66
+  },
+  {
+    "name": "Madagascar",
+    "x": 58,
+    "y": 78
+  },
+  {
+    "name": "South Africa",
+    "x": 52,
+    "y": 87
+  },
+  {
+    "name": "Ghana",
+    "x": 46,
+    "y": 64
+  },
+  {
+    "name": "Sahara",
+    "x": 46,
+    "y": 53
+  },
+  {
+    "name": "Egypt",
+    "x": 49,
+    "y": 48
+  },
+  {
+    "name": "Turkey",
+    "x": 52,
+    "y": 42
+  },
+  {
+    "name": "Russia",
+    "x": 64,
+    "y": 20
+  },
+  {
+    "name": "Greece",
+    "x": 50,
+    "y": 46
+  },
+  {
+    "name": "Italy",
+    "x": 47,
+    "y": 42
+  },
+  {
+    "name": "Monaco",
+    "x": 43,
+    "y": 46
+  },
+  {
+    "name": "Spain",
+    "x": 39,
+    "y": 49
+  },
+  {
+    "name": "France",
+    "x": 43,
+    "y": 40
+  },
+  {
+    "name": "Germany",
+    "x": 47,
+    "y": 37
+  },
+  {
+    "name": "Denmark",
+    "x": 48,
+    "y": 32
+  },
+  {
+    "name": "Norway",
+    "x": 44,
+    "y": 25
+  },
+  {
+    "name": "United Kingdom",
+    "x": 40,
+    "y": 35
+  },
+  {
+    "name": "Greenland",
+    "x": 28,
+    "y": 15
+  },
+  {
+    "name": "Canada",
+    "x": 24,
+    "y": 28
+  },
+  {
+    "name": "New York",
+    "x": 30,
+    "y": 39
+  },
+  {
+    "name": "Bermuda",
+    "x": 37,
+    "y": 44
+  },
+  {
+    "name": "Jamaica",
+    "x": 30,
+    "y": 53
+  },
+  {
+    "name": "Colombia",
+    "x": 32,
+    "y": 62
+  },
+  {
+    "name": "Brazil",
+    "x": 38,
+    "y": 69
+  },
+  {
+    "name": "Argentina",
+    "x": 36,
+    "y": 82
+  },
+  {
+    "name": "Machu Picchu",
+    "x": 28,
+    "y": 71
+  },
+  {
+    "name": "Easter Island",
+    "x": 17,
+    "y": 79
+  },
+  {
+    "name": "Mexico",
+    "x": 26,
+    "y": 51
+  },
+  {
+    "name": "NASA",
+    "x": 34,
+    "y": 42
+  },
+  {
+    "name": "Las Vegas",
+    "x": 27,
+    "y": 39
+  },
+  {
+    "name": "Hollywood",
+    "x": 23,
+    "y": 44
+  },
+  {
+    "name": "Alaska",
+    "x": 20,
+    "y": 24
+  },
+  {
+    "name": "Hawaii",
+    "x": 16,
+    "y": 55
+  },
+  {
+    "name": "Moon",
+    "x": 92,
+    "y": 11
+  }
+];
 let toastTimer = 0;
 let titleIntroPending = true;
 let titleFadeFromBlack = false;
@@ -581,11 +824,74 @@ function renderBattle() {
   return renderWindow("Select a Stage",body,"base");
 }
 function renderStage() {
-  const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
-  const body = pageCopy((currentRegion==="future"?"INTO THE FUTURE":currentRegion==="cosmos"?"CATS OF THE COSMOS":currentRegion==="legend"?"LEGEND STAGES":currentRegion==="event"?"EVENT STAGES":"EMPIRE OF CATS")+" · CHAPTER 1")+
-    '<div class="meter"><span style="width:8%"></span></div>'+
-    '<div class="menu-list">'+locations.map((name,i)=>row(name,i===0?"Clear to earn XP and continue.":"Stage not cleared",i===0?"go:fight":"locked",i===0?"BATTLE":"LOCKED")).join("")+'</div>';
-  return renderWindow("Choose a Stage",body,"battle");
+  if (currentRegion !== "empire") {
+    const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
+    const body = pageCopy((currentRegion==="future"?"INTO THE FUTURE":currentRegion==="cosmos"?"CATS OF THE COSMOS":currentRegion==="legend"?"LEGEND STAGES":currentRegion==="event"?"EVENT STAGES":"EMPIRE OF CATS")+" · CHAPTER 1")+
+      '<div class="meter"><span style="width:8%"></span></div>'+
+      '<div class="menu-list">'+locations.map((name,i)=>row(name,i===0?"Clear to earn XP and continue.":"Stage not cleared",i===0?"go:fight":"locked",i===0?"BATTLE":"LOCKED")).join("")+'</div>';
+    return renderWindow("Choose a Stage",body,"battle");
+  }
+  const completed = Math.max(0,Math.min(48,Number(save.stageClears)||0));
+  if (!Number.isInteger(selectedLevelIndex) || selectedLevelIndex < 0 || selectedLevelIndex > 47) selectedLevelIndex = Math.min(completed,47);
+  const selected = EMPIRE_CHAPTER_ONE[selectedLevelIndex];
+  const available = selectedLevelIndex <= completed;
+  const progressPercent = Math.round(completed / 48 * 100);
+  const routePoints = EMPIRE_CHAPTER_ONE.map(level => (level.x*10)+","+(level.y*5)).join(" ");
+  const nodes = EMPIRE_CHAPTER_ONE.map((level,index) => {
+    const unlocked = index <= completed;
+    const classes = "world-level-node"+(unlocked?" is-open":" is-locked")+(index===selectedLevelIndex?" is-selected":"")+(index===completed?" is-frontier":"");
+    return '<button class="'+classes+'" style="left:'+level.x+'%;top:'+level.y+'%" data-go="level:'+index+'" aria-label="Stage '+(index+1)+': '+level.name+(unlocked?', available':', locked')+'" title="'+(index+1)+'. '+level.name+'">'+
+      '<span>'+(unlocked?(index+1):"•")+'</span></button>';
+  }).join("");
+  const treasure = selectedLevelIndex===0 ? "TREASURE: KIMCHI · FIRST CLEAR: TANK CAT" : (available ? "CLEAR THIS STAGE TO CONTINUE THE CAMPAIGN" : "CLEAR PREVIOUS STAGES TO UNLOCK");
+  return '<section class="screen world-stage-screen" aria-label="Empire of Cats Chapter 1 stage select">'+
+    '<div class="world-stage-frame">'+
+      '<header class="world-stage-header">'+
+        '<button class="world-stage-back" data-go="go:battle" aria-label="Back to chapter select"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
+        '<div class="world-stage-title"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1 · WORLD TOUR</span></div>'+
+        '<div class="world-stage-hud">'+
+          '<div class="world-hud-value xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
+          '<div class="world-hud-value energy"><span>ENERGY</span><strong>'+money(save.energy)+'</strong></div>'+
+          '<div class="world-hud-value catfood"><span>CAT FOOD</span><strong>'+money(save.catFood)+'</strong></div>'+
+        '</div>'+
+      '</header>'+
+      '<div class="world-level-map" aria-label="World map showing all 48 chapter stages">'+
+        '<svg class="world-map-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">'+
+          '<defs><pattern id="world-map-grid" width="48" height="42" patternUnits="userSpaceOnUse"><path d="M48 0H0V42" fill="none" stroke="#567e80" stroke-width="1" opacity=".21"/></pattern><linearGradient id="world-ocean" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#c8e0dc"/><stop offset="1" stop-color="#93c2c6"/></linearGradient><linearGradient id="world-land" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1e5bf"/><stop offset="1" stop-color="#ccb58a"/></linearGradient></defs>'+
+          '<rect width="1000" height="500" fill="url(#world-ocean)"/><rect width="1000" height="500" fill="url(#world-map-grid)"/>'+
+          '<g class="world-continent" fill="url(#world-land)" stroke="#9f8c67" stroke-width="3" stroke-linejoin="round">'+
+            '<path d="M55 91L84 64 130 43 167 50 205 43 244 66 249 91 232 116 207 124 193 149 177 158 161 190 142 211 121 199 111 172 91 161 71 133Z"/>'+
+            '<path d="M244 34L276 23 312 29 340 51 323 79 296 88 266 77 246 59Z"/>'+
+            '<path d="M218 213L249 224 278 247 289 278 276 309 264 349 247 392 233 361 225 326 208 291 207 251Z"/>'+
+            '<path d="M368 104L392 79 431 64 468 56 501 69 527 62 556 69 589 57 625 62 654 52 690 58 730 61 770 53 812 65 857 79 908 103 936 125 919 146 884 148 854 166 826 158 803 176 774 162 753 177 727 158 701 165 675 148 650 161 621 153 596 169 569 150 541 162 514 142 486 155 458 144 434 133 406 132 386 120Z"/>'+
+            '<path d="M433 155L464 159 493 169 516 192 530 225 521 263 505 297 489 332 470 346 455 319 444 285 428 257 415 228 420 196Z"/>'+
+            '<path d="M674 275L696 264 721 276 742 279 768 294 752 305 725 296 705 301 684 290Z"/>'+
+            '<path d="M733 338L770 321 810 327 846 344 867 367 848 391 813 403 778 393 749 374Z"/>'+
+            '<path d="M763 185L774 195 770 207 759 200Z"/><path d="M789 212L798 223 795 237 787 225Z"/><path d="M814 216L820 230 815 243 808 231Z"/>'+
+            '<path d="M806 267L836 270 857 280 847 288 821 283Z"/>'+
+          '</g>'+
+          '<g fill="#a8c0a5" stroke="#9f8c67" stroke-width="2"><path d="M825 227l7 4-4 9-7-4z"/><path d="M844 251l8 4-3 9-7-4z"/><path d="M872 269l8 4-4 8-7-5z"/><path d="M698 309l20 3 12 6-14 4-18-6z"/></g>'+
+          '<g class="map-region-label"><text x="132" y="112">NORTH AMERICA</text><text x="242" y="297">SOUTH AMERICA</text><text x="480" y="229">AFRICA</text><text x="650" y="111">ASIA</text><text x="772" y="363">AUSTRALIA</text><text x="455" y="39">EUROPE</text></g>'+
+        '</svg>'+
+        '<svg class="world-route-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+routePoints+'"/></svg>'+
+        '<div class="world-map-compass" aria-hidden="true">N<span>▲</span></div>'+
+        '<div class="world-map-progress">STAGES CLEARED <strong>'+completed+' / 48</strong></div>'+
+        nodes+
+      '</div>'+
+      '<footer class="world-stage-footer">'+
+        '<div class="world-stage-info">'+
+          '<div class="world-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+(available?"AVAILABLE":"LOCKED")+'</div>'+
+          '<h1>'+selected.name+'</h1>'+
+          '<p>'+treasure+'</p>'+
+          '<div class="world-stage-progress" aria-label="'+completed+' of 48 stages cleared"><span style="width:'+progressPercent+'%"></span></div>'+
+        '</div>'+
+        '<div class="world-stage-actions">'+
+          '<div class="world-energy-cost"><span>ENERGY</span><strong>'+ (selectedLevelIndex===0?"5":"—") +'</strong></div>'+
+          '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>BATTLE!!</span><small>'+ (selectedLevelIndex===0?"KOREA":"STAGE "+(selectedLevelIndex+1)) +'</small></button>'+
+        '</div>'+
+      '</footer>'+
+    '</div>'+
+  '</section>';
 }
 function renderFight() {
   const body = pageCopy("BATTLE DEMO")+
@@ -896,7 +1202,18 @@ function perform(action) {
     if (scene === "title" && target === "base") return beginChapterSelection();
     return navigate(target);
   }
-  if (action.startsWith("stage:")) { currentRegion = action.slice(6); return navigate("stage"); }
+  if (action.startsWith("stage:")) { currentRegion = action.slice(6); selectedLevelIndex = Math.min(Math.max(0,Number(save.stageClears)||0),47); return navigate("stage"); }
+  if (action.startsWith("level:")) {
+    const index = Number(action.slice(6));
+    if (!Number.isInteger(index) || index<0 || index>=EMPIRE_CHAPTER_ONE.length) return;
+    if (index > Math.min(47,Number(save.stageClears)||0)) return notify("Clear "+EMPIRE_CHAPTER_ONE[index-1].name+" to unlock this stage.");
+    selectedLevelIndex = index;
+    return render();
+  }
+  if (action === "stage-battle") {
+    if (selectedLevelIndex > Math.min(47,Number(save.stageClears)||0)) return notify("Clear previous stages to unlock this one.");
+    return navigate("fight");
+  }
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
     if (!unit) return;
