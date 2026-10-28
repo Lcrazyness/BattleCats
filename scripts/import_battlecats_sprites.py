@@ -39,6 +39,10 @@ SCREENSHOT_SOURCES = [
         "https://encdn.ldmnq.com/faq/images/en/73a29ff2-35c8-4ee8-810c-3c3607c40cee.jpg",
         SPRITES / "cat-base-reference.jpg",
     ),
+    (
+        "https://static.wikia.nocookie.net/battle-cats/images/7/71/EOC_map.png/revision/latest?cb=20211025210429",
+        SPRITES / "backgrounds" / "empire-of-cats-map.png",
+    ),
 ]
 
 KEYWORDS = (
