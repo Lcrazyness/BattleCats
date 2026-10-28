@@ -922,17 +922,9 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
     damaged_dir = folder / "damaged"
     for directory in (moving_dir, attack_dir, damaged_dir):
         directory.mkdir(parents=True, exist_ok=True)
-    for directory in (moving_dir, attack_dir, damaged_dir):
-        for path in directory.iterdir():
-            if path.is_file():
-                path.unlink()
-
-    for path in (folder / "slot.png", folder / "upgrade.png"):
-        if path.exists():
-            path.unlink()
+    # Never clear a working unit folder before replacement artwork has downloaded.
+    # Existing frame names are safely overwritten if new artwork is available.
     if not enemy:
-        # Earlier versions accidentally used a 400x240 upgrade-screen screenshot as a
-        # sprite sheet. Remove that generated file so it cannot be imported again.
         bad_screenshot = SHEETS / "cat-spritesheet.png"
         if bad_screenshot.exists():
             bad_screenshot.unlink()
@@ -959,7 +951,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 api,
                 ["Cat's spritesheet", "Cat spritesheet", "Cat sprite sheet"],
                 required=("cat", "sprite"),
-                excluded=excluded_forms + ("icon", "attack", "upgrade", "storage", "basic cat bcp"),
+                excluded=form_exclusions + ("icon", "attack", "upgrade", "storage", "basic cat bcp"),
             )
             wiki_sheet = download_wiki_image(api, wiki_sheet_title, moving_dir / "cat-wiki-spritesheet") if wiki_sheet_title else None
             if wiki_sheet:
