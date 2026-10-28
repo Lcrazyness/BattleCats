@@ -930,6 +930,8 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
             bad_screenshot.unlink()
 
     title = "Doge" if enemy else "Cat"
+    excluded_forms = ("Macho Cat", "Mohawk Cat", "God Cat", "Legend Cat", "True Form", "Evolved", "Dark Cat", "Crazed Cat", "Basic Cat (bcp)")
+    form_exclusions = excluded_forms if not enemy else ()
     source_url = (
         "https://www.spriters-resource.com/mobile/thebattlecats/asset/84887/"
         if enemy else
@@ -1000,7 +1002,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
 
     upgrade_path: Path | None = None
     if not enemy:
-        upgrade_title = find_unit_asset(api, ["Udi000 BCP", "Cat's Upgrade Menu icon"])
+        upgrade_title = find_unit_asset(api, ["Cat's Upgrade Menu icon"], required=("cat", "upgrade"), excluded=form_exclusions + ("attack", "spritesheet", "storage", "basic cat bcp"))
         upgrade_path = download_wiki_image(api, upgrade_title, folder / "upgrade") if upgrade_title else None
         if not upgrade_path and slot_path:
             upgrade_path = folder / "upgrade.png"
