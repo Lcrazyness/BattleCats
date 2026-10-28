@@ -1287,3 +1287,50 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 @media(max-height:480px) and (min-width:701px){.world-stage-header{min-height:42px}.world-stage-back{width:37px;height:37px}.world-stage-footer{min-height:110px}.world-stage-info h1{font-size:clamp(24px,4vw,38px)}.world-battle-button{min-height:52px}}
 @media(prefers-reduced-motion:reduce){.world-level-node.is-frontier:not(.is-selected){animation:none}}
+
+
+/* Use the actual Empire of Cats world-map art rather than drawn continents. */
+.world-map-art-background {
+  z-index:0;
+  object-fit:cover;
+  object-position:center;
+  opacity:1;
+  filter:saturate(.92) contrast(1.02);
+}
+.world-level-node {
+  width:clamp(17px,1.8vw,23px);
+  height:clamp(17px,1.8vw,23px);
+  border:2px solid #fffef0;
+  border-radius:50%;
+  background:linear-gradient(145deg,#fa4b36,#c81322);
+  box-shadow:0 0 0 2px #8f211d,0 2px 5px #1a1a1880;
+  color:#fff;
+  transform:translate(-50%,-50%);
+}
+.world-level-node span {
+  font:1000 clamp(7px,.75vw,10px)/1 Arial,sans-serif;
+  transform:none;
+  text-shadow:0 1px 2px #67140f;
+}
+.world-level-node.is-open {
+  background:linear-gradient(145deg,#ff5540,#d20b22);
+}
+.world-level-node.is-locked {
+  border-color:#e5e9df;
+  background:linear-gradient(145deg,#8d9b99,#64716e);
+  box-shadow:0 0 0 1px #536561,0 2px 4px #1b242480;
+  color:#eaf0eb;
+}
+.world-level-node.is-locked span { text-shadow:0 1px 2px #394542; }
+.world-level-node.is-selected {
+  border:3px solid #fff9da;
+  outline:3px solid #ffcf22;
+  box-shadow:0 0 0 5px #d4432440,0 3px 7px #38251a99;
+  scale:1.18;
+}
+.world-level-node:active { transform:translate(-50%,-50%) scale(.9); }
+@media(max-width:700px) {
+  .world-level-node { width:clamp(15px,3vw,21px);height:clamp(15px,3vw,21px);border-width:2px; }
+  .world-level-node span { font-size:clamp(7px,1.4vw,9px); }
+  .world-level-node.is-selected { border-width:2px;outline-width:2px; }
+}
