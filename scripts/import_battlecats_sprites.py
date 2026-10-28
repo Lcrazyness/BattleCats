@@ -980,6 +980,14 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         if doge_sheet.exists():
             print(f"Available Doge source sheet: {doge_sheet.relative_to(ROOT)}")
 
+    if enemy:
+        attack_title = find_unit_asset(api, ["Doge attack", "Doge's attack animation", "Doge attack animation"])
+        if attack_title:
+            attack_gif = download_wiki_image(api, attack_title, attack_dir / "doge-attack", preserve_gif=True)
+            if attack_gif and attack_gif.suffix.lower() == ".gif":
+                attack_frames = extract_gif_frames(attack_gif, attack_dir)
+                if not frame_paths:
+                    frame_paths = extract_gif_frames(attack_gif, moving_dir)
     elif not attack_frames:
         attack_title = find_unit_asset(
             api,
@@ -993,15 +1001,6 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 attack_frames = extract_gif_frames(attack_path, attack_dir)
             elif attack_path:
                 attack_frames = [attack_path]
-
-    if enemy:
-        attack_title = find_unit_asset(api, ["Doge attack", "Doge's attack animation", "Doge attack animation"])
-        if attack_title:
-            attack_gif = download_wiki_image(api, attack_title, attack_dir / "doge-attack", preserve_gif=True)
-            if attack_gif and attack_gif.suffix.lower() == ".gif":
-                attack_frames = extract_gif_frames(attack_gif, attack_dir)
-                if not frame_paths:
-                    frame_paths = extract_gif_frames(attack_gif, moving_dir)
 
     slot_path: Path | None = None
     if not enemy:
