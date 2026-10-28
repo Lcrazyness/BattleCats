@@ -613,14 +613,23 @@ def normalized_wiki_file_title(value: str) -> str:
 
 
 def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = (), excluded: tuple[str, ...] = ()) -> str | None:
-    """Resolve only exact Cat/Doge file titles; never accept loosely related art."""
+    """Prefer exact Battle Cats file titles, then safely ranked unit-specific matches."""
     expected = [normalized_wiki_file_title(query) for query in queries]
     expected = [phrase for phrase in expected if phrase]
     if not expected:
         return None
 
-    # Try exact MediaWiki file pages first. The title list helps avoid fuzzy search results
-    # such as God Cat, Legend Cat, or unrelated Doge fan art.
+    def is_excluded(normalized: str) -> bool:
+        return any(normalized_wiki_file_title(term) and normalized_wiki_file_title(term) in normalized for term in excluded)
+
+    def has_required(normalized: str) -> bool:
+        return all(term.lower() in normalized for term in required)
+
+    def has_query_words(normalized: str, query: str) -> bool:
+        words = [word for word in normalized_wiki_file_title(query).split() if len(word) > 1]
+        return bool(words) and all(word in normalized for word in words)
+
+    # Exact titles avoid mistakenly importing another character's art.
     direct_titles = []
     extensions = (".png", ".gif", ".webp", ".jpg", ".jpeg", ".bmp")
     for query in queries:
@@ -648,52 +657,54 @@ def find_unit_asset(api: str, queries: list[str], required: tuple[str, ...] = ()
                 normalized = normalized_wiki_file_title(title)
                 if page.get("missing") is not None or normalized not in expected:
                     continue
-                if not page.get("imageinfo"):
-                    continue
-                lowered = normalized.lower()
-                if any(normalized_wiki_file_title(term) in lowered for term in excluded):
-                    continue
-                if required and not all(term.lower() in lowered for term in required):
+                if not page.get("imageinfo") or is_excluded(normalized) or not has_required(normalized):
                     continue
                 print(f"Matched exact Battle Cats asset: {title}")
                 return title
         except Exception as exc:
             print(f"WARNING: exact file lookup failed for {queries[0]!r}: {exc}")
 
-    # Fall back to the wiki's search index, but still require the complete normalized
-    # requested title, so search ranking can never substitute a different character.
     candidates: dict[str, dict] = {}
     for query in queries:
-        params = {
-            "action": "query",
-            "list": "search",
-            "srsearch": "file:" + query,
-            "srnamespace": "6",
-            "srlimit": "20",
-            "format": "json",
-        }
-        try:
-            response = session.get(api, params=params, timeout=30)
-            response.raise_for_status()
-            for item in response.json().get("query", {}).get("search", []):
-                title = item.get("title", "")
-                normalized = normalized_wiki_file_title(title)
-                if normalized not in expected:
-                    continue
-                if any(normalized_wiki_file_title(term) in normalized for term in excluded):
-                    continue
-                if required and not all(term.lower() in normalized for term in required):
-                    continue
-                candidates[title] = item
-        except Exception as exc:
-            print(f"WARNING: exact title search failed for {query!r}: {exc}")
-        time.sleep(0.08)
+        # Search in image namespace, but rank only filenames that still identify the requested unit/state.
+        for search_query in ("file:" + query, query):
+            params = {
+                "action": "query",
+                "list": "search",
+                "srsearch": search_query,
+                "srnamespace": "6",
+                "srlimit": "30",
+                "format": "json",
+            }
+            try:
+                response = session.get(api, params=params, timeout=30)
+                response.raise_for_status()
+                for item in response.json().get("query", {}).get("search", []):
+                    title = item.get("title", "")
+                    normalized = normalized_wiki_file_title(title)
+                    if not normalized or is_excluded(normalized) or not has_required(normalized):
+                        continue
+                    # With required terms, accept a title only if it shares at least the query's
+                    # meaningful words. This permits suffixes like "(EN)" without matching "God Cat".
+                    if not has_query_words(normalized, query) and not any(word in normalized for word in expected[0].split()):
+                        continue
+                    candidates[title] = item
+            except Exception as exc:
+                print(f"WARNING: file title search failed for {query!r}: {exc}")
+            time.sleep(0.06)
 
     if not candidates:
-        print("No exact Battle Cats file matched: " + " / ".join(queries))
+        print("No safe Battle Cats file matched: " + " / ".join(queries))
         return None
-    title = sorted(candidates, key=lambda item: normalized_wiki_file_title(item))[0]
-    print(f"Matched exact Battle Cats asset: {title}")
+
+    def rank(title: str) -> tuple[int, int, int, str]:
+        normalized = normalized_wiki_file_title(title)
+        exact = 0 if normalized in expected else 1
+        best_shared = max((sum(1 for word in query.split() if word in normalized) for query in expected), default=0)
+        return (exact, -best_shared, len(normalized), normalized)
+
+    title = sorted(candidates, key=rank)[0]
+    print(f"Matched Battle Cats asset after title verification: {title}")
     return title
 
 
@@ -944,7 +955,17 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 sheet_path, moving_dir, attack_dir, damaged_dir
             )
         else:
-            print("Normal Cat sheet download unavailable; using the bundled Normal Cat icon as a temporary sprite.")
+            wiki_sheet_title = find_unit_asset(
+                api,
+                ["Cat's spritesheet", "Cat spritesheet", "Cat sprite sheet"],
+                required=("cat", "sprite"),
+                excluded=excluded_forms + ("icon", "attack", "upgrade", "storage", "basic cat bcp"),
+            )
+            wiki_sheet = download_wiki_image(api, wiki_sheet_title, moving_dir / "cat-wiki-spritesheet") if wiki_sheet_title else None
+            if wiki_sheet:
+                frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
+            else:
+                print("Normal Cat sheet unavailable; using the bundled Normal Cat icon as a safe fallback.")
     else:
         # The Doge attack file is the true in-game animation from the Battle Cats Wiki.
         # The larger SpriteResource sheet is retained as a source if it downloads, but not
@@ -1023,17 +1044,13 @@ def import_korea_background(api: str) -> Path | None:
     level_dir = ROOT / "Levels" / "Korea"
     level_dir.mkdir(parents=True, exist_ok=True)
 
-    background_title = find_unit_asset(
-        api,
-        ["day overworld background", "overworld background", "EoC day background", "Korea stage background"],
-        required=("background",),
-        excluded=("night", "title", "menu", "map"),
-    )
-    if background_title:
-        result = download_wiki_image(api, background_title, level_dir / "background")
-        if result:
-            if result != level_dir / "background.png":
-                result.replace(level_dir / "background.png")
+    # Prefer the actual localizable Battle Cats battlefield artwork over a tiny screenshot crop.
+    for background_file in ("Bg000.png", "Bg001.png", "Bg002.png", "Bg003.png"):
+        background = download_wiki_image(api, "File:" + background_file, level_dir / "background")
+        if background:
+            stale_reference = level_dir / "korea-gameplay-reference.jpg"
+            stale_reference.unlink(missing_ok=True)
+            print(f"Imported actual Battle Cats background {background_file} for Levels/Korea/background.png.")
             return level_dir / "background.png"
 
     screenshot_url = "https://img.utdstc.com/screen/dd5/107/dd5107d5976887edeb3a4613e7c12d6f2f20409939e180f7bb0754c6b21ba62d%3A600"
