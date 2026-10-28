@@ -7,6 +7,7 @@ A browser-based Battle Cats menu fan remake using local screenshots, individual 
 - Title screen: local scene artwork plus separate Play, Settings, and Mailbox image sprites.
 - Cat Base: separate clickable Start!!, Upgrade, Equip, Menu, Gamatoto, Missions, Storage, Cat Capsule, Rare Cat Capsule, Back, Store, and Cat Food sprite images.
 - Cat Base follows the real layout: only Start!!, Upgrade, and Equip are the three large left-side buttons. Cat Guide, Enemy Guide, and Treasure are inside Menu.
+- Empire of Cats Chapter 1 has a dedicated stage-select map with all 48 stages in order, using the Empire of Cats map image from the Battle Cats Wiki gallery. Start!! opens this stage map directly.
 - Each visible button is its own image element with its own click action, not an invisible hitbox.
 - A fresh save starts with 0 XP, 0 Cat Food, 100 Energy, and the basic Cat at Level 1. The Cat Base image stores its initial zero values directly in the local background, not as duplicate number overlays.
 - Browser-local saving through localStorage; save version 4 starts fresh so old demo resources do not reappear.
@@ -17,9 +18,9 @@ A browser-based Battle Cats menu fan remake using local screenshots, individual 
 - src/style.css — responsive screen sizing and placement of individual menu sprites.
 - src/main.js — screen navigation, sprite elements, and local save.
 - sprites/ui/ — individual cropped button and icon images.
-- sprites/backgrounds/ — local title background and `bg_restored.png`, the current Cat Base background.
+- sprites/backgrounds/ — local title background, Cat Base background, and the Battle Cats Empire of Cats world-map artwork.
 - sprites/original_sheets/ — locally bundled Battle Cats Wiki source images.
-- sounds/ — local Ogg sound effects and menu/battle music, downloaded with `scripts/import_battlecats_sounds.py`.
+- sounds/ — local MP3 sound effects and menu/battle music, downloaded with `scripts/import_battlecats_sounds.py`.
 - sounds/source-index.json — source pages and notes for each audio asset.
 - .github/workflows/import-battlecats-sounds.yml — imports the selected audio assets into the repository.
 - sprites/ui/sprite-map.json — generated map of button sprite paths.
@@ -35,7 +36,7 @@ This is an unofficial fan project, not affiliated with or endorsed by PONOS. Ori
 
 ## Audio
 
-The build uses local audio files in the sounds folder. The title screen uses title-theme.ogg (Snd001); the Cat Base and regular menus use menu-theme.ogg (Snd000); the battle preview uses battle-theme.ogg (Snd003). Button clicks use the standard Battle Cats button-press sound, not the Cat Base door sound.
+The build uses local MP3 audio files in the sounds folder. The title screen uses title-theme.mp3 (Snd001); the Cat Base and regular menus use menu-theme.mp3 (Snd002); the battle preview uses battle-theme.mp3 (Snd003). Button clicks use the standard Battle Cats button-press sound, not the Cat Base door sound.
 
 The Sound Effects and Music toggles in Settings control playback. Music begins after the first player interaction because browsers block autoplay before user input. Music changes with the current screen.
 
