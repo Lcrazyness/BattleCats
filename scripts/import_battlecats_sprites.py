@@ -1229,3 +1229,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# Regenerate from the supplied Doge Walk/Attack/Hurt atlas after refreshing the PNG.
+
+# Rebuild the separated Walk/Attack/Hurt frames when the supplied atlas is refreshed.
