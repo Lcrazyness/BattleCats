@@ -2,17 +2,13 @@
   "name": "cat",
   "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
   "sourceUrl": "https://battle-cats.fandom.com/wiki/Cat_%28Normal_Cat%29/Gallery",
-  "moving": [
-    "Cats/cat/moving/frame-001.png"
-  ],
-  "attacks": [
-    "Cats/cat/attack/frame-001.png"
-  ],
-  "attack": "Cats/cat/attack/frame-001.png",
-  "damagedFrames": [
-    "Cats/cat/damaged/frame-001.png"
-  ],
-  "damaged": "Cats/cat/damaged/frame-001.png",
+  "moving": [],
+  "attacks": [],
+  "attack": null,
+  "damagedFrames": [],
+  "knockbackFrames": [],
+  "idle": null,
+  "damaged": null,
   "slot": "Cats/cat/slot.png",
   "upgrade": "Cats/cat/upgrade.png"
 }
