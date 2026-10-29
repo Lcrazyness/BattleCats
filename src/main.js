@@ -32,11 +32,65 @@ let selectedLevelIndex = 0;
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
-const BATTLE_ASSET_VERSION = "20261028-5";
+const BATTLE_ASSET_VERSION = "20261028-6";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
 };
+const BATTLE_UNIT_STATS = {
+  cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,range:140,recharge:2.5,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  doge: {health:90,damage:8,speed:2.8,spriteChangeSpeed:8,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+};
+function battleUnitKey(unitOrName) {
+  const value = typeof unitOrName === "string" ? unitOrName :
+    (unitOrName && (unitOrName.statsKey || unitOrName.assetFolder || unitOrName.spriteFolder || unitOrName.name || unitOrName.kind)) || "cat";
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function battleUnitStats(unitOrKey) {
+  const isObject = unitOrKey && typeof unitOrKey === "object";
+  const unit = isObject ? unitOrKey : {};
+  const key = unitOrKey === "doge" || (isObject && unit.kind === "doge") ? "doge" : battleUnitKey(unitOrKey);
+  const config = BATTLE_UNIT_STATS[key] || {};
+  const positive = (value,fallback,min=0.1) => {
+    const number = Number(value);
+    return Number.isFinite(number) && number >= min ? number : fallback;
+  };
+  const health = positive(config.health,positive(unit.hp,100));
+  const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
+  return {
+    health,
+    damage:positive(config.damage,positive(unit.attack,positive(unit.attackPower,8))),
+    price:positive(config.price,positive(unit.deployCost,50)),
+    speed:positive(config.speed,positive(unit.speed,key==="doge"?2.8:10)),
+    spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,8)),
+    range:positive(config.range,positive(unit.range,key==="doge"?110:140)),
+    recharge:positive(config.recharge,positive(unit.recharge,2.5)),
+    knockbackThresholdPercent:thresholdPercent,
+    knockbackDuration:positive(config.knockbackDuration,0.64,0.2),
+    knockbackDistance:positive(config.knockbackDistance,4.5),
+    killReward:positive(config.killReward,positive(unit.killReward,25))
+  };
+}
+function applyBattleStatsToEntity(entity,unitOrKey) {
+  const stats = battleUnitStats(unitOrKey || entity);
+  const oldMax = Math.max(1,Number(entity.maxHp)||stats.health);
+  const wasFull = Number(entity.hp) >= oldMax - 0.001;
+  entity.maxHp = stats.health;
+  entity.hp = wasFull ? stats.health : Math.min(stats.health,Math.max(0,Number(entity.hp)||0));
+  entity.attackPower = stats.damage;
+  entity.speed = stats.speed;
+  entity.spriteChangeSpeed = stats.spriteChangeSpeed;
+  entity.range = stats.range;
+  entity.knockbackThresholdPercent = stats.knockbackThresholdPercent;
+  entity.knockbackDurationSetting = stats.knockbackDuration;
+  entity.knockbackDistanceSetting = stats.knockbackDistance;
+  if (wasFull || !Number.isFinite(Number(entity.nextKnockbackHp))) {
+    entity.nextKnockbackHp = stats.health * (1 - stats.knockbackThresholdPercent / 100);
+  }
+  if (entity.kind === "doge") entity.killReward = stats.killReward;
+  return stats;
+}
+
 const EMPIRE_CHAPTER_ONE = [
   {
     "name": "Korea",
@@ -897,20 +951,41 @@ function renderStage() {
   '</section>';
 }
 
+function createBattleDoge(key,x,frameAt=0) {
+  const stats = battleUnitStats("doge");
+  return {
+    key,kind:"doge",x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
+    range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,mode:"moving",attackTimer:0,
+    animUntil:0,hitUntil:0,frameAt,killReward:stats.killReward,
+    knockbackThresholdPercent:stats.knockbackThresholdPercent,
+    knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
+    nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0
+  };
+}
 function createBattleState() {
   return {
     elapsed:0, money:50, maxMoney:150, playerUnits:[],
-    enemies:[{key:"doge-1",kind:"doge",x:11,hp:90,maxHp:90,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt:0,killReward:25,nextKnockbackHp:67.5,queuedKnockbacks:0}],
+    enemies:[createBattleDoge("doge-1",11,0)],
     nextEnemySpawn:20, enemyBaseHp:500, enemyBaseMaxHp:500, catBaseHp:1000, catBaseMaxHp:1000,
     cooldowns:{}, nextUnitKey:1, ended:"", workerLevel:1
   };
 }
 function loadBattleAssetManifests() {
   if (battleAssetsPromise) return battleAssetsPromise;
-  battleAssetsPromise = Promise.all([
+
+  const assetRequests = [
     ["cat","Cats/cat/assets.json"],
     ["doge","enemys/doge/assets.json"]
-  ].map(async ([kind,path]) => {
+  ];
+  const statPaths = new Map();
+  save.units.forEach(unit => {
+    const key = battleUnitKey(unit);
+    const folder = unit.assetFolder || unit.spriteFolder || key;
+    statPaths.set(key,unit.statsPath || "Cats/"+folder+"/stats.json");
+  });
+  statPaths.set("doge","enemys/doge/stats.json");
+
+  const assetJobs = assetRequests.map(async ([kind,path]) => {
     try {
       const response = await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if (!response.ok) return;
@@ -928,17 +1003,35 @@ function loadBattleAssetManifests() {
     } catch (error) {
       console.warn("Battle Cats sprite manifest could not load:",path,error);
     }
-  })).then(() => {
+  });
+  const statJobs = [...statPaths.entries()].map(async ([key,path]) => {
+    try {
+      const response = await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data && typeof data==="object") BATTLE_UNIT_STATS[key] = {...(BATTLE_UNIT_STATS[key]||{}),...data};
+    } catch (error) {
+      console.warn("Battle Cats unit stats could not load:",path,error);
+    }
+  });
+
+  battleAssetsPromise = Promise.all([...assetJobs,...statJobs]).then(() => {
+    if (battleState) {
+      for (const entity of [...battleState.playerUnits,...battleState.enemies]) {
+        const unit = entity.kind==="cat"
+          ? save.units.find(item=>String(item.id)===String(entity.unitId)) || entity
+          : "doge";
+        applyBattleStatsToEntity(entity,unit);
+        updateBattleEntityView(entity);
+      }
+    }
     if (scene==="fight") {
-      stage.querySelectorAll("[data-battle-entity]").forEach(element => {
-        const entity = findBattleEntity(element.dataset.battleEntity);
-        if (entity) updateBattleEntityView(entity);
-      });
       stage.querySelectorAll("[data-battle-slot]").forEach(button => {
-        const unit = save.units.find(item => String(item.id)===button.dataset.battleSlot);
+        const unit = save.units.find(item=>String(item.id)===button.dataset.battleSlot);
         const img = button.querySelector("img");
         if (img && unit) img.src = battleSlotImage(unit);
       });
+      updateFightUI();
     }
   });
   return battleAssetsPromise;
@@ -953,27 +1046,30 @@ function battleSlotImage(unit) {
   return battleAssetUrl(unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp");
 }
 function battleImageFor(entity) {
-  const assets=BATTLE_ASSETS[entity.kind]||BATTLE_ASSETS.cat;
-  const elapsed=battleState?battleState.elapsed:0;
-  if(entity.mode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
-  if(entity.mode==="dead"||entity.mode==="knockback"){
-    const frames=assets.knockbackFrames&&assets.knockbackFrames.length?assets.knockbackFrames:(assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[]);
-    if(frames.length)return battleAssetUrl(frames[Math.floor(elapsed*10+(entity.frameAt||0))%frames.length]);
-    return battleAssetUrl(assets.damaged||"");
+  const assets = BATTLE_ASSETS[entity.kind] || BATTLE_ASSETS.cat;
+  const elapsed = battleState ? battleState.elapsed : 0;
+  const frameRate = Math.max(0.5,Number(entity.spriteChangeSpeed || battleUnitStats(entity.kind).spriteChangeSpeed || 8));
+  if (entity.mode==="idle") return battleAssetUrl(assets.idle || (assets.moving && assets.moving[0]) || "");
+  if (entity.mode==="dead" || entity.mode==="knockback") {
+    const frames = assets.knockbackFrames && assets.knockbackFrames.length
+      ? assets.knockbackFrames
+      : (assets.damagedFrames && assets.damagedFrames.length ? assets.damagedFrames : []);
+    if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.damaged || assets.idle || "");
   }
-  if(entity.mode==="attack"){
-    const frames=Array.isArray(assets.attacks)?assets.attacks:[];
-    if(frames.length)return battleAssetUrl(frames[Math.floor(elapsed*12+(entity.frameAt||0))%frames.length]);
-    return battleAssetUrl(assets.attack||assets.idle||(assets.moving&&assets.moving[0])||"");
+  if (entity.mode==="attack") {
+    const frames = Array.isArray(assets.attacks) ? assets.attacks : [];
+    if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.attack || assets.idle || (assets.moving && assets.moving[0]) || "");
   }
-  if(entity.mode==="damaged"){
-    const frames=assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[];
-    if(frames.length)return battleAssetUrl(frames[Math.floor(elapsed*8+(entity.frameAt||0))%frames.length]);
-    return battleAssetUrl(assets.damaged||assets.idle||(assets.moving&&assets.moving[0])||"");
+  if (entity.mode==="damaged") {
+    const frames = assets.damagedFrames && assets.damagedFrames.length ? assets.damagedFrames : [];
+    if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.damaged || assets.idle || (assets.moving && assets.moving[0]) || "");
   }
-  const frames=Array.isArray(assets.moving)?assets.moving:[];
-  if(frames.length)return battleAssetUrl(frames[Math.floor(elapsed*5+(entity.frameAt||0))%frames.length]);
-  return battleAssetUrl(assets.idle||"");
+  const frames = Array.isArray(assets.moving) ? assets.moving : [];
+  if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+  return battleAssetUrl(assets.idle || "");
 }
 function findBattleEntity(key) {
   if (!battleState) return null;
@@ -1006,19 +1102,25 @@ function ensureBattleEntityNode(entity) {
   return element;
 }
 function updateBattleEntityView(entity) {
-  const element=ensureBattleEntityNode(entity);
-  if(!element)return;
-  element.style.left=Math.max(2,Math.min(97,entity.x))+"%";
+  const element = ensureBattleEntityNode(entity);
+  if (!element) return;
+  element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
   element.classList.toggle("is-attacking",entity.mode==="attack");
   element.classList.toggle("is-damaged",entity.mode==="damaged");
   element.classList.toggle("is-knockback",entity.mode==="knockback");
   element.classList.toggle("is-dead",entity.mode==="dead");
-  const sprite=element.querySelector(".fight-unit-sprite");
-  const source=battleImageFor(entity);
-  if(!sprite)return;
-  if(!source){sprite.style.visibility="hidden";return;}
+  const sprite = element.querySelector(".fight-unit-sprite");
+  const source = battleImageFor(entity);
+  if (!sprite) return;
+  if (entity.mode==="knockback") {
+    const duration = Math.max(0.2,Number(entity.knockbackDuration)||Number(entity.knockbackDurationSetting)||0.64);
+    sprite.style.setProperty("--battle-knockback-duration",(duration*1000)+"ms");
+  } else {
+    sprite.style.removeProperty("--battle-knockback-duration");
+  }
+  if (!source) { sprite.style.visibility="hidden"; return; }
   sprite.style.visibility="";
-  if(sprite.dataset.activeSource!==source){
+  if (sprite.dataset.activeSource!==source) {
     sprite.dataset.activeSource=source;
     sprite.onerror=()=>{sprite.onerror=null;sprite.classList.add("sprite-load-failed");};
     sprite.src=source;
@@ -1026,63 +1128,79 @@ function updateBattleEntityView(entity) {
 }
 function spawnPlayerCat(unit) {
   if (!battleState || battleState.ended) return;
-  const cost = Number(unit.deployCost||50);
+  const stats = battleUnitStats(unit);
+  const cost = stats.price;
   const cooldown = Number(battleState.cooldowns[unit.id]||0);
   if (battleState.money < cost) return notify("Not enough money to deploy "+unit.name+".");
   if (cooldown > 0.05) return notify(unit.name+" is recharging.");
   battleState.money -= cost;
-  battleState.cooldowns[unit.id] = Number(unit.recharge||2.5);
+  battleState.cooldowns[unit.id] = stats.recharge;
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
-    x:82,hp:Number(unit.hp||100),maxHp:Number(unit.hp||100),attackPower:Number(unit.attack||8),
-    speed:Number(unit.speed||10),range:Number(unit.range||140),mode:"moving",attackTimer:0,
-    animUntil:0,hitUntil:0,frameAt:Math.random()*5,nextKnockbackHp:Number(unit.hp||100)*0.75,queuedKnockbacks:0
+    x:82,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
+    speed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,mode:"moving",attackTimer:0,
+    animUntil:0,hitUntil:0,frameAt:Math.random()*5,
+    knockbackThresholdPercent:stats.knockbackThresholdPercent,
+    knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
+    nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0
   };
   battleState.playerUnits.push(entity);
   ensureBattleEntityNode(entity);
   updateBattleEntityView(entity);
   updateFightUI();
 }
-function beginBattleKnockback(target,lethal,now){
-  if(!target||target.mode==="dead")return;
-  target.mode=lethal?"dead":"knockback";
-  target.knockbackElapsed=0;
-  target.knockbackDuration=lethal?0.68:0.32;
-  target.knockbackOriginX=Number(target.x)||0;
-  target.knockbackDirection=target.kind==="cat"?1:-1;
-  target.knockbackDistance=lethal?6.5:4.5;
-  target.attackTimer=0;target.animUntil=0;target.hitUntil=0;
-  if(lethal)target.queuedKnockbacks=0;
+function beginBattleKnockback(target,lethal,now) {
+  if (!target || target.mode==="dead") return;
+  const unit = target.kind==="cat"
+    ? save.units.find(item=>String(item.id)===String(target.unitId)) || target
+    : "doge";
+  const stats = battleUnitStats(unit);
+  target.mode = lethal ? "dead" : "knockback";
+  target.knockbackElapsed = 0;
+  target.knockbackDuration = lethal ? 0.68 : stats.knockbackDuration;
+  target.knockbackOriginX = Number(target.x)||0;
+  target.knockbackDirection = target.kind==="cat" ? 1 : -1;
+  target.knockbackDistance = lethal ? stats.knockbackDistance*1.4 : stats.knockbackDistance;
+  target.attackTimer = 0;
+  target.animUntil = 0;
+  target.hitUntil = 0;
+  if (lethal) target.queuedKnockbacks=0;
   updateBattleEntityView(target);
 }
-function advanceBattleKnockback(deltaSeconds){
-  if(!battleState)return;
-  const dt=Math.max(0,Number(deltaSeconds)||0.1);
-  const players=battleState.playerUnits||[],enemies=battleState.enemies||[];
-  const entities=[...players,...enemies];
-  for(const entity of entities){
-    if(entity.mode!=="knockback"&&entity.mode!=="dead")continue;
-    entity.knockbackElapsed=(Number(entity.knockbackElapsed)||0)+dt;
-    const duration=Math.max(0.01,Number(entity.knockbackDuration)||0.32);
-    const progress=Math.min(1,entity.knockbackElapsed/duration);
-    entity.x=(Number(entity.knockbackOriginX)||0)+(Number(entity.knockbackDirection)||1)*(Number(entity.knockbackDistance)||4.5)*progress;
-    if(entity.mode==="knockback"&&progress>=1){
-      if((Number(entity.queuedKnockbacks)||0)>0){
-        entity.queuedKnockbacks=Math.max(0,Number(entity.queuedKnockbacks)-1);
+function advanceBattleKnockback(deltaSeconds) {
+  if (!battleState) return;
+  const dt = Math.max(0,Number(deltaSeconds)||0.1);
+  const players = battleState.playerUnits||[];
+  const enemies = battleState.enemies||[];
+  const entities = [...players,...enemies];
+  for (const entity of entities) {
+    if (entity.mode!=="knockback" && entity.mode!=="dead") continue;
+    entity.knockbackElapsed = (Number(entity.knockbackElapsed)||0)+dt;
+    const duration = Math.max(0.01,Number(entity.knockbackDuration)||0.64);
+    const progress = Math.min(1,entity.knockbackElapsed/duration);
+    const easeOut = 1-Math.pow(1-progress,2);
+    entity.x = (Number(entity.knockbackOriginX)||0)+(Number(entity.knockbackDirection)||1)*(Number(entity.knockbackDistance)||4.5)*easeOut;
+    if (entity.mode==="knockback" && progress>=1) {
+      if ((Number(entity.queuedKnockbacks)||0)>0) {
+        entity.queuedKnockbacks = Math.max(0,Number(entity.queuedKnockbacks)-1);
         beginBattleKnockback(entity,false,battleState.elapsed);
-      }else{entity.mode="moving";entity.knockbackElapsed=0;entity.attackTimer=0;}
+      } else {
+        entity.mode="moving";
+        entity.knockbackElapsed=0;
+        entity.attackTimer=0;
+      }
     }
     updateBattleEntityView(entity);
   }
-  const expired=entities.filter(entity=>entity.mode==="dead"&&entity.knockbackElapsed>=(Number(entity.knockbackDuration)||0.68));
-  for(const entity of expired){
-    if(enemies.includes(entity)&&entity.kind==="doge"&&!entity.rewardPaid){
-      const reward=Math.max(0,Number(entity.killReward)||25);
-      battleState.money=Math.min(Number(battleState.maxMoney)||150,(Number(battleState.money)||0)+reward);
+  const expired = entities.filter(entity=>entity.mode==="dead" && entity.knockbackElapsed>=(Number(entity.knockbackDuration)||0.68));
+  for (const entity of expired) {
+    if (enemies.includes(entity) && entity.kind==="doge" && !entity.rewardPaid) {
+      const reward = Math.max(0,Number(entity.killReward)||25);
+      battleState.money = Math.min(Number(battleState.maxMoney)||150,(Number(battleState.money)||0)+reward);
       entity.rewardPaid=true;
     }
     const node=stage.querySelector('[data-battle-entity="'+entity.key+'"]');
-    if(node)node.remove();
+    if (node) node.remove();
   }
   battleState.enemies=enemies.filter(entity=>!expired.includes(entity));
   battleState.playerUnits=players.filter(entity=>!expired.includes(entity));
@@ -1128,7 +1246,7 @@ function tickBattle() {
 
   if (state.elapsed>=state.nextEnemySpawn && state.enemies.length<3 && state.enemyBaseHp>0) {
     const count=Math.floor(state.elapsed/7.5);
-    state.enemies.push({key:"doge-"+(count+1),kind:"doge",x:9,hp:90,maxHp:90,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt:count,killReward:25,nextKnockbackHp:67.5,queuedKnockbacks:0});
+    state.enemies.push(createBattleDoge("doge-"+(count+1),9,count));
     state.nextEnemySpawn+=7.5;
   }
 
@@ -1173,7 +1291,7 @@ function tickBattle() {
     const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.mode!=="knockback" && cat.x>enemy.x-2).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
     if (target && target.x-enemy.x<=Math.max(5,110/12)) {
       if (enemy.attackTimer<=0) {
-        damageBattleEntity(target,8,now);
+        damageBattleEntity(target,Number(enemy.attackPower||8),now);
         enemy.attackTimer=1.55;
         enemy.animUntil=now+0.5;
         enemy.mode="attack";
@@ -1181,7 +1299,7 @@ function tickBattle() {
         enemy.mode="idle";
       }
     } else if (enemy.x<89) {
-      enemy.x=Math.min(91,enemy.x+2.8*dt);
+      enemy.x=Math.min(91,enemy.x+Number(enemy.speed||2.8)*dt);
     } else if (enemy.attackTimer<=0) {
       attackBattleBase(enemy,now);
     }
@@ -1230,7 +1348,7 @@ function updateFightUI() {
     const id=button.dataset.battleSlot;
     const unit=save.units.find(item=>String(item.id)===id);
     if (!unit) return;
-    const cost=Number(unit.deployCost||50);
+    const cost=battleUnitStats(unit).price
     const cooldown=Number(state.cooldowns[id]||0);
     button.disabled=Boolean(state.ended)||state.money<cost||cooldown>0.05;
     button.classList.toggle("is-recharging",cooldown>0.05);
@@ -1241,7 +1359,7 @@ function updateFightUI() {
   });
   const message=stage.querySelector(".fight-message");
   if (message) {
-    const available=save.units.find(unit=>save.equipped.includes(unit.id) && state.money>=Number(unit.deployCost||50) && Number(state.cooldowns[unit.id]||0)<=0.05);
+    const available=save.units.find(unit=>save.equipped.includes(unit.id) && state.money>=battleUnitStats(unit).price && Number(state.cooldowns[unit.id]||0)<=0.05);
     message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "COLLECTING MONEY · "+Math.floor(state.money)+"¢";
   }
 }
@@ -1259,7 +1377,7 @@ function renderFight() {
   }).join("");
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
   return '<section class="screen fight-screen" aria-label="Korea battle">'+
-    '<img class="fight-background-art" src="Levels/Korea/background.png?v=20261028-5" alt="" draggable="false">'+
+    '<img class="fight-background-art" src="Levels/Korea/background.png?v=20261028-6" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<header class="fight-topbar">'+
       '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
@@ -1272,7 +1390,7 @@ function renderFight() {
     '<div class="fight-base enemy-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div></div>'+
     
     
-    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-5" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
+    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-6" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
     '<div class="fight-unit-layer">'+entities+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+

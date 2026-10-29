@@ -1440,9 +1440,21 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .enemy-castle { left:1.5% !important; }
 .fight-screen .player-castle { right:1.5% !important; width:clamp(85px,12vw,170px) !important; height:clamp(125px,32vh,255px) !important; }
 .fight-screen .fight-unit { animation:none !important; filter:none !important; transform:translateX(-50%) !important; }
-.fight-screen .fight-unit-sprite { animation:none !important; transform:none !important; filter:none !important; height:100% !important; object-fit:contain !important; transform-origin:center bottom !important; }
+.fight-screen .fight-unit-sprite { animation:none !important; filter:none !important; height:100% !important; object-fit:contain !important; transform-origin:center bottom !important; }
 .fight-screen .fight-unit-health { display:none !important; }
 .fight-screen .fight-unit.is-knockback .fight-unit-sprite { animation:battle-cats-knockback 320ms ease-out both !important; }
 .fight-screen .fight-unit.is-dead .fight-unit-sprite { animation:battle-cats-death 680ms ease-in both !important; pointer-events:none !important; }
 @keyframes battle-cats-knockback { 0% { transform:translateX(0) rotate(0); } 40% { transform:translateX(9px) rotate(13deg); } 100% { transform:translateX(0) rotate(0); } }
 @keyframes battle-cats-death { 0% { transform:translateX(0) rotate(0); opacity:1; } 30% { transform:translateX(10px) rotate(18deg); opacity:1; } 100% { transform:translateX(22px) rotate(72deg); opacity:0; } }
+
+/* Battle Cats knockback: display the hurt sprite and bounce twice into the air. */
+.fight-screen .fight-unit.is-knockback .fight-unit-sprite {
+  animation: battle-cats-knockback var(--battle-knockback-duration,640ms) ease-out both !important;
+}
+@keyframes battle-cats-knockback {
+  0% { transform:translateY(0) rotate(0deg); }
+  14% { transform:translateY(-22px) rotate(-6deg); }
+  29% { transform:translateY(0) rotate(0deg); }
+  43% { transform:translateY(-15px) rotate(5deg); }
+  60%,100% { transform:translateY(0) rotate(0deg); }
+}
