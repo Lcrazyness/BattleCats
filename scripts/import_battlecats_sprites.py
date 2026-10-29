@@ -51,6 +51,10 @@ SCREENSHOT_SOURCES = [
         "https://www.spriters-resource.com/media/assets/82/84887.png?updated=1755474916",
         SHEETS / "battlecats-doge-spritesheet.png",
     ),
+    (
+        "https://www.spriters-resource.com/media/assets/82/85177.png?updated=1755474924",
+        SHEETS / "battlecats-cat-base-sheet.png",
+    ),
 ]
 
 KEYWORDS = (
@@ -765,6 +769,8 @@ def split_unit_sheet(sheet_path: Path, moving_dir: Path) -> list[Path]:
     from PIL import Image
 
     moving_dir.mkdir(parents=True, exist_ok=True)
+    for stale in moving_dir.glob("frame-*.png"):
+        stale.unlink()
     frames: list[Path] = []
     try:
         with Image.open(sheet_path) as opened:
@@ -871,22 +877,22 @@ def crop_sprite_strip(sheet_path: Path, bounds: tuple[int, int, int, int], outpu
 
 
 def crop_default_cat_sheet(sheet_path: Path, moving_dir: Path, attack_dir: Path, damaged_dir: Path) -> tuple[list[Path], list[Path], list[Path]]:
-    """Crop just normal Cat (left group) from the real Cat/Macho/Mohawk sheet."""
+    """Crop only Normal Cat from the narrow leftmost group of the Cat/Macho/Mohawk sprite sheet."""
     from PIL import Image
 
     try:
         with Image.open(sheet_path) as opened:
             sheet = opened.convert("RGBA")
         width, height = sheet.size
-        # The sheet labels the three forms side by side. Normal Cat is the leftmost group.
-        right = min(width, round(width * 0.34))
-        moving = crop_sprite_strip(sheet_path, (0, round(height * 0.12), right, round(height * 0.32)), moving_dir)
-        attacks = crop_sprite_strip(sheet_path, (0, round(height * 0.41), right, round(height * 0.63)), attack_dir)
-        damaged = crop_sprite_strip(sheet_path, (0, round(height * 0.73), right, round(height * 0.94)), damaged_dir)
-        print(f"Extracted normal Cat only from {sheet_path.name}: {len(moving)} walk, {len(attacks)} attack, {len(damaged)} hurt frame(s).")
+        # The first ~16% is Normal Cat; the other forms must never be included in this animation.
+        right = min(width, round(width * 0.16))
+        moving = crop_sprite_strip(sheet_path, (0, round(height * 0.12), right, round(height * 0.30)), moving_dir)
+        attacks = crop_sprite_strip(sheet_path, (0, round(height * 0.36), right, round(height * 0.53)), attack_dir)
+        damaged = crop_sprite_strip(sheet_path, (0, round(height * 0.56), right, round(height * 0.70)), damaged_dir)
+        print(f"Extracted Normal Cat only: {len(moving)} walk, {len(attacks)} attack, {len(damaged)} hurt frame(s).")
         return moving, attacks, damaged
     except Exception as exc:
-        print(f"WARNING: couldn't crop normal Cat's spritesheet: {exc}")
+        print(f"WARNING: couldn't crop Normal Cat's spritesheet: {exc}")
         return [], [], []
 
 
@@ -914,6 +920,39 @@ def extract_gif_frames(animation_path: Path, output_dir: Path, limit: int = 20) 
     except Exception as exc:
         print(f"WARNING: couldn't extract animation frames from {animation_path}: {exc}")
     return frames
+
+
+def split_doge_animation_atlas(atlas_path: Path, moving_dir: Path, attack_dir: Path, damaged_dir: Path) -> tuple[list[Path], list[Path], list[Path]]:
+    """Split the supplied Doge Walk / Attack / Hurt animation sheet into separate folders."""
+    from PIL import Image
+
+    for folder in (moving_dir, attack_dir, damaged_dir):
+        folder.mkdir(parents=True, exist_ok=True)
+        for stale in folder.glob("frame-*.png"):
+            stale.unlink()
+
+    try:
+        with Image.open(atlas_path) as opened:
+            atlas = opened.convert("RGBA")
+        if atlas.size != (416, 336):
+            raise ValueError(f"Expected 416x336 Doge atlas, got {atlas.size}")
+        result = {"moving": [], "attack": [], "damaged": []}
+        folders = {"moving": moving_dir, "attack": attack_dir, "damaged": damaged_dir}
+        for kind, row, count in (("moving", 0, 3), ("attack", 1, 4), ("damaged", 2, 1)):
+            for column in range(count):
+                frame = atlas.crop((column*104, row*112, (column+1)*104, (row+1)*112))
+                if frame.getchannel("A").getbbox() is None:
+                    continue
+                destination = folders[kind] / f"frame-{len(result[kind])+1:03d}.png"
+                frame.save(destination, format="PNG", optimize=True)
+                result[kind].append(destination)
+        if not result["moving"] or not result["attack"] or not result["damaged"]:
+            raise ValueError("The Doge atlas is missing a Walk, Attack or Hurt row")
+        print(f"Doge atlas split: {len(result['moving'])} Walk, {len(result['attack'])} Attack, {len(result['damaged'])} Hurt.")
+        return result["moving"], result["attack"], result["damaged"]
+    except Exception as exc:
+        print(f"WARNING: could not split Doge animation atlas: {exc}")
+        return [], [], []
 
 
 def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -> dict:
@@ -948,48 +987,37 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
 
     if not enemy:
         sheet_path = SHEETS / "battlecats-cat-spritesheet.png"
+        if not sheet_path.exists():
+            wiki_sheet_title = find_unit_asset(
+                api,
+                ["Cat's spritesheet", "Cat sprite sheet", "Cat spritesheet"],
+                required=("cat",),
+                excluded=form_exclusions + ("icon", "attack", "upgrade", "storage", "basic cat bcp", "macho", "mohawk"),
+            )
+            downloaded_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "battlecats-cat-spritesheet") if wiki_sheet_title else None
+            if downloaded_sheet:
+                sheet_path = downloaded_sheet
         if sheet_path.exists():
             frame_paths, attack_frames, damaged_frames = crop_default_cat_sheet(
                 sheet_path, moving_dir, attack_dir, damaged_dir
             )
         else:
-            # The Battle Cats Wiki's exact unit-000 source filename is "000 BCP.png"
-            # (normal Cat form). Do not use generic filenames containing only "Cat".
-            # Do not substitute generic images just because their titles contain "Cat".
-            local_unit_sheet = SHEETS / "cat-unit-000.png"
-            wiki_sheet_title = find_unit_asset(api, ["000 BCP"], excluded=form_exclusions) if not local_unit_sheet.exists() else None
-            wiki_sheet = local_unit_sheet if local_unit_sheet.exists() else (download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-unit-000") if wiki_sheet_title else None)
-            if wiki_sheet:
-                frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
-            else:
-                wiki_sheet_title = find_unit_asset(
-                    api,
-                    ["Cat's spritesheet", "Cat spritesheet", "Cat sprite sheet"],
-                    required=("cat", "sprite"),
-                    excluded=form_exclusions + ("icon", "attack", "upgrade", "storage", "basic cat bcp"),
-                )
-                wiki_sheet = download_wiki_image(api, wiki_sheet_title, SHEETS / "cat-wiki-spritesheet") if wiki_sheet_title else None
-                if wiki_sheet:
-                    frame_paths = split_unit_sheet(wiki_sheet, moving_dir)
-                else:
-                    print("Normal Cat sheet unavailable; using the bundled Normal Cat icon as a safe fallback.")
-
+            print("WARNING: Normal Cat animation sheet not found. Keeping field frames empty instead of using a slot icon.")
     else:
-        # The Doge attack file is the true in-game animation from the Battle Cats Wiki.
-        # The larger SpriteResource sheet is retained as a source if it downloads, but not
-        # sliced without an exact verified crop for the Doge block.
-        doge_sheet = SHEETS / "battlecats-doge-spritesheet.png"
+        doge_sheet = SHEETS / "doge-animation-atlas.png"
         if doge_sheet.exists():
-            print(f"Available Doge source sheet: {doge_sheet.relative_to(ROOT)}")
+            frame_paths, attack_frames, damaged_frames = split_doge_animation_atlas(
+                doge_sheet, moving_dir, attack_dir, damaged_dir
+            )
+        else:
+            print("WARNING: supplied Doge animation atlas missing; never using Attack frames as Walk frames.")
 
-    if enemy:
+    if enemy and not attack_frames:
         attack_title = find_unit_asset(api, ["Doge attack", "Doge's attack animation", "Doge attack animation"])
         if attack_title:
             attack_gif = download_wiki_image(api, attack_title, attack_dir / "doge-attack", preserve_gif=True)
             if attack_gif and attack_gif.suffix.lower() == ".gif":
                 attack_frames = extract_gif_frames(attack_gif, attack_dir)
-                if not frame_paths:
-                    frame_paths = extract_gif_frames(attack_gif, moving_dir)
     elif not attack_frames:
         attack_title = find_unit_asset(
             api,
@@ -1017,10 +1045,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         slot_title = find_unit_asset(api, ["Enemy icon 000", "Doge icon"])
         slot_path = download_wiki_image(api, slot_title, folder / "slot") if slot_title else None
 
-    if not frame_paths and slot_path:
-        first_frame = moving_dir / "frame-001.png"
-        if copy_as_png(slot_path, first_frame):
-            frame_paths = [first_frame]
+    # Slot portraits are reserved for the unit-selection UI and are never copied into moving/.
     if not attack_frames and frame_paths:
         if not enemy:
             for stale in attack_dir.iterdir():
@@ -1064,8 +1089,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
     frames = [path.relative_to(ROOT).as_posix() for path in frame_paths]
     attacks = [path.relative_to(ROOT).as_posix() for path in attack_frames]
     damaged = [path.relative_to(ROOT).as_posix() for path in damaged_frames]
-    if not frames:
-        frames = [slot_path.relative_to(ROOT).as_posix()] if slot_path else []
+    # Never use a slot portrait as a fallback when no actual field sprite exists.
     manifest = {
         "name": name,
         "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
@@ -1074,7 +1098,9 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         "attacks": attacks,
         "attack": attacks[0] if attacks else (attack_gif.relative_to(ROOT).as_posix() if attack_gif else (frames[0] if frames else None)),
         "damagedFrames": damaged,
-        "damaged": damaged[0] if damaged else (frames[-1] if frames else None),
+        "knockbackFrames": damaged,
+        "idle": frames[0] if frames else None,
+        "damaged": damaged[0] if damaged else None,
         "slot": slot_path.relative_to(ROOT).as_posix() if slot_path else None,
         "upgrade": upgrade_path.relative_to(ROOT).as_posix() if upgrade_path else None,
     }
@@ -1120,6 +1146,29 @@ def import_korea_background(api: str) -> Path | None:
         return None
 
 
+def import_cat_base_sprite() -> None:
+    """Crop the real Cat Base battlefield artwork from the Sprite Resource sheet."""
+    from PIL import Image
+
+    source = SHEETS / "battlecats-cat-base-sheet.png"
+    if not source.exists():
+        print("WARNING: Cat Base sprite sheet unavailable; leaving the base asset unchanged.")
+        return
+    destination = ROOT / "Levels" / "Korea" / "cat-base.png"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with Image.open(source) as opened:
+            sheet = opened.convert("RGBA")
+        crop = sheet.crop((0, 0, min(sheet.width, round(sheet.width * 0.26)), sheet.height))
+        bounds = crop.getchannel("A").getbbox()
+        if bounds:
+            crop = crop.crop(bounds)
+        crop.save(destination, format="PNG", optimize=True)
+        print(f"Saved real Cat Base sprite to {destination.relative_to(ROOT)}.")
+    except Exception as exc:
+        print(f"WARNING: couldn't crop Cat Base sprite: {exc}")
+
+
 def import_battle_scene_assets(api: str) -> None:
     """Create the exact content folders used by the first playable Korea battle."""
     (ROOT / "Cats").mkdir(parents=True, exist_ok=True)
@@ -1128,6 +1177,7 @@ def import_battle_scene_assets(api: str) -> None:
     import_unit_assets(api, ROOT / "Cats" / "cat", "cat", enemy=False)
     import_unit_assets(api, ROOT / "enemys" / "doge", "doge", enemy=True)
     import_korea_background(api)
+    import_cat_base_sprite()
 
 def main() -> int:
     SPRITES.mkdir(parents=True, exist_ok=True)

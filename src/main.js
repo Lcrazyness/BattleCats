@@ -32,7 +32,7 @@ let selectedLevelIndex = 0;
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
-const BATTLE_ASSET_VERSION = "20261028-1";
+const BATTLE_ASSET_VERSION = "20261028-2";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
@@ -323,7 +323,7 @@ const mainScript = document.querySelector('script[src*="src/main.js"]');
 const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
 
 const LOADING_IMAGE_ASSETS = [
-  {path:"Levels/Korea/background.png?v=20261028-1",bytes:215583},
+  {path:"Levels/Korea/background.png?v=20261028-2",bytes:215583},
   {path:"Cats/cat/moving/frame-001.png?v=20261029-21",bytes:7000},
   {path:"Cats/cat/moving/frame-002.png?v=20261029-21",bytes:7000},
   {path:"Cats/cat/moving/frame-003.png?v=20261029-21",bytes:7000},
@@ -981,7 +981,7 @@ function findBattleEntity(key) {
 function battleEntityMarkup(entity) {
   const source=battleImageFor(entity);
   return '<div class="fight-unit '+(entity.kind==="cat"?"fight-unit-cat":"fight-unit-doge")+'" data-battle-entity="'+entity.key+'" style="left:'+entity.x+'%">'+
-    '<img class="fight-unit-sprite" src="'+source+'" alt="'+(entity.kind==="cat"?"Cat":"Doge")+'" draggable="false">'+
+    '<img class="fight-unit-sprite" '+(source?'src="'+source+'"':'')+' alt="'+(entity.kind==="cat"?"Cat":"Doge")+'" draggable="false">'+
   '</div>';
 }
 function startBattleRuntime() {
@@ -1127,7 +1127,7 @@ function tickBattle() {
 
   if (state.elapsed>=state.nextEnemySpawn && state.enemies.length<3 && state.enemyBaseHp>0) {
     const count=Math.floor(state.elapsed/7.5);
-    state.enemies.push({key:"doge-"+(count+1),kind:"doge",x:9,hp:90,maxHp:90,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt:count});
+    state.enemies.push({key:"doge-"+(count+1),kind:"doge",x:9,hp:90,maxHp:90,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt:count,killReward:25,nextKnockbackHp:67.5,queuedKnockbacks:0});
     state.nextEnemySpawn+=7.5;
   }
 
@@ -1264,8 +1264,8 @@ function renderFight() {
     '</header>'+
     '<div class="fight-base-hud fight-enemy-hud"><span>ENEMY BASE</span><strong class="fight-enemy-hp">500 / 500</strong><div class="fight-enemy-hp-bar"><span style="width:100%"></span></div></div>'+
     '<div class="fight-base-hud fight-player-hud"><span>CAT BASE</span><strong class="fight-cat-hp">1000 / 1000</strong><div class="fight-cat-hp-bar"><span style="width:100%"></span></div></div>'+
-    '<img class="fight-base enemy-castle" src="Levels/Korea/enemy-base.png?v=20261028-1" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
-    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-1" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
+    '<div class="fight-base enemy-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div></div>'+
+    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-2" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
     '<div class="fight-unit-layer">'+entities+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
