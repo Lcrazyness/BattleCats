@@ -9,5 +9,6 @@
   "recharge": 2.5,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
-  "knockbackDistance": 4.5
+  "knockbackDistance": 4.5,
+  "walkSpriteChangeSpeed": 2.5
 }

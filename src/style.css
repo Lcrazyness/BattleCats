@@ -1460,3 +1460,20 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 
+
+
+/* Spawn units behind their own base, then bring them in front as they walk onto the field. */
+.fight-screen .fight-unit-layer {
+  z-index: auto !important;
+}
+.fight-screen .fight-unit {
+  z-index: 5;
+}
+.fight-screen .fight-unit.behind-own-base {
+  z-index: 1 !important;
+}
+
+/* One attack animation per hit; the old rule repeated it twice. */
+.fight-screen .fight-unit.is-attacking .fight-unit-sprite {
+  animation: fight-unit-attack .28s ease-in-out 1 normal both !important;
+}
