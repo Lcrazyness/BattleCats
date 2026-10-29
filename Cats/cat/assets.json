@@ -1,7 +1,7 @@
 {
   "name": "cat",
-  "source": "Battle Cats Normal Cat animation frames cropped from the user-provided sprite sheet.",
-  "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/",
+  "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://battle-cats.fandom.com/wiki/Cat_%28Normal_Cat%29/Gallery",
   "moving": [
     "Cats/cat/moving/frame-001.png",
     "Cats/cat/moving/frame-002.png",
