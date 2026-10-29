@@ -1460,14 +1460,3 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 
-/* Keep the Normal Cat smaller than Doge on the battlefield; slot portrait size is unaffected. */
-.fight-screen .fight-unit-cat {
-  width: clamp(38px, 5.8vw, 75px) !important;
-  height: clamp(58px, 14vh, 115px) !important;
-}
-@media (max-width: 650px) {
-  .fight-screen .fight-unit-cat {
-    width: clamp(30px, 8.5vw, 55px) !important;
-    height: clamp(46px, 9vh, 65px) !important;
-  }
-}
