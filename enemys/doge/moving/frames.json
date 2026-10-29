@@ -1,3 +1,7 @@
 {
-  "frames": []
+  "frames": [
+    "enemys/doge/moving/frame-001.png",
+    "enemys/doge/moving/frame-002.png",
+    "enemys/doge/moving/frame-003.png"
+  ]
 }
