@@ -85,7 +85,7 @@ def remove_cat_base_bars() -> bool:
         print("Cat Base background not present; skipping frame cleanup.")
         return False
     with Image.open(BACKGROUND) as opened:
-        if opened.info.get("battlecats_frame_cleaned") == "1":
+        if opened.info.get("battlecats_frame_cleaned") == "2":
             print("Cat Base wood bars already removed.")
             return False
         image = opened.convert("RGBA")
@@ -105,15 +105,25 @@ def remove_cat_base_bars() -> bool:
         return False
 
     original = image.copy()
+    top_edge = original.crop((0, top, width, top + 1))
+    top_depth = max(1, top)
     for y in range(top):
-        source_y = min(bottom, 2 * top - y)
-        image.paste(original.crop((0, source_y, width, source_y + 1)), (0, y))
+        depth = top - y
+        source_y = min(bottom, top + depth)
+        sample = original.crop((0, source_y, width, source_y + 1))
+        fill = Image.blend(top_edge, sample, depth / top_depth)
+        image.paste(fill, (0, y))
+    bottom_edge = original.crop((0, bottom, width, bottom + 1))
+    bottom_depth = max(1, height - 1 - bottom)
     for y in range(bottom + 1, height):
-        source_y = max(top, 2 * bottom - y)
-        image.paste(original.crop((0, source_y, width, source_y + 1)), (0, y))
+        depth = y - bottom
+        source_y = max(top, bottom - depth)
+        sample = original.crop((0, source_y, width, source_y + 1))
+        fill = Image.blend(bottom_edge, sample, depth / bottom_depth)
+        image.paste(fill, (0, y))
 
     metadata = PngInfo()
-    metadata.add_text("battlecats_frame_cleaned", "1")
+    metadata.add_text("battlecats_frame_cleaned", "2")
     image.save(BACKGROUND, format="PNG", optimize=True, pnginfo=metadata)
     print(f"Removed the {top}px top and {height - 1 - bottom}px bottom wood bars without shifting menu controls.")
     return True
