@@ -41,7 +41,7 @@ const BATTLE_ASSETS = {
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:140,recharge:2.5,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:140,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:8,speed:2.8,spriteChangeSpeed:8,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 function battleUnitKey(unitOrName) {
@@ -69,6 +69,7 @@ function battleUnitStats(unitOrKey) {
     walkSpriteChangeSpeed:positive(config.walkSpriteChangeSpeed,positive(unit.walkSpriteChangeSpeed,2.5)),
     range:positive(config.range,positive(unit.range,key==="doge"?110:140)),
     recharge:positive(config.recharge,positive(unit.recharge,2.5)),
+    attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
     knockbackThresholdPercent:thresholdPercent,
     knockbackDuration:positive(config.knockbackDuration,0.64,0.2),
     knockbackDistance:positive(config.knockbackDistance,4.5),
@@ -1452,7 +1453,8 @@ function tickBattle() {
       const distance=cat.x-target.x;
       const reach=battleRangePercent(cat.range);
       if(distance>=-1&&distance<=reach) {
-        if(cat.attackTimer<=0&&startBattleAttack(cat,now,1.15,0.62)) {
+        const catUnit=save.units.find(unit=>String(unit.id)===String(cat.unitId))||"cat";
+        if(cat.attackTimer<=0&&startBattleAttack(cat,now,battleUnitStats(catUnit).attackCooldown,0.62)) {
           resolveBattleAttackOnce(cat,target,cat.attackPower,now);
         } else if(!(cat.animUntil>now)) {
           cat.mode="idle";
@@ -1479,7 +1481,7 @@ function tickBattle() {
     const enemyDistance=target?target.x-enemy.x:Infinity;
     const enemyReach=battleRangePercent(enemy.range);
     if(target&&enemyDistance>=-1&&enemyDistance<=enemyReach) {
-      if(enemy.attackTimer<=0&&startBattleAttack(enemy,now,1.55,0.55)) {
+      if(enemy.attackTimer<=0&&startBattleAttack(enemy,now,battleUnitStats(enemy.enemyType||"doge").attackCooldown,0.55)) {
         resolveBattleAttackOnce(enemy,target,enemy.attackPower,now);
       } else if(!(enemy.animUntil>now)) {
         enemy.mode="idle";
