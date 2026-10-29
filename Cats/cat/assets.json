@@ -20,7 +20,7 @@
   "knockbackFrames": [
     "Cats/cat/damaged/frame-001.png"
   ],
-  "idle": "Cats/cat/moving/frame-001.png",
+  "idle": "Cats/cat/idle.png",
   "damaged": "Cats/cat/damaged/frame-001.png",
   "slot": "Cats/cat/slot.png",
   "upgrade": "Cats/cat/upgrade.png"

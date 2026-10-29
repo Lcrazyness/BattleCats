@@ -20,7 +20,7 @@
   "knockbackFrames": [
     "enemys/doge/damaged/frame-001.png"
   ],
-  "idle": "enemys/doge/moving/frame-001.png",
+  "idle": "enemys/doge/idle.png",
   "damaged": "enemys/doge/damaged/frame-001.png",
   "slot": "enemys/doge/slot.png",
   "upgrade": null
