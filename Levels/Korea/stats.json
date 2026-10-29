@@ -1,0 +1,17 @@
+{
+  "name": "Korea",
+  "enemyBaseHealth": 500,
+  "catBaseHealth": 1000,
+  "initialSpawnDelay": 2,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": 18,
+      "startTime": 2,
+      "intervalMin": 5.5,
+      "intervalMax": 9,
+      "spawnChance": 0.82,
+      "maxAlive": 3
+    }
+  ]
+}

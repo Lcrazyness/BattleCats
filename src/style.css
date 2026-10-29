@@ -342,7 +342,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 .base-sprite-screen{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
-  background:#f7e8ee;
+  background:#294039;
 }
 .base-sprite-frame{
   position:relative;flex:0 0 auto;width:min(100vw,166.087dvh);height:min(100dvh,60.21vw);
@@ -1479,9 +1479,27 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 
-/* Normalize Normal Cat's visible artwork to Doge's battlefield size.
-   The unit container and bottom slot portrait remain unchanged. */
+/* Slightly reduce larger battlefield sprites without changing slot portraits. */
+.fight-screen .fight-unit-sprite {
+  scale: 0.96 !important;
+  transform-origin: center bottom !important;
+}
 .fight-screen .fight-unit-cat .fight-unit-sprite {
   scale: 0.68 !important;
-  transform-origin: center bottom !important;
+}
+.fight-screen .fight-unit-doge .fight-unit-sprite {
+  scale: 0.72 !important;
+}
+
+
+/* The Cat Base menu and its clickable overlays gently float together. */
+@keyframes base-menu-float {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-2px); }
+}
+.base-sprite-screen .base-sprite-frame {
+  animation:base-menu-float 4.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion:reduce) {
+  .base-sprite-screen .base-sprite-frame { animation:none; }
 }

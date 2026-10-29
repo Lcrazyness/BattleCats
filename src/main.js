@@ -32,7 +32,10 @@ let selectedLevelIndex = 0;
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
-const BATTLE_ASSET_VERSION = "20261028-10";
+let battleLevelConfig = null;
+let battleLevelConfigPromise = null;
+let battleLevelName = "Korea";
+const BATTLE_ASSET_VERSION = "20261028-12";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
@@ -43,13 +46,13 @@ const BATTLE_UNIT_STATS = {
 };
 function battleUnitKey(unitOrName) {
   const value = typeof unitOrName === "string" ? unitOrName :
-    (unitOrName && (unitOrName.statsKey || unitOrName.assetFolder || unitOrName.spriteFolder || unitOrName.name || unitOrName.kind)) || "cat";
+    (unitOrName && (unitOrName.enemyType || unitOrName.statsKey || unitOrName.assetFolder || unitOrName.spriteFolder || unitOrName.name || unitOrName.kind)) || "cat";
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
 function battleUnitStats(unitOrKey) {
   const isObject = unitOrKey && typeof unitOrKey === "object";
   const unit = isObject ? unitOrKey : {};
-  const key = unitOrKey === "doge" || (isObject && unit.kind === "doge") ? "doge" : battleUnitKey(unitOrKey);
+  const key = isObject && unit.kind === "doge" ? battleUnitKey(unit.enemyType || "doge") : battleUnitKey(unitOrKey);
   const config = BATTLE_UNIT_STATS[key] || {};
   const positive = (value,fallback,min=0.1) => {
     const number = Number(value);
@@ -953,12 +956,72 @@ function renderStage() {
   '</section>';
 }
 
-function createBattleDoge(key,x,frameAt=0) {
-  const stats = battleUnitStats("doge");
+function defaultBattleLevelConfig(levelName="Korea") {
   return {
-    key,kind:"doge",x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
-    range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,mode:"moving",attackTimer:0,
-    animUntil:0,hitUntil:0,frameAt,killReward:stats.killReward,
+    name:levelName,enemyBaseHealth:500,catBaseHealth:1000,initialSpawnDelay:2,
+    enemySpawns:[{enemy:"doge",amount:18,startTime:2,intervalMin:5.5,intervalMax:9,spawnChance:0.82,maxAlive:3}]
+  };
+}
+function normalizeBattleLevelConfig(raw,levelName="Korea") {
+  const defaults=defaultBattleLevelConfig(levelName);
+  const data=raw && typeof raw==="object" ? raw : {};
+  const initialSpawnDelay=Math.max(0,Number.isFinite(Number(data.initialSpawnDelay))?Number(data.initialSpawnDelay):defaults.initialSpawnDelay);
+  const sourceRules=Array.isArray(data.enemySpawns)?data.enemySpawns:defaults.enemySpawns;
+  const enemySpawns=sourceRules.filter(rule=>rule&&typeof rule==="object").map((rule,index)=>{
+    const enemy=battleUnitKey(rule.enemy||rule.type||"doge")||"doge";
+    const requestedAmount=Number(rule.amount ?? rule.count);
+    const amount=Math.max(0,Math.floor(Number.isFinite(requestedAmount)?requestedAmount:10));
+    const startTime=Math.max(0,Number.isFinite(Number(rule.startTime))?Number(rule.startTime):initialSpawnDelay);
+    const intervalMin=Math.max(0.25,Number.isFinite(Number(rule.intervalMin))?Number(rule.intervalMin):5.5);
+    const intervalMax=Math.max(intervalMin,Number.isFinite(Number(rule.intervalMax))?Number(rule.intervalMax):intervalMin);
+    const rawChance=Number(rule.spawnChance ?? rule.randomRate ?? 1);
+    const spawnChance=Math.max(0,Math.min(1,Number.isFinite(rawChance)?rawChance:1));
+    const maxAlive=Math.max(1,Math.floor(Number.isFinite(Number(rule.maxAlive))?Number(rule.maxAlive):3));
+    return {id:index,enemy,amount,startTime,intervalMin,intervalMax,spawnChance,maxAlive,spawned:0,nextAttemptAt:startTime};
+  });
+  const positive=(value,fallback)=>Number.isFinite(Number(value))&&Number(value)>0?Number(value):fallback;
+  return {
+    name:String(data.name||levelName),
+    enemyBaseHealth:positive(data.enemyBaseHealth,defaults.enemyBaseHealth),
+    catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth),
+    initialSpawnDelay,enemySpawns
+  };
+}
+async function loadBattleLevelConfig() {
+  if(battleLevelConfigPromise) return battleLevelConfigPromise;
+  const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
+  battleLevelName=selected.name;
+  battleLevelConfigPromise=(async()=>{
+    let data=null;
+    try {
+      const path="Levels/"+encodeURIComponent(battleLevelName)+"/stats.json";
+      const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+      if(response.ok) data=await response.json();
+    } catch(error) {
+      console.warn("Battle Cats level stats could not load; using defaults:",battleLevelName,error);
+    }
+    battleLevelConfig=normalizeBattleLevelConfig(data,battleLevelName);
+    if(battleState) {
+      battleState.levelName=battleLevelName;
+      battleState.levelConfig=battleLevelConfig;
+      battleState.spawnRules=battleLevelConfig.enemySpawns.map(rule=>({...rule,spawned:0,nextAttemptAt:rule.startTime}));
+      battleState.enemyBaseHp=battleLevelConfig.enemyBaseHealth;
+      battleState.enemyBaseMaxHp=battleLevelConfig.enemyBaseHealth;
+      battleState.catBaseHp=battleLevelConfig.catBaseHealth;
+      battleState.catBaseMaxHp=battleLevelConfig.catBaseHealth;
+      battleState.levelReady=false;
+    }
+    return battleLevelConfig;
+  })();
+  return battleLevelConfigPromise;
+}
+function createBattleEnemy(enemyType,key,x,frameAt=0) {
+  const type=battleUnitKey(enemyType||"doge");
+  const stats=battleUnitStats(type);
+  return {
+    key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
+    range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,walkSpriteChangeSpeed:stats.walkSpriteChangeSpeed,
+    mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt,killReward:stats.killReward,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
     nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0,
@@ -966,76 +1029,108 @@ function createBattleDoge(key,x,frameAt=0) {
   };
 }
 function createBattleState() {
+  const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
+  const defaults=defaultBattleLevelConfig(selected.name);
   return {
-    elapsed:0, money:50, maxMoney:150, playerUnits:[],
-    enemies:[createBattleDoge("doge-1",2,0)],
-    nextEnemySpawn:20, enemyBaseHp:500, enemyBaseMaxHp:500, catBaseHp:1000, catBaseMaxHp:1000,
-    cooldowns:{}, nextUnitKey:1, ended:"", workerLevel:1
+    elapsed:0,money:50,maxMoney:150,playerUnits:[],enemies:[],
+    nextEnemySpawn:defaults.initialSpawnDelay,
+    enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
+    catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
+    cooldowns:{},nextUnitKey:1,nextEnemyKey:1,ended:"",workerLevel:1,
+    levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
 }
 function loadBattleAssetManifests() {
-  if (battleAssetsPromise) return battleAssetsPromise;
-
-  const assetRequests = [
-    ["cat","Cats/cat/assets.json"],
-    ["doge","enemys/doge/assets.json"]
-  ];
-  const statPaths = new Map();
-  save.units.forEach(unit => {
-    const key = battleUnitKey(unit);
-    const folder = unit.assetFolder || unit.spriteFolder || key;
-    statPaths.set(key,unit.statsPath || "Cats/"+folder+"/stats.json");
+  if(battleAssetsPromise) return battleAssetsPromise;
+  const assetRequests=[["cat","Cats/cat/assets.json"],["doge","enemys/doge/assets.json"]];
+  const statPaths=new Map();
+  save.units.forEach(unit=>{
+    const key=battleUnitKey(unit);
+    const folder=unit.assetFolder||unit.spriteFolder||key;
+    statPaths.set(key,unit.statsPath||"Cats/"+folder+"/stats.json");
   });
   statPaths.set("doge","enemys/doge/stats.json");
-
-  const assetJobs = assetRequests.map(async ([kind,path]) => {
+  const assetJobs=assetRequests.map(async([kind,path])=>{
     try {
-      const response = await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
-      if (!response.ok) return;
-      const data = await response.json();
-      const current = BATTLE_ASSETS[kind];
-      if (Array.isArray(data.moving) && data.moving.length) current.moving = data.moving;
-      if (Array.isArray(data.attacks) && data.attacks.length) current.attacks = data.attacks;
-      if (Array.isArray(data.damagedFrames)) current.damagedFrames = data.damagedFrames;
-      if (Array.isArray(data.knockbackFrames)) current.knockbackFrames = data.knockbackFrames;
-      if (data.idle) current.idle = data.idle;
-      if (data.attack) current.attack = data.attack;
-      if (data.damaged) current.damaged = data.damaged;
-      if (data.slot) current.slot = data.slot;
-      if (data.upgrade && kind==="cat") current.upgrade = data.upgrade;
-    } catch (error) {
-      console.warn("Battle Cats sprite manifest could not load:",path,error);
-    }
+      const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+      if(!response.ok) return;
+      const data=await response.json();
+      const current=BATTLE_ASSETS[kind];
+      if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
+      if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+      if(Array.isArray(data.damagedFrames)) current.damagedFrames=data.damagedFrames;
+      if(Array.isArray(data.knockbackFrames)) current.knockbackFrames=data.knockbackFrames;
+      if(data.idle) current.idle=data.idle;
+      if(data.attack) current.attack=data.attack;
+      if(data.damaged) current.damaged=data.damaged;
+      if(data.slot) current.slot=data.slot;
+      if(data.upgrade&&kind==="cat") current.upgrade=data.upgrade;
+    } catch(error) { console.warn("Battle Cats sprite manifest could not load:",path,error); }
   });
-  const statJobs = [...statPaths.entries()].map(async ([key,path]) => {
+  const statJobs=[...statPaths.entries()].map(async([key,path])=>{
     try {
-      const response = await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
-      if (!response.ok) return;
-      const data = await response.json();
-      if (data && typeof data==="object") BATTLE_UNIT_STATS[key] = {...(BATTLE_UNIT_STATS[key]||{}),...data};
-    } catch (error) {
-      console.warn("Battle Cats unit stats could not load:",path,error);
-    }
+      const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+      if(!response.ok) return;
+      const data=await response.json();
+      if(data&&typeof data==="object") BATTLE_UNIT_STATS[key]={...(BATTLE_UNIT_STATS[key]||{}),...data};
+    } catch(error) { console.warn("Battle Cats unit stats could not load:",path,error); }
   });
-
-  battleAssetsPromise = Promise.all([...assetJobs,...statJobs]).then(() => {
-    if (battleState) {
-      for (const entity of [...battleState.playerUnits,...battleState.enemies]) {
-        const unit = entity.kind==="cat"
-          ? save.units.find(item=>String(item.id)===String(entity.unitId)) || entity
-          : "doge";
+  battleAssetsPromise=Promise.all([...assetJobs,...statJobs]).then(async()=>{
+    await loadBattleLevelConfig();
+    const enemyTypes=[...new Set((battleLevelConfig?.enemySpawns||[]).map(rule=>rule.enemy))].filter(type=>type!=="doge");
+    await Promise.all(enemyTypes.map(async type=>{
+      if(!BATTLE_ASSETS[type]) BATTLE_ASSETS[type]={moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/"+type+"/slot.png"};
+      const current=BATTLE_ASSETS[type];
+      const jobs=[
+        (async()=>{
+          const path="enemys/"+type+"/assets.json";
+          try {
+            const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+            if(!response.ok) return;
+            const data=await response.json();
+            if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
+            if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+            if(Array.isArray(data.damagedFrames)) current.damagedFrames=data.damagedFrames;
+            if(Array.isArray(data.knockbackFrames)) current.knockbackFrames=data.knockbackFrames;
+            if(data.idle) current.idle=data.idle;
+            if(data.attack) current.attack=data.attack;
+            if(data.damaged) current.damaged=data.damaged;
+            if(data.slot) current.slot=data.slot;
+          } catch(error) { console.warn("Enemy sprite manifest could not load:",path,error); }
+        })(),
+        (async()=>{
+          const path="enemys/"+type+"/stats.json";
+          try {
+            const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+            if(!response.ok) return;
+            const data=await response.json();
+            if(data&&typeof data==="object") BATTLE_UNIT_STATS[type]={...(BATTLE_UNIT_STATS[type]||{}),...data};
+          } catch(error) { console.warn("Enemy stats could not load:",path,error); }
+        })()
+      ];
+      await Promise.all(jobs);
+    }));
+    if(battleState) {
+      battleState.levelReady=true;
+      for(const entity of [...battleState.playerUnits,...battleState.enemies]) {
+        const unit=entity.kind==="cat"
+          ? save.units.find(item=>String(item.id)===String(entity.unitId))||entity
+          : (entity.enemyType||"doge");
         applyBattleStatsToEntity(entity,unit);
         updateBattleEntityView(entity);
       }
     }
-    if (scene==="fight") {
-      stage.querySelectorAll("[data-battle-slot]").forEach(button => {
-        const unit = save.units.find(item=>String(item.id)===button.dataset.battleSlot);
-        const img = button.querySelector("img");
-        if (img && unit) img.src = battleSlotImage(unit);
+    if(scene==="fight") {
+      stage.querySelectorAll("[data-battle-slot]").forEach(button=>{
+        const unit=save.units.find(item=>String(item.id)===button.dataset.battleSlot);
+        const img=button.querySelector("img");
+        if(img&&unit) img.src=battleSlotImage(unit);
       });
       updateFightUI();
     }
+  }).catch(error=>{
+    console.warn("Battle Cats battle assets failed to initialize:",error);
+    if(battleState) battleState.levelReady=true;
   });
   return battleAssetsPromise;
 }
@@ -1049,55 +1144,46 @@ function battleSlotImage(unit) {
   return battleAssetUrl(unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp");
 }
 function battleImageFor(entity) {
-  const assets = BATTLE_ASSETS[entity.kind] || BATTLE_ASSETS.cat;
-  const elapsed = battleState ? battleState.elapsed : 0;
-  const frameRate = Math.max(0.5,Number(entity.spriteChangeSpeed || battleUnitStats(entity.kind).spriteChangeSpeed || 8));
-
-  if (entity.mode==="idle") return battleAssetUrl(assets.idle || (assets.moving && assets.moving[0]) || "");
-
-  if (entity.mode==="dead" || entity.mode==="knockback") {
-    const frames = assets.knockbackFrames && assets.knockbackFrames.length
-      ? assets.knockbackFrames
-      : (assets.damagedFrames && assets.damagedFrames.length ? assets.damagedFrames : []);
-    if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
-    return battleAssetUrl(assets.damaged || assets.idle || "");
+  const catUnit=entity.kind==="cat" ? save.units.find(unit=>String(unit.id)===String(entity.unitId)) : null;
+  const assetKey=entity.kind==="cat" ? battleUnitKey(catUnit||"cat") : battleUnitKey(entity.enemyType||"doge");
+  const assets=BATTLE_ASSETS[assetKey] || (entity.kind==="cat"?BATTLE_ASSETS.cat:BATTLE_ASSETS.doge);
+  const statsSource=entity.kind==="cat" ? (catUnit||"cat") : (entity.enemyType||"doge");
+  const elapsed=battleState?battleState.elapsed:0;
+  const frameRate=Math.max(0.5,Number(entity.spriteChangeSpeed||battleUnitStats(statsSource).spriteChangeSpeed||8));
+  if(entity.mode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
+  if(entity.mode==="dead"||entity.mode==="knockback") {
+    const frames=assets.knockbackFrames&&assets.knockbackFrames.length?assets.knockbackFrames:(assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[]);
+    if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.damaged||assets.idle||"");
   }
-
-  if (entity.mode==="attack") {
-    const frames = Array.isArray(assets.attacks) ? assets.attacks : [];
-    if (frames.length) {
-      const attackStartedAt = Number.isFinite(Number(entity.attackStartedAt)) ? Number(entity.attackStartedAt) : elapsed;
-      const attackElapsed = Math.max(0,elapsed-attackStartedAt);
-      const frameIndex = Math.min(frames.length-1,Math.floor(attackElapsed*frameRate));
+  if(entity.mode==="attack") {
+    const frames=Array.isArray(assets.attacks)?assets.attacks:[];
+    if(frames.length) {
+      const attackStartedAt=Number.isFinite(Number(entity.attackStartedAt))?Number(entity.attackStartedAt):elapsed;
+      const attackElapsed=Math.max(0,elapsed-attackStartedAt);
+      const frameIndex=Math.min(frames.length-1,Math.floor(attackElapsed*frameRate));
       return battleAssetUrl(frames[frameIndex]);
     }
-    return battleAssetUrl(assets.attack || assets.idle || (assets.moving && assets.moving[0]) || "");
+    return battleAssetUrl(assets.attack||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
-
-  if (entity.mode==="damaged") {
-    const frames = assets.damagedFrames && assets.damagedFrames.length ? assets.damagedFrames : [];
-    if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
-    return battleAssetUrl(assets.damaged || assets.idle || (assets.moving && assets.moving[0]) || "");
+  if(entity.mode==="damaged") {
+    const frames=assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[];
+    if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.damaged||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
-
-  if (entity.kind==="cat" && entity.mode==="moving") {
-    const walkingFrames = [
-      assets.moving && assets.moving[0],
-      assets.moving && assets.moving[1],
-      assets.idle
-    ].filter(path=>typeof path==="string" && path.length>0);
-    if (walkingFrames.length) {
-      const walkRate = Math.max(0.5,Number(entity.walkSpriteChangeSpeed || battleUnitStats("cat").walkSpriteChangeSpeed || 2.5));
-      const walkStart = Number.isFinite(Number(entity.walkStartedAt)) ? Number(entity.walkStartedAt) : elapsed;
-      const walkElapsed = Math.max(0,elapsed-walkStart);
-      const frameIndex = Math.floor(walkElapsed*walkRate)%walkingFrames.length;
+  if(entity.kind==="cat"&&entity.mode==="moving") {
+    const walkingFrames=[assets.moving&&assets.moving[0],assets.moving&&assets.moving[1],assets.idle].filter(path=>typeof path==="string"&&path.length>0);
+    if(walkingFrames.length) {
+      const walkRate=Math.max(0.5,Number(entity.walkSpriteChangeSpeed||battleUnitStats("cat").walkSpriteChangeSpeed||2.5));
+      const walkStart=Number.isFinite(Number(entity.walkStartedAt))?Number(entity.walkStartedAt):elapsed;
+      const walkElapsed=Math.max(0,elapsed-walkStart);
+      const frameIndex=Math.floor(walkElapsed*walkRate)%walkingFrames.length;
       return battleAssetUrl(walkingFrames[frameIndex]);
     }
   }
-
-  const frames = Array.isArray(assets.moving) ? assets.moving : [];
-  if (frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
-  return battleAssetUrl(assets.idle || "");
+  const frames=Array.isArray(assets.moving)?assets.moving:[];
+  if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+  return battleAssetUrl(assets.idle||"");
 }
 function findBattleEntity(key) {
   if (!battleState) return null;
@@ -1116,9 +1202,13 @@ function startBattleRuntime() {
   updateFightUI();
 }
 function stopBattleRuntime() {
-  if (battleTimer!==null) clearInterval(battleTimer);
+  if(battleTimer!==null) clearInterval(battleTimer);
   battleTimer=null;
   battleState=null;
+  battleAssetsPromise=null;
+  battleLevelConfigPromise=null;
+  battleLevelConfig=null;
+  battleLevelName="Korea";
 }
 function ensureBattleEntityNode(entity) {
   let element = stage.querySelector('[data-battle-entity="'+entity.key+'"]');
@@ -1156,6 +1246,46 @@ function updateBattleEntityView(entity) {
     sprite.src=source;
   }
 }
+function battleBaseGeometry(side) {
+  const screen=stage.querySelector(".fight-screen");
+  const base=screen&&screen.querySelector(side==="cat"?".player-castle":".enemy-castle");
+  const screenRect=screen&&screen.getBoundingClientRect();
+  const baseRect=base&&base.getBoundingClientRect();
+  if(screenRect&&screenRect.width>0&&baseRect&&baseRect.width>0) {
+    return {center:(baseRect.left+baseRect.width/2-screenRect.left)/screenRect.width*100,halfWidth:baseRect.width/2/screenRect.width*100};
+  }
+  return side==="cat"?{center:94.5,halfWidth:3.5}:{center:6,halfWidth:3.5};
+}
+function battleBaseCenterPercent(side) {
+  return battleBaseGeometry(side).center;
+}
+function battleBaseContactPercent(side) {
+  const geometry=battleBaseGeometry(side);
+  const screen=stage.querySelector(".fight-screen");
+  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
+  const unitWidth=Math.max(54,Math.min(96,width*0.073));
+  const unitHalf=unitWidth/2/width*100;
+  if(side==="cat") return Math.max(2,geometry.center-geometry.halfWidth-unitHalf-0.3);
+  return Math.min(98,geometry.center+geometry.halfWidth+unitHalf+0.3);
+}
+function battleRangePercent(range) {
+  const screen=stage.querySelector(".fight-screen");
+  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
+  return Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/width)*100));
+}
+function attemptBattleEnemySpawn(state) {
+  if(!state||!state.levelReady||state.enemyBaseHp<=0) return;
+  for(const rule of state.spawnRules||[]) {
+    if(rule.spawned>=rule.amount||state.elapsed+0.0001<rule.nextAttemptAt) continue;
+    const alive=state.enemies.filter(enemy=>enemy.enemyType===rule.enemy&&enemy.hp>0&&enemy.mode!=="dead").length;
+    if(alive<rule.maxAlive&&Math.random()<=rule.spawnChance) {
+      const key=rule.enemy+"-"+state.nextEnemyKey++;
+      state.enemies.push(createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey));
+      rule.spawned++;
+    }
+    rule.nextAttemptAt=state.elapsed+rule.intervalMin+Math.random()*(rule.intervalMax-rule.intervalMin);
+  }
+}
 function spawnPlayerCat(unit) {
   if (!battleState || battleState.ended) return;
   const stats = battleUnitStats(unit);
@@ -1167,7 +1297,7 @@ function spawnPlayerCat(unit) {
   battleState.cooldowns[unit.id] = stats.recharge;
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
-    x:98,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
+    x:battleBaseCenterPercent("cat"),hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
     speed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,mode:"moving",attackTimer:0,
     animUntil:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
@@ -1273,6 +1403,8 @@ function resolveBattleAttackOnce(attacker,target,damage,now) {
 }
 function attackBattleBase(attacker,now) {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" || Number(attacker.attackTimer)>0.001) return;
+  const contact=battleBaseContactPercent(attacker.kind==="cat"?"enemy":"cat");
+  if(attacker.kind==="cat"?attacker.x>contact+0.25:attacker.x<contact-0.25) return;
   attacker.attackCycleId=(Number(attacker.attackCycleId)||0)+1;
   if (attacker.lastResolvedAttackCycle===attacker.attackCycleId) return;
   attacker.lastResolvedAttackCycle=attacker.attackCycleId;
@@ -1295,11 +1427,7 @@ function tickBattle() {
   state.money=Math.min(state.maxMoney,state.money+2.6*dt);
   Object.keys(state.cooldowns).forEach(key=>state.cooldowns[key]=Math.max(0,state.cooldowns[key]-dt));
 
-  if (state.elapsed>=state.nextEnemySpawn && state.enemies.length<3 && state.enemyBaseHp>0) {
-    const count=Math.floor(state.elapsed/7.5);
-    state.enemies.push(createBattleDoge("doge-"+(count+1),2,count));
-    state.nextEnemySpawn+=7.5;
-  }
+  attemptBattleEnemySpawn(state);
 
   const now=state.elapsed;
   for (const cat of state.playerUnits) {
@@ -1309,22 +1437,23 @@ function tickBattle() {
     if (cat.hitUntil>now) cat.mode="damaged";
     else if (cat.animUntil>now) cat.mode="attack";
     else cat.mode="moving";
-    const target=state.enemies.filter(enemy=>enemy.hp>0 && enemy.mode!=="dead" && enemy.mode!=="knockback" && enemy.x<cat.x+2).sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
+    const target=state.enemies.filter(enemy=>enemy.hp>0 && enemy.mode!=="dead" && enemy.mode!=="knockback" && enemy.x<cat.x+0.5).sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
     if (target) {
       const distance=cat.x-target.x;
-      const reach=Math.max(5,Math.min(14,Number(cat.range||140)/12));
-      if (distance<=reach) {
-        if (cat.attackTimer<=0 && startBattleAttack(cat,now,1.15,0.62)) {
+      const reach=battleRangePercent(cat.range);
+      if(distance>=-1&&distance<=reach) {
+        if(cat.attackTimer<=0&&startBattleAttack(cat,now,1.15,0.62)) {
           resolveBattleAttackOnce(cat,target,cat.attackPower,now);
-        } else if (!(cat.animUntil>now)) {
+        } else if(!(cat.animUntil>now)) {
           cat.mode="idle";
         }
-      } else {
-        cat.x=Math.max(7,cat.x-(cat.speed*0.45)*dt);
+      } else if(distance>reach) {
+        cat.x=Math.max(target.x+reach,cat.x-(cat.speed*0.45)*dt);
       }
-    } else if (state.enemyBaseHp>0) {
-      if (cat.x>8) cat.x=Math.max(5,cat.x-(cat.speed*0.45)*dt);
-      else if (cat.attackTimer<=0) attackBattleBase(cat,now);
+    } else if(state.enemyBaseHp>0) {
+      const contact=battleBaseContactPercent("enemy");
+      if(cat.x>contact) cat.x=Math.max(contact,cat.x-(cat.speed*0.45)*dt);
+      else if(cat.attackTimer<=0) attackBattleBase(cat,now);
     }
     updateBattleEntityView(cat);
   }
@@ -1336,17 +1465,21 @@ function tickBattle() {
     if (enemy.hitUntil>now) enemy.mode="damaged";
     else if (enemy.animUntil>now) enemy.mode="attack";
     else enemy.mode="moving";
-    const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.mode!=="knockback" && cat.x>enemy.x-2).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
-    if (target && target.x-enemy.x<=Math.max(5,Number(enemy.range||110)/12)) {
-      if (enemy.attackTimer<=0 && startBattleAttack(enemy,now,1.55,0.55)) {
+    const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.mode!=="knockback" && cat.x>enemy.x+0.5).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
+    const enemyDistance=target?target.x-enemy.x:Infinity;
+    const enemyReach=battleRangePercent(enemy.range);
+    if(target&&enemyDistance>=-1&&enemyDistance<=enemyReach) {
+      if(enemy.attackTimer<=0&&startBattleAttack(enemy,now,1.55,0.55)) {
         resolveBattleAttackOnce(enemy,target,enemy.attackPower,now);
-      } else if (!(enemy.animUntil>now)) {
+      } else if(!(enemy.animUntil>now)) {
         enemy.mode="idle";
       }
-    } else if (enemy.x<89) {
-      enemy.x=Math.min(91,enemy.x+Number(enemy.speed||2.8)*dt);
-    } else if (enemy.attackTimer<=0) {
-      attackBattleBase(enemy,now);
+    } else if(target&&enemyDistance>enemyReach) {
+      enemy.x=Math.min(target.x-enemyReach,enemy.x+Number(enemy.speed||2.8)*dt);
+    } else if(!target) {
+      const contact=battleBaseContactPercent("cat");
+      if(enemy.x<contact) enemy.x=Math.min(contact,enemy.x+Number(enemy.speed||2.8)*dt);
+      else if(enemy.attackTimer<=0) attackBattleBase(enemy,now);
     }
     updateBattleEntityView(enemy);
   }
@@ -1367,7 +1500,7 @@ function finishBattle(result) {
   const button=stage.querySelector(".fight-result-button");
   if (overlay) overlay.hidden=false;
   if (title) title.textContent=result==="win"?"STAGE CLEAR!":"DEFEAT";
-  if (copy) copy.textContent=result==="win"?"Korea cleared! Claim your reward.":"Your Cat Base was destroyed. Try deploying more Cats.";
+  if (copy) copy.textContent=result==="win"?(battleState.levelName||"Stage")+" cleared! Claim your reward.":"Your Cat Base was destroyed. Try deploying more Cats.";
   if (button) {
     button.textContent=result==="win"?"CONTINUE":"RETRY STAGE";
     button.dataset.go=result==="win"?"win":"retry-battle";
@@ -1411,6 +1544,8 @@ function updateFightUI() {
 
 function renderFight() {
   if (!battleState) battleState=createBattleState();
+  const selectedLevel=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
+  const levelFolder="Levels/"+selectedLevel.name;
   const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
     const cost=battleUnitStats(unit).price
     const cooldown=Number(battleState.cooldowns[unit.id]||0);
@@ -1421,12 +1556,12 @@ function renderFight() {
     '</button>';
   }).join("");
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
-  return '<section class="screen fight-screen" aria-label="Korea battle">'+
-    '<img class="fight-background-art" src="Levels/Korea/background.png?v=20261028-6" alt="" draggable="false">'+
+  return '<section class="screen fight-screen" aria-label="' + selectedLevel.name + ' battle">'+
+    '<img class="fight-background-art" src="' + levelFolder + '/background.png?v=20261028-12" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<header class="fight-topbar">'+
       '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
-      '<div class="fight-stage-label"><strong>EMPIRE OF CATS</strong><span>KOREA · CHAPTER 1</span></div>'+
+      '<div class="fight-stage-label"><strong>EMPIRE OF CATS</strong><span>' + selectedLevel.name.toUpperCase() + ' · CHAPTER 1</span></div>'+
       '<div class="fight-timer">00:00</div>'+
       '<div class="fight-money"><span>MONEY</span><strong class="fight-money-value">50/150¢</strong></div>'+
     '</header>'+
@@ -1435,7 +1570,7 @@ function renderFight() {
     '<div class="fight-base enemy-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div></div>'+
     
     
-    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-6" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
+    '<img class="fight-base player-castle" src="' + levelFolder + '/cat-base.png?v=20261028-12" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
     '<div class="fight-unit-layer">'+entities+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
@@ -1569,6 +1704,23 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  if(scene==="fight") {
+    const fightBackground=stage.querySelector(".fight-background-art");
+    if(fightBackground) fightBackground.addEventListener("error",()=>{
+      if(!fightBackground.dataset.fallback) {
+        fightBackground.dataset.fallback="1";
+        fightBackground.src="Levels/Korea/background.png?v=20261028-12";
+      }
+    },{once:true});
+    const playerCastle=stage.querySelector(".player-castle");
+    if(playerCastle) playerCastle.addEventListener("error",()=>{
+      if(!playerCastle.dataset.fallback) {
+        playerCastle.dataset.fallback="1";
+        playerCastle.style.display="";
+        playerCastle.src="Levels/Korea/cat-base.png?v=20261028-12";
+      }
+    },{once:true});
+  }
   if (scene==="fight") startBattleRuntime(); else if (battleTimer!==null || battleState) stopBattleRuntime();
   const worldMapArt = stage.querySelector(".world-map-art-background");
   if (worldMapArt) worldMapArt.addEventListener("error", () => {
@@ -1760,7 +1912,7 @@ function perform(action) {
   }
   if (action === "stage-battle") {
     if (selectedLevelIndex > Math.min(47,Number(save.stageClears)||0)) return notify("Clear previous stages to unlock this one.");
-    if (selectedLevelIndex!==0) return notify("Korea is the first playable stage. More levels will be added next.");
+    
     battleState=createBattleState();
     return navigate("fight");
   }
