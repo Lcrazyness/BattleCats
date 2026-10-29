@@ -32,7 +32,7 @@ let selectedLevelIndex = 0;
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
-const BATTLE_ASSET_VERSION = "20261028-9";
+const BATTLE_ASSET_VERSION = "20261028-10";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
