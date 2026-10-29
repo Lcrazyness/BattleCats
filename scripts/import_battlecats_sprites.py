@@ -1153,28 +1153,71 @@ def import_korea_background(api: str) -> Path | None:
         return None
 
 
-def import_cat_base_sprite() -> None:
-    """Crop the real Cat Base battlefield artwork from the Sprite Resource sheet."""
+def import_cat_base_sprite(api: str) -> None:
+    """Use the real in-battle Cat Base artwork; prefer local sheet, then the Battle Cats wiki file."""
     from PIL import Image
 
-    source = SHEETS / "battlecats-cat-base-sheet.png"
-    if not source.exists():
-        print("WARNING: Cat Base sprite sheet unavailable; leaving the base asset unchanged.")
-        return
     destination = ROOT / "Levels" / "Korea" / "cat-base.png"
     destination.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with Image.open(source) as opened:
-            sheet = opened.convert("RGBA")
-        crop = sheet.crop((0, 0, min(sheet.width, round(sheet.width * 0.26)), sheet.height))
-        bounds = crop.getchannel("A").getbbox()
-        if bounds:
-            crop = crop.crop(bounds)
-        crop.save(destination, format="PNG", optimize=True)
-        print(f"Saved real Cat Base sprite to {destination.relative_to(ROOT)}.")
-    except Exception as exc:
-        print(f"WARNING: couldn't crop Cat Base sprite: {exc}")
+    if destination.exists() and destination.stat().st_size > 1000:
+        print("Already present: Levels/Korea/cat-base.png")
+        return
 
+    source = SHEETS / "battlecats-cat-base-sheet.png"
+    if source.exists():
+        try:
+            with Image.open(source) as opened:
+                sheet = opened.convert("RGBA")
+            crop = sheet.crop((0, 0, min(sheet.width, round(sheet.width * 0.26)), sheet.height))
+            bounds = crop.getchannel("A").getbbox()
+            if bounds:
+                crop = crop.crop(bounds)
+            crop.save(destination, format="PNG", optimize=True)
+            print(f"Saved Cat Base from local sprite sheet to {destination.relative_to(ROOT)}.")
+            return
+        except Exception as exc:
+            print(f"WARNING: local Cat Base sheet crop failed: {exc}")
+
+    title = find_unit_asset(
+        api,
+        ["Cat Base", "Cat Base in battle", "Cat Base sprite"],
+        required=("base",),
+        excluded=("menu", "icon", "accessory", "background", "banner", "store", "button", "upgrade", "charge", "effect mask"),
+    )
+    if title:
+        imported = download_wiki_image(api, title, destination.with_suffix(""))
+        if imported and imported.exists():
+            if imported != destination and imported.suffix.lower() == ".png":
+                imported.replace(destination)
+            if destination.exists() and destination.stat().st_size > 1000:
+                print(f"Imported real Cat Base artwork from {title}.")
+                return
+    print("WARNING: could not retrieve the standalone Cat Base artwork; retaining the visible battle-base fallback.")
+
+
+def import_enemy_base_sprite(api: str) -> None:
+    """Import standalone enemy-base artwork, never an enemy/unit icon."""
+    destination = ROOT / "Levels" / "Korea" / "enemy-base.png"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists() and destination.stat().st_size > 1000:
+        print("Already present: Levels/Korea/enemy-base.png")
+        return
+
+    title = find_unit_asset(
+        api,
+        ["Enemy Base", "Enemy Castle", "Enemy Base 000", "Base 000"],
+        required=("base",),
+        excluded=("menu", "icon", "accessory", "background", "banner", "store", "button", "upgrade", "cat base", "cannon"),
+    )
+    if title:
+        imported = download_wiki_image(api, title, destination.with_suffix(""))
+        if imported and imported.exists():
+            if imported != destination and imported.suffix.lower() == ".png":
+                imported.replace(destination)
+            if destination.exists() and destination.stat().st_size > 1000:
+                print(f"Imported standalone enemy base artwork from {title}.")
+                return
+    print("WARNING: standalone enemy-base artwork unavailable; retaining the visible battle-base fallback.")
 
 def import_battle_scene_assets(api: str) -> None:
     """Create the exact content folders used by the first playable Korea battle."""
@@ -1184,7 +1227,8 @@ def import_battle_scene_assets(api: str) -> None:
     import_unit_assets(api, ROOT / "Cats" / "cat", "cat", enemy=False)
     import_unit_assets(api, ROOT / "enemys" / "doge", "doge", enemy=True)
     import_korea_background(api)
-    import_cat_base_sprite()
+    import_cat_base_sprite(api)
+    import_enemy_base_sprite(api)
 
 def main() -> int:
     SPRITES.mkdir(parents=True, exist_ok=True)
