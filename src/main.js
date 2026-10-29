@@ -1367,7 +1367,7 @@ function updateFightUI() {
 function renderFight() {
   if (!battleState) battleState=createBattleState();
   const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
-    const cost=Number(unit.deployCost||50);
+    const cost=battleUnitStats(unit).price
     const cooldown=Number(battleState.cooldowns[unit.id]||0);
     const disabled=battleState.money<cost||cooldown>0.05||Boolean(battleState.ended);
     return '<button class="fight-unit-slot'+(disabled?" is-recharging":"")+'" data-go="deploy:'+unit.id+'" data-battle-slot="'+unit.id+'" aria-label="Deploy '+unit.name+'" '+(disabled?"disabled":"")+'>'+
