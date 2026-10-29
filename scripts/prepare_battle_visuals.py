@@ -3,6 +3,7 @@
 from pathlib import Path
 import json
 from PIL import Image, ImageFilter
+from PIL.PngImagePlugin import PngInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 ATLAS = ROOT / "sprites" / "original_sheets" / "doge-animation-atlas.png"
@@ -47,10 +48,10 @@ def crop_doge_frames() -> int:
             y = canvas_size[1] - frame.height - 4
             canvas.alpha_composite(frame, (x, y))
             large = canvas.resize(
-                (canvas_size[0] * 3, canvas_size[1] * 3),
+                (canvas_size[0] * 4, canvas_size[1] * 4),
                 Image.Resampling.LANCZOS
             )
-            large = large.filter(ImageFilter.UnsharpMask(radius=1.0, percent=65, threshold=3))
+            large = large.filter(ImageFilter.UnsharpMask(radius=1.0, percent=25, threshold=2))
             target = output_dir / f"frame-{index:03d}.png"
             large.save(target, format="PNG", optimize=True)
             paths.append(target)
@@ -76,7 +77,7 @@ def row_is_wood(image: Image.Image, y: int) -> bool:
     red = sum(pixel[0] for pixel in pixels) / len(pixels)
     green = sum(pixel[1] for pixel in pixels) / len(pixels)
     blue = sum(pixel[2] for pixel in pixels) / len(pixels)
-    return red > green * 1.12 and red > blue * 1.25 and red > 65
+    return red > green * 1.05 and red > blue * 1.1 and red > 45
 
 
 def remove_cat_base_bars() -> bool:
@@ -84,17 +85,23 @@ def remove_cat_base_bars() -> bool:
         print("Cat Base background not present; skipping frame cleanup.")
         return False
     with Image.open(BACKGROUND) as opened:
+        if opened.info.get("battlecats_frame_cleaned") == "1":
+            print("Cat Base wood bars already removed.")
+            return False
         image = opened.convert("RGBA")
     width, height = image.size
-    top = 0
-    while top < height // 4 and row_is_wood(image, top):
-        top += 1
-    bottom = height - 1
-    while bottom > (height * 3) // 4 and row_is_wood(image, bottom):
-        bottom -= 1
-
+    if (width, height) == (573, 345):
+        # This known menu background has a 32px wood strip above and a 31px strip below.
+        top, bottom = 32, 313
+    else:
+        top = 0
+        while top < height // 4 and row_is_wood(image, top):
+            top += 1
+        bottom = height - 1
+        while bottom > (height * 3) // 4 and row_is_wood(image, bottom):
+            bottom -= 1
     if top < 4 or bottom > height - 5:
-        print("Cat Base wood bars already removed.")
+        print("Could not safely identify both Cat Base wood strips; leaving the image unchanged.")
         return False
 
     original = image.copy()
@@ -105,7 +112,9 @@ def remove_cat_base_bars() -> bool:
         source_y = max(top, 2 * bottom - y)
         image.paste(original.crop((0, source_y, width, source_y + 1)), (0, y))
 
-    image.save(BACKGROUND, format="PNG", optimize=True)
+    metadata = PngInfo()
+    metadata.add_text("battlecats_frame_cleaned", "1")
+    image.save(BACKGROUND, format="PNG", optimize=True, pnginfo=metadata)
     print(f"Removed the {top}px top and {height - 1 - bottom}px bottom wood bars without shifting menu controls.")
     return True
 
