@@ -928,14 +928,15 @@ def split_doge_animation_atlas(atlas_path: Path, moving_dir: Path, attack_dir: P
 
     for folder in (moving_dir, attack_dir, damaged_dir):
         folder.mkdir(parents=True, exist_ok=True)
-        for stale in folder.glob("frame-*.png"):
-            stale.unlink()
 
     try:
         with Image.open(atlas_path) as opened:
             atlas = opened.convert("RGBA")
         if atlas.size != (416, 336):
             raise ValueError(f"Expected 416x336 Doge atlas, got {atlas.size}")
+        for folder in (moving_dir, attack_dir, damaged_dir):
+            for stale in folder.glob("frame-*.png"):
+                stale.unlink()
         result = {"moving": [], "attack": [], "damaged": []}
         folders = {"moving": moving_dir, "attack": attack_dir, "damaged": damaged_dir}
         for kind, row, count in (("moving", 0, 3), ("attack", 1, 4), ("damaged", 2, 1)):
@@ -1002,7 +1003,10 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 sheet_path, moving_dir, attack_dir, damaged_dir
             )
         else:
-            print("WARNING: Normal Cat animation sheet not found. Keeping field frames empty instead of using a slot icon.")
+            frame_paths = sorted(moving_dir.glob("frame-*.png"))
+            attack_frames = sorted(attack_dir.glob("frame-*.png"))
+            damaged_frames = sorted(damaged_dir.glob("frame-*.png"))
+            print(f"Using checked-in Normal Cat battle frames: {len(frame_paths)} Walk, {len(attack_frames)} Attack, {len(damaged_frames)} Hurt.")
     else:
         doge_sheet = SHEETS / "doge-animation-atlas.png"
         if doge_sheet.exists():
@@ -1010,7 +1014,10 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
                 doge_sheet, moving_dir, attack_dir, damaged_dir
             )
         else:
-            print("WARNING: supplied Doge animation atlas missing; never using Attack frames as Walk frames.")
+            frame_paths = sorted(moving_dir.glob("frame-*.png"))
+            attack_frames = sorted(attack_dir.glob("frame-*.png"))
+            damaged_frames = sorted(damaged_dir.glob("frame-*.png"))
+            print(f"Using checked-in Doge battle frames: {len(frame_paths)} Walk, {len(attack_frames)} Attack, {len(damaged_frames)} Hurt.")
 
     if enemy and not attack_frames:
         attack_title = find_unit_asset(api, ["Doge attack", "Doge's attack animation", "Doge attack animation"])
