@@ -1,0 +1,25 @@
+name: Recover Stuck GitHub Pages Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-stale-pages-deployment.yml"
+
+permissions:
+  pages: write
+  contents: read
+
+jobs:
+  cancel-stale-pages-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Cancel the stale deployment blocking newer publishes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST \
+            "repos/${GITHUB_REPOSITORY}/pages/deployments/3fafae7b5d45c86dbbbbc9eeba5905b6f0d405c9/cancel" \
+            --silent
+          echo "Cancelled the stale GitHub Pages deployment for 3fafae7b5d45c86dbbbbc9eeba5905b6f0d405c9."
