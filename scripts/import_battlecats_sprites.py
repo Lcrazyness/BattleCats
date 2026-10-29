@@ -1097,6 +1097,11 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
     frames = [path.relative_to(ROOT).as_posix() for path in frame_paths]
     attacks = [path.relative_to(ROOT).as_posix() for path in attack_frames]
     damaged = [path.relative_to(ROOT).as_posix() for path in damaged_frames]
+    idle_path = folder / "idle.png"
+    if not enemy and damaged_frames:
+        copy_as_png(damaged_frames[0], idle_path)
+    elif frame_paths:
+        copy_as_png(frame_paths[0], idle_path)
     # Never use a slot portrait as a fallback when no actual field sprite exists.
     manifest = {
         "name": name,
@@ -1107,7 +1112,7 @@ def import_unit_assets(api: str, folder: Path, name: str, enemy: bool = False) -
         "attack": attacks[0] if attacks else (attack_gif.relative_to(ROOT).as_posix() if attack_gif else (frames[0] if frames else None)),
         "damagedFrames": damaged,
         "knockbackFrames": damaged,
-        "idle": frames[0] if frames else None,
+        "idle": idle_path.relative_to(ROOT).as_posix() if idle_path.exists() else (frames[0] if frames else None),
         "damaged": damaged[0] if damaged else None,
         "slot": slot_path.relative_to(ROOT).as_posix() if slot_path else None,
         "upgrade": upgrade_path.relative_to(ROOT).as_posix() if upgrade_path else None,
