@@ -1383,12 +1383,11 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-worker-cat span{font:900 clamp(8px,.9vw,12px)/1 Arial,sans-serif;white-space:nowrap}.fight-worker-cat strong{font:1000 clamp(13px,1.6vw,20px)/1 Impact,Haettenschweiler,sans-serif}
 .fight-worker-bar{height:8px;border:2px solid #54351b;background:#5a3d20}.fight-worker-bar span{display:block;width:10%;height:100%;background:#ffdb35}
 .fight-unit-slots{display:flex;flex:1;min-width:0;align-items:stretch;justify-content:center;gap:clamp(4px,.8vw,11px);overflow-x:auto;overflow-y:hidden;padding:1px 1px 4px}
-.fight-unit-slot{position:relative;flex:0 0 clamp(64px,9vw,112px);min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 5px;border:3px solid #382319;background:linear-gradient(#fff0c6,#ddb471);box-shadow:inset 0 2px #fffbdc,0 2px 0 #1c120b;color:#462815;text-shadow:0 1px #fff0ba;overflow:hidden}
-.fight-unit-slot img{width:clamp(35px,5vw,58px);height:clamp(35px,5vw,58px);object-fit:contain;pointer-events:none}
-.fight-unit-slot strong{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:900 clamp(9px,1vw,13px)/1 Arial,sans-serif}
-.fight-slot-cooldown{font:1000 clamp(12px,1.3vw,16px)/1 Impact,Haettenschweiler,sans-serif;color:#a4481b}
+.fight-unit-slot{position:relative;flex:0 0 clamp(64px,9vw,112px);aspect-ratio:1/1;min-width:0;display:flex;align-items:center;justify-content:center;padding:3px;border:3px solid #382319;background:linear-gradient(#fff0c6,#ddb471);box-shadow:inset 0 2px #fffbdc,0 2px 0 #1c120b;color:#462815;text-shadow:0 1px #fff0ba;overflow:hidden}
+ .fight-unit-slot img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+ .fight-slot-cooldown{position:absolute;right:2px;bottom:2px;z-index:1;min-width:1.65em;padding:2px 3px;border:1px solid #5d3217;border-radius:3px;background:linear-gradient(#fff4c4,#ffcf55);box-shadow:0 1px 2px #0008;color:#54270d;text-align:center;font:1000 clamp(11px,1.2vw,15px)/1 Impact,Haettenschweiler,sans-serif;text-shadow:0 1px #fff2ba;pointer-events:none}
 .fight-unit-slot.is-recharging{filter:saturate(.6);background:linear-gradient(#b5a68b,#7c6a52);color:#eee0bc;text-shadow:1px 1px #493321}
-.fight-unit-slot.is-recharging img{opacity:.55}
+.fight-unit-slot.is-recharging img{opacity:.55}.fight-unit-slot.is-recharging .fight-slot-cooldown{background:linear-gradient(#d5d0c3,#a69b83);color:#382c1e;text-shadow:none}
 .fight-unit-slot:disabled{cursor:not-allowed}
 .fight-cannon{width:clamp(60px,8vw,96px);flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:3px solid #22160e;background:linear-gradient(#b8b8ad,#65645b);color:#f9edcb;text-shadow:1px 2px #2d2419}
 .fight-cannon span{font-size:clamp(28px,4vw,46px);line-height:1}
@@ -1410,7 +1409,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
  .fight-base{bottom:24%;width:14vw;height:19vh}.player-castle{height:22vh}.fight-unit-layer{bottom:24%}.fight-unit{width:clamp(42px,11vw,68px);height:clamp(67px,15vh,96px)}
  .fight-message{bottom:24%;font-size:8px;padding:5px 7px}.fight-bottom{height:24%;min-height:114px;gap:4px;padding:5px 5px}
  .fight-worker-cat{width:66px;padding:4px;gap:4px;border-width:2px}.fight-worker-cat span{font-size:7px}.fight-worker-cat strong{font-size:12px}.fight-worker-bar{height:6px}
- .fight-unit-slots{justify-content:flex-start;gap:4px}.fight-unit-slot{flex-basis:clamp(57px,17vw,83px);padding:3px;border-width:2px}.fight-unit-slot img{width:clamp(32px,8vw,42px);height:clamp(32px,8vw,42px)}.fight-unit-slot strong{font-size:8px}.fight-slot-cooldown{font-size:11px}
+ .fight-unit-slots{justify-content:flex-start;gap:4px}.fight-unit-slot{flex-basis:clamp(57px,17vw,83px);padding:2px;border-width:2px}.fight-unit-slot img{width:100%;height:100%}.fight-slot-cooldown{font-size:11px;right:1px;bottom:1px}
  .fight-cannon{width:48px;border-width:2px}.fight-cannon span{font-size:25px}.fight-cannon small{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.fight-unit-sprite,.fight-unit.is-attacking .fight-unit-sprite,.fight-unit.is-damaged .fight-unit-sprite{animation:none}}
