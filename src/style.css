@@ -1477,3 +1477,11 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .fight-unit.is-attacking .fight-unit-sprite {
   animation: fight-unit-attack .28s ease-in-out 1 normal both !important;
 }
+
+
+/* Normalize Normal Cat's visible artwork to Doge's battlefield size.
+   The unit container and bottom slot portrait remain unchanged. */
+.fight-screen .fight-unit-cat .fight-unit-sprite {
+  scale: 0.68 !important;
+  transform-origin: center bottom !important;
+}
