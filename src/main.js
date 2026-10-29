@@ -452,7 +452,7 @@ const LOADING_AUDIO_ASSETS = [
 const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
 let loadingBytesFinished = 0;
-const preloadedImageCache = [];
+const preloadedImageCache = new Map();
 
 function renderLoading() {
   return '<section class="screen loading-screen" aria-label="Loading game assets">'+
@@ -478,25 +478,35 @@ function updateLoadingProgress(label, currentBytes=0) {
 }
 
 function loadImageAssetSequentially(asset) {
+  const requestedUrl = new URL(asset.path,APP_BASE_URL);
+  const cacheKey = requestedUrl.href;
+  if (preloadedImageCache.has(cacheKey)) return Promise.resolve(true);
   return new Promise(resolve => {
-    let attempts = 0;
+    const urls = [requestedUrl.href];
+    if (requestedUrl.search) {
+      const cleanUrl = new URL(requestedUrl.href);
+      cleanUrl.search = "";
+      urls.push(cleanUrl.href);
+    }
+    let attempt = 0;
     const tryLoad = () => {
+      if (attempt >= urls.length) {
+        resolve(false);
+        return;
+      }
       const image = new Image();
-      let eventFinished = false;
+      let settled = false;
       const finish = success => {
-        if (eventFinished) return;
-        eventFinished = true;
+        if (settled) return;
+        settled = true;
         if (!success) {
-          if (attempts < 1) {
-            attempts++;
-            tryLoad();
-          } else {
-            resolve(false);
-          }
+          attempt++;
+          tryLoad();
           return;
         }
         const keepDecoded = () => {
-          preloadedImageCache.push(image);
+          preloadedImageCache.set(cacheKey,image);
+          preloadedImageCache.set(image.currentSrc || image.src,image);
           resolve(true);
         };
         if (typeof image.decode === "function") image.decode().then(keepDecoded).catch(keepDecoded);
@@ -504,7 +514,7 @@ function loadImageAssetSequentially(asset) {
       };
       image.onload = () => finish(true);
       image.onerror = () => finish(false);
-      image.src = new URL(asset.path,APP_BASE_URL).href;
+      image.src = urls[attempt];
       if (image.complete && image.naturalWidth > 0) finish(true);
     };
     tryLoad();
@@ -1552,7 +1562,7 @@ function renderFight() {
     const disabled=battleState.money<cost||cooldown>0.05||Boolean(battleState.ended);
     return '<button class="fight-unit-slot'+(disabled?" is-recharging":"")+'" data-go="deploy:'+unit.id+'" data-battle-slot="'+unit.id+'" aria-label="Deploy '+unit.name+'" '+(disabled?"disabled":"")+'>'+
       '<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">'+
-      '<strong>'+unit.name+'</strong><span class="fight-slot-cooldown">'+(cooldown>0.05?Math.ceil(cooldown):cost+"¢")+'</span>'+
+      '<span class="fight-slot-cooldown">'+(cooldown>0.05?Math.ceil(cooldown):cost+"¢")+'</span>'+
     '</button>';
   }).join("");
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
