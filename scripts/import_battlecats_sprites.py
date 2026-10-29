@@ -108,10 +108,11 @@ def download(url: str, destination: Path) -> bool:
     is_spriters = "spriters-resource.com" in url.lower()
     if is_spriters:
         # The original host rejects automated CI requests; try image proxies as a fallback.
-        clean_url = url.replace("https://", "").replace("http://", "")
+        # Give the proxy the full HTTPS URL; stripping the scheme can make the upstream path 404.
+        encoded_url = quote(url, safe="")
         urls.extend([
-            "https://wsrv.nl/?url=" + quote(clean_url, safe=""),
-            "https://images.weserv.nl/?url=" + quote(clean_url, safe=""),
+            "https://wsrv.nl/?url=" + encoded_url,
+            "https://images.weserv.nl/?url=" + encoded_url,
         ])
     last_error = None
     for candidate_url in urls:
@@ -1154,14 +1155,25 @@ def import_korea_background(api: str) -> Path | None:
 
 
 def import_cat_base_sprite(api: str) -> None:
-    """Use the real in-battle Cat Base artwork; prefer local sheet, then the Battle Cats wiki file."""
+    """Import only standalone Cat Base art; never mistake a gameplay screenshot for the base sprite."""
     from PIL import Image
 
     destination = ROOT / "Levels" / "Korea" / "cat-base.png"
     destination.parent.mkdir(parents=True, exist_ok=True)
+
+    # The previous importer matched "Cat Base Mini.gif", which is a full gameplay scene.
+    # Reject wide images instead of placing a duplicate sky/ground over the battlefield.
     if destination.exists() and destination.stat().st_size > 1000:
-        print("Already present: Levels/Korea/cat-base.png")
-        return
+        try:
+            with Image.open(destination) as opened:
+                width, height = opened.size
+            if height > 0 and width <= height * 1.0:
+                print("Already present: standalone Cat Base artwork.")
+                return
+            print(f"Removing invalid Cat Base scene asset ({width}x{height}); it is not a standalone base.")
+            destination.unlink(missing_ok=True)
+        except Exception:
+            destination.unlink(missing_ok=True)
 
     source = SHEETS / "battlecats-cat-base-sheet.png"
     if source.exists():
@@ -1172,8 +1184,10 @@ def import_cat_base_sprite(api: str) -> None:
             bounds = crop.getchannel("A").getbbox()
             if bounds:
                 crop = crop.crop(bounds)
+            if crop.width > crop.height:
+                raise ValueError(f"Cat Base crop is unexpectedly wide ({crop.width}x{crop.height})")
             crop.save(destination, format="PNG", optimize=True)
-            print(f"Saved Cat Base from local sprite sheet to {destination.relative_to(ROOT)}.")
+            print(f"Saved standalone Cat Base from local sheet to {destination.relative_to(ROOT)}.")
             return
         except Exception as exc:
             print(f"WARNING: local Cat Base sheet crop failed: {exc}")
@@ -1182,42 +1196,72 @@ def import_cat_base_sprite(api: str) -> None:
         api,
         ["Cat Base", "Cat Base in battle", "Cat Base sprite"],
         required=("base",),
-        excluded=("menu", "icon", "accessory", "background", "banner", "store", "button", "upgrade", "charge", "effect mask"),
+        excluded=("mini", "menu", "icon", "accessory", "background", "banner", "store", "button", "upgrade", "charge", "effect mask", "gameplay"),
     )
     if title:
         imported = download_wiki_image(api, title, destination.with_suffix(""))
         if imported and imported.exists():
             if imported != destination and imported.suffix.lower() == ".png":
                 imported.replace(destination)
-            if destination.exists() and destination.stat().st_size > 1000:
-                print(f"Imported real Cat Base artwork from {title}.")
-                return
-    print("WARNING: could not retrieve the standalone Cat Base artwork; retaining the visible battle-base fallback.")
+            try:
+                with Image.open(destination) as opened:
+                    width, height = opened.size
+                if height > 0 and width <= height * 1.0 and destination.stat().st_size > 1000:
+                    print(f"Imported standalone Cat Base artwork from {title}.")
+                    return
+                print(f"Rejected non-standalone Cat Base asset {title} ({width}x{height}).")
+                destination.unlink(missing_ok=True)
+            except Exception as exc:
+                print(f"WARNING: could not validate Cat Base image: {exc}")
+                destination.unlink(missing_ok=True)
+    print("WARNING: standalone Cat Base artwork unavailable; the CSS base placeholder stays visible.")
+
+
 
 
 def import_enemy_base_sprite(api: str) -> None:
-    """Import standalone enemy-base artwork, never an enemy/unit icon."""
+    """Import standalone enemy-base artwork, never an enemy/unit icon or screenshot."""
+    from PIL import Image
+
     destination = ROOT / "Levels" / "Korea" / "enemy-base.png"
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists() and destination.stat().st_size > 1000:
-        print("Already present: Levels/Korea/enemy-base.png")
-        return
+        try:
+            with Image.open(destination) as opened:
+                width, height = opened.size
+            if height > 0 and width <= height * 1.0:
+                print("Already present: standalone enemy-base artwork.")
+                return
+            destination.unlink(missing_ok=True)
+        except Exception:
+            destination.unlink(missing_ok=True)
 
     title = find_unit_asset(
         api,
-        ["Enemy Base", "Enemy Castle", "Enemy Base 000", "Base 000"],
+        ["Enemy Base", "Enemy Castle", "Base", "Enemy base sprite"],
         required=("base",),
-        excluded=("menu", "icon", "accessory", "background", "banner", "store", "button", "upgrade", "cat base", "cannon"),
+        excluded=("mini", "menu", "icon", "accessory", "background", "banner", "store", "button", "upgrade", "cat base", "cannon", "gameplay", "screenshot"),
     )
     if title:
         imported = download_wiki_image(api, title, destination.with_suffix(""))
         if imported and imported.exists():
             if imported != destination and imported.suffix.lower() == ".png":
                 imported.replace(destination)
-            if destination.exists() and destination.stat().st_size > 1000:
-                print(f"Imported standalone enemy base artwork from {title}.")
-                return
-    print("WARNING: standalone enemy-base artwork unavailable; retaining the visible battle-base fallback.")
+            try:
+                with Image.open(destination) as opened:
+                    width, height = opened.size
+                if height > 0 and width <= height * 1.0 and destination.stat().st_size > 1000:
+                    print(f"Imported standalone enemy-base artwork from {title}.")
+                    return
+                print(f"Rejected non-standalone enemy base {title} ({width}x{height}).")
+                destination.unlink(missing_ok=True)
+            except Exception as exc:
+                print(f"WARNING: could not validate enemy-base image: {exc}")
+                destination.unlink(missing_ok=True)
+    print("WARNING: standalone enemy-base artwork unavailable; the CSS base placeholder stays visible.")
+
+
+
 
 def import_battle_scene_assets(api: str) -> None:
     """Create the exact content folders used by the first playable Korea battle."""
