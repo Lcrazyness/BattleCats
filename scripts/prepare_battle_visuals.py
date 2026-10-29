@@ -85,14 +85,14 @@ def remove_cat_base_bars() -> bool:
         print("Cat Base background not present; skipping frame cleanup.")
         return False
     with Image.open(BACKGROUND) as opened:
-        if opened.info.get("battlecats_frame_cleaned") == "2":
+        if opened.info.get("battlecats_frame_cleaned") == "3":
             print("Cat Base wood bars already removed.")
             return False
         image = opened.convert("RGBA")
     width, height = image.size
     if (width, height) == (573, 345):
-        # This known menu background has a 32px wood strip above and a 31px strip below.
-        top, bottom = 32, 313
+        # Include the narrow dark shadows at both edges of the wallpaper with the wood strips.
+        top, bottom = 36, 307
     else:
         top = 0
         while top < height // 4 and row_is_wood(image, top):
@@ -123,7 +123,7 @@ def remove_cat_base_bars() -> bool:
         image.paste(fill, (0, y))
 
     metadata = PngInfo()
-    metadata.add_text("battlecats_frame_cleaned", "2")
+    metadata.add_text("battlecats_frame_cleaned", "3")
     image.save(BACKGROUND, format="PNG", optimize=True, pnginfo=metadata)
     print(f"Removed the {top}px top and {height - 1 - bottom}px bottom wood bars without shifting menu controls.")
     return True
