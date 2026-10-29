@@ -32,7 +32,7 @@ let selectedLevelIndex = 0;
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
-const BATTLE_ASSET_VERSION = "20261028-4";
+const BATTLE_ASSET_VERSION = "20261028-5";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
@@ -912,7 +912,7 @@ function loadBattleAssetManifests() {
     ["doge","enemys/doge/assets.json"]
   ].map(async ([kind,path]) => {
     try {
-      const response = await fetch(new URL(path,APP_BASE_URL).href,{cache:"force-cache"});
+      const response = await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if (!response.ok) return;
       const data = await response.json();
       const current = BATTLE_ASSETS[kind];
@@ -1187,8 +1187,8 @@ function tickBattle() {
     }
     updateBattleEntityView(enemy);
   }
-  state.playerUnits=state.playerUnits.filter(cat=>cat.hp>0);
-  state.enemies=state.enemies.filter(enemy=>enemy.hp>0);
+  state.playerUnits=state.playerUnits.filter(cat=>cat.hp>0 || cat.mode==="dead" || cat.mode==="knockback");
+  state.enemies=state.enemies.filter(enemy=>enemy.hp>0 || enemy.mode==="dead" || enemy.mode==="knockback");
 
   if (state.enemyBaseHp<=0) finishBattle("win");
   else if (state.catBaseHp<=0) finishBattle("lose");
@@ -1259,7 +1259,7 @@ function renderFight() {
   }).join("");
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
   return '<section class="screen fight-screen" aria-label="Korea battle">'+
-    '<img class="fight-background-art" src="Levels/Korea/background.png?v=20261029-1" alt="" draggable="false">'+
+    '<img class="fight-background-art" src="Levels/Korea/background.png?v=20261028-5" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<header class="fight-topbar">'+
       '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
@@ -1270,9 +1270,9 @@ function renderFight() {
     '<div class="fight-base-hud fight-enemy-hud"><span>ENEMY BASE</span><strong class="fight-enemy-hp">500 / 500</strong><div class="fight-enemy-hp-bar"><span style="width:100%"></span></div></div>'+
     '<div class="fight-base-hud fight-player-hud"><span>CAT BASE</span><strong class="fight-cat-hp">1000 / 1000</strong><div class="fight-cat-hp-bar"><span style="width:100%"></span></div></div>'+
     '<div class="fight-base enemy-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div></div>'+
-    '<img class="fight-base enemy-castle" src="Levels/Korea/enemy-base.png?v=20261028-4" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
-    '<div class="fight-base player-castle" aria-hidden="true"><div class="fight-castle-roof"></div><div class="fight-castle-body"></div><div class="fight-castle-door"></div><div class="fight-cat-cannon"></div></div>'+
-    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-4" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
+    
+    
+    '<img class="fight-base player-castle" src="Levels/Korea/cat-base.png?v=20261028-5" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
     '<div class="fight-unit-layer">'+entities+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
