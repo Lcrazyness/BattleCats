@@ -405,7 +405,7 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/ui/Play_button.png?v=20261026-9",bytes:5844},
   {path:"sprites/ui/title-settings.png?v=20261026-9",bytes:38154},
   {path:"sprites/ui/title-mailbox.png?v=20261026-9",bytes:48748},
-  {path:"sprites/backgrounds/bg_restored.png?v=20261026-9",bytes:203596},
+  {path:"sprites/backgrounds/bg_restored.png?v=20261028-12",bytes:203596},
   {path:"sprites/ui/backboard.png?v=20261026-25",bytes:62313},
   {path:"sprites/ui/startbutton.png?v=20261026-9",bytes:111427},
   {path:"sprites/ui/upgradebutton.png?v=20261026-9",bytes:137546},
@@ -868,7 +868,7 @@ function renderBase() {
   baseFadeFromBlack = false;
   return '<section class="screen base-sprite-screen'+(fadeFromBlack?' base-fade-from-black':'')+'">'+
     '<div class="base-sprite-frame">'+
-      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261026-9" alt="" draggable="false">'+
+      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261028-12" alt="" draggable="false">'+
     '<img class="base-backboard-sprite" src="sprites/ui/backboard.png?v=20261026-25" alt="" draggable="false">'+
       '<button class="base-sprite-button base-start" data-go="stage:empire" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-9" alt="" draggable="false"></button>'+
