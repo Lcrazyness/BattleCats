@@ -1443,11 +1443,11 @@ function damageBattleEntity(target,amount,now){
   target.hp=Math.max(0,(Number(target.hp)||0)-damage);
   const hitTime=Number.isFinite(Number(now))?Number(now):battleState.elapsed;
   if(target.hp<=0){beginBattleKnockback(target,true,hitTime);return;}
-  if(target.mode==="knockback") return;
   let threshold=Number.isFinite(Number(target.nextKnockbackHp))?Number(target.nextKnockbackHp):maxHp*0.75;
   let crossings=0;
   while(threshold>0&&target.hp<=threshold){crossings++;threshold-=maxHp*0.25;}
   target.nextKnockbackHp=threshold;
+  if(target.mode==="knockback") return;
   if(crossings>0){
     target.queuedKnockbacks=Math.max(0,crossings-1);
     beginBattleKnockback(target,false,hitTime);
