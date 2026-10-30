@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-41";
+const BATTLE_ASSET_VERSION = "20261029-42";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -929,7 +929,7 @@ function renderBattle() {
 }
 function renderStage() {
   if (currentRegion !== "empire") {
-    const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : currentRegion==="legend" ? ["Japan","Korea","China","Mongolia","Russia","Australia"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
+    const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : currentRegion==="legend" ? ["Japan","Korea","China","Mongolia","Russia","Australia"] : currentRegion==="event" ? ["Japan","Korea","China","Mongolia","Russia","Australia"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
     const body = pageCopy((currentRegion==="future"?"INTO THE FUTURE":currentRegion==="cosmos"?"CATS OF THE COSMOS":currentRegion==="legend"?"LEGEND STAGES":currentRegion==="event"?"EVENT STAGES":"EMPIRE OF CATS")+" · CHAPTER 1")+
       '<div class="meter"><span style="width:8%"></span></div>'+
       '<div class="menu-list">'+locations.map((name,i)=>row(name,i===0?"Clear to earn XP and continue.":"Stage not cleared",i===0?"go:fight":"locked",i===0?"BATTLE":"LOCKED")).join("")+'</div>';
@@ -937,48 +937,48 @@ function renderStage() {
   }
 
   const completed=Math.max(0,Math.min(48,Number(save.stageClears)||0));
-  if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=Math.min(completed,47);
+  const highestAvailable=Math.min(47,completed);
+  if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=highestAvailable;
+  selectedLevelIndex=Math.min(selectedLevelIndex,highestAvailable);
   const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex];
   const available=selectedLevelIndex<=completed;
-  const visibleStart=Math.max(0,selectedLevelIndex-4);
-  const visibleEnd=Math.min(EMPIRE_CHAPTER_ONE.length,selectedLevelIndex+5);
-  const visibleLevels=EMPIRE_CHAPTER_ONE.slice(visibleStart,visibleEnd);
-  const routePoints=visibleLevels.map(level=>(level.x*10)+","+(level.y*5)).join(" ");
-  const nodes=visibleLevels.map(level=>{
-    const index=EMPIRE_CHAPTER_ONE.indexOf(level);
-    const unlocked=index<=completed;
+  const visibleLevels=EMPIRE_CHAPTER_ONE.slice(0,Math.min(48,completed+1));
+  const countryRows=visibleLevels.map((level,index)=>{
     const cleared=index<completed;
-    const classes="world-level-node"+(unlocked?" is-open":" is-locked")+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"");
-    return '<button class="'+classes+'" style="left:'+level.x+'%;top:'+level.y+'%" data-go="level:'+index+'" aria-label="Stage '+(index+1)+': '+level.name+(unlocked?', available':', locked')+'" title="'+(index+1)+'. '+level.name+'">'+
-      '<span>'+level.name+'</span>'+(cleared?'<b aria-hidden="true">★</b>':'')+'</button>';
+    const current=index===completed;
+    const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"");
+    const status=cleared?"★":current?"NEXT":"";
+    return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":"")+'">'+
+      '<span class="world-country-number">'+String(index+1).padStart(2,"0")+'</span>'+
+      '<span class="world-country-name">'+level.name+'</span>'+
+      '<span class="world-country-status" aria-hidden="true">'+status+'</span>'+
+    '</button>';
   }).join("");
-  const mapZoom=1.42;
-  const mapPanX=50-selected.x*mapZoom;
-  const mapPanY=50-selected.y*mapZoom;
-  const clearCount=selectedLevelIndex<completed?1:0;
   const energyCost=5;
+  const clearCount=selectedLevelIndex<completed?1:0;
+  const stageStatus=clearCount?"CLEARED":"NEXT STAGE";
   return '<section class="screen world-stage-screen" aria-label="Empire of Cats Chapter 1 stage select">'+
     '<div class="world-stage-frame">'+
       '<header class="world-stage-header">'+
         '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1</span></div>'+
         '<div class="world-stage-xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
       '</header>'+
-      '<div class="world-level-map" aria-label="Scrollable stage map">'+
-        '<div class="world-map-canvas" style="--map-zoom:'+mapZoom+';--map-pan-x:'+mapPanX+'%;--map-pan-y:'+mapPanY+'%">'+
+      '<div class="world-level-map" aria-label="Empire of Cats map and scrolling country list">'+
+        '<div class="world-map-canvas">'+
           '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
-          '<svg class="world-route-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+routePoints+'"/></svg>'+
-          nodes+
         '</div>'+
-        '<aside class="world-map-stage-info">'+
-          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48</span>'+
-          '<strong>'+selected.name+'</strong>'+
-          '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b></div>'+
-          '<div class="world-map-stage-stats"><span>CLEARED</span><b>'+clearCount+'</b></div>'+
+        '<aside class="world-stage-side-panel">'+
+          '<div class="world-stage-country-heading">'+
+            '<span class="world-stage-country-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
+            '<strong>'+selected.name+'</strong>'+
+            '<div class="world-stage-country-detail"><span>ENERGY COST</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
+          '</div>'+
+          '<div class="world-country-list" aria-label="Unlocked places">'+countryRows+'</div>'+
+          '<div class="world-map-attack-panel">'+
+            '<div class="world-map-energy"><span>ENERGY</span><strong>'+money(save.energy)+' / '+money(save.maxEnergy)+'</strong><i><b style="width:'+Math.max(0,Math.min(100,(Number(save.energy)||0)/Math.max(1,Number(save.maxEnergy)||100)*100))+'%"></b></i></div>'+
+            '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>ATTACK!</span></button>'+
+          '</div>'+
         '</aside>'+
-        '<div class="world-map-attack-panel">'+
-          '<div class="world-map-energy"><span>ENERGY</span><strong>'+money(save.energy)+' / '+money(save.maxEnergy)+'</strong><i><b style="width:'+Math.max(0,Math.min(100,(Number(save.energy)||0)/Math.max(1,Number(save.maxEnergy)||100)*100))+'%"></b></i></div>'+
-          '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>ATTACK!</span></button>'+
-        '</div>'+
       '</div>'+
       '<div class="world-stage-items" aria-label="Battle items">'+
         '<div class="world-map-item"><span class="world-map-item-icon">»</span><small>SPEED UP</small><b>x0</b></div>'+
@@ -997,7 +997,6 @@ function renderStage() {
     '</div>'+
   '</section>';
 }
-
 function defaultBattleLevelConfig(levelName="Korea") {
   return {
     name:levelName,
@@ -1962,6 +1961,16 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  if (scene==="stage") {
+    const list=stage.querySelector(".world-country-list");
+    const selectedRow=stage.querySelector(".world-country-row.is-selected");
+    if(list&&selectedRow) {
+      const rowTop=selectedRow.offsetTop-list.offsetTop;
+      const rowBottom=rowTop+selectedRow.offsetHeight;
+      if(rowBottom>list.scrollTop+list.clientHeight) list.scrollTop=rowBottom-list.clientHeight+8;
+      else if(rowTop<list.scrollTop) list.scrollTop=rowTop;
+    }
+  }
   if(scene==="fight") {
     const fightBackground=stage.querySelector(".fight-background-art");
     if(fightBackground) fightBackground.addEventListener("error",()=>{
