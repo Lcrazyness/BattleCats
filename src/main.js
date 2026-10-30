@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-42";
+const BATTLE_ASSET_VERSION = "20261029-43";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -949,7 +949,6 @@ function renderStage() {
     const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"");
     const status=cleared?"★":current?"NEXT":"";
     return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":"")+'">'+
-      '<span class="world-country-number">'+String(index+1).padStart(2,"0")+'</span>'+
       '<span class="world-country-name">'+level.name+'</span>'+
       '<span class="world-country-status" aria-hidden="true">'+status+'</span>'+
     '</button>';
@@ -963,22 +962,20 @@ function renderStage() {
         '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1</span></div>'+
         '<div class="world-stage-xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
       '</header>'+
-      '<div class="world-level-map" aria-label="Empire of Cats map and scrolling country list">'+
+      '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">'+
         '<div class="world-map-canvas">'+
           '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
         '</div>'+
-        '<aside class="world-stage-side-panel">'+
-          '<div class="world-stage-country-heading">'+
-            '<span class="world-stage-country-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
-            '<strong>'+selected.name+'</strong>'+
-            '<div class="world-stage-country-detail"><span>ENERGY COST</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
-          '</div>'+
-          '<div class="world-country-list" aria-label="Unlocked places">'+countryRows+'</div>'+
-          '<div class="world-map-attack-panel">'+
-            '<div class="world-map-energy"><span>ENERGY</span><strong>'+money(save.energy)+' / '+money(save.maxEnergy)+'</strong><i><b style="width:'+Math.max(0,Math.min(100,(Number(save.energy)||0)/Math.max(1,Number(save.maxEnergy)||100)*100))+'%"></b></i></div>'+
-            '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>ATTACK!</span></button>'+
-          '</div>'+
+        '<nav class="world-country-list" aria-label="Unlocked places">'+countryRows+'</nav>'+
+        '<aside class="world-map-stage-info">'+
+          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
+          '<strong>'+selected.name+'</strong>'+
+          '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
         '</aside>'+
+        '<div class="world-map-attack-panel">'+
+          '<div class="world-map-energy"><span>ENERGY</span><strong>'+money(save.energy)+' / '+money(save.maxEnergy)+'</strong><i><b style="width:'+Math.max(0,Math.min(100,(Number(save.energy)||0)/Math.max(1,Number(save.maxEnergy)||100)*100))+'%"></b></i></div>'+
+          '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>ATTACK!</span></button>'+
+        '</div>'+
       '</div>'+
       '<div class="world-stage-items" aria-label="Battle items">'+
         '<div class="world-map-item"><span class="world-map-item-icon">»</span><small>SPEED UP</small><b>x0</b></div>'+
@@ -1965,11 +1962,17 @@ function render() {
     const list=stage.querySelector(".world-country-list");
     const selectedRow=stage.querySelector(".world-country-row.is-selected");
     if(list&&selectedRow) {
-      const rowTop=selectedRow.offsetTop-list.offsetTop;
-      const rowBottom=rowTop+selectedRow.offsetHeight;
-      if(rowBottom>list.scrollTop+list.clientHeight) list.scrollTop=rowBottom-list.clientHeight+8;
-      else if(rowTop<list.scrollTop) list.scrollTop=rowTop;
+      const rowLeft=selectedRow.offsetLeft-list.offsetLeft;
+      const rowRight=rowLeft+selectedRow.offsetWidth;
+      if(rowRight>list.scrollLeft+list.clientWidth) list.scrollLeft=rowRight-list.clientWidth+14;
+      else if(rowLeft<list.scrollLeft) list.scrollLeft=rowLeft-14;
     }
+    if(list) list.addEventListener("wheel",event=>{
+      if(list.scrollWidth>list.clientWidth) {
+        event.preventDefault();
+        list.scrollLeft+=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+      }
+    },{passive:false});
   }
   if(scene==="fight") {
     const fightBackground=stage.querySelector(".fight-background-art");
