@@ -15,3 +15,8 @@ Editable fields:
 - `knockbackDistance`: how far back the unit is pushed.
 
 Sprite filenames live in `assets.json`. `slot` is only the unit-selection portrait; battlefield animations use `moving`, `attacks`, `idle`, and `damaged` paths.
+
+
+## Tank Cat
+
+Tank Cat assets are stored in `Cats/tank-cat/` with separate `moving`, `attack`, and `damaged` frame folders, plus `assets.json` and `stats.json`. The sprite crops reference the Tank Cat sheet listed in the manifest source metadata.
