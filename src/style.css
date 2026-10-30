@@ -1600,7 +1600,56 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 /* Simplified level battle HUD: no blue title bar or wallet/collecting-money panel. */
 .fight-screen .fight-topbar { display:none !important; }
 .fight-screen > .fight-back { position:absolute !important; z-index:40 !important; top:10px !important; left:10px !important; }
-.fight-screen .fight-base-hud { top:11.5% !important; }
+.fight-screen .fight-base-hud {
+  top:auto !important;
+  width:auto !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  text-shadow:1px 2px 3px #000,0 0 4px #000 !important;
+  text-align:center !important;
+}
+.fight-screen .fight-base-hud > span,
+.fight-screen .fight-base-hud > div { display:none !important; }
+.fight-screen .fight-base-hud > strong {
+  display:block !important;
+  margin:0 !important;
+  color:#fff !important;
+  font:1000 clamp(14px,1.7vw,22px)/1 Impact,Haettenschweiler,sans-serif !important;
+  white-space:nowrap !important;
+}
+.fight-screen .fight-enemy-hud {
+  left:1.5% !important;
+  bottom:calc(19% + clamp(105px,24vh,185px) + 5px) !important;
+}
+.fight-screen .fight-player-hud {
+  right:1.5% !important;
+  bottom:calc(19% + clamp(122px,28vh,220px) + 5px) !important;
+}
+.fight-screen .fight-battle-controls {
+  position:absolute !important;
+  z-index:40 !important;
+  top:10px !important;
+  right:10px !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:8px !important;
+}
+.fight-screen .fight-money {
+  display:flex !important;
+  min-height:38px !important;
+  justify-content:center !important;
+  padding:7px 10px !important;
+}
+.fight-screen .fight-money span { display:none !important; }
+.fight-screen .fight-worker-cat {
+  display:flex !important;
+  width:clamp(82px,10vw,130px) !important;
+  min-height:58px !important;
+}
+.fight-screen .fight-base-hud { z-index:8 !important; }
 .fight-screen .fight-worker-cat,
-.fight-screen .fight-money { display:none !important; }
+.fight-screen .fight-money { display:flex !important; }
 .fight-screen .fight-unit-slots { justify-content:center; }
