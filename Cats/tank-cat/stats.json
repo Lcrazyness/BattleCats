@@ -1,0 +1,15 @@
+{
+  "name": "Tank Cat",
+  "health": 300,
+  "damage": 18,
+  "price": 150,
+  "speed": 6,
+  "spriteChangeSpeed": 8,
+  "walkSpriteChangeSpeed": 2.5,
+  "range": 110,
+  "recharge": 6,
+  "attackCooldown": 1.8,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5
+}
