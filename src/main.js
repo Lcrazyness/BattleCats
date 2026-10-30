@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-45";
+const BATTLE_ASSET_VERSION = "20261029-46";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1118,6 +1118,7 @@ function createBattleState() {
 }
 function loadBattleAssetManifests() {
   if(battleAssetsPromise) return battleAssetsPromise;
+  BATTLE_UNIT_STATS_BY_ID.clear();
   const assetRequests=[["cat","Cats/cat/assets.json"],["doge","enemys/doge/assets.json"]];
   const statRequests=[];
   save.units.forEach(unit=>{
