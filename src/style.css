@@ -570,10 +570,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   pointer-events:none;
 }
 .base-sprite-button.base-cat-capsule::after {
-  background-image:url("../sprites/ui/Normalcapsule.png?v=20261026-27");
+  background-image:url("https://raw.githubusercontent.com/Lcrazyness/BattleCats/main/sprites/ui/Normalcapsule.png?v=20261026-27");
 }
 .base-sprite-button.base-rare-capsule::after {
-  background-image:url("../sprites/ui/rarecapsules.png?v=20261026-27");
+  background-image:url("https://raw.githubusercontent.com/Lcrazyness/BattleCats/main/sprites/ui/rarecapsules.png?v=20261026-27");
 }
 
 /* These illustrated Cat Base capsule buttons should not show the generic keyboard focus box. */
@@ -1401,7 +1401,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-result-copy{margin:13px 0 19px;font:800 clamp(13px,2vw,18px)/1.35 Arial,sans-serif}
 .fight-result-button{min-width:150px;padding:12px 22px;border:3px solid #7e4b14;border-radius:8px;background:linear-gradient(#fff24d,#ffb30b);box-shadow:inset 0 2px #fff9b5,0 3px 0 #3a2110;color:#fff;font:1000 clamp(18px,3vw,25px)/1 Impact,Haettenschweiler,sans-serif;-webkit-text-stroke:.6px #492a11;text-shadow:1px 2px #432710}
 @keyframes fight-unit-idle{from{transform:translateY(0)}to{transform:translateY(-2px)}}
-@keyframes fight-unit-attack{from{transform:translateX(0) scaleX(1)}to{transform:translateX(-7px) scaleX(1.04)}}
+@keyframes fight-unit-attack{from{transform:translateX(0)}to{transform:translateX(-7px)}}
 @keyframes fight-unit-hit{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
 @media(max-width:650px){
  .fight-topbar{height:8%;min-height:45px;gap:6px;padding:0 1.5%}.fight-back{width:34px;height:34px}.fight-stage-label strong{font-size:clamp(12px,3.2vw,19px)}.fight-stage-label span{font-size:8px}.fight-timer{font-size:16px;min-width:43px}.fight-money{padding:4px 6px}.fight-money span{font-size:7px}.fight-money strong{font-size:15px}
@@ -1484,7 +1484,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   transform-origin: center bottom !important;
 }
 .fight-screen .fight-unit-cat .fight-unit-sprite {
-  scale: 0.68 !important;
+  scale: 0.62 !important;
 }
 .fight-screen .fight-unit-doge .fight-unit-sprite {
   scale: 0.72 !important;
