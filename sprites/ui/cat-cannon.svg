@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="Cat Cannon icon">
+  <defs><linearGradient id="metal" x2="1" y2="0"><stop stop-color="#384858"/><stop offset=".4" stop-color="#c6d3dc"/><stop offset=".8" stop-color="#8196a5"/><stop offset="1" stop-color="#293a48"/></linearGradient></defs>
+  <g stroke="#211a16" stroke-width="5" stroke-linejoin="round">
+    <path fill="none" stroke="#e9ae28" stroke-width="6" d="M83 43V14Q83 5 93 5Q103 5 103 14V23"/>
+    <circle cx="93" cy="14" r="9" fill="#ffe45b" stroke="#8d5917" stroke-width="3"/>
+    <path fill="#fffaf0" d="M31 45L27 20L46 31Q60 20 75 32L94 20L90 52Q94 67 78 72H43Q28 65 31 45Z"/>
+    <ellipse cx="49" cy="47" rx="3.5" ry="6" fill="#171311" stroke="none"/>
+    <ellipse cx="71" cy="47" rx="3.5" ry="6" fill="#171311" stroke="none"/>
+    <path fill="none" d="M56 57Q60 61 65 57"/>
+    <path fill="url(#metal)" d="M5 48H61Q71 48 71 60V70Q71 80 61 80H5Z"/>
+    <ellipse cx="8" cy="64" rx="8" ry="17" fill="#17222d" stroke="#738796" stroke-width="4"/>
+    <ellipse cx="8" cy="64" rx="3.5" ry="9" fill="#05090d" stroke="#d6e1e8" stroke-width="1.5"/>
+    <path fill="#fff7df" d="M37 76H85L91 94H30Z"/>
+  </g>
+</svg>
