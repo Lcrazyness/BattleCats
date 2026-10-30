@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-26";
+const BATTLE_ASSET_VERSION = "20261029-27";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1248,7 +1248,11 @@ function ensureBattleEntityNode(entity) {
 function updateBattleEntityView(entity) {
   const element = ensureBattleEntityNode(entity);
   if (!element) return;
-  element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
+  const formationSlot=Math.max(0,Number(entity.formationSlot)||0);
+  const visualStagger=entity.kind==="cat" ? ((formationSlot%3)-1)*2.1 : 0;
+  const visualRow=entity.kind==="cat" ? (Math.floor(formationSlot/3)%3)*4 : 0;
+  element.style.left = Math.max(2,Math.min(97,entity.x+visualStagger))+"%";
+  element.style.bottom = visualRow+"px";
   element.classList.toggle("is-attacking",entity.mode==="attack");
   element.classList.toggle("is-idle",entity.mode==="idle");
   element.classList.toggle("is-damaged",entity.mode==="damaged");
@@ -1344,7 +1348,7 @@ function spawnPlayerCat(unit) {
   battleState.cooldowns[unit.id] = stats.recharge;
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
-    x:battleBaseCenterPercent("cat"),hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
+    x:battleBaseCenterPercent("cat"),formationSlot:battleState.playerUnits.length,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
     speed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,mode:"moving",attackTimer:0,
     animUntil:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
@@ -1480,7 +1484,7 @@ function resolvePendingBattleAttacks(now) {
     if (attacker.mode==="dead" || attacker.mode==="knockback") continue;
     if (targetKey) {
       const target=findBattleEntity(targetKey);
-      if (target && target.hp>0 && target.mode!=="dead" && target.mode!=="knockback") {
+      if (target && target.hp>0 && target.mode!=="dead") {
         resolveBattleAttackOnce(attacker,target,damage,now);
       }
     } else if (baseTarget && attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
@@ -1491,16 +1495,16 @@ function resolvePendingBattleAttacks(now) {
   }
 }
 function attackBattleBase(attacker,now) {
-  if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" || Number(attacker.attackTimer)>0.001) return;
+  if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" || Number(attacker.attackTimer)>0.001) return false;
   const baseTarget=attacker.kind==="cat"?"enemy":"cat";
   const contact=battleBaseContactPercent(baseTarget);
-  if(attacker.kind==="cat"?attacker.x>contact+0.25:attacker.x<contact-0.25) return;
+  if(attacker.kind==="cat"?attacker.x>contact+0.25:attacker.x<contact-0.25) return false;
   const unit=attacker.kind==="cat"
     ? save.units.find(item=>String(item.id)===String(attacker.unitId)) || "cat"
     : (attacker.enemyType || "doge");
   const stats=battleUnitStats(unit);
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
-  startBattleAttack(attacker,now,stats.attackCooldown,duration,null,baseTarget);
+  return startBattleAttack(attacker,now,stats.attackCooldown,duration,null,baseTarget);
 }
 function tickBattle() {
   if (scene!=="fight" || !battleState || battleState.ended) return;
@@ -1521,7 +1525,7 @@ function tickBattle() {
     cat.attackTimer=Math.max(0,cat.attackTimer-dt);
     if (cat.hitUntil>now) cat.mode="damaged";
     else if (cat.animUntil>now) cat.mode="attack";
-    else cat.mode="moving";
+    else cat.mode="idle";
     const target=state.enemies.filter(enemy=>enemy.hp>0 && enemy.mode!=="dead" && enemy.mode!=="knockback" && enemy.x<cat.x+0.5).sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
     if (target) {
       const distance=cat.x-target.x;
@@ -1535,13 +1539,17 @@ function tickBattle() {
           cat.mode="idle";
         }
       } else if(distance>reach) {
+        cat.mode="moving";
         cat.x=Math.max(target.x+reach,cat.x-(cat.speed*0.45)*dt);
       }
     } else if(state.enemyBaseHp>0) {
       const contact=battleBaseContactPercent("enemy");
-      if(cat.x>contact) cat.x=Math.max(contact,cat.x-(cat.speed*0.45)*dt);
-      else if(cat.attackTimer<=0) attackBattleBase(cat,now);
-      else cat.mode="idle";
+      if(cat.x>contact) {
+        cat.mode="moving";
+        cat.x=Math.max(contact,cat.x-(cat.speed*0.45)*dt);
+      } else if(cat.attackTimer<=0) {
+        if(!attackBattleBase(cat,now)) cat.mode="idle";
+      } else cat.mode="idle";
     }
     updateBattleEntityView(cat);
   }
@@ -1552,7 +1560,7 @@ function tickBattle() {
     enemy.attackTimer=Math.max(0,enemy.attackTimer-dt);
     if (enemy.hitUntil>now) enemy.mode="damaged";
     else if (enemy.animUntil>now) enemy.mode="attack";
-    else enemy.mode="moving";
+    else enemy.mode="idle";
     const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.mode!=="knockback" && cat.x>enemy.x+0.5).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
     const enemyDistance=target?target.x-enemy.x:Infinity;
     const enemyReach=battleRangePercent(enemy.range);
@@ -1564,12 +1572,16 @@ function tickBattle() {
         enemy.mode="idle";
       }
     } else if(target&&enemyDistance>enemyReach) {
+      enemy.mode="moving";
       enemy.x=Math.min(target.x-enemyReach,enemy.x+Number(enemy.speed||2.8)*dt);
     } else if(!target) {
       const contact=battleBaseContactPercent("cat");
-      if(enemy.x<contact) enemy.x=Math.min(contact,enemy.x+Number(enemy.speed||2.8)*dt);
-      else if(enemy.attackTimer<=0) attackBattleBase(enemy,now);
-      else enemy.mode="idle";
+      if(enemy.x<contact) {
+        enemy.mode="moving";
+        enemy.x=Math.min(contact,enemy.x+Number(enemy.speed||2.8)*dt);
+      } else if(enemy.attackTimer<=0) {
+        if(!attackBattleBase(enemy,now)) enemy.mode="idle";
+      } else enemy.mode="idle";
     }
     updateBattleEntityView(enemy);
   }
