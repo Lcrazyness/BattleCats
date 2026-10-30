@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-34";
+const BATTLE_ASSET_VERSION = "20261029-37";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -43,7 +43,7 @@ const BATTLE_ASSETS = {
 };
 const BATTLE_UNIT_STATS = {
   cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:55,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  doge: {health:90,damage:8,speed:2.8,spriteChangeSpeed:8,range:55,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:8,range:55,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 function battleUnitKey(unitOrName) {
   const value = typeof unitOrName === "string" ? unitOrName :
@@ -59,11 +59,16 @@ function battleUnitStats(unitOrKey) {
     const number = Number(value);
     return Number.isFinite(number) && number >= min ? number : fallback;
   };
-  const health = positive(config.health,positive(unit.hp,100));
+  const unitLevel = isObject && unit.kind !== "doge" ? Math.max(1,Math.floor(Number(unit.level)||1)) : 1;
+  const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.1;
+  const health = Math.round(positive(config.health,positive(unit.hp,100))*levelMultiplier);
+  const damage = Math.round(positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier);
   const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
   return {
+    level:unitLevel,
+    levelMultiplier,
     health,
-    damage:positive(config.damage,positive(unit.attack,positive(unit.attackPower,8))),
+    damage,
     price:positive(config.price,positive(unit.deployCost,50)),
     speed:positive(config.speed,positive(unit.speed,key==="doge"?2.8:10)),
     spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,8)),
@@ -393,8 +398,6 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
   {path:"Levels/Korea/enemy-base.svg?v=20261029-34",bytes:5200},
   {path:"sprites/battle/cat-base.svg?v=20261029-34",bytes:2400},
-  {path:"sprites/ui/worker-cat-wallet.svg?v=20261029-34",bytes:1000},
-  {path:"sprites/ui/cat-cannon.svg?v=20261029-34",bytes:1000},
   {path:"Cats/cat/moving/frame-001.png?v=20261029-31",bytes:7000},
   {path:"Cats/cat/moving/frame-002.png?v=20261029-31",bytes:7000},
   {path:"Cats/cat/attack/frame-001attack.png?v=20261029-31",bytes:16072},
@@ -1735,8 +1738,8 @@ function renderFight() {
   const levelBackgroundUrl=battleAssetUrl(levelFolder+"/"+levelConfig.background);
   const enemyBaseUrl=battleAssetUrl(levelFolder+"/"+levelConfig.enemyBase);
   const catBaseUrl=battleAssetUrl("sprites/battle/cat-base.svg");
-  const walletImageUrl=battleAssetUrl("sprites/ui/worker-cat-wallet.svg");
-  const cannonImageUrl=battleAssetUrl("sprites/ui/cat-cannon.svg");
+  const walletImageUrl=battleAssetUrl("sprites/original_sheets/cat-base-menu-icon.webp");
+  const cannonImageUrl=battleAssetUrl("sprites/original_sheets/cat-base-accessory-icon.webp");
   const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
     const cost=battleUnitStats(unit).price
     const cooldown=Number(battleState.cooldowns[unit.id]||0);
@@ -1777,10 +1780,17 @@ function renderFight() {
   '</section>';
 }
 function renderUpgrade() {
-  const body = pageCopy("Spend XP to increase your rank and strengthen your cats.")+
+  const body = pageCopy("Each Cat level increases its health and attack power by 10%.")+
     row("Player Rank","Rank "+save.level+" · "+money(save.xp)+" XP available","rank","RANK UP · 500 XP")+
     '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
-    '<div class="menu-list">'+save.units.map((unit,i)=>row(unit.name,"Level "+unit.level+" · Next level costs "+((unit.upgradeCost||100)*unit.level)+" XP","unit:"+i,"UPGRADE")).join("")+'</div>';
+    '<div class="menu-list">'+save.units.map((unit,i)=>{
+      const level=Math.max(1,Math.floor(Number(unit.level)||1));
+      const current=battleUnitStats(unit);
+      const next=battleUnitStats({...unit,level:level+1});
+      const cost=(Number(unit.upgradeCost)||100)*level;
+      const description="Level "+level+" · HP "+current.health+" → "+next.health+" · ATK "+current.damage+" → "+next.damage+" · Next: "+cost+" XP";
+      return row(unit.name,description,"unit:"+i,"UPGRADE");
+    }).join("")+'</div>';
   return renderWindow("Upgrade",body,"base");
 }
 function renderDictionary(equip=false) {
@@ -2134,11 +2144,15 @@ function perform(action) {
   if (action.startsWith("unit:")) {
     const unit = save.units[Number(action.split(":")[1])];
     if (!unit) return;
-    const cost = (unit.upgradeCost || 100)*unit.level;
+    const currentLevel=Math.max(1,Math.floor(Number(unit.level)||1));
+    const cost=(Number(unit.upgradeCost)||100)*currentLevel;
     if (save.xp < cost) return notify("Not enough XP!");
-    save.xp -= cost; unit.level++;
+    save.xp-=cost;
+    unit.level=currentLevel+1;
     playSfx("upgrade");
-    render(); notify(unit.name+" upgraded!");
+    render();
+    const stats=battleUnitStats(unit);
+    notify(unit.name+" reached Level "+unit.level+"! HP "+stats.health+" · ATK "+stats.damage);
     return;
   }
   if (action.startsWith("unitinfo:")) {
