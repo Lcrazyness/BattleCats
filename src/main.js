@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-28";
+const BATTLE_ASSET_VERSION = "20261029-30";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1702,8 +1702,15 @@ function renderFight() {
     '<img class="fight-background-art" src="' + levelFolder + '/background.png?v=20261029-22" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
-    '<div class="fight-base-hud fight-enemy-hud"><span>ENEMY BASE</span><strong class="fight-enemy-hp">500 / 500</strong><div class="fight-enemy-hp-bar"><span style="width:100%"></span></div></div>'+
-    '<div class="fight-base-hud fight-player-hud"><span>CAT BASE</span><strong class="fight-cat-hp">1000 / 1000</strong><div class="fight-cat-hp-bar"><span style="width:100%"></span></div></div>'+
+    '<div class="fight-battle-controls">'+
+      '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
+      '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
+        '<span>WALLET</span><strong class="fight-worker-cat-level">LEVEL 1</strong>'+
+        '<div class="fight-worker-bar"><span style="width:33%"></span></div>'+
+        '<small class="fight-worker-cost">UPGRADE 50¢</small></button>'+
+    '</div>'+
+    '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
+    '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
     '<img class="fight-base enemy-castle" src="' + levelFolder + '/enemy-base.png?v=20261029-22" alt="" draggable="false" onerror="this.onerror=null;this.src=\'Levels/Korea/enemy-base.png?v=20261029-22\'">'+
     
     
