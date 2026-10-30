@@ -1862,3 +1862,35 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   transform:scale(1.14) !important;
   transform-origin:center center !important;
 }
+
+
+/* Scale the complete deployment slot up, not the portrait independently. */
+.fight-screen .fight-unit-slot {
+  flex-basis:clamp(36.5px,5.13vw,64px) !important;
+  width:clamp(36.5px,5.13vw,64px) !important;
+  height:57% !important;
+}
+.fight-screen .fight-unit-slot img {
+  transform:none !important;
+  transform-origin:center center !important;
+}
+.fight-screen .fight-slot-recharge-track {
+  height:4.5px !important;
+}
+.fight-screen .fight-slot-cooldown {
+  font-size:clamp(6.3px,.69vw,8.55px) !important;
+  padding:1.15px 1.7px !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-unit-slot {
+    flex-basis:clamp(32px,9.7vw,47px) !important;
+    width:clamp(32px,9.7vw,47px) !important;
+    height:57% !important;
+  }
+  .fight-screen .fight-slot-recharge-track {
+    height:4.5px !important;
+  }
+  .fight-screen .fight-slot-cooldown {
+    font-size:6.3px !important;
+  }
+}
