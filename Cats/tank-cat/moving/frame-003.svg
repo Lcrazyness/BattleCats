@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150" width="100" height="150" role="img" aria-label="Tank Cat">
-  <g transform="rotate(-2 50 105)" stroke="#171411" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M27 124 L19 138 L34 140 L42 126 M58 126 L66 140 L81 138 L73 124" fill="#fff"/>
-    <path d="M22 36 L17 12 L34 28 Q50 20 66 28 L83 12 L78 39 Q89 48 88 69 L85 124 Q50 137 15 124 L12 69 Q11 49 22 36 Z" fill="#fff"/>
-    <path d="M21 37 L17 14 L33 30" fill="none" stroke-width="3"/>
-    <path d="M79 37 L83 14 L67 30" fill="none" stroke-width="3"/>
-    <ellipse cx="36" cy="59" rx="3.2" ry="5.2" fill="#171411" stroke="none"/>
-    <ellipse cx="64" cy="59" rx="3.2" ry="5.2" fill="#171411" stroke="none"/>
-    <path d="M46 66 Q50 62 54 66 L50 70 Z" fill="#171411" stroke="none"/>
-    <path d="M43 70 Q50 78 57 70" fill="none" stroke-width="3.2"/>
-    <path d="M17 123 Q50 132 83 123" fill="none" stroke-width="2.5"/>
-    
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="99 38 50 96" width="50" height="96">
+  <image x="0" y="0" width="1366" height="457" preserveAspectRatio="none" href="https://www.spriters-resource.com/media/assets/78/81253.png?updated=1755474505" xlink:href="https://www.spriters-resource.com/media/assets/78/81253.png?updated=1755474505"/>
 </svg>
