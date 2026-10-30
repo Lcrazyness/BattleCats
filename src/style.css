@@ -1439,7 +1439,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .enemy-castle { left:1.5% !important; }
 .fight-screen .player-castle { right:1.5% !important; width:clamp(85px,12vw,170px) !important; height:clamp(125px,32vh,255px) !important; }
 .fight-screen .fight-unit { animation:none !important; filter:none !important; transform:translateX(-50%) !important; }
-.fight-screen .fight-unit-sprite { animation:none !important; filter:none !important; height:100% !important; object-fit:contain !important; transform-origin:center bottom !important; }
+.fight-screen .fight-unit-sprite { animation:none !important; filter:none !important; width:auto !important; height:70% !important; max-width:none !important; object-fit:contain !important; transform-origin:center bottom !important; }
 .fight-screen .fight-unit-health { display:none !important; }
 .fight-screen .fight-unit.is-knockback .fight-unit-sprite { animation:battle-cats-knockback 320ms ease-out both !important; }
 .fight-screen .fight-unit.is-dead .fight-unit-sprite { animation:battle-cats-death 680ms ease-in both !important; pointer-events:none !important; }
@@ -1474,7 +1474,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 /* One attack animation per hit; the old rule repeated it twice. */
 .fight-screen .fight-unit.is-attacking .fight-unit-sprite {
-  animation: fight-unit-attack .28s ease-in-out 1 normal both !important;
+  animation: fight-unit-attack .4s ease-in-out 1 normal both !important;
 }
 
 
