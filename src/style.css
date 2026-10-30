@@ -1690,3 +1690,44 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     padding-left:72px !important;
   }
 }
+
+
+/* Battle unit deployment slots and their overlays are reduced to 50%. */
+.fight-screen .fight-unit-slot {
+  flex:0 0 clamp(32px,4.5vw,56px) !important;
+  width:clamp(32px,4.5vw,56px) !important;
+  height:50% !important;
+  min-height:0 !important;
+  align-self:center !important;
+  aspect-ratio:1 / 1 !important;
+  padding:0 !important;
+}
+.fight-screen .fight-unit-slot img {
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+}
+.fight-screen .fight-slot-recharge-track {
+  height:4px !important;
+}
+.fight-screen .fight-slot-cooldown {
+  right:1px !important;
+  bottom:1px !important;
+  min-width:.825em !important;
+  padding:1px 1.5px !important;
+  font-size:clamp(5.5px,.6vw,7.5px) !important;
+  line-height:1 !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-unit-slot {
+    flex-basis:clamp(28px,8.5vw,41.5px) !important;
+    width:clamp(28px,8.5vw,41.5px) !important;
+    height:50% !important;
+  }
+  .fight-screen .fight-slot-recharge-track {
+    height:4px !important;
+  }
+  .fight-screen .fight-slot-cooldown {
+    font-size:5.5px !important;
+  }
+}
