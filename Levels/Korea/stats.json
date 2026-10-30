@@ -13,5 +13,7 @@
       "spawnChance": 0.82,
       "maxAlive": 3
     }
-  ]
+  ],
+  "background": "background.png",
+  "enemyBase": "enemy-base.svg"
 }
