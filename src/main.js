@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-30";
+const BATTLE_ASSET_VERSION = "20261029-31";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -393,21 +393,22 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261028-4",bytes:215583},
   {path:"Levels/Korea/enemy-base.png?v=20261029-22",bytes:3125},
   {path:"Levels/Korea/cat-base.png?v=20261029-22",bytes:70821},
-  {path:"Cats/cat/moving/frame-001.png?v=20261029-25",bytes:7000},
-  {path:"Cats/cat/moving/frame-002.png?v=20261029-25",bytes:7000},
-  {path:"Cats/cat/attack/frame-001attack.png?v=20261029-25",bytes:16072},
-  {path:"Cats/cat/attack/frame-002attack.png?v=20261029-25",bytes:16117},
-  {path:"Cats/cat/attack/frame-003attack.png?v=20261029-25",bytes:13263},
-  {path:"Cats/cat/attack/frame-004attack.png?v=20261029-25",bytes:13433},
-  {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-25",bytes:17381},
-  {path:"Cats/cat/slot.png?v=20261029-25",bytes:9000},
-  {path:"Cats/cat/upgrade.png?v=20261029-25",bytes:9000},
-  {path:"enemys/doge/moving/frame-001.png?v=20261029-25",bytes:9000},
-  {path:"enemys/doge/attack/frame-001.png?v=20261029-25",bytes:9000},
-  {path:"enemys/doge/attack/frame-002.png?v=20261029-25",bytes:9000},
-  {path:"enemys/doge/attack/frame-003.png?v=20261029-25",bytes:9000},
-  {path:"enemys/doge/damaged/frame-001.png?v=20261029-25",bytes:9000},
-  {path:"enemys/doge/slot.png?v=20261029-25",bytes:9000},
+  {path:"Cats/cat/moving/frame-001.png?v=20261029-31",bytes:7000},
+  {path:"Cats/cat/moving/frame-002.png?v=20261029-31",bytes:7000},
+  {path:"Cats/cat/attack/frame-001attack.png?v=20261029-31",bytes:16072},
+  {path:"Cats/cat/attack/frame-002attack.png?v=20261029-31",bytes:16117},
+  {path:"Cats/cat/attack/frame-003attack.png?v=20261029-31",bytes:13263},
+  {path:"Cats/cat/attack/frame-004attack.png?v=20261029-31",bytes:13433},
+  {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-31",bytes:17381},
+  {path:"Cats/cat/slot.png?v=20261029-31",bytes:9000},
+  {path:"Cats/cat/upgrade.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/moving/frame-001.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/attack/frame-001.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/attack/frame-002.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/attack/frame-003.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/attack/frame-004.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/damaged/frame-001.png?v=20261029-31",bytes:9000},
+  {path:"enemys/doge/slot.png?v=20261029-31",bytes:9000},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -1197,7 +1198,7 @@ function battleImageFor(entity) {
     if(frames.length) {
       const attackStartedAt=Number.isFinite(Number(entity.attackStartedAt))?Number(entity.attackStartedAt):elapsed;
       const attackElapsed=Math.max(0,elapsed-attackStartedAt);
-      const frameIndex=Math.min(frames.length-1,Math.floor((attackElapsed+0.0001)*BATTLE_ATTACK_FRAME_RATE));
+      const frameIndex=Math.max(0,Math.min(frames.length-1,Math.floor((attackElapsed+0.0001)*configuredAttackRate)));
       return battleAssetUrl(frames[frameIndex]);
     }
     return battleAssetUrl(assets.attack||assets.idle||(assets.moving&&assets.moving[0])||"");
@@ -1442,17 +1443,22 @@ function damageBattleEntity(target,amount,now){
   target.hp=Math.max(0,(Number(target.hp)||0)-damage);
   const hitTime=Number.isFinite(Number(now))?Number(now):battleState.elapsed;
   if(target.hp<=0){beginBattleKnockback(target,true,hitTime);return;}
+  if(target.mode==="knockback") return;
   let threshold=Number.isFinite(Number(target.nextKnockbackHp))?Number(target.nextKnockbackHp):maxHp*0.75;
   let crossings=0;
   while(threshold>0&&target.hp<=threshold){crossings++;threshold-=maxHp*0.25;}
   target.nextKnockbackHp=threshold;
   if(crossings>0){
-    if(target.mode==="knockback")target.queuedKnockbacks=(Number(target.queuedKnockbacks)||0)+crossings;
-    else{target.queuedKnockbacks=Math.max(0,crossings-1);beginBattleKnockback(target,false,hitTime);}
+    target.queuedKnockbacks=Math.max(0,crossings-1);
+    beginBattleKnockback(target,false,hitTime);
     return;
   }
-  if(target.mode==="knockback")return;
-  target.mode="damaged";target.animUntil=hitTime+0.18;target.hitUntil=hitTime+0.18;
+  const attackStillPlaying=Number(target.pendingAttackAt)>hitTime+0.0001&&Number(target.animUntil)>hitTime+0.0001;
+  target.hitUntil=Math.max(Number(target.hitUntil)||0,hitTime+0.18);
+  if(!attackStillPlaying){
+    target.mode="damaged";
+    target.animUntil=target.hitUntil;
+  }
   updateBattleEntityView(target);
 }
 function battleAttackAnimationDuration(attacker,fallbackDuration=0.6) {
@@ -1469,7 +1475,7 @@ function battleAttackAnimationDuration(attacker,fallbackDuration=0.6) {
 function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,baseTarget="") {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" ||
       Number(attacker.attackTimer)>0.001 || Number(attacker.animUntil)>now+0.0001 ||
-      Number(attacker.pendingAttackAt)>0) return false;
+      Number(attacker.pendingAttackAt)>0 || Number(attacker.hitUntil)>now+0.0001) return false;
   attacker.attackCycleId=(Number(attacker.attackCycleId)||0)+1;
   attacker.attackStartedAt=now;
   attacker.attackTimer=cooldown;
@@ -1541,10 +1547,11 @@ function tickBattle() {
     if (cat.mode==="dead" || cat.mode==="knockback") { updateBattleEntityView(cat); continue; }
     if (cat.hp<=0) continue;
     cat.attackTimer=Math.max(0,cat.attackTimer-dt);
-    if (cat.hitUntil>now) cat.mode="damaged";
+    if (cat.pendingAttackAt>0 && cat.animUntil>now) cat.mode="attack";
+    else if (cat.hitUntil>now) cat.mode="damaged";
     else if (cat.animUntil>now) cat.mode="attack";
     else cat.mode="idle";
-    const target=state.enemies.filter(enemy=>enemy.hp>0 && enemy.mode!=="dead" && enemy.mode!=="knockback" && enemy.x<cat.x+0.5).sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
+    const target=state.enemies.filter(enemy=>enemy.hp>0 && enemy.mode!=="dead" && enemy.x<cat.x+0.5).sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
     if (target) {
       const distance=cat.x-target.x;
       const reach=battleRangePercent(cat.range);
@@ -1576,10 +1583,11 @@ function tickBattle() {
   for (const enemy of state.enemies) {
     if (enemy.mode==="dead" || enemy.mode==="knockback") { updateBattleEntityView(enemy); continue; }
     enemy.attackTimer=Math.max(0,enemy.attackTimer-dt);
-    if (enemy.hitUntil>now) enemy.mode="damaged";
+    if (enemy.pendingAttackAt>0 && enemy.animUntil>now) enemy.mode="attack";
+    else if (enemy.hitUntil>now) enemy.mode="damaged";
     else if (enemy.animUntil>now) enemy.mode="attack";
     else enemy.mode="idle";
-    const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.mode!=="knockback" && cat.x>enemy.x+0.5).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
+    const target=state.playerUnits.filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.x>enemy.x+0.5).sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
     const enemyDistance=target?target.x-enemy.x:Infinity;
     const enemyReach=battleRangePercent(enemy.range);
     if(target&&enemyDistance>=-1&&enemyDistance<=enemyReach) {
