@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-25";
+const BATTLE_ASSET_VERSION = "20261029-26";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1541,6 +1541,7 @@ function tickBattle() {
       const contact=battleBaseContactPercent("enemy");
       if(cat.x>contact) cat.x=Math.max(contact,cat.x-(cat.speed*0.45)*dt);
       else if(cat.attackTimer<=0) attackBattleBase(cat,now);
+      else cat.mode="idle";
     }
     updateBattleEntityView(cat);
   }
@@ -1568,6 +1569,7 @@ function tickBattle() {
       const contact=battleBaseContactPercent("cat");
       if(enemy.x<contact) enemy.x=Math.min(contact,enemy.x+Number(enemy.speed||2.8)*dt);
       else if(enemy.attackTimer<=0) attackBattleBase(enemy,now);
+      else enemy.mode="idle";
     }
     updateBattleEntityView(enemy);
   }
