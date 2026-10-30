@@ -3,7 +3,7 @@
   "health": 90,
   "damage": 8,
   "speed": 2.8,
-  "range": 110,
+  "range": 55,
   "spriteChangeSpeed": 8,
   "killReward": 25,
   "knockbackThresholdPercent": 25,
