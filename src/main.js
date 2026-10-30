@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-39";
+const BATTLE_ASSET_VERSION = "20261029-41";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -929,54 +929,70 @@ function renderBattle() {
 }
 function renderStage() {
   if (currentRegion !== "empire") {
-    const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
+    const locations = currentRegion==="future" ? ["Moon","Japan","New York","Brazil","Madagascar","Great Abyss"] : currentRegion==="cosmos" ? ["The Big Bang","Andromeda","Black Hole","Catseye Nebula","Finale"] : currentRegion==="legend" ? ["Japan","Korea","China","Mongolia","Russia","Australia"] : ["Japan","Korea","China","Mongolia","Russia","Australia"];
     const body = pageCopy((currentRegion==="future"?"INTO THE FUTURE":currentRegion==="cosmos"?"CATS OF THE COSMOS":currentRegion==="legend"?"LEGEND STAGES":currentRegion==="event"?"EVENT STAGES":"EMPIRE OF CATS")+" · CHAPTER 1")+
       '<div class="meter"><span style="width:8%"></span></div>'+
       '<div class="menu-list">'+locations.map((name,i)=>row(name,i===0?"Clear to earn XP and continue.":"Stage not cleared",i===0?"go:fight":"locked",i===0?"BATTLE":"LOCKED")).join("")+'</div>';
     return renderWindow("Choose a Stage",body,"battle");
   }
-  const completed = Math.max(0,Math.min(48,Number(save.stageClears)||0));
-  if (!Number.isInteger(selectedLevelIndex) || selectedLevelIndex < 0 || selectedLevelIndex > 47) selectedLevelIndex = Math.min(completed,47);
-  const selected = EMPIRE_CHAPTER_ONE[selectedLevelIndex];
-  const available = selectedLevelIndex <= completed;
-  const progressPercent = Math.round(completed / 48 * 100);
-  const routePoints = EMPIRE_CHAPTER_ONE.map(level => (level.x*10)+","+(level.y*5)).join(" ");
-  const nodes = EMPIRE_CHAPTER_ONE.map((level,index) => {
-    const unlocked = index <= completed;
-    const classes = "world-level-node"+(unlocked?" is-open":" is-locked")+(index===selectedLevelIndex?" is-selected":"")+(index===completed?" is-frontier":"");
+
+  const completed=Math.max(0,Math.min(48,Number(save.stageClears)||0));
+  if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=Math.min(completed,47);
+  const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex];
+  const available=selectedLevelIndex<=completed;
+  const visibleStart=Math.max(0,selectedLevelIndex-4);
+  const visibleEnd=Math.min(EMPIRE_CHAPTER_ONE.length,selectedLevelIndex+5);
+  const visibleLevels=EMPIRE_CHAPTER_ONE.slice(visibleStart,visibleEnd);
+  const routePoints=visibleLevels.map(level=>(level.x*10)+","+(level.y*5)).join(" ");
+  const nodes=visibleLevels.map(level=>{
+    const index=EMPIRE_CHAPTER_ONE.indexOf(level);
+    const unlocked=index<=completed;
+    const cleared=index<completed;
+    const classes="world-level-node"+(unlocked?" is-open":" is-locked")+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"");
     return '<button class="'+classes+'" style="left:'+level.x+'%;top:'+level.y+'%" data-go="level:'+index+'" aria-label="Stage '+(index+1)+': '+level.name+(unlocked?', available':', locked')+'" title="'+(index+1)+'. '+level.name+'">'+
-      '<span>'+(unlocked?(index+1):"•")+'</span></button>';
+      '<span>'+level.name+'</span>'+(cleared?'<b aria-hidden="true">★</b>':'')+'</button>';
   }).join("");
-  const treasure = selectedLevelIndex===0 ? "TREASURE: KIMCHI · FIRST CLEAR: TANK CAT" : (available ? "CLEAR THIS STAGE TO CONTINUE THE CAMPAIGN" : "CLEAR PREVIOUS STAGES TO UNLOCK");
+  const mapZoom=1.42;
+  const mapPanX=50-selected.x*mapZoom;
+  const mapPanY=50-selected.y*mapZoom;
+  const clearCount=selectedLevelIndex<completed?1:0;
+  const energyCost=5;
   return '<section class="screen world-stage-screen" aria-label="Empire of Cats Chapter 1 stage select">'+
     '<div class="world-stage-frame">'+
       '<header class="world-stage-header">'+
-        '<button class="world-stage-back" data-go="go:base" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
-        '<div class="world-stage-title"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1 · WORLD TOUR</span></div>'+
-        '<div class="world-stage-hud">'+
-          '<div class="world-hud-value xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
-          '<div class="world-hud-value energy"><span>ENERGY</span><strong>'+money(save.energy)+'</strong></div>'+
-          '<div class="world-hud-value catfood"><span>CAT FOOD</span><strong>'+money(save.catFood)+'</strong></div>'+
-        '</div>'+
+        '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1</span></div>'+
+        '<div class="world-stage-xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
       '</header>'+
-      '<div class="world-level-map" aria-label="World map showing all 48 chapter stages">'+
-        '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
-        '<svg class="world-route-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+routePoints+'"/></svg>'+
-        '<div class="world-map-compass" aria-hidden="true">N<span>▲</span></div>'+
-        '<div class="world-map-progress">STAGES CLEARED <strong>'+completed+' / 48</strong></div>'+
-        nodes+
+      '<div class="world-level-map" aria-label="Scrollable stage map">'+
+        '<div class="world-map-canvas" style="--map-zoom:'+mapZoom+';--map-pan-x:'+mapPanX+'%;--map-pan-y:'+mapPanY+'%">'+
+          '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
+          '<svg class="world-route-art" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+routePoints+'"/></svg>'+
+          nodes+
+        '</div>'+
+        '<aside class="world-map-stage-info">'+
+          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48</span>'+
+          '<strong>'+selected.name+'</strong>'+
+          '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b></div>'+
+          '<div class="world-map-stage-stats"><span>CLEARED</span><b>'+clearCount+'</b></div>'+
+        '</aside>'+
+        '<div class="world-map-attack-panel">'+
+          '<div class="world-map-energy"><span>ENERGY</span><strong>'+money(save.energy)+' / '+money(save.maxEnergy)+'</strong><i><b style="width:'+Math.max(0,Math.min(100,(Number(save.energy)||0)/Math.max(1,Number(save.maxEnergy)||100)*100))+'%"></b></i></div>'+
+          '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>ATTACK!</span></button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="world-stage-items" aria-label="Battle items">'+
+        '<div class="world-map-item"><span class="world-map-item-icon">»</span><small>SPEED UP</small><b>x0</b></div>'+
+        '<div class="world-map-item"><span class="world-map-item-icon">◆</span><small>GET</small><b>x0</b></div>'+
+        '<div class="world-map-item"><span class="world-map-item-icon">MAX</span><small>MAX</small><b>x0</b></div>'+
+        '<div class="world-map-item"><span class="world-map-item-icon">XP</span><small>XP UP</small><b>x0</b></div>'+
+        '<div class="world-map-item"><span class="world-map-item-icon">XP</span><small>XP UP</small><b>x0</b></div>'+
+        '<div class="world-map-item"><span class="world-map-item-icon">◎</span><small>ITEM</small><b>x0</b></div>'+
+        '<div class="world-map-item is-locked"><span class="world-map-item-icon">⌕</span><small>UNLOCK</small></div>'+
       '</div>'+
       '<footer class="world-stage-footer">'+
-        '<div class="world-stage-info">'+
-          '<div class="world-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+(available?"AVAILABLE":"LOCKED")+'</div>'+
-          '<h1>'+selected.name+'</h1>'+
-          '<p>'+treasure+'</p>'+
-          '<div class="world-stage-progress" aria-label="'+completed+' of 48 stages cleared"><span style="width:'+progressPercent+'%"></span></div>'+
-        '</div>'+
-        '<div class="world-stage-actions">'+
-          '<div class="world-energy-cost"><span>ENERGY</span><strong>'+ (selectedLevelIndex===0?"5":"—") +'</strong></div>'+
-          '<button class="world-battle-button" data-go="stage-battle" '+(available?"":"disabled")+'><span>BATTLE!!</span><small>'+ (selectedLevelIndex===0?"KOREA":"STAGE "+(selectedLevelIndex+1)) +'</small></button>'+
-        '</div>'+
+        '<button class="world-stage-back" data-go="go:base" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
+        '<button class="world-stage-store" data-go="go:store" aria-label="Open Store"><img src="sprites/ui/storebutton.png?v=20261026-26" alt="" draggable="false"></button>'+
+        '<button class="world-stage-catfood" data-go="go:store" aria-label="Open Cat Food Store"><img src="sprites/ui/Cat_Food.png?v=20261026-27" alt="" draggable="false"><span>+</span><strong>'+money(save.catFood)+'</strong></button>'+
       '</footer>'+
     '</div>'+
   '</section>';
