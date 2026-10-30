@@ -1,7 +1,7 @@
 {
   "name": "Doge",
   "health": 90,
-  "damage": 8,
+  "damage": 4,
   "speed": 2.8,
   "range": 85,
   "spriteChangeSpeed": 8,
