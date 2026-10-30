@@ -1797,7 +1797,9 @@ function renderDictionary(equip=false) {
   const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
     '<div class="cat-grid">'+save.units.map((unit,i)=>{
       const isEquipped = save.equipped.includes(unit.id);
-      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+catHead()+'</div><strong>'+unit.name+'</strong><small>Level '+unit.level+(unit.hp?' · HP '+unit.hp+' · ATK '+unit.attack:'')+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
+      const stats=battleUnitStats(unit);
+      const level=Math.max(1,Math.floor(Number(unit.level)||1));
+      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+catHead()+'</div><strong>'+unit.name+'</strong><small>Level '+level+' · HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
     }).join("")+'</div>';
   if (equip) return renderWindow("Equip Cats",body,"base");
   return renderWindow("Cat Dictionary",body,"base");
