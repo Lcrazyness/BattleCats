@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-23";
+const BATTLE_ASSET_VERSION = "20261029-24";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
@@ -351,7 +351,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261029-12";
+const AUDIO_VERSION = "20261029-13";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
@@ -379,28 +379,34 @@ let audioUnlocked = false;
 let musicPlayer = null;
 let currentMusicKey = "";
 
-const mainScript = document.querySelector('script[src*="src/main.js"]');
-const APP_BASE_URL = new URL("../", mainScript ? mainScript.src : document.baseURI);
+const GITHUB_ASSET_BASE_URL = "https://raw.githubusercontent.com/Lcrazyness/BattleCats/main/";
+let githubAssetBase = document.querySelector("base");
+if (!githubAssetBase) {
+  githubAssetBase = document.createElement("base");
+  document.head.prepend(githubAssetBase);
+}
+githubAssetBase.href = GITHUB_ASSET_BASE_URL;
+const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261028-4",bytes:215583},
   {path:"Levels/Korea/enemy-base.png?v=20261029-22",bytes:3125},
   {path:"Levels/Korea/cat-base.png?v=20261029-22",bytes:70821},
-  {path:"Cats/cat/moving/frame-001.png?v=20261029-23",bytes:7000},
-  {path:"Cats/cat/moving/frame-002.png?v=20261029-23",bytes:7000},
-  {path:"Cats/cat/attack/frame-001attack.png?v=20261029-23",bytes:16072},
-  {path:"Cats/cat/attack/frame-002attack.png?v=20261029-23",bytes:16117},
-  {path:"Cats/cat/attack/frame-003attack.png?v=20261029-23",bytes:13263},
-  {path:"Cats/cat/attack/frame-004attack.png?v=20261029-23",bytes:13433},
-  {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-23",bytes:17381},
-  {path:"Cats/cat/slot.png?v=20261029-23",bytes:9000},
-  {path:"Cats/cat/upgrade.png?v=20261029-23",bytes:9000},
-  {path:"enemys/doge/moving/frame-001.png?v=20261029-23",bytes:9000},
-  {path:"enemys/doge/attack/frame-001.png?v=20261029-23",bytes:9000},
-  {path:"enemys/doge/attack/frame-002.png?v=20261029-23",bytes:9000},
-  {path:"enemys/doge/attack/frame-003.png?v=20261029-23",bytes:9000},
-  {path:"enemys/doge/damaged/frame-001.png?v=20261029-23",bytes:9000},
-  {path:"enemys/doge/slot.png?v=20261029-23",bytes:9000},
+  {path:"Cats/cat/moving/frame-001.png?v=20261029-24",bytes:7000},
+  {path:"Cats/cat/moving/frame-002.png?v=20261029-24",bytes:7000},
+  {path:"Cats/cat/attack/frame-001attack.png?v=20261029-24",bytes:16072},
+  {path:"Cats/cat/attack/frame-002attack.png?v=20261029-24",bytes:16117},
+  {path:"Cats/cat/attack/frame-003attack.png?v=20261029-24",bytes:13263},
+  {path:"Cats/cat/attack/frame-004attack.png?v=20261029-24",bytes:13433},
+  {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-24",bytes:17381},
+  {path:"Cats/cat/slot.png?v=20261029-24",bytes:9000},
+  {path:"Cats/cat/upgrade.png?v=20261029-24",bytes:9000},
+  {path:"enemys/doge/moving/frame-001.png?v=20261029-24",bytes:9000},
+  {path:"enemys/doge/attack/frame-001.png?v=20261029-24",bytes:9000},
+  {path:"enemys/doge/attack/frame-002.png?v=20261029-24",bytes:9000},
+  {path:"enemys/doge/attack/frame-003.png?v=20261029-24",bytes:9000},
+  {path:"enemys/doge/damaged/frame-001.png?v=20261029-24",bytes:9000},
+  {path:"enemys/doge/slot.png?v=20261029-24",bytes:9000},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
