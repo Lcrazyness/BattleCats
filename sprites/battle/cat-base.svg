@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 300" role="img" aria-label="Cat Base with cannon">
+  <defs>
+    <linearGradient id="base" x2="0" y2="1"><stop stop-color="#fffdf3"/><stop offset=".72" stop-color="#e8dfc9"/><stop offset="1" stop-color="#b9ad92"/></linearGradient>
+    <linearGradient id="barrel" x2="1" y2="0"><stop stop-color="#303c49"/><stop offset=".3" stop-color="#9eafbe"/><stop offset=".68" stop-color="#dbe5e8"/><stop offset="1" stop-color="#64727e"/></linearGradient>
+    <linearGradient id="ring" x2="0" y2="1"><stop stop-color="#fff36b"/><stop offset=".5" stop-color="#f5ae22"/><stop offset="1" stop-color="#8a4d19"/></linearGradient>
+  </defs>
+  <g stroke="#302820" stroke-width="5" stroke-linejoin="round">
+    <path fill="none" stroke="url(#ring)" stroke-width="10" d="M126 71V32Q126 14 145 14Q164 14 164 32V42"/>
+    <circle cx="145" cy="31" r="20" fill="none" stroke="#d58d17" stroke-width="7"/>
+    <path fill="url(#ring)" d="M145 6L158 22L145 36L132 22Z"/>
+    <path fill="url(#base)" d="M48 147L48 103L70 72L91 92L110 72L130 92L151 72L173 104V147Z"/>
+    <path fill="#fffdf3" d="M48 113L69 80L91 99L110 78L130 99L152 80L173 113L169 157H52Z"/>
+    <path fill="#f3b66b" stroke-width="3" d="M72 138Q93 123 111 137Q129 124 150 139L146 160H76Z"/>
+    <path fill="url(#barrel)" d="M15 122Q15 106 32 106H103Q115 106 115 122V145Q115 158 103 158H32Q15 158 15 145Z"/>
+    <ellipse cx="31" cy="132" rx="18" ry="26" fill="#18212a" stroke="#65727d" stroke-width="6"/>
+    <ellipse cx="31" cy="132" rx="9" ry="16" fill="#070d13" stroke="#aab5bd" stroke-width="2"/>
+    <path fill="url(#base)" d="M31 157H189L202 287H18Z"/>
+    <path fill="#d9c6a0" stroke-width="3" d="M21 189H199L194 286H26Z"/>
+    <path fill="#17171a" stroke="#3d342b" stroke-width="5" d="M68 287V225Q68 183 110 183Q152 183 152 225V287Z"/>
+    <path fill="none" stroke="#fff8df" stroke-width="5" d="M61 287V222Q61 174 110 174Q159 174 159 222V287"/>
+    <path fill="none" stroke="#8b5c34" stroke-width="3" d="M47 174H67M153 174H173M37 195H58M162 195H183M29 265H59M161 265H190"/>
+    <path fill="#fff8e6" stroke-width="3" d="M85 164H136L141 182H80Z"/>
+    <path fill="#2b2119" stroke-width="3" d="M98 165Q110 157 122 165L119 177H101Z"/>
+  </g>
+  <g fill="#d98b42" stroke="#9d6335" stroke-width="2">
+    <circle cx="52" cy="211" r="10"/><circle cx="177" cy="222" r="12"/><circle cx="45" cy="251" r="7"/><circle cx="178" cy="266" r="8"/><circle cx="151" cy="185" r="7"/>
+  </g>
+  <g fill="#fff" stroke="#302820" stroke-width="3">
+    <ellipse cx="91" cy="108" rx="5" ry="8"/><ellipse cx="128" cy="108" rx="5" ry="8"/>
+    <path fill="none" d="M102 125Q110 132 118 125"/>
+  </g>
+  <path fill="none" stroke="#302820" stroke-width="3" stroke-linecap="round" d="M109 122L109 129"/>
+</svg>
