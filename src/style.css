@@ -1855,3 +1855,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   opacity:1 !important;
   filter:none !important;
 }
+
+
+/* Make the unit portrait inside each deployment slot slightly larger. */
+.fight-screen .fight-unit-slot img {
+  transform:scale(1.14) !important;
+  transform-origin:center center !important;
+}
