@@ -2,7 +2,7 @@
   "name": "Tank Cat",
   "source": "The Spriters Resource — Tank Cat sprite sheet, 1366×457 PNG. Original Battle Cats artwork belongs to PONOS.",
   "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81253/",
-  "sourceImage": "https://www.spriters-resource.com/media/assets/78/81253.png?updated=1755474505",
+  "sourceImage": "Reference only — the local SVG files render independently.",
   "moving": [
     "Cats/tank-cat/moving/frame-001.svg",
     "Cats/tank-cat/moving/frame-002.svg",
@@ -27,5 +27,6 @@
   "damaged": "Cats/tank-cat/damaged/frame-001damaged.svg",
   "slot": "Cats/tank-cat/slot.svg",
   "upgrade": "Cats/tank-cat/upgrade.svg",
-  "attackSprite": null
+  "attackSprite": null,
+  "rendering": "Self-contained SVG sprites; no externally hosted image is required to display Tank Cat."
 }
