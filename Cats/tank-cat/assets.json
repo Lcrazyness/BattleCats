@@ -1,0 +1,31 @@
+{
+  "name": "Tank Cat",
+  "source": "The Spriters Resource — Tank Cat sprite sheet, 1366×457 PNG. Original Battle Cats artwork belongs to PONOS.",
+  "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81253/",
+  "sourceImage": "https://www.spriters-resource.com/media/assets/78/81253.png?updated=1755474505",
+  "moving": [
+    "Cats/tank-cat/moving/frame-001.svg",
+    "Cats/tank-cat/moving/frame-002.svg",
+    "Cats/tank-cat/moving/frame-003.svg"
+  ],
+  "attacks": [
+    "Cats/tank-cat/attack/frame-001attack.svg",
+    "Cats/tank-cat/attack/frame-002attack.svg",
+    "Cats/tank-cat/attack/frame-003attack.svg",
+    "Cats/tank-cat/attack/frame-004attack.svg"
+  ],
+  "attack": "Cats/tank-cat/attack/frame-001attack.svg",
+  "attackFrameRate": 8,
+  "attackDuration": 0.5,
+  "damagedFrames": [
+    "Cats/tank-cat/damaged/frame-001damaged.svg"
+  ],
+  "knockbackFrames": [
+    "Cats/tank-cat/damaged/frame-001damaged.svg"
+  ],
+  "idle": "Cats/tank-cat/moving/frame-001.svg",
+  "damaged": "Cats/tank-cat/damaged/frame-001damaged.svg",
+  "slot": "Cats/tank-cat/slot.svg",
+  "upgrade": "Cats/tank-cat/upgrade.svg",
+  "attackSprite": null
+}
