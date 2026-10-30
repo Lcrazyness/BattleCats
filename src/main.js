@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-31";
+const BATTLE_ASSET_VERSION = "20261029-34";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -390,9 +390,11 @@ githubAssetBase.href = GITHUB_ASSET_BASE_URL;
 const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 
 const LOADING_IMAGE_ASSETS = [
-  {path:"Levels/Korea/background.png?v=20261028-4",bytes:215583},
-  {path:"Levels/Korea/enemy-base.png?v=20261029-22",bytes:3125},
-  {path:"Levels/Korea/cat-base.png?v=20261029-22",bytes:70821},
+  {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
+  {path:"Levels/Korea/enemy-base.svg?v=20261029-34",bytes:5200},
+  {path:"sprites/battle/cat-base.svg?v=20261029-34",bytes:2400},
+  {path:"sprites/ui/worker-cat-wallet.svg?v=20261029-34",bytes:1000},
+  {path:"sprites/ui/cat-cannon.svg?v=20261029-34",bytes:1000},
   {path:"Cats/cat/moving/frame-001.png?v=20261029-31",bytes:7000},
   {path:"Cats/cat/moving/frame-002.png?v=20261029-31",bytes:7000},
   {path:"Cats/cat/attack/frame-001attack.png?v=20261029-31",bytes:16072},
@@ -979,7 +981,12 @@ function renderStage() {
 
 function defaultBattleLevelConfig(levelName="Korea") {
   return {
-    name:levelName,enemyBaseHealth:500,catBaseHealth:1000,initialSpawnDelay:2,
+    name:levelName,
+    background:"background.png",
+    enemyBase:"enemy-base.svg",
+    enemyBaseHealth:500,
+    catBaseHealth:1000,
+    initialSpawnDelay:2,
     enemySpawns:[{enemy:"doge",amount:18,startTime:2,intervalMin:5.5,intervalMax:9,spawnChance:0.82,maxAlive:3}]
   };
 }
@@ -1001,8 +1008,14 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     return {id:index,enemy,amount,startTime,intervalMin,intervalMax,spawnChance,maxAlive,spawned:0,nextAttemptAt:startTime};
   });
   const positive=(value,fallback)=>Number.isFinite(Number(value))&&Number(value)>0?Number(value):fallback;
+  const safeAssetFile=(value,fallback)=>{
+    const file=String(value||"").trim();
+    return /^[a-z0-9][a-z0-9._-]*\.(?:png|webp|svg)$/i.test(file) ? file : fallback;
+  };
   return {
     name:String(data.name||levelName),
+    background:safeAssetFile(data.background||data.backgroundFile,defaults.background),
+    enemyBase:safeAssetFile(data.enemyBase||data.enemyBaseFile,defaults.enemyBase),
     enemyBaseHealth:positive(data.enemyBaseHealth,defaults.enemyBaseHealth),
     catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth),
     initialSpawnDelay,enemySpawns
@@ -1031,6 +1044,8 @@ async function loadBattleLevelConfig() {
       battleState.catBaseHp=battleLevelConfig.catBaseHealth;
       battleState.catBaseMaxHp=battleLevelConfig.catBaseHealth;
       battleState.levelReady=false;
+      applyBattleLevelVisuals();
+      updateFightUI();
     }
     return battleLevelConfig;
   })();
@@ -1234,6 +1249,7 @@ function battleEntityMarkup(entity) {
 }
 function startBattleRuntime() {
   if (!battleState) battleState = createBattleState();
+  applyBattleLevelVisuals();
   loadBattleAssetManifests();
   if (battleTimer===null) battleTimer=setInterval(tickBattle,100);
   updateFightUI();
@@ -1340,6 +1356,25 @@ function battleRangePercent(range) {
   const screen=stage.querySelector(".fight-screen");
   const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
   return Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/width)*100));
+}
+function applyBattleLevelVisuals() {
+  if(scene!=="fight"||!battleState) return;
+  const levelName=battleState.levelName||battleLevelName||"Korea";
+  const config=battleState.levelConfig||defaultBattleLevelConfig(levelName);
+  const folder="Levels/"+levelName+"/";
+  const apply=(selector,file,label)=>{
+    const image=stage.querySelector(selector);
+    if(!image) return;
+    image.onerror=()=>{
+      image.onerror=null;
+      image.style.display="none";
+      console.warn("Battle Cats level "+label+" could not load:",folder+file);
+    };
+    image.style.display="";
+    image.src=battleAssetUrl(folder+file);
+  };
+  apply(".fight-background-art",config.background,"backdrop");
+  apply(".enemy-castle",config.enemyBase,"enemy base");
 }
 function attemptBattleEnemySpawn(state) {
   if(!state||!state.levelReady||state.enemyBaseHp<=0) return;
@@ -1687,7 +1722,8 @@ function updateFightUI() {
   const message=stage.querySelector(".fight-message");
   if (message) {
     const available=save.units.find(unit=>save.equipped.includes(unit.id) && state.money>=battleUnitStats(unit).price && Number(state.cooldowns[unit.id]||0)<=0.05);
-    message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "NO CAT UNITS READY";
+    message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "";
+    message.hidden=!state.ended&&!available;
   }
 }
 
@@ -1695,6 +1731,12 @@ function renderFight() {
   if (!battleState) battleState=createBattleState();
   const selectedLevel=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
   const levelFolder="Levels/"+selectedLevel.name;
+  const levelConfig=battleState.levelConfig||defaultBattleLevelConfig(selectedLevel.name);
+  const levelBackgroundUrl=battleAssetUrl(levelFolder+"/"+levelConfig.background);
+  const enemyBaseUrl=battleAssetUrl(levelFolder+"/"+levelConfig.enemyBase);
+  const catBaseUrl=battleAssetUrl("sprites/battle/cat-base.svg");
+  const walletImageUrl=battleAssetUrl("sprites/ui/worker-cat-wallet.svg");
+  const cannonImageUrl=battleAssetUrl("sprites/ui/cat-cannon.svg");
   const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
     const cost=battleUnitStats(unit).price
     const cooldown=Number(battleState.cooldowns[unit.id]||0);
@@ -1707,27 +1749,29 @@ function renderFight() {
   }).join("");
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
   return '<section class="screen fight-screen" aria-label="' + selectedLevel.name + ' battle">'+
-    '<img class="fight-background-art" src="' + levelFolder + '/background.png?v=20261029-22" alt="" draggable="false">'+
+    '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
     '<div class="fight-battle-controls">'+
       '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
       '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
-        '<span>WALLET</span><strong class="fight-worker-cat-level">LEVEL 1</strong>'+
-        '<div class="fight-worker-bar"><span style="width:33%"></span></div>'+
-        '<small class="fight-worker-cost">UPGRADE 50¢</small></button>'+
+        '<img class="fight-worker-icon" src="' + walletImageUrl + '" alt="" draggable="false">'+
+        '<span class="fight-worker-details"><span class="fight-worker-heading">WALLET</span>'+
+        '<strong class="fight-worker-cat-level">LEVEL 1</strong>'+
+        '<span class="fight-worker-bar"><span style="width:33%"></span></span>'+
+        '<small class="fight-worker-cost">UPGRADE 50¢</small></span></button>'+
     '</div>'+
     '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
     '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
-    '<img class="fight-base enemy-castle" src="' + levelFolder + '/enemy-base.png?v=20261029-22" alt="" draggable="false" onerror="this.onerror=null;this.src=\'Levels/Korea/enemy-base.png?v=20261029-22\'">'+
+    '<img class="fight-base enemy-castle" src="' + enemyBaseUrl + '" alt="" draggable="false">'+
     
     
-    '<img class="fight-base player-castle" src="' + levelFolder + '/cat-base.png?v=20261029-22" alt="" draggable="false" onerror="this.style.display=\'none\'">'+
+    '<img class="fight-base player-castle" src="' + catBaseUrl + '" alt="" draggable="false">'+
     '<div class="fight-unit-layer">'+entities+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
       '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
-      '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><span>◉</span><small>CANNON</small></button>'+
+      '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
     '</footer>'+
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
   '</section>';
