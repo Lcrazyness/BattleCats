@@ -23,5 +23,8 @@
   "idle": "enemys/doge/idle.png",
   "damaged": "enemys/doge/damaged/frame-001.png",
   "slot": "enemys/doge/slot.png",
-  "upgrade": null
+  "upgrade": null,
+  "attackSprite": null,
+  "attackFrameRate": 8,
+  "attackDuration": 0.5
 }
