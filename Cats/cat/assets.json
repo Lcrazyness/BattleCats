@@ -21,5 +21,8 @@
   "idle": "Cats/cat/idle.png",
   "damaged": "Cats/cat/damaged/frame-001damaged.png",
   "slot": "Cats/cat/slot.png",
-  "upgrade": "Cats/cat/upgrade.png"
+  "upgrade": "Cats/cat/upgrade.png",
+  "attackSprite": null,
+  "attackFrameRate": 6,
+  "attackDuration": 0.67
 }
