@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="Worker Cat wallet icon">
+  <defs><linearGradient id="purse" x2="0" y2="1"><stop stop-color="#f5c65d"/><stop offset="1" stop-color="#a85b24"/></linearGradient></defs>
+  <g stroke="#241b17" stroke-width="5" stroke-linejoin="round">
+    <path fill="#fffaf0" d="M13 47L9 14L36 28Q58 14 81 29L109 13L105 51Q112 68 94 78H26Q8 68 13 47Z"/>
+    <ellipse cx="40" cy="48" rx="5" ry="8" fill="#161311" stroke="none"/>
+    <ellipse cx="79" cy="48" rx="5" ry="8" fill="#161311" stroke="none"/>
+    <path d="M51 60Q60 66 69 60" fill="none"/>
+    <path fill="#fff" stroke-width="2" d="M54 55L60 58L66 55L61 64Z"/>
+    <path fill="url(#purse)" d="M29 72Q60 62 91 72L96 92H24Z"/>
+    <path fill="#ffe38a" stroke-width="3" d="M31 74Q60 68 89 74L88 81H32Z"/>
+    <path fill="none" stroke="#593016" stroke-width="3" d="M46 82H74"/>
+  </g>
+  <circle cx="97" cy="19" r="13" fill="#ffdf45" stroke="#593016" stroke-width="3"/>
+  <path d="M97 10V28M92 14Q97 9 102 14M92 24Q97 29 102 24" fill="none" stroke="#8b4c16" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
