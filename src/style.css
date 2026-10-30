@@ -1589,3 +1589,9 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .fight-worker-cat { gap:4px; cursor:pointer; }
 .fight-screen .fight-worker-cat:disabled { cursor:not-allowed; filter:grayscale(.25) brightness(.88); }
 .fight-screen .fight-worker-cost { font:900 clamp(7px,.75vw,10px)/1 Arial,sans-serif; white-space:nowrap; }
+
+
+/* Cat idle art has a slightly larger transparent canvas than its walk frames. */
+.fight-screen .fight-unit-cat.is-idle .fight-unit-sprite {
+  scale:0.62 !important;
+}
