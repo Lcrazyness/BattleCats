@@ -1598,7 +1598,7 @@ function tickBattle() {
     else cat.mode="idle";
 
     const target=state.enemies
-      .filter(enemy=>enemy.hp>0 && enemy.mode!=="dead" && enemy.x<cat.x+0.5)
+      .filter(enemy=>enemy.hp>0 && enemy.mode!=="dead")
       .sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
 
     if (target) {
@@ -1616,7 +1616,7 @@ function tickBattle() {
         const desiredStop=Math.max(enemyBaseStop,target.x+reach);
         cat.mode="moving";
         cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
-      } else {
+      } else if (distance < -1) {
         const desiredStop=Math.min(catHomeCenter,target.x+reach);
         cat.mode="moving";
         cat.x=Math.min(desiredStop,cat.x+(cat.speed*0.45)*dt);
@@ -1645,7 +1645,7 @@ function tickBattle() {
     else enemy.mode="idle";
 
     const target=state.playerUnits
-      .filter(cat=>cat.hp>0 && cat.mode!=="dead" && cat.x>enemy.x+0.5)
+      .filter(cat=>cat.hp>0 && cat.mode!=="dead")
       .sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
     const enemyDistance=target?target.x-enemy.x:Infinity;
     const enemyReach=battleRangePercent(enemy.range);
