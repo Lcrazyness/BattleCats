@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-44";
+const BATTLE_ASSET_VERSION = "20261029-45";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -54,6 +54,7 @@ const BATTLE_UNIT_STATS = {
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:8,range:55,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "tank-cat": {health:300,damage:18,price:150,speed:6,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:110,recharge:6,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
+const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
   const value = typeof unitOrName === "string" ? unitOrName :
     (unitOrName && (unitOrName.enemyType || unitOrName.statsKey || unitOrName.assetFolder || unitOrName.spriteFolder || unitOrName.name || unitOrName.kind)) || "cat";
@@ -63,7 +64,9 @@ function battleUnitStats(unitOrKey) {
   const isObject = unitOrKey && typeof unitOrKey === "object";
   const unit = isObject ? unitOrKey : {};
   const key = isObject && unit.kind === "doge" ? battleUnitKey(unit.enemyType || "doge") : battleUnitKey(unitOrKey);
-  const config = BATTLE_UNIT_STATS[key] || {};
+  const config = (isObject && unit.id!==undefined && unit.id!==null
+    ? BATTLE_UNIT_STATS_BY_ID.get(String(unit.id))
+    : null) || BATTLE_UNIT_STATS[key] || {};
   const positive = (value,fallback,min=0.1) => {
     const number = Number(value);
     return Number.isFinite(number) && number >= min ? number : fallback;
@@ -91,6 +94,7 @@ function battleUnitStats(unitOrKey) {
     killReward:positive(config.killReward,positive(unit.killReward,25))
   };
 }
+
 function applyBattleStatsToEntity(entity,unitOrKey) {
   const stats = battleUnitStats(unitOrKey || entity);
   const oldMax = Math.max(1,Number(entity.maxHp)||stats.health);
@@ -102,6 +106,8 @@ function applyBattleStatsToEntity(entity,unitOrKey) {
   entity.spriteChangeSpeed = stats.spriteChangeSpeed;
   entity.walkSpriteChangeSpeed = stats.walkSpriteChangeSpeed;
   entity.range = stats.range;
+  entity.attackCooldown = stats.attackCooldown;
+  entity.recharge = stats.recharge;
   entity.knockbackThresholdPercent = stats.knockbackThresholdPercent;
   entity.knockbackDurationSetting = stats.knockbackDuration;
   entity.knockbackDistanceSetting = stats.knockbackDistance;
@@ -1091,7 +1097,7 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
   return {
     key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
     range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,walkSpriteChangeSpeed:stats.walkSpriteChangeSpeed,
-    mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt,killReward:stats.killReward,
+    attackCooldown:stats.attackCooldown,mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt,killReward:stats.killReward,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
     nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0,
@@ -1113,17 +1119,16 @@ function createBattleState() {
 function loadBattleAssetManifests() {
   if(battleAssetsPromise) return battleAssetsPromise;
   const assetRequests=[["cat","Cats/cat/assets.json"],["doge","enemys/doge/assets.json"]];
-  const statPaths=new Map();
+  const statRequests=[];
   save.units.forEach(unit=>{
     const key=battleUnitKey(unit);
     const folder=unit.assetFolder||unit.spriteFolder||key;
-    statPaths.set(key,unit.statsPath||"Cats/"+folder+"/stats.json");
+    statRequests.push({id:String(unit.id),key,path:unit.statsPath||"Cats/"+folder+"/stats.json"});
     if(key!=="cat"&&key!=="doge") {
       if(!assetRequests.some(([kind])=>kind===key)) assetRequests.push([key,unit.assetsPath||"Cats/"+folder+"/assets.json"]);
       if(!BATTLE_ASSETS[key]) BATTLE_ASSETS[key]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+folder+"/slot.svg"};
     }
   });
-  statPaths.set("doge","enemys/doge/stats.json");
   const assetJobs=assetRequests.map(async([kind,path])=>{
     try {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
@@ -1145,12 +1150,14 @@ function loadBattleAssetManifests() {
       if(data.upgrade&&kind==="cat") current.upgrade=data.upgrade;
     } catch(error) { console.warn("Battle Cats sprite manifest could not load:",path,error); }
   });
-  const statJobs=[...statPaths.entries()].map(async([key,path])=>{
+  const statJobs=statRequests.map(async({id,key,path})=>{
     try {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if(!response.ok) return;
       const data=await response.json();
-      if(data&&typeof data==="object") BATTLE_UNIT_STATS[key]={...(BATTLE_UNIT_STATS[key]||{}),...data};
+      if(data&&typeof data==="object") {
+        BATTLE_UNIT_STATS_BY_ID.set(id,{...(BATTLE_UNIT_STATS[key]||{}),...data});
+      }
     } catch(error) { console.warn("Battle Cats unit stats could not load:",path,error); }
   });
   battleAssetsPromise=Promise.all([...assetJobs,...statJobs]).then(async()=>{
@@ -1278,6 +1285,20 @@ function battleImageFor(entity) {
 function findBattleEntity(key) {
   if (!battleState) return null;
   return [...battleState.playerUnits,...battleState.enemies].find(entity=>entity.key===key) || null;
+}
+
+function battleTargetGap(attacker,target) {
+  if(!attacker||!target) return Infinity;
+  return attacker.kind==="cat" ? Number(attacker.x)-Number(target.x) : Number(target.x)-Number(attacker.x);
+}
+function findBattleTargetFor(attacker) {
+  if(!battleState||!attacker) return null;
+  const candidates=attacker.kind==="cat" ? battleState.enemies : battleState.playerUnits;
+  return candidates
+    .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead"&&target.mode!=="knockback")
+    .map(target=>({target,gap:battleTargetGap(attacker,target)}))
+    .filter(item=>item.gap>=-1)
+    .sort((a,b)=>a.gap-b.gap)[0]?.target||null;
 }
 function battleEntityMarkup(entity) {
   const source=battleImageFor(entity);
@@ -1437,7 +1458,7 @@ function spawnPlayerCat(unit) {
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
     x:battleBaseCenterPercent("cat"),formationSlot:battleState.playerUnits.length,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
-    speed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,mode:"moving",attackTimer:0,
+    speed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,recharge:stats.recharge,mode:"moving",attackTimer:0,
     animUntil:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
@@ -1571,26 +1592,35 @@ function resolvePendingBattleAttacks(now) {
   if (!battleState) return;
   const entities=[...(battleState.playerUnits||[]),...(battleState.enemies||[])];
   for (const attacker of entities) {
-    if (!Number(attacker.pendingAttackAt) || now+0.0001<attacker.pendingAttackAt) continue;
+    const strikeAt=Number(attacker.pendingAttackAt)||0;
+    if (!strikeAt || now+0.0001<strikeAt) continue;
     const targetKey=attacker.pendingAttackTargetKey;
     const baseTarget=attacker.pendingAttackBase;
-    const damage=attacker.pendingAttackDamage;
+    const damage=Number(attacker.pendingAttackDamage)||Number(attacker.attackPower)||8;
     attacker.pendingAttackAt=0;
     attacker.pendingAttackTargetKey="";
     attacker.pendingAttackBase="";
-    if (attacker.mode==="dead" || attacker.mode==="knockback") continue;
-    if (targetKey) {
-      const target=findBattleEntity(targetKey);
-      if (target && target.hp>0 && target.mode!=="dead") {
-        resolveBattleAttackOnce(attacker,target,damage,now);
+    if (attacker.mode==="dead" || attacker.mode==="knockback" || Number(attacker.hp)<=0) continue;
+
+    if(targetKey) {
+      const lockedTarget=findBattleEntity(targetKey);
+      if(lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead"&&lockedTarget.mode!=="knockback") {
+        resolveBattleAttackOnce(attacker,lockedTarget,damage,now);
+      } else {
+        const replacement=findBattleTargetFor(attacker);
+        const reach=battleRangePercent(attacker.range);
+        if(replacement&&battleTargetGap(attacker,replacement)<=reach+0.5) {
+          resolveBattleAttackOnce(attacker,replacement,damage,now);
+        }
       }
-    } else if (baseTarget && attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
+    } else if(baseTarget&&attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
       attacker.lastResolvedAttackCycle=attacker.attackCycleId;
-      if (baseTarget==="enemy") battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-damage);
+      if(baseTarget==="enemy") battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-damage);
       else battleState.catBaseHp=Math.max(0,battleState.catBaseHp-damage);
     }
   }
 }
+
 function attackBattleBase(attacker,now) {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" || Number(attacker.attackTimer)>0.001) return false;
   const baseTarget=attacker.kind==="cat"?"enemy":"cat";
@@ -1601,7 +1631,7 @@ function attackBattleBase(attacker,now) {
     : (attacker.enemyType || "doge");
   const stats=battleUnitStats(unit);
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
-  return startBattleAttack(attacker,now,stats.attackCooldown,duration,null,baseTarget);
+  return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
 }
 function tickBattle() {
   if (scene!=="fight" || !battleState || battleState.ended) return;
@@ -1630,29 +1660,23 @@ function tickBattle() {
     else if (cat.animUntil>now) cat.mode="attack";
     else cat.mode="idle";
 
-    const target=state.enemies
-      .filter(enemy=>enemy.hp>0 && enemy.mode!=="dead")
-      .sort((a,b)=>Math.abs(cat.x-a.x)-Math.abs(cat.x-b.x))[0];
+    const target=findBattleTargetFor(cat);
 
     if (target) {
-      const distance=cat.x-target.x;
+      const distance=battleTargetGap(cat,target);
       const reach=battleRangePercent(cat.range);
-      if (distance>=-1 && distance<=reach) {
+      if (distance<=reach) {
         const catUnit=save.units.find(unit=>String(unit.id)===String(cat.unitId))||"cat";
         const catStats=battleUnitStats(catUnit);
         const attackDuration=battleAttackAnimationDuration(cat,0.62);
-        if (cat.attackTimer<=0 && startBattleAttack(cat,now,catStats.attackCooldown,attackDuration,target)) {
+        if (cat.attackTimer<=0&&startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target)) {
         } else if (!(cat.animUntil>now)) {
           cat.mode="idle";
         }
-      } else if (distance>reach) {
+      } else {
         const desiredStop=Math.max(enemyBaseStop,target.x+reach);
         cat.mode="moving";
         cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
-      } else if (distance < -1) {
-        const desiredStop=Math.min(catHomeCenter,target.x+reach);
-        cat.mode="moving";
-        cat.x=Math.min(desiredStop,cat.x+(cat.speed*0.45)*dt);
       }
       cat.x=Math.max(enemyBaseStop,Math.min(catHomeCenter,cat.x));
     } else if (state.enemyBaseHp>0) {
@@ -1677,27 +1701,21 @@ function tickBattle() {
     else if (enemy.animUntil>now) enemy.mode="attack";
     else enemy.mode="idle";
 
-    const target=state.playerUnits
-      .filter(cat=>cat.hp>0 && cat.mode!=="dead")
-      .sort((a,b)=>Math.abs(a.x-enemy.x)-Math.abs(b.x-enemy.x))[0];
-    const enemyDistance=target?target.x-enemy.x:Infinity;
+    const target=findBattleTargetFor(enemy);
+    const enemyDistance=target?battleTargetGap(enemy,target):Infinity;
     const enemyReach=battleRangePercent(enemy.range);
 
-    if (target && enemyDistance>=-1 && enemyDistance<=enemyReach) {
+    if(target&&enemyDistance<=enemyReach) {
       const enemyStats=battleUnitStats(enemy.enemyType||"doge");
       const attackDuration=battleAttackAnimationDuration(enemy,0.55);
-      if (enemy.attackTimer<=0 && startBattleAttack(enemy,now,enemyStats.attackCooldown,attackDuration,target)) {
-      } else if (!(enemy.animUntil>now)) {
+      if(enemy.attackTimer<=0&&startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target)) {
+      } else if(!(enemy.animUntil>now)) {
         enemy.mode="idle";
       }
-    } else if (target && enemyDistance>enemyReach) {
+    } else if(target&&enemyDistance>enemyReach) {
       const desiredStop=Math.min(catBaseStop,target.x-enemyReach);
       enemy.mode="moving";
       enemy.x=Math.min(desiredStop,enemy.x+Number(enemy.speed||2.8)*dt);
-    } else if (target && enemyDistance < -1) {
-      const desiredStop=Math.max(enemyHomeCenter,target.x-enemyReach);
-      enemy.mode="moving";
-      enemy.x=Math.max(desiredStop,enemy.x-Number(enemy.speed||2.8)*dt);
     }
 
     if (target) {
