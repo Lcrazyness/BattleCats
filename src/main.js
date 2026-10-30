@@ -35,15 +35,15 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-27";
+const BATTLE_ASSET_VERSION = "20261029-28";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
-  cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
-  doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
+  cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
+  doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:140,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  doge: {health:90,damage:8,speed:2.8,spriteChangeSpeed:8,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:55,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  doge: {health:90,damage:8,speed:2.8,spriteChangeSpeed:8,range:55,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 function battleUnitKey(unitOrName) {
   const value = typeof unitOrName === "string" ? unitOrName :
@@ -1077,7 +1077,11 @@ function loadBattleAssetManifests() {
       const data=await response.json();
       const current=BATTLE_ASSETS[kind];
       if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
-      if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+      if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
+      else if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+      if(typeof data.attackSprite==="string") current.attackSprite=data.attackSprite;
+      if(Number.isFinite(Number(data.attackFrameRate))&&Number(data.attackFrameRate)>=1) current.attackFrameRate=Math.min(30,Number(data.attackFrameRate));
+      if(Number.isFinite(Number(data.attackDuration))&&Number(data.attackDuration)>=0.1) current.attackDuration=Math.min(5,Number(data.attackDuration));
       if(Array.isArray(data.damagedFrames)) current.damagedFrames=data.damagedFrames;
       if(Array.isArray(data.knockbackFrames)) current.knockbackFrames=data.knockbackFrames;
       if(data.idle) current.idle=data.idle;
@@ -1109,7 +1113,11 @@ function loadBattleAssetManifests() {
             if(!response.ok) return;
             const data=await response.json();
             if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
-            if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+            if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
+      else if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+      if(typeof data.attackSprite==="string") current.attackSprite=data.attackSprite;
+      if(Number.isFinite(Number(data.attackFrameRate))&&Number(data.attackFrameRate)>=1) current.attackFrameRate=Math.min(30,Number(data.attackFrameRate));
+      if(Number.isFinite(Number(data.attackDuration))&&Number(data.attackDuration)>=0.1) current.attackDuration=Math.min(5,Number(data.attackDuration));
             if(Array.isArray(data.damagedFrames)) current.damagedFrames=data.damagedFrames;
             if(Array.isArray(data.knockbackFrames)) current.knockbackFrames=data.knockbackFrames;
             if(data.idle) current.idle=data.idle;
@@ -1175,7 +1183,8 @@ function battleImageFor(entity) {
   const assets=BATTLE_ASSETS[assetKey] || (entity.kind==="cat"?BATTLE_ASSETS.cat:BATTLE_ASSETS.doge);
   const statsSource=entity.kind==="cat" ? (catUnit||"cat") : (entity.enemyType||"doge");
   const elapsed=battleState?battleState.elapsed:0;
-  const frameRate=entity.mode==="attack" ? BATTLE_ATTACK_FRAME_RATE : Math.max(0.5,Number(entity.spriteChangeSpeed||battleUnitStats(statsSource).spriteChangeSpeed||8));
+  const configuredAttackRate=Math.max(1,Math.min(30,Number(assets.attackFrameRate)||BATTLE_ATTACK_FRAME_RATE));
+  const frameRate=entity.mode==="attack" ? configuredAttackRate : Math.max(0.5,Number(entity.spriteChangeSpeed||battleUnitStats(statsSource).spriteChangeSpeed||8));
   if(entity.mode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
   if(entity.mode==="dead"||entity.mode==="knockback") {
     const frames=assets.knockbackFrames&&assets.knockbackFrames.length?assets.knockbackFrames:(assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[]);
@@ -1183,6 +1192,7 @@ function battleImageFor(entity) {
     return battleAssetUrl(assets.damaged||assets.idle||"");
   }
   if(entity.mode==="attack") {
+    if(typeof assets.attackSprite==="string"&&assets.attackSprite.trim()) return battleAssetUrl(assets.attackSprite);
     const frames=Array.isArray(assets.attacks)?assets.attacks:[];
     if(frames.length) {
       const attackStartedAt=Number.isFinite(Number(entity.attackStartedAt))?Number(entity.attackStartedAt):elapsed;
@@ -1263,6 +1273,12 @@ function updateBattleEntityView(entity) {
   const sprite = element.querySelector(".fight-unit-sprite");
   const source = battleImageFor(entity);
   if (!sprite) return;
+  if (entity.mode==="attack") {
+    const duration=Math.max(0.1,Number(entity.animUntil)-Number(entity.attackStartedAt));
+    sprite.style.setProperty("--battle-attack-duration",duration+"s");
+  } else {
+    sprite.style.removeProperty("--battle-attack-duration");
+  }
   if (entity.mode==="knockback") {
     const duration = Math.max(0.2,Number(entity.knockbackDuration)||Number(entity.knockbackDurationSetting)||0.64);
     sprite.style.setProperty("--battle-knockback-duration",(duration*1000)+"ms");
@@ -1446,7 +1462,9 @@ function battleAttackAnimationDuration(attacker,fallbackDuration=0.6) {
   const key=battleUnitKey(unit);
   const assets=BATTLE_ASSETS[key] || (attacker.kind==="cat" ? BATTLE_ASSETS.cat : BATTLE_ASSETS.doge);
   const frames=Array.isArray(assets.attacks) ? assets.attacks : [];
-  return frames.length ? frames.length/BATTLE_ATTACK_FRAME_RATE : fallbackDuration;
+  if(typeof assets.attackSprite==="string"&&assets.attackSprite.trim()) return Math.max(0.1,Number(assets.attackDuration)||fallbackDuration);
+  const frameRate=Math.max(1,Math.min(30,Number(assets.attackFrameRate)||BATTLE_ATTACK_FRAME_RATE));
+  return frames.length ? frames.length/frameRate : Math.max(0.1,Number(assets.attackDuration)||fallbackDuration);
 }
 function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,baseTarget="") {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" ||
@@ -1661,7 +1679,7 @@ function updateFightUI() {
   const message=stage.querySelector(".fight-message");
   if (message) {
     const available=save.units.find(unit=>save.equipped.includes(unit.id) && state.money>=battleUnitStats(unit).price && Number(state.cooldowns[unit.id]||0)<=0.05);
-    message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "COLLECTING MONEY · "+Math.floor(state.money)+"¢";
+    message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "NO CAT UNITS READY";
   }
 }
 
@@ -1683,12 +1701,7 @@ function renderFight() {
   return '<section class="screen fight-screen" aria-label="' + selectedLevel.name + ' battle">'+
     '<img class="fight-background-art" src="' + levelFolder + '/background.png?v=20261029-22" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
-    '<header class="fight-topbar">'+
-      '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
-      '<div class="fight-stage-label"><strong>EMPIRE OF CATS</strong><span>' + selectedLevel.name.toUpperCase() + ' · CHAPTER 1</span></div>'+
-      '<div class="fight-timer">00:00</div>'+
-      '<div class="fight-money"><span>MONEY</span><strong class="fight-money-value">50/150¢</strong></div>'+
-    '</header>'+
+    '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
     '<div class="fight-base-hud fight-enemy-hud"><span>ENEMY BASE</span><strong class="fight-enemy-hp">500 / 500</strong><div class="fight-enemy-hp-bar"><span style="width:100%"></span></div></div>'+
     '<div class="fight-base-hud fight-player-hud"><span>CAT BASE</span><strong class="fight-cat-hp">1000 / 1000</strong><div class="fight-cat-hp-bar"><span style="width:100%"></span></div></div>'+
     '<img class="fight-base enemy-castle" src="' + levelFolder + '/enemy-base.png?v=20261029-22" alt="" draggable="false" onerror="this.onerror=null;this.src=\'Levels/Korea/enemy-base.png?v=20261029-22\'">'+
@@ -1698,10 +1711,6 @@ function renderFight() {
     '<div class="fight-unit-layer">'+entities+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
-      '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
-        '<span>WALLET</span><strong class="fight-worker-cat-level">LEVEL 1</strong>'+
-        '<div class="fight-worker-bar"><span style="width:33%"></span></div>'+
-        '<small class="fight-worker-cost">UPGRADE 50¢</small></button>'+
       '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><span>◉</span><small>CANNON</small></button>'+
     '</footer>'+
