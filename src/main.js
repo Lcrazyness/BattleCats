@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261029-22";
+const BATTLE_ASSET_VERSION = "20261029-23";
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"}
@@ -386,21 +386,21 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261028-4",bytes:215583},
   {path:"Levels/Korea/enemy-base.png?v=20261029-22",bytes:3125},
   {path:"Levels/Korea/cat-base.png?v=20261029-22",bytes:70821},
-  {path:"Cats/cat/moving/frame-001.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/moving/frame-002.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/moving/frame-003.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/attack/frame-001.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/attack/frame-002.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/attack/frame-003.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/damaged/frame-001.png?v=20261029-21",bytes:7000},
-  {path:"Cats/cat/slot.png?v=20261029-21",bytes:9000},
-  {path:"Cats/cat/upgrade.png?v=20261029-21",bytes:9000},
-  {path:"enemys/doge/moving/frame-001.png?v=20261029-21",bytes:9000},
-  {path:"enemys/doge/attack/frame-001.png?v=20261029-21",bytes:9000},
-  {path:"enemys/doge/attack/frame-002.png?v=20261029-21",bytes:9000},
-  {path:"enemys/doge/attack/frame-003.png?v=20261029-21",bytes:9000},
-  {path:"enemys/doge/damaged/frame-001.png?v=20261029-21",bytes:9000},
-  {path:"enemys/doge/slot.png?v=20261029-21",bytes:9000},
+  {path:"Cats/cat/moving/frame-001.png?v=20261029-23",bytes:7000},
+  {path:"Cats/cat/moving/frame-002.png?v=20261029-23",bytes:7000},
+  {path:"Cats/cat/attack/frame-001attack.png?v=20261029-23",bytes:16072},
+  {path:"Cats/cat/attack/frame-002attack.png?v=20261029-23",bytes:16117},
+  {path:"Cats/cat/attack/frame-003attack.png?v=20261029-23",bytes:13263},
+  {path:"Cats/cat/attack/frame-004attack.png?v=20261029-23",bytes:13433},
+  {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-23",bytes:17381},
+  {path:"Cats/cat/slot.png?v=20261029-23",bytes:9000},
+  {path:"Cats/cat/upgrade.png?v=20261029-23",bytes:9000},
+  {path:"enemys/doge/moving/frame-001.png?v=20261029-23",bytes:9000},
+  {path:"enemys/doge/attack/frame-001.png?v=20261029-23",bytes:9000},
+  {path:"enemys/doge/attack/frame-002.png?v=20261029-23",bytes:9000},
+  {path:"enemys/doge/attack/frame-003.png?v=20261029-23",bytes:9000},
+  {path:"enemys/doge/damaged/frame-001.png?v=20261029-23",bytes:9000},
+  {path:"enemys/doge/slot.png?v=20261029-23",bytes:9000},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -1149,7 +1149,13 @@ function loadBattleAssetManifests() {
 }
 function battleAssetUrl(path) {
   if (!path) return "";
-  return /[?&]v=/.test(path) ? path : path+"?v="+BATTLE_ASSET_VERSION;
+  try {
+    const url=new URL(path,APP_BASE_URL);
+    if (!url.searchParams.has("v")) url.searchParams.set("v",BATTLE_ASSET_VERSION);
+    return url.href;
+  } catch {
+    return path;
+  }
 }
 function battleSlotImage(unit) {
   const key = unit.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
@@ -1185,7 +1191,7 @@ function battleImageFor(entity) {
     return battleAssetUrl(assets.damaged||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
   if(entity.kind==="cat"&&entity.mode==="moving") {
-    const walkingFrames=[assets.moving&&assets.moving[0],assets.moving&&assets.moving[1],assets.idle].filter(path=>typeof path==="string"&&path.length>0);
+    const walkingFrames=(Array.isArray(assets.moving)?assets.moving:[]).filter(path=>typeof path==="string"&&path.length>0);
     if(walkingFrames.length) {
       const walkRate=Math.max(0.5,Number(entity.walkSpriteChangeSpeed||battleUnitStats("cat").walkSpriteChangeSpeed||2.5));
       const walkStart=Number.isFinite(Number(entity.walkStartedAt))?Number(entity.walkStartedAt):elapsed;
@@ -1237,6 +1243,7 @@ function updateBattleEntityView(entity) {
   if (!element) return;
   element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
   element.classList.toggle("is-attacking",entity.mode==="attack");
+  element.classList.toggle("is-idle",entity.mode==="idle");
   element.classList.toggle("is-damaged",entity.mode==="damaged");
   element.classList.toggle("is-knockback",entity.mode==="knockback");
   element.classList.toggle("is-dead",entity.mode==="dead");
@@ -1255,7 +1262,27 @@ function updateBattleEntityView(entity) {
   sprite.style.visibility="";
   if (sprite.dataset.activeSource!==source) {
     sprite.dataset.activeSource=source;
-    sprite.onerror=()=>{sprite.onerror=null;sprite.classList.add("sprite-load-failed");};
+    sprite.dataset.fallbackTried="";
+    sprite.classList.remove("sprite-load-failed");
+    sprite.onload=()=>{
+      sprite.classList.remove("sprite-load-failed");
+      sprite.style.visibility="";
+      sprite.dataset.fallbackTried="";
+    };
+    sprite.onerror=()=>{
+      if (!sprite.dataset.fallbackTried) {
+        sprite.dataset.fallbackTried="1";
+        try {
+          const fallbackUrl=new URL(source);
+          fallbackUrl.search="";
+          sprite.src=fallbackUrl.href;
+          return;
+        } catch {}
+      }
+      sprite.onerror=null;
+      sprite.classList.add("sprite-load-failed");
+      console.warn("Battle Cats sprite could not load:",source);
+    };
     sprite.src=source;
   }
 }
