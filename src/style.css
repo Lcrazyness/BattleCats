@@ -2313,3 +2313,9 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     padding:4px 8px !important;
   }
 }
+
+
+/* Tank Cat uses standalone local SVG art and needs a slightly larger battlefield scale. */
+.fight-screen .fight-unit-cat .fight-unit-sprite[src*="/Cats/tank-cat/"] {
+  scale:0.86 !important;
+}
