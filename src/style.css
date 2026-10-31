@@ -2676,3 +2676,51 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .base-footer-art {
   z-index:12;
 }
+
+
+/* Larger, higher-contrast Cat Base currency values and left-shifted Store. */
+.base-sprite-button.base-store {
+  left:47.5%;
+  width:22%;
+}
+.base-xp-count {
+  z-index:13;
+  right:1.2%;
+  width:18%;
+  height:7.4%;
+  font-size:clamp(15px,2.55vw,31px);
+  color:#fffbdc;
+  -webkit-text-stroke:1.25px #2c160c;
+  text-shadow:2px 2px 0 #2c160c,0 0 3px #2c160c;
+}
+.base-sprite-button.base-cat-food .base-cat-food-count {
+  z-index:13;
+  right:1.8%;
+  width:50%;
+  height:72%;
+  font-size:clamp(13px,2.25vw,27px);
+  color:#fffbdc;
+  -webkit-text-stroke:1.2px #2c160c;
+  text-shadow:2px 2px 0 #2c160c,0 0 3px #2c160c;
+}
+@media(max-width:600px) {
+  .base-sprite-button.base-store {
+    left:45%;
+    width:24%;
+  }
+  .base-xp-count {
+    right:.8%;
+    width:19%;
+    height:7.4%;
+    font-size:clamp(12px,3vw,18px);
+    -webkit-text-stroke:.85px #2c160c;
+    text-shadow:1.4px 1.4px 0 #2c160c,0 0 2px #2c160c;
+  }
+  .base-sprite-button.base-cat-food .base-cat-food-count {
+    right:1.3%;
+    width:52%;
+    font-size:clamp(11px,2.8vw,17px);
+    -webkit-text-stroke:.8px #2c160c;
+    text-shadow:1.4px 1.4px 0 #2c160c,0 0 2px #2c160c;
+  }
+}
