@@ -2598,12 +2598,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 
-/* Align the matching Cat Base door panels to the outer sides. */
+/* Expand the matching doors to meet in the middle, underneath the HUD bars. */
 .base-door-sprite {
-  top:10.15%;
+  z-index:1;
+  top:0;
   bottom:auto;
-  width:32.5%;
-  height:80.57%;
+  width:50%;
+  height:100%;
   object-fit:fill;
 }
 .base-door-left {
