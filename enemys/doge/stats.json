@@ -4,7 +4,7 @@
   "damage": 4,
   "speed": 2.8,
   "range": 85,
-  "spriteChangeSpeed": 8,
+  "spriteChangeSpeed": 5,
   "killReward": 25,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
