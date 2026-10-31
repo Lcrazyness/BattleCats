@@ -12,8 +12,8 @@
     "Cats/tank-cat/attack/frame-004attack.png"
   ],
   "attack": "Cats/tank-cat/attack/frame-001attack.png",
-  "attackFrameRate": 8,
-  "attackDuration": 0.5,
+  "attackFrameRate": 6,
+  "attackDuration": 0.67,
   "damagedFrames": [
     "Cats/tank-cat/damaged/frame-001damaged.png"
   ],
