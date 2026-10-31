@@ -1800,14 +1800,6 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 
 
-/* Spawn Cats and enemies centered on top of their own base, then walk them onto the field. */
-.fight-screen .fight-unit-layer {
-  z-index: auto !important;
-}
-.fight-screen .fight-unit {
-  z-index: 6 !important;
-}
-
 /* One attack animation per hit; the old rule repeated it twice. */
 .fight-screen .fight-unit.is-attacking .fight-unit-sprite {
   animation: fight-unit-attack var(--battle-attack-duration,.4s) ease-in-out 1 normal both !important;
@@ -2316,27 +2308,12 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 
 
-/* Tank Cat uses the same display scale and contain-fit as the regular Cat. */
+/* Tank Cat is slightly larger than regular Cat, with every frame fitted consistently. */
 .fight-screen .fight-unit[data-unit-type="tank-cat"] .fight-unit-sprite {
   width:100% !important;
   height:70% !important;
   max-width:100% !important;
   object-fit:contain !important;
-  scale:0.62 !important;
+  scale:0.70 !important;
   transform-origin:center bottom !important;
-}
-
-/* Every deployed cat stays above the bases; per-instance z-index controls its depth. */
-.fight-screen .fight-unit-layer {
-  isolation:auto !important;
-}
-
-
-/* The meatshield is always rendered in front of the other friendly units. */
-.fight-screen .fight-unit[data-unit-type="tank-cat"] {
-  z-index:12 !important;
-}
-.fight-screen .fight-unit[data-unit-type="tank-cat"] .fight-unit-sprite {
-  object-fit:contain !important;
-  scale:0.62 !important;
 }
