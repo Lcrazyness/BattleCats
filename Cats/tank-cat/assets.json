@@ -21,5 +21,6 @@
     "Cats/tank-cat/damaged/frame-001damaged.png"
   ],
   "idle": "Cats/tank-cat/moving/frame-001.png",
-  "damaged": "Cats/tank-cat/damaged/frame-001damaged.png"
+  "damaged": "Cats/tank-cat/damaged/frame-001damaged.png",
+  "slot": "Cats/tank-cat/slot.png"
 }
