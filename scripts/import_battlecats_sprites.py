@@ -1287,29 +1287,59 @@ def import_tank_cat_assets(api: str | None = None) -> None:
     if not sheet_path.exists() or sheet_path.stat().st_size < 10000:
         mirrored_sheet = None
         if api:
-            # The wiki gallery mirrors the same sheet and can serve it when Spriters Resource blocks CI.
-            wiki_title = find_unit_asset(
-                api,
-                ["Tank Cat's spritesheet", "Tank Cat sprite sheet", "Tank Cat spritesheet"],
-                required=("tank", "cat"),
-                excluded=("wall", "eraser", "icon", "attack", "upgrade", "storage", "evolved", "true form"),
-            )
-            if wiki_title:
-                mirrored_sheet = download_wiki_image(api, wiki_title, SHEETS / "battlecats-tank-cat-wiki")
-        if mirrored_sheet:
-            try:
-                with Image.open(mirrored_sheet) as mirrored:
-                    mirrored_size = mirrored.size
-                if mirrored_size == (1366, 457):
-                    mirrored_sheet.replace(sheet_path)
-                    print("Using the exact 1366x457 Tank Cat gallery mirror.")
-                else:
-                    print("Wiki Tank Cat image was {}x{}; expected 1366x457, ignoring it.".format(*mirrored_size))
-            except Exception as exc:
-                print("WARNING: could not validate mirrored Tank Cat sheet: {}".format(exc))
+            # The wiki gallery exposes the Tank Cat sheet through its page image list.
+            gallery_titles = ["Tank Cat (Normal Cat)/Gallery", "Tank Cat/Gallery"]
+            for gallery_title in gallery_titles:
+                try:
+                    params = {
+                        "action": "query",
+                        "titles": gallery_title,
+                        "prop": "images",
+                        "imlimit": "max",
+                        "format": "json",
+                    }
+                    response = session.get(api, params=params, timeout=30)
+                    response.raise_for_status()
+                    pages = response.json().get("query", {}).get("pages", {})
+                    image_titles = []
+                    for page in pages.values():
+                        image_titles.extend(
+                            item.get("title", "") for item in page.get("images", [])
+                        )
+                    print("Tank Cat gallery image titles from {}: {}".format(
+                        gallery_title,
+                        " | ".join(title for title in image_titles if title),
+                    ))
+                    candidates = []
+                    for title in image_titles:
+                        normalized = normalized_webp_file_title(title)
+                        if (
+                            "tank" in normalized
+                            and "cat" in normalized
+                            and ("spritesheet" in normalized or "sprite sheet" in normalized)
+                            and not any(word in normalized for word in ("wall", "eraser", "upgrade", "icon", "storage", "evolved", "true form"))
+                        ):
+                            candidates.append(title)
+                    if candidates:
+                        mirrored_sheet = download_wiki_image(
+                            api, candidates[0], SHEETS / "battlecats-tank-cat-wiki"
+                        )
+                        if mirrored_sheet:
+                            with Image.open(mirrored_sheet) as mirrored:
+                                mirrored_size = mirrored.size
+                            if mirrored_size == (1366, 457):
+                                mirrored_sheet.replace(sheet_path)
+                                print("Using exact 1366x457 Tank Cat sheet from the gallery API.")
+                                break
+                            print("Wiki Tank Cat sheet {} was {}x{}; not the requested 1366x457 sheet.".format(
+                                candidates[0], mirrored_size[0], mirrored_size[1]
+                            ))
+                            mirrored_sheet.unlink(missing_ok=True)
+                except Exception as exc:
+                    print("WARNING: Tank Cat gallery API lookup failed for {}: {}".format(gallery_title, exc))
         if not sheet_path.exists() or sheet_path.stat().st_size < 10000:
             if not download(source_image, sheet_path, referer=source_page):
-                raise RuntimeError("Could not download the original Tank Cat sprite sheet from Spriters Resource or its wiki mirror.")
+                raise RuntimeError("Could not download the original Tank Cat sprite sheet from Spriters Resource or its wiki gallery.")
 
     with Image.open(sheet_path) as opened:
         if opened.size != (1366, 457):
