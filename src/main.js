@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-02";
+const BATTLE_ASSET_VERSION = "20261031-03";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -414,7 +414,13 @@ const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
   {path:"Levels/Korea/enemy-base.svg?v=20261029-34",bytes:5200},
-  {path:"sprites/battle/cat-base.svg?v=20261029-34",bytes:2400},
+  {path:"sprites/battle/catbase.png?v=20261031-03",bytes:109977},
+  {path:"sprites/battle/Deathsoul1.png?v=20261031-03",bytes:11785},
+  {path:"sprites/battle/Deathsoul2.png?v=20261031-03",bytes:38607},
+  {path:"sprites/battle/Deathsoul3.png?v=20261031-03",bytes:38428},
+  {path:"sprites/battle/Deathsoul4.png?v=20261031-03",bytes:38057},
+  {path:"sprites/battle/walletdown.png?v=20261031-03",bytes:46733},
+  {path:"sprites/battle/walletup.png?v=20261031-03",bytes:76922},
   {path:"Cats/cat/moving/frame-001.png?v=20261029-31",bytes:7000},
   {path:"Cats/cat/moving/frame-002.png?v=20261029-31",bytes:7000},
   {path:"Cats/cat/attack/frame-001attack.png?v=20261029-31",bytes:16072},
@@ -1124,6 +1130,7 @@ function createBattleState() {
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
     cooldowns:{},nextUnitKey:1,nextEnemyKey:1,ended:"",workerLevel:1,
+    deathSouls:[],nextDeathSoulKey:1,
     levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
 }
@@ -1348,6 +1355,54 @@ function battleEntityMarkup(entity) {
   return '<div class="fight-unit '+(entity.kind==="cat"?"fight-unit-cat":"fight-unit-doge")+'" data-unit-type="'+unitType+'" data-battle-entity="'+entity.key+'" style="left:'+entity.x+'%">'+
     '<img class="fight-unit-sprite" '+(source?'src="'+source+'"':'')+' alt="'+(entity.kind==="cat"?"Cat":"Doge")+'" draggable="false">'+
   '</div>';
+}
+function battleDeathSoulMarkup(soul) {
+  const source=battleAssetUrl("sprites/battle/Deathsoul1.png");
+  return '<img class="fight-death-soul" data-death-soul="'+soul.key+'" data-soul-frame="0" src="'+source+'" alt="" draggable="false" style="left:'+soul.x+'%;bottom:0px">';
+}
+function createBattleDeathSoul(entity) {
+  if(!battleState||!entity) return;
+  const soul={
+    key:"death-soul-"+battleState.nextDeathSoulKey++,
+    x:Math.max(1,Math.min(99,Number(entity.x)||50)),
+    age:0,
+    sway:Math.random()*Math.PI*2
+  };
+  battleState.deathSouls.push(soul);
+  const layer=stage.querySelector(".fight-unit-layer");
+  if(layer) layer.insertAdjacentHTML("beforeend",battleDeathSoulMarkup(soul));
+}
+function updateBattleDeathSouls(deltaSeconds) {
+  if(!battleState||!battleState.deathSouls) return;
+  const layer=stage.querySelector(".fight-unit-layer");
+  const screen=stage.querySelector(".fight-screen");
+  if(!layer||!screen) return;
+  const screenRect=screen.getBoundingClientRect();
+  const dt=Math.max(0,Number(deltaSeconds)||0);
+  const survivors=[];
+  for(const soul of battleState.deathSouls) {
+    soul.age+=dt;
+    const node=layer.querySelector('[data-death-soul="'+soul.key+'"]');
+    if(!node) continue;
+    const frame=Math.floor(soul.age*8)%4;
+    const frameSource=battleAssetUrl("sprites/battle/Deathsoul"+(frame+1)+".png");
+    if(node.dataset.soulFrame!==String(frame)) {
+      node.dataset.soulFrame=String(frame);
+      node.src=frameSource;
+    }
+    const drift=Math.sin(soul.age*3.1+soul.sway)*0.85;
+    node.style.left=Math.max(1,Math.min(99,soul.x+drift))+"%";
+    node.style.bottom=(soul.age*52)+"px";
+    const rect=node.getBoundingClientRect();
+    const outside=rect.bottom<screenRect.top-2 || rect.right<screenRect.left-2 ||
+      rect.left>screenRect.right+2 || rect.top>screenRect.bottom+2;
+    if(outside) {
+      node.remove();
+    } else {
+      survivors.push(soul);
+    }
+  }
+  battleState.deathSouls=survivors;
 }
 function startBattleRuntime() {
   if (!battleState) battleState = createBattleState();
@@ -1585,6 +1640,7 @@ function advanceBattleKnockback(deltaSeconds) {
       battleState.money = Math.min(Number(battleState.maxMoney)||150,(Number(battleState.money)||0)+reward);
       entity.rewardPaid=true;
     }
+    createBattleDeathSoul(entity);
     const node=stage.querySelector('[data-battle-entity="'+entity.key+'"]');
     if (node) node.remove();
   }
@@ -1715,7 +1771,7 @@ function attackBattleBase(attacker,now) {
   return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
 }
 function tickBattle() {
-  if (scene!=="fight" || !battleState || battleState.ended) return;
+  if (scene!=="fight" || !battleState) return;
   const state=battleState;
   const tickAt=performance.now();
   const previousTickAt=Number(state.lastTickAt)||tickAt;
@@ -1723,6 +1779,8 @@ function tickBattle() {
   state.lastTickAt=tickAt;
   state.elapsed+=dt;
   advanceBattleKnockback(dt);
+  updateBattleDeathSouls(dt);
+  if(state.ended) return;
   state.money=Math.min(state.maxMoney,state.money+(2.6+Math.max(0,(Number(state.workerLevel)||1)-1)*0.25)*dt);
   Object.keys(state.cooldowns).forEach(key=>state.cooldowns[key]=Math.max(0,state.cooldowns[key]-dt));
 
@@ -1867,6 +1925,7 @@ function updateFightUI() {
   const enemyBar=stage.querySelector(".fight-enemy-hp-bar span");
   const catBar=stage.querySelector(".fight-cat-hp-bar span");
   const workerButton=stage.querySelector(".fight-worker-cat");
+  const workerIcon=stage.querySelector(".fight-worker-icon");
   const workerLevelText=stage.querySelector(".fight-worker-cat-level");
   const workerCostText=stage.querySelector(".fight-worker-cost");
   const workerBar=stage.querySelector(".fight-worker-bar span");
@@ -1881,9 +1940,15 @@ function updateFightUI() {
   const walletMaxLevel=8;
   if (workerLevelText) workerLevelText.textContent="LEVEL "+walletLevel;
   if (workerCostText) workerCostText.textContent=walletLevel>=walletMaxLevel?"MAX LEVEL":"UPGRADE "+walletCost+"¢";
+  const walletAvailable=walletLevel<walletMaxLevel && state.money>=walletCost && !state.ended;
+  const walletImagePath=battleAssetUrl(walletAvailable?"sprites/battle/walletup.png":"sprites/battle/walletdown.png");
+  if(workerIcon&&workerIcon.dataset.activeSource!==walletImagePath) {
+    workerIcon.dataset.activeSource=walletImagePath;
+    workerIcon.src=walletImagePath;
+  }
   if (workerButton) {
-    workerButton.disabled=walletLevel>=walletMaxLevel || state.money<walletCost || Boolean(state.ended);
-    workerButton.setAttribute("aria-label",walletLevel>=walletMaxLevel?"Wallet max level":"Upgrade wallet for "+walletCost+"¢");
+    workerButton.disabled=!walletAvailable;
+    workerButton.setAttribute("aria-label",walletLevel>=walletMaxLevel?"Wallet max level":walletAvailable?"Upgrade wallet for "+walletCost+"¢":"Need "+walletCost+"¢ to upgrade wallet");
   }
   if (workerBar) workerBar.style.width=Math.max(0,Math.min(100,state.money/Math.max(1,state.maxMoney)*100))+"%";
   const slots=stage.querySelectorAll("[data-battle-slot]");
@@ -1922,8 +1987,10 @@ function renderFight() {
   const levelConfig=battleState.levelConfig||defaultBattleLevelConfig(selectedLevel.name);
   const levelBackgroundUrl=battleAssetUrl(levelFolder+"/"+levelConfig.background);
   const enemyBaseUrl=battleAssetUrl(levelFolder+"/"+levelConfig.enemyBase);
-  const catBaseUrl=battleAssetUrl("sprites/battle/cat-base.svg");
-  const walletImageUrl=battleAssetUrl("sprites/original_sheets/cat-base-menu-icon.webp");
+  const catBaseUrl=battleAssetUrl("sprites/battle/catbase.png");
+  const walletLevel=Math.max(1,Number(battleState.workerLevel)||1);
+  const walletAffordable=walletLevel<8 && battleState.money>=50*walletLevel && !battleState.ended;
+  const walletImageUrl=battleAssetUrl(walletAffordable?"sprites/battle/walletup.png":"sprites/battle/walletdown.png");
   const cannonImageUrl=battleAssetUrl("sprites/original_sheets/cat-base-accessory-icon.webp");
   const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
     const cost=battleUnitStats(unit).price
@@ -1936,6 +2003,7 @@ function renderFight() {
     '</button>';
   }).join("");
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
+  const deathSouls=(battleState.deathSouls||[]).map(battleDeathSoulMarkup).join("");
   return '<section class="screen fight-screen" aria-label="' + selectedLevel.name + ' battle">'+
     '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
@@ -1943,7 +2011,7 @@ function renderFight() {
     '<div class="fight-battle-controls">'+
       '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
       '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
-        '<img class="fight-worker-icon" src="' + walletImageUrl + '" alt="" draggable="false">'+
+        '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
         '<span class="fight-worker-details"><span class="fight-worker-heading">WALLET</span>'+
         '<strong class="fight-worker-cat-level">LEVEL 1</strong>'+
         '<span class="fight-worker-bar"><span style="width:33%"></span></span>'+
@@ -1955,7 +2023,7 @@ function renderFight() {
     
     
     '<img class="fight-base player-castle" src="' + catBaseUrl + '" alt="" draggable="false">'+
-    '<div class="fight-unit-layer">'+entities+'</div>'+
+    '<div class="fight-unit-layer">'+entities+deathSouls+'</div>'+
     '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
       '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
