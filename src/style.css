@@ -2724,3 +2724,22 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     text-shadow:1.4px 1.4px 0 #2c160c,0 0 2px #2c160c;
   }
 }
+
+
+/* Shift the Store farther left and lower the Cat Food wallet display. */
+.base-sprite-button.base-store {
+  left:41.5%;
+}
+.base-sprite-button.base-cat-food {
+  top:93.25%;
+  height:6.75%;
+}
+@media(max-width:600px) {
+  .base-sprite-button.base-store {
+    left:39%;
+  }
+  .base-sprite-button.base-cat-food {
+    top:93.25%;
+    height:6.75%;
+  }
+}
