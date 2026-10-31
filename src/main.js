@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-11";
+const BATTLE_ASSET_VERSION = "20261030-12";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1720,6 +1720,7 @@ function tickBattle() {
   const enemyHomeCenter=battleBaseCenterPercent("enemy");
 
   const catsInFormationOrder=[...state.playerUnits].sort((a,b)=>battleCatFormationOrder(a)-battleCatFormationOrder(b));
+  const leadCatKey=catsInFormationOrder.find(cat=>cat&&Number(cat.hp)>0&&cat.mode!=="dead"&&cat.mode!=="knockback")?.key||"";
   for (const cat of catsInFormationOrder) {
     if (cat.mode==="dead" || cat.mode==="knockback") { updateBattleEntityView(cat); continue; }
     if (cat.hp<=0) continue;
@@ -1735,11 +1736,8 @@ function tickBattle() {
       const distance=battleTargetGap(cat,target);
       const reach=battleRangePercent(cat.range);
       const preferredAttackDistance=reach*0.55;
-      if(distance>reach) {
-        const desiredStop=Math.max(enemyBaseStop,target.x+preferredAttackDistance);
-        cat.mode="moving";
-        cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
-      } else if(distance>preferredAttackDistance) {
+      const isFrontLineCat=cat.key===leadCatKey;
+      if(distance>reach||(isFrontLineCat&&distance>preferredAttackDistance)) {
         const desiredStop=Math.max(enemyBaseStop,target.x+preferredAttackDistance);
         cat.mode="moving";
         cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
