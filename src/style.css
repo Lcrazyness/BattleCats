@@ -2336,8 +2336,8 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 /* The wallet upgrade control is the supplied wallet sprite itself. */
 .fight-screen .fight-worker-cat {
   display:block !important;
-  width:clamp(62px,6.2vw,82px) !important;
-  height:clamp(62px,6.2vw,82px) !important;
+  width:clamp(108px,10.5vw,140px) !important;
+  height:clamp(108px,10.5vw,140px) !important;
   min-height:0 !important;
   padding:0 !important;
   border:0 !important;
@@ -2365,8 +2365,8 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .fight-screen .fight-worker-cat {
     left:5px !important;
     bottom:6px !important;
-    width:62px !important;
-    height:62px !important;
+    width:108px !important;
+    height:108px !important;
     min-height:0 !important;
   }
 }
