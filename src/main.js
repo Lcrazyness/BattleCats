@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-14";
+const BATTLE_ASSET_VERSION = "20261030-15";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1108,7 +1108,7 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
     key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
     statsSnapshot:{...stats},baseSpeed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,walkSpriteChangeSpeed:stats.walkSpriteChangeSpeed,
     attackCooldown:stats.attackCooldown,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,
-    mode:"moving",attackTimer:0,animUntil:0,hitUntil:0,frameAt,killReward:stats.killReward,
+    mode:"moving",attackTimer:0,animUntil:0,attackEndsAt:0,hitUntil:0,frameAt,killReward:stats.killReward,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
     nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0,
@@ -1481,7 +1481,7 @@ function spawnPlayerCat(unit) {
     hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,recharge:stats.recharge,mode:"moving",attackTimer:0,
-    animUntil:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
+    animUntil:0,attackEndsAt:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
     nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0,
@@ -1506,6 +1506,7 @@ function beginBattleKnockback(target,lethal,now) {
   target.knockbackDistance = lethal ? stats.knockbackDistance*1.4 : stats.knockbackDistance;
   target.attackTimer = 0;
   target.animUntil = 0;
+  target.attackEndsAt = 0;
   target.hitUntil = 0;
   if (lethal) target.queuedKnockbacks=0;
   updateBattleEntityView(target);
@@ -1580,9 +1581,10 @@ function damageBattleEntity(target,amount,now){
     beginBattleKnockback(target,false,hitTime);
     return;
   }
-  const attackStillPlaying=Number(target.pendingAttackAt)>hitTime+0.0001&&Number(target.animUntil)>hitTime+0.0001;
+  const attackStillPlaying=Number(target.pendingAttackAt)>hitTime+0.0001&&Number(target.attackEndsAt)>hitTime+0.0001;
   target.hitUntil=Math.max(Number(target.hitUntil)||0,hitTime+0.18);
   if(!attackStillPlaying){
+    target.attackEndsAt=0;
     target.mode="damaged";
     target.animUntil=target.hitUntil;
   }
@@ -1612,6 +1614,7 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.attackTimer=attackCooldown;
   attacker.nextAttackAt=now+attackCooldown;
   attacker.animUntil=now+animationDuration;
+  attacker.attackEndsAt=attacker.animUntil;
   attacker.pendingAttackAt=now+Math.max(0.1,animationDuration*0.62);
   attacker.pendingAttackTargetKey=target ? target.key : "";
   attacker.pendingAttackBase=baseTarget;
@@ -1696,14 +1699,16 @@ function tickBattle() {
     if (cat.mode==="dead" || cat.mode==="knockback") { updateBattleEntityView(cat); continue; }
     if (cat.hp<=0) continue;
     cat.attackTimer=Math.max(0,cat.attackTimer-dt);
-    if (cat.pendingAttackAt>0 && cat.animUntil>now) cat.mode="attack";
+    const attackActive=Number(cat.attackEndsAt)>now+0.0001;
+    if (attackActive) cat.mode="attack";
     else if (cat.hitUntil>now) cat.mode="damaged";
-    else if (cat.animUntil>now) cat.mode="attack";
     else cat.mode="idle";
 
     const target=findBattleTargetFor(cat);
 
-    if (target) {
+    if (attackActive) {
+      cat.mode="attack";
+    } else if (target) {
       const distance=battleTargetGap(cat,target);
       const reach=battleRangePercent(cat.range);
       if(distance>reach) {
@@ -1738,16 +1743,18 @@ function tickBattle() {
   for (const enemy of state.enemies) {
     if (enemy.mode==="dead" || enemy.mode==="knockback") { updateBattleEntityView(enemy); continue; }
     enemy.attackTimer=Math.max(0,enemy.attackTimer-dt);
-    if (enemy.pendingAttackAt>0 && enemy.animUntil>now) enemy.mode="attack";
+    const attackActive=Number(enemy.attackEndsAt)>now+0.0001;
+    if (attackActive) enemy.mode="attack";
     else if (enemy.hitUntil>now) enemy.mode="damaged";
-    else if (enemy.animUntil>now) enemy.mode="attack";
     else enemy.mode="idle";
 
     const target=findBattleTargetFor(enemy);
     const enemyDistance=target?battleTargetGap(enemy,target):Infinity;
     const enemyReach=battleRangePercent(enemy.range);
 
-    if(target&&enemyDistance<=enemyReach) {
+    if(attackActive) {
+      enemy.mode="attack";
+    } else if(target&&enemyDistance<=enemyReach) {
       prepareBattleAttackPhase(enemy,now);
       const enemyStats=battleStatsForEntity(enemy);
       const attackDuration=battleAttackAnimationDuration(enemy,0.55);
@@ -1768,7 +1775,7 @@ function tickBattle() {
         if (enemy.x<catBaseStop) {
           enemy.mode="moving";
           enemy.x=Math.min(catBaseStop,enemy.x+Number(enemy.speed||2.8)*dt);
-        } else if (enemy.attackTimer<=0) {
+        } else if (now+0.0001>=Number(enemy.nextAttackAt||0)) {
           if (!attackBattleBase(enemy,now)) enemy.mode="idle";
         } else {
           enemy.mode="idle";
