@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-12";
+const BATTLE_ASSET_VERSION = "20261031-13";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1770,9 +1770,8 @@ function battleAttackAnimationDuration(attacker,fallbackDuration=0.6) {
 function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,baseTarget="") {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" ||
       Number(attacker.nextAttackAt)>now+0.0001 ||
-      Number(attacker.animUntil)>now+0.0001 ||
-      Number(attacker.pendingAttackAt)>0 ||
-      Number(attacker.hitUntil)>now+0.0001) return false;
+      Number(attacker.attackEndsAt)>now+0.0001 ||
+      Number(attacker.pendingAttackAt)>0) return false;
   attacker.attackCycleId=(Number(attacker.attackCycleId)||0)+1;
   attacker.attackStartedAt=now;
   const intervalScale=Math.max(0.8,Math.min(1.2,Number(attacker.attackIntervalScale)||1));
