@@ -11,5 +11,6 @@
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
   "walkSpriteChangeSpeed": 2.5,
-  "attackCooldown": 2
+  "attackCooldown": 2,
+  "AreaAttack": false
 }
