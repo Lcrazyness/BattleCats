@@ -5,7 +5,7 @@
   "price": 50,
   "speed": 9,
   "spriteChangeSpeed": 6,
-  "range": 85,
+  "range": 55,
   "recharge": 2.5,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
