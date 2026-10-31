@@ -2384,3 +2384,16 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   60% { transform:translateX(-1.5px) rotate(-.6deg); }
   80% { transform:translateX(1px) rotate(.5deg); }
 }
+
+
+/* Pin the enlarged wallet sprite to the actual lower-left corner of the battle screen. */
+.fight-screen .fight-worker-cat {
+  left:0 !important;
+  bottom:0 !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-worker-cat {
+    left:0 !important;
+    bottom:0 !important;
+  }
+}
