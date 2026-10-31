@@ -2370,3 +2370,17 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     min-height:0 !important;
   }
 }
+
+
+/* Brief impact shake when either base takes a hit. */
+.fight-screen .fight-base.is-being-attacked {
+  animation:battle-base-hit-shake 220ms ease-in-out !important;
+  transform-origin:center bottom !important;
+}
+@keyframes battle-base-hit-shake {
+  0%,100% { transform:translateX(0) rotate(0deg); }
+  20% { transform:translateX(-2px) rotate(-1deg); }
+  40% { transform:translateX(2px) rotate(1deg); }
+  60% { transform:translateX(-1.5px) rotate(-.6deg); }
+  80% { transform:translateX(1px) rotate(.5deg); }
+}
