@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-17";
+const BATTLE_ASSET_VERSION = "20261031-01";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1250,21 +1250,29 @@ function battleSlotImage(unit) {
   const assets = BATTLE_ASSETS[key];
   return battleAssetUrl(unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp");
 }
+function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
+  const mode=String(entity&&entity.mode||"idle");
+  if(mode==="dead"||mode==="knockback") return mode;
+  if(mode==="attack") return Number(entity.attackEndsAt)>elapsed+0.0001?"attack":"idle";
+  if(mode==="damaged") return Number(entity.hitUntil)>elapsed+0.0001?"damaged":"idle";
+  return mode==="moving"?"moving":"idle";
+}
 function battleImageFor(entity) {
   const catUnit=entity.kind==="cat" ? save.units.find(unit=>String(unit.id)===String(entity.unitId)) : null;
   const assetKey=entity.kind==="cat" ? battleUnitKey(catUnit||"cat") : battleUnitKey(entity.enemyType||"doge");
   const assets=BATTLE_ASSETS[assetKey] || (entity.kind==="cat"?BATTLE_ASSETS.cat:BATTLE_ASSETS.doge);
   const entityStats=battleStatsForEntity(entity);
   const elapsed=battleState?battleState.elapsed:0;
+  const animationMode=battleAnimationMode(entity,elapsed);
   const configuredAttackRate=Math.max(1,Math.min(30,Number(assets.attackFrameRate)||BATTLE_ATTACK_FRAME_RATE));
-  const frameRate=entity.mode==="attack" ? configuredAttackRate : Math.max(0.5,Number(entity.spriteChangeSpeed||entityStats.spriteChangeSpeed||6));
-  if(entity.mode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
-  if(entity.mode==="dead"||entity.mode==="knockback") {
+  const frameRate=animationMode==="attack" ? configuredAttackRate : Math.max(0.5,Number(entity.spriteChangeSpeed||entityStats.spriteChangeSpeed||6));
+  if(animationMode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
+  if(animationMode==="dead"||animationMode==="knockback") {
     const frames=assets.knockbackFrames&&assets.knockbackFrames.length?assets.knockbackFrames:(assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[]);
     if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
     return battleAssetUrl(assets.damaged||assets.idle||"");
   }
-  if(entity.mode==="attack") {
+  if(animationMode==="attack") {
     if(typeof assets.attackSprite==="string"&&assets.attackSprite.trim()) return battleAssetUrl(assets.attackSprite);
     const frames=Array.isArray(assets.attacks)?assets.attacks:[];
     if(frames.length) {
@@ -1275,12 +1283,12 @@ function battleImageFor(entity) {
     }
     return battleAssetUrl(assets.attack||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
-  if(entity.mode==="damaged") {
+  if(animationMode==="damaged") {
     const frames=assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[];
     if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
     return battleAssetUrl(assets.damaged||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
-  if(entity.kind==="cat"&&entity.mode==="moving") {
+  if(entity.kind==="cat"&&animationMode==="moving") {
     const walkingFrames=(Array.isArray(assets.moving)?assets.moving:[]).filter(path=>typeof path==="string"&&path.length>0);
     if(walkingFrames.length) {
       const walkRate=Math.max(0.5,Number(entity.walkSpriteChangeSpeed||entityStats.walkSpriteChangeSpeed||2.5));
@@ -1367,21 +1375,22 @@ function updateBattleEntityView(entity) {
   const element = ensureBattleEntityNode(entity);
   if (!element) return;
   element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
-  element.classList.toggle("is-attacking",entity.mode==="attack");
-  element.classList.toggle("is-idle",entity.mode==="idle");
-  element.classList.toggle("is-damaged",entity.mode==="damaged");
-  element.classList.toggle("is-knockback",entity.mode==="knockback");
-  element.classList.toggle("is-dead",entity.mode==="dead");
+  const animationMode=battleAnimationMode(entity);
+  element.classList.toggle("is-attacking",animationMode==="attack");
+  element.classList.toggle("is-idle",animationMode==="idle");
+  element.classList.toggle("is-damaged",animationMode==="damaged");
+  element.classList.toggle("is-knockback",animationMode==="knockback");
+  element.classList.toggle("is-dead",animationMode==="dead");
   const sprite = element.querySelector(".fight-unit-sprite");
   const source = battleImageFor(entity);
   if (!sprite) return;
-  if (entity.mode==="attack") {
+  if (animationMode==="attack") {
     const duration=Math.max(0.1,Number(entity.animUntil)-Number(entity.attackStartedAt));
     sprite.style.setProperty("--battle-attack-duration",duration+"s");
   } else {
     sprite.style.removeProperty("--battle-attack-duration");
   }
-  if (entity.mode==="knockback") {
+  if (animationMode==="knockback") {
     const duration = Math.max(0.2,Number(entity.knockbackDuration)||Number(entity.knockbackDurationSetting)||0.64);
     sprite.style.setProperty("--battle-knockback-duration",(duration*1000)+"ms");
   } else {
