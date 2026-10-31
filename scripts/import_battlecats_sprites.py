@@ -1323,7 +1323,7 @@ def import_tank_cat_assets(api: str | None = None) -> None:
             "idle": output_paths["moving"][0],
             "damaged": output_paths["damaged"][0],
         })
-        manifest_path.write_text(json.dumps(existing, indent=2) + "\\n", encoding="utf-8")
+        manifest_path.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
         print("Using the checked-in, owner-cropped Tank Cat PNG frames; no remote sprite download needed.")
         return
 
