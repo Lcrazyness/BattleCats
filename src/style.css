@@ -2317,3 +2317,17 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   scale:0.76 !important;
   transform-origin:center bottom !important;
 }
+
+
+/* Death souls float upward after a unit's knockback/death animation ends. */
+.fight-screen .fight-death-soul {
+  position:absolute !important;
+  z-index:12 !important;
+  display:block !important;
+  width:clamp(28px,3.8vw,46px) !important;
+  height:clamp(36px,5.5vh,58px) !important;
+  object-fit:contain !important;
+  pointer-events:none !important;
+  transform:translateX(-50%) !important;
+  filter:drop-shadow(0 1px 2px #0007) !important;
+}
