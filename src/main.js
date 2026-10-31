@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-11";
+const BATTLE_ASSET_VERSION = "20261031-12";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1663,12 +1663,12 @@ function beginBattleKnockback(target,lethal,now) {
   target.knockbackDistance = lethal ? stats.knockbackDistance*1.4 : stats.knockbackDistance;
   target.attackTimer = 0;
   target.hitUntil = 0;
+  target.animUntil = 0;
+  target.attackEndsAt = 0;
   if(lethal) {
     target.pendingAttackAt=0;
     target.pendingAttackTargetKey="";
     target.pendingAttackBase="";
-    target.animUntil=0;
-    target.attackEndsAt=0;
     target.attackSoundPending=false;
     target.attackHitLanded=false;
     target.queuedKnockbacks=0;
@@ -1810,7 +1810,9 @@ function finishBattleAttackSounds(now) {
   if(!battleState) return;
   const entities=[...(battleState.playerUnits||[]),...(battleState.enemies||[])];
   for(const attacker of entities) {
-    if(!attacker.attackSoundPending || Number(attacker.attackEndsAt)>now+0.0001) continue;
+    if(!attacker.attackSoundPending ||
+       Number(attacker.attackEndsAt)>now+0.0001 ||
+       Number(attacker.pendingAttackAt)>0) continue;
     attacker.attackSoundPending=false;
     if(attacker.attackHitLanded) playSfx(Math.random()<0.5?"attack1":"attack2");
     attacker.attackHitLanded=false;
