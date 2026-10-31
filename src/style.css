@@ -2316,13 +2316,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 
 
-/* Tank Cat uses one consistent, larger display box for every animation state. */
+/* Tank Cat uses the same display scale and contain-fit as the regular Cat. */
 .fight-screen .fight-unit[data-unit-type="tank-cat"] .fight-unit-sprite {
   width:100% !important;
   height:70% !important;
   max-width:100% !important;
-  object-fit:fill !important;
-  scale:0.88 !important;
+  object-fit:contain !important;
+  scale:0.62 !important;
   transform-origin:center bottom !important;
 }
 
@@ -2337,5 +2337,6 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   z-index:12 !important;
 }
 .fight-screen .fight-unit[data-unit-type="tank-cat"] .fight-unit-sprite {
-  object-fit:fill !important;
+  object-fit:contain !important;
+  scale:0.62 !important;
 }
