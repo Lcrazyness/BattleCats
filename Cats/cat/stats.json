@@ -2,14 +2,14 @@
   "name": "Cat",
   "health": 70,
   "damage": 8,
-  "price": 50,
+  "price": 1,
   "speed": 9,
   "spriteChangeSpeed": 6,
   "range": 55,
-  "recharge": 2.5,
+  "recharge": 0.1,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
   "walkSpriteChangeSpeed": 2.5,
-  "attackCooldown": 1.15
+  "attackCooldown": 2
 }
