@@ -6,7 +6,7 @@ const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, level:1, exp:0, stageClears:0,
   units:[
-    {id:1,name:"Cat",level:1,deployCost:50,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:2.5}
+    {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:0.1}
   ],
   equipped:[1], mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
 };
@@ -35,16 +35,16 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-12";
+const BATTLE_ASSET_VERSION = "20261030-13";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:70,damage:8,price:50,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  cat: {health:70,damage:8,price:1,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55},
-  "tank-cat": {health:300,damage:8,price:150,speed:3.2,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:6,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  "tank-cat": {health:300,damage:8,price:1,speed:3.2,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -1314,24 +1314,32 @@ function findBattleTargetFor(attacker) {
     .sort((a,b)=>a.gap-b.gap)[0]?.target||null;
 }
 function battleCatFormationOrder(cat) {
-  const tankPriority=battleUnitKey(cat&&cat.name||"cat")==="tank-cat" ? -1000000 : 0;
-  return tankPriority+Math.max(0,Number(cat&&cat.spawnOrder)||0);
+  return Math.max(0,Number(cat&&cat.spawnOrder)||0);
 }
 function battleCatSpacingPercent() {
   const screen=stage.querySelector(".fight-screen");
   const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
-  return 10/Math.max(1,width)*100;
+  const unitWidth=Math.max(54,Math.min(96,width*0.073));
+  return unitWidth*0.48/Math.max(1,width)*100;
 }
-function keepBattleCatSpacing(cat) {
-  if(!battleState||!cat||cat.kind!=="cat") return;
-  const ordered=battleState.playerUnits
-    .filter(unit=>unit&&Number(unit.hp)>0&&unit.mode!=="dead"&&unit.mode!=="knockback")
-    .sort((a,b)=>battleCatFormationOrder(a)-battleCatFormationOrder(b));
-  const index=ordered.findIndex(unit=>unit.key===cat.key);
-  if(index<=0) return;
-  const front=ordered[index-1];
+function moveBattleCatToward(cat,desiredStop,dt) {
+  if(!battleState||!cat||cat.kind!=="cat") return false;
+  const currentX=Number(cat.x)||0;
   const gap=battleCatSpacingPercent();
-  cat.x=Math.max(Number(cat.x)||0,(Number(front.x)||0)+gap);
+  const front=battleState.playerUnits
+    .filter(other=>other&&other!==cat&&Number(other.hp)>0&&other.mode!=="dead"&&other.mode!=="knockback"&&
+      (Number(other.x)<currentX-0.0001||
+       (Math.abs(Number(other.x)-currentX)<=0.0001&&Number(other.spawnOrder)<Number(cat.spawnOrder))))
+    .sort((a,b)=>Number(b.x)-Number(a.x))[0];
+  const nextX=Math.max(Number(desiredStop)||0,currentX-Math.max(0,Number(cat.speed)||0)*0.45*Math.max(0,Number(dt)||0));
+  if(front) {
+    const followLimit=Number(front.x)+gap;
+    if(currentX<=followLimit+0.0001) return false;
+    cat.x=Math.max(nextX,followLimit);
+  } else {
+    cat.x=nextX;
+  }
+  return cat.x<currentX-0.0001;
 }
 function battleEntityMarkup(entity) {
   const source=battleImageFor(entity);
@@ -1494,17 +1502,10 @@ function spawnPlayerCat(unit) {
   battleState.money -= cost;
   battleState.cooldowns[unit.id] = stats.recharge;
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
-  const isTankCat=battleUnitKey(unit)==="tank-cat";
   const spawnOrder=battleState.nextUnitKey;
-  const homeX=battleBaseCenterPercent("cat");
-  const livingCats=battleState.playerUnits.filter(cat=>cat&&Number(cat.hp)>0&&cat.mode!=="dead"&&cat.mode!=="knockback");
-  const frontX=livingCats.length?Math.min(...livingCats.map(cat=>Number(cat.x)||homeX)):homeX;
-  const spawnX=isTankCat&&livingCats.length
-    ? Math.max(battleBaseContactPercent("enemy"),frontX-battleCatSpacingPercent())
-    : homeX;
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,spawnOrder,
-    x:spawnX,walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
+    x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
     hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,recharge:stats.recharge,mode:"moving",attackTimer:0,
@@ -1692,8 +1693,8 @@ function attackBattleBase(attacker,now) {
   if(Number(attacker.nextAttackAt)>now+0.0001) return false;
   const baseTarget=attacker.kind==="cat"?"enemy":"cat";
   const contact=battleBaseContactPercent(baseTarget);
-  const catBaseSpacing=attacker.kind==="cat"?battleCatSpacingPercent():0;
-  if(attacker.kind==="cat"?attacker.x>contact+catBaseSpacing+0.25:attacker.x<contact-0.25) return false;
+  const reach=battleRangePercent(attacker.range);
+  if(attacker.kind==="cat"?attacker.x>contact+reach+0.25:attacker.x<contact-reach-0.25) return false;
   const stats=battleStatsForEntity(attacker);
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
   return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
@@ -1735,12 +1736,12 @@ function tickBattle() {
     if (target) {
       const distance=battleTargetGap(cat,target);
       const reach=battleRangePercent(cat.range);
-      const preferredAttackDistance=reach*0.55;
+      const preferredAttackDistance=reach*0.1;
       const isFrontLineCat=cat.key===leadCatKey;
       if(distance>reach||(isFrontLineCat&&distance>preferredAttackDistance)) {
         const desiredStop=Math.max(enemyBaseStop,target.x+preferredAttackDistance);
         cat.mode="moving";
-        cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
+        moveBattleCatToward(cat,desiredStop,dt);
       } else {
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
@@ -1752,17 +1753,16 @@ function tickBattle() {
       }
       cat.x=Math.max(enemyBaseStop,Math.min(catHomeCenter,cat.x));
     } else if (state.enemyBaseHp>0) {
-      const catBaseAttackStop=enemyBaseStop+battleCatSpacingPercent();
+      const catBaseAttackStop=enemyBaseStop+battleRangePercent(cat.range)*0.1;
       if (cat.x>catBaseAttackStop) {
         cat.mode="moving";
-        cat.x=Math.max(catBaseAttackStop,cat.x-(cat.speed*0.45)*dt);
+        moveBattleCatToward(cat,catBaseAttackStop,dt);
       } else if (now+0.0001>=Number(cat.nextAttackAt||0)) {
         if (!attackBattleBase(cat,now)) cat.mode="idle";
       } else {
         cat.mode="idle";
       }
     }
-    keepBattleCatSpacing(cat);
     updateBattleEntityView(cat);
   }
 
@@ -2364,7 +2364,7 @@ function perform(action) {
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
-        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:150,upgradeCost:400,hp:300,attack:8,range:25,speed:3.2,recharge:6,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
+        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,upgradeCost:400,hp:300,attack:8,range:25,speed:3.2,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
         reward = "Victory! +250 XP · Tank Cat unlocked";
       }
       navigate("battle"); notify(reward);
