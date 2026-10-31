@@ -35,19 +35,11 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-02";
+const BATTLE_ASSET_VERSION = "20261030-03";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
-  "tank-cat": {
-    moving:["Cats/tank-cat/moving/frame-001.svg","Cats/tank-cat/moving/frame-002.svg","Cats/tank-cat/moving/frame-003.svg"],
-    attacks:["Cats/tank-cat/attack/frame-001attack.svg","Cats/tank-cat/attack/frame-002attack.svg","Cats/tank-cat/attack/frame-003attack.svg","Cats/tank-cat/attack/frame-004attack.svg"],
-    attack:"Cats/tank-cat/attack/frame-001attack.svg",attackSprite:"",attackFrameRate:8,attackDuration:0.5,
-    damagedFrames:["Cats/tank-cat/damaged/frame-001damaged.svg"],knockbackFrames:["Cats/tank-cat/damaged/frame-001damaged.svg"],
-    damaged:"Cats/tank-cat/damaged/frame-001damaged.svg",idle:"Cats/tank-cat/moving/frame-001.svg",
-    slot:"Cats/tank-cat/slot.svg",upgrade:"Cats/tank-cat/upgrade.svg"
-  }
 };
 const BATTLE_UNIT_STATS = {
   cat: {health:100,damage:8,price:50,speed:10,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.5,range:55,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
@@ -422,16 +414,24 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-31",bytes:17381},
   {path:"Cats/cat/slot.png?v=20261029-31",bytes:9000},
   {path:"Cats/cat/upgrade.png?v=20261029-31",bytes:9000},
-  {path:"Cats/tank-cat/moving/frame-001.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/moving/frame-002.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/moving/frame-003.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/attack/frame-001attack.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/attack/frame-002attack.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/attack/frame-003attack.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/attack/frame-004attack.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/damaged/frame-001damaged.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/slot.svg?v=20261030-02",bytes:1024},
-  {path:"Cats/tank-cat/upgrade.svg?v=20261030-02",bytes:1024},
+
+
+
+
+
+
+
+
+
+
+  {path:"Cats/tank-cat/moving/frame-001.png?v=20261030-03",bytes:1600},
+  {path:"Cats/tank-cat/moving/frame-002.png?v=20261030-03",bytes:1600},
+  {path:"Cats/tank-cat/moving/frame-003.png?v=20261030-03",bytes:1600},
+  {path:"Cats/tank-cat/attack/frame-001attack.png?v=20261030-03",bytes:1600},
+  {path:"Cats/tank-cat/attack/frame-002attack.png?v=20261030-03",bytes:1600},
+  {path:"Cats/tank-cat/attack/frame-003attack.png?v=20261030-03",bytes:2200},
+  {path:"Cats/tank-cat/attack/frame-004attack.png?v=20261030-03",bytes:1800},
+  {path:"Cats/tank-cat/damaged/frame-001damaged.png?v=20261030-03",bytes:1800},
   {path:"enemys/doge/moving/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/attack/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/attack/frame-002.png?v=20261029-31",bytes:9000},
@@ -1144,14 +1144,11 @@ function loadBattleAssetManifests() {
       if(Number.isFinite(Number(data.attackDuration))&&Number(data.attackDuration)>=0.1) current.attackDuration=Math.min(5,Number(data.attackDuration));
       if(Array.isArray(data.damagedFrames)) current.damagedFrames=data.damagedFrames;
       if(Array.isArray(data.knockbackFrames)) current.knockbackFrames=data.knockbackFrames;
-      if(typeof data.spriteSheet==="string"&&data.spriteSheet) current.spriteSheet=data.spriteSheet;
-      if(Array.isArray(data.sheetSize)&&data.sheetSize.length===2) current.sheetSize=data.sheetSize.map(Number);
-      if(data.frameCrops&&typeof data.frameCrops==="object") current.frameCrops=data.frameCrops;
       if(data.idle) current.idle=data.idle;
       if(data.attack) current.attack=data.attack;
       if(data.damaged) current.damaged=data.damaged;
       if(data.slot) current.slot=data.slot;
-      if(data.upgrade&&kind==="cat") current.upgrade=data.upgrade;
+      if(data.upgrade) current.upgrade=data.upgrade;
     } catch(error) { console.warn("Battle Cats sprite manifest could not load:",path,error); }
   });
   const statJobs=statRequests.map(async({id,key,path})=>{
@@ -1250,34 +1247,27 @@ function battleImageFor(entity) {
   const elapsed=battleState?battleState.elapsed:0;
   const configuredAttackRate=Math.max(1,Math.min(30,Number(assets.attackFrameRate)||BATTLE_ATTACK_FRAME_RATE));
   const frameRate=entity.mode==="attack" ? configuredAttackRate : Math.max(0.5,Number(entity.spriteChangeSpeed||battleUnitStats(statsSource).spriteChangeSpeed||8));
-  const resolveFrame=path=>{
-    const crop=path&&assets.frameCrops&&assets.frameCrops[path];
-    entity.spriteCrop=crop&&assets.spriteSheet
-      ? {rect:crop,sheet:assets.spriteSheet,sheetSize:assets.sheetSize||[1366,457]}
-      : null;
-    return battleAssetUrl(entity.spriteCrop?entity.spriteCrop.sheet:path||"");
-  };
-  if(entity.mode==="idle") return resolveFrame(assets.idle||(assets.moving&&assets.moving[0])||"");
+  if(entity.mode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
   if(entity.mode==="dead"||entity.mode==="knockback") {
     const frames=assets.knockbackFrames&&assets.knockbackFrames.length?assets.knockbackFrames:(assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[]);
-    if(frames.length) return resolveFrame(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
-    return resolveFrame(assets.damaged||assets.idle||"");
+    if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.damaged||assets.idle||"");
   }
   if(entity.mode==="attack") {
-    if(typeof assets.attackSprite==="string"&&assets.attackSprite.trim()) return resolveFrame(assets.attackSprite);
+    if(typeof assets.attackSprite==="string"&&assets.attackSprite.trim()) return battleAssetUrl(assets.attackSprite);
     const frames=Array.isArray(assets.attacks)?assets.attacks:[];
     if(frames.length) {
       const attackStartedAt=Number.isFinite(Number(entity.attackStartedAt))?Number(entity.attackStartedAt):elapsed;
       const attackElapsed=Math.max(0,elapsed-attackStartedAt);
       const frameIndex=Math.max(0,Math.min(frames.length-1,Math.floor((attackElapsed+0.0001)*configuredAttackRate)));
-      return resolveFrame(frames[frameIndex]);
+      return battleAssetUrl(frames[frameIndex]);
     }
-    return resolveFrame(assets.attack||assets.idle||(assets.moving&&assets.moving[0])||"");
+    return battleAssetUrl(assets.attack||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
   if(entity.mode==="damaged") {
     const frames=assets.damagedFrames&&assets.damagedFrames.length?assets.damagedFrames:[];
-    if(frames.length) return resolveFrame(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
-    return resolveFrame(assets.damaged||assets.idle||(assets.moving&&assets.moving[0])||"");
+    if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+    return battleAssetUrl(assets.damaged||assets.idle||(assets.moving&&assets.moving[0])||"");
   }
   if(entity.kind==="cat"&&entity.mode==="moving") {
     const walkingFrames=(Array.isArray(assets.moving)?assets.moving:[]).filter(path=>typeof path==="string"&&path.length>0);
@@ -1286,12 +1276,12 @@ function battleImageFor(entity) {
       const walkStart=Number.isFinite(Number(entity.walkStartedAt))?Number(entity.walkStartedAt):elapsed;
       const walkElapsed=Math.max(0,elapsed-walkStart);
       const frameIndex=Math.floor(walkElapsed*walkRate)%walkingFrames.length;
-      return resolveFrame(walkingFrames[frameIndex]);
+      return battleAssetUrl(walkingFrames[frameIndex]);
     }
   }
   const frames=Array.isArray(assets.moving)?assets.moving:[];
-  if(frames.length) return resolveFrame(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
-  return resolveFrame(assets.idle||"");
+  if(frames.length) return battleAssetUrl(frames[Math.floor(elapsed*frameRate+(entity.frameAt||0))%frames.length]);
+  return battleAssetUrl(assets.idle||"");
 }
 function findBattleEntity(key) {
   if (!battleState) return null;
@@ -1372,32 +1362,6 @@ function updateBattleEntityView(entity) {
   }
   if (!source) { sprite.style.visibility="hidden"; return; }
   sprite.style.visibility="";
-  if(entity.spriteCrop&&Array.isArray(entity.spriteCrop.rect)) {
-    const [cropX,cropY,cropWidth,cropHeight]=entity.spriteCrop.rect.map(Number);
-    const [sheetWidth,sheetHeight]=(entity.spriteCrop.sheetSize||[1366,457]).map(Number);
-    const boxWidth=sprite.clientWidth||54;
-    const boxHeight=sprite.clientHeight||100;
-    const scale=Math.max(0.01,Math.min(boxWidth/Math.max(1,cropWidth),boxHeight/Math.max(1,cropHeight)));
-    const renderedWidth=cropWidth*scale;
-    const renderedHeight=cropHeight*scale;
-    const offsetX=(boxWidth-renderedWidth)/2-cropX*scale;
-    const offsetY=(boxHeight-renderedHeight)/2-cropY*scale;
-    const cropSource="tank-sheet:"+source;
-    if(sprite.dataset.activeSource!==cropSource) {
-      sprite.dataset.activeSource=cropSource;
-      sprite.dataset.fallbackTried="";
-      sprite.classList.remove("sprite-load-failed");
-      sprite.onload=null;
-      sprite.onerror=null;
-      sprite.src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-    }
-    sprite.style.backgroundImage='url("'+source+'")';
-    sprite.style.backgroundSize=(sheetWidth*scale)+"px "+(sheetHeight*scale)+"px";
-    sprite.style.backgroundPosition=offsetX+"px "+offsetY+"px";
-    sprite.style.backgroundRepeat="no-repeat";
-    sprite.style.objectFit="fill";
-    return;
-  }
   sprite.style.backgroundImage="";
   sprite.style.backgroundSize="";
   sprite.style.backgroundPosition="";
