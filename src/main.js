@@ -1636,7 +1636,7 @@ function resolvePendingBattleAttacks(now) {
 
     if(targetKey) {
       const lockedTarget=findBattleEntity(targetKey);
-      if(lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead"&&lockedTarget.mode!=="knockback") {
+      if(lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead") {
         resolveBattleAttackOnce(attacker,lockedTarget,damage,now);
       }
     } else if(baseTarget&&attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
