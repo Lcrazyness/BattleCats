@@ -2731,7 +2731,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   left:41.5%;
 }
 .base-sprite-button.base-cat-food {
-  top:93.25%;
+  top:95%;
   height:6.75%;
 }
 @media(max-width:600px) {
@@ -2739,7 +2739,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     left:39%;
   }
   .base-sprite-button.base-cat-food {
-    top:93.25%;
+    top:95%;
     height:6.75%;
   }
 }
