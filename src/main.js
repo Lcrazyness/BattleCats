@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-04";
+const BATTLE_ASSET_VERSION = "20261031-05";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1358,18 +1358,29 @@ function battleEntityMarkup(entity) {
 }
 function battleDeathSoulMarkup(soul) {
   const source=battleAssetUrl("sprites/battle/Deathsoul1.png");
-  return '<img class="fight-death-soul" data-death-soul="'+soul.key+'" data-soul-frame="0" src="'+source+'" alt="" draggable="false" style="left:'+soul.x+'%;bottom:0px">';
+  return '<img class="fight-death-soul" data-death-soul="'+soul.key+'" data-soul-frame="0" src="'+source+'" alt="" draggable="false" style="left:'+soul.x+'%;bottom:'+soul.startBottom+'px">';
 }
 function createBattleDeathSoul(entity) {
   if(!battleState||!entity) return;
+  const layer=stage.querySelector(".fight-unit-layer");
+  const unitNode=layer&&layer.querySelector('[data-battle-entity="'+entity.key+'"]');
+  const layerRect=layer&&layer.getBoundingClientRect();
+  const unitRect=unitNode&&unitNode.getBoundingClientRect();
+  const layerWidth=layerRect&&layerRect.width>0?layerRect.width:1;
+  const deathX=unitRect&&unitRect.width>0
+    ? (unitRect.left+unitRect.width/2-layerRect.left)/layerWidth*100
+    : Number(entity.x)||50;
+  const startBottom=layerRect&&unitRect
+    ? Math.max(0,layerRect.bottom-unitRect.top+5)
+    : 82;
   const soul={
     key:"death-soul-"+battleState.nextDeathSoulKey++,
-    x:Math.max(1,Math.min(99,Number(entity.x)||50)),
+    x:Math.max(1,Math.min(99,deathX)),
+    startBottom,
     age:0,
     sway:Math.random()*Math.PI*2
   };
   battleState.deathSouls.push(soul);
-  const layer=stage.querySelector(".fight-unit-layer");
   if(layer) layer.insertAdjacentHTML("beforeend",battleDeathSoulMarkup(soul));
 }
 function updateBattleDeathSouls(deltaSeconds) {
@@ -1392,7 +1403,7 @@ function updateBattleDeathSouls(deltaSeconds) {
     }
     const drift=Math.sin(soul.age*3.1+soul.sway)*0.85;
     node.style.left=Math.max(1,Math.min(99,soul.x+drift))+"%";
-    node.style.bottom=(soul.age*52)+"px";
+    node.style.bottom=(soul.startBottom+soul.age*105)+"px";
     const rect=node.getBoundingClientRect();
     const outside=rect.bottom<screenRect.top-2 || rect.right<screenRect.left-2 ||
       rect.left>screenRect.right+2 || rect.top>screenRect.bottom+2;
