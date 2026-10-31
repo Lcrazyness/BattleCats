@@ -6,7 +6,7 @@
   "speed": 3.2,
   "spriteChangeSpeed": 5,
   "walkSpriteChangeSpeed": 2.5,
-  "range": 35,
+  "range": 25,
   "recharge": 6,
   "attackCooldown": 1.8,
   "knockbackThresholdPercent": 25,
