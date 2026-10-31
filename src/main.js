@@ -1704,6 +1704,7 @@ function advanceBattleKnockback(deltaSeconds) {
   }
   const expired = entities.filter(entity=>entity.mode==="dead" && entity.knockbackElapsed>=(Number(entity.knockbackDuration)||0.68));
   for (const entity of expired) {
+    updateBattleEntityView(entity);
     if (enemies.includes(entity) && entity.kind==="doge" && !entity.rewardPaid) {
       const reward = Math.max(0,Number(entity.killReward)||25);
       battleState.money = Math.min(Number(battleState.maxMoney)||150,(Number(battleState.money)||0)+reward);
