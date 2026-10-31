@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-15";
+const BATTLE_ASSET_VERSION = "20261031-16";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -427,7 +427,7 @@ const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
-  {path:"Levels/Korea/enemy-base.svg?v=20261029-34",bytes:5200},
+  {path:"Levels/Korea/enemybase.png?v=20261031-16",bytes:7294},
   {path:"sprites/battle/catbase.png?v=20261031-03",bytes:109977},
   {path:"sprites/battle/Deathsoul1.png?v=20261031-03",bytes:11785},
   {path:"sprites/battle/Deathsoul2.png?v=20261031-03",bytes:38607},
@@ -1076,7 +1076,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
   return {
     name:levelName,
     background:"background.png",
-    enemyBase:"enemy-base.svg",
+    enemyBase:"enemybase.png",
     enemyBaseHealth:500,
     catBaseHealth:1000,
     initialSpawnDelay:2,
@@ -1566,7 +1566,12 @@ function calculateBattleLayoutMetrics() {
     }
     return side==="cat"?{center:94.5,halfWidth:3.5}:{center:6,halfWidth:3.5};
   };
-  const unitWidth=Math.max(54,Math.min(96,width*0.073));
+  const sampleUnit=screen&&screen.querySelector(".fight-unit");
+  const sampleRect=sampleUnit&&sampleUnit.getBoundingClientRect();
+  const fallbackUnitWidth=width<=650
+    ? Math.max(42,Math.min(68,width*0.11))
+    : Math.max(54,Math.min(96,width*0.073));
+  const unitWidth=sampleRect&&sampleRect.width>0?sampleRect.width:fallbackUnitWidth;
   return {
     width,
     catBase:geometryFor("cat"),
@@ -1601,8 +1606,16 @@ function battleRangePercent(range) {
   const width=battleLayoutMetrics().width;
   return Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/width)*100));
 }
-function battleEntityContactGapPercent() {
-  return battleLayoutMetrics().contactGap;
+function battleEntityContactGapPercent(first=null,second=null) {
+  const metrics=battleLayoutMetrics();
+  if(!first||!second) return metrics.contactGap;
+  const spriteScale=entity=>{
+    if(entity.kind==="doge") return 0.72;
+    return battleUnitKey(entity.name||entity.assetFolder||entity.spriteFolder||"cat")==="tank-cat" ? 0.76 : 0.62;
+  };
+  const combinedHalfWidth=metrics.unitWidth*(spriteScale(first)+spriteScale(second))*0.5;
+  const safetyMargin=4;
+  return Math.max(metrics.contactGap,((combinedHalfWidth+safetyMargin)/metrics.width)*100);
 }
 function battleCombatReachPercent(range) {
   const metrics=battleLayoutMetrics();
@@ -1902,6 +1915,54 @@ function attackBattleBase(attacker,now) {
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
   return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
 }
+function resolveBattleUnitSeparation() {
+  if(!battleState) return;
+  const cats=(battleState.playerUnits||[]).filter(unit=>Number(unit.hp)>0&&unit.mode!=="dead");
+  const enemies=(battleState.enemies||[]).filter(unit=>Number(unit.hp)>0&&unit.mode!=="dead");
+  if(!cats.length||!enemies.length) return;
+
+  const catHome=battleBaseCenterPercent("cat");
+  const enemyHome=battleBaseCenterPercent("enemy");
+  const originalX=new Map();
+  for(const unit of [...cats,...enemies]) originalX.set(unit,Number(unit.x)||0);
+
+  for(let pass=0;pass<cats.length+enemies.length;pass++) {
+    let changed=false;
+    for(const enemy of enemies) {
+      for(const cat of cats) {
+        const minGap=battleEntityContactGapPercent(cat,enemy);
+        const overlap=(Number(enemy.x)||0)+minGap-(Number(cat.x)||0);
+        if(overlap<=0.0001) continue;
+
+        const catRoom=Math.max(0,catHome-(Number(cat.x)||0));
+        const enemyRoom=Math.max(0,(Number(enemy.x)||0)-enemyHome);
+        let moveCat=Math.min(catRoom,overlap*0.5);
+        let moveEnemy=Math.min(enemyRoom,overlap-moveCat);
+        let remaining=overlap-moveCat-moveEnemy;
+
+        if(remaining>0.0001) {
+          const extraCat=Math.min(remaining,Math.max(0,catRoom-moveCat));
+          moveCat+=extraCat;
+          remaining-=extraCat;
+        }
+        if(remaining>0.0001) {
+          const extraEnemy=Math.min(remaining,Math.max(0,enemyRoom-moveEnemy));
+          moveEnemy+=extraEnemy;
+          remaining-=extraEnemy;
+        }
+        if(moveCat>0.0001) cat.x=(Number(cat.x)||0)+moveCat;
+        if(moveEnemy>0.0001) enemy.x=(Number(enemy.x)||0)-moveEnemy;
+        if(moveCat+moveEnemy>0.0001) changed=true;
+      }
+    }
+    if(!changed) break;
+  }
+
+  for(const unit of [...cats,...enemies]) {
+    if(Math.abs((Number(unit.x)||0)-originalX.get(unit))>0.0001) updateBattleEntityView(unit);
+  }
+}
+
 function tickBattle() {
   if (scene!=="fight" || !battleState) return;
   const state=battleState;
@@ -1943,7 +2004,7 @@ function tickBattle() {
     } else if (target) {
       const distance=battleTargetGap(cat,target);
       const reach=battleCombatReachPercent(cat.range);
-      const contactGap=battleEntityContactGapPercent();
+      const contactGap=battleEntityContactGapPercent(cat,target);
       const targetIsInsideEnemyBase=Number(target.x)<=enemyBaseStop+0.1;
       const baseHoldX=targetIsInsideEnemyBase?battleEnemyBaseHoldPosition(cat,enemyHomeCenter):enemyBaseStop;
       const targetCombatStop=targetIsInsideEnemyBase
@@ -1990,7 +2051,7 @@ function tickBattle() {
     const target=findBattleTargetFor(enemy);
     const enemyDistance=target?battleTargetGap(enemy,target):Infinity;
     const enemyReach=battleCombatReachPercent(enemy.range);
-    const contactGap=battleEntityContactGapPercent();
+    const contactGap=target?battleEntityContactGapPercent(enemy,target):battleEntityContactGapPercent();
 
     if(attackActive) {
       enemy.mode="attack";
@@ -2025,6 +2086,8 @@ function tickBattle() {
     }
     updateBattleEntityView(enemy);
   }
+
+  resolveBattleUnitSeparation();
 
   state.playerUnits=state.playerUnits.filter(cat=>cat.hp>0 || cat.mode==="dead" || cat.mode==="knockback");
   state.enemies=state.enemies.filter(enemy=>enemy.hp>0 || enemy.mode==="dead" || enemy.mode==="knockback");
