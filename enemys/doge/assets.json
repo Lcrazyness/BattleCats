@@ -14,6 +14,7 @@
     "enemys/doge/attack/frame-004.png"
   ],
   "attack": "enemys/doge/attack/frame-001.png",
+  "attackFrameRate": 6,
   "damagedFrames": [
     "enemys/doge/damaged/frame-001.png"
   ],
