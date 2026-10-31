@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-15";
+const BATTLE_ASSET_VERSION = "20261030-16";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1711,10 +1711,13 @@ function tickBattle() {
     } else if (target) {
       const distance=battleTargetGap(cat,target);
       const reach=battleRangePercent(cat.range);
+      const targetIsInsideEnemyBase=Number(target.x)<=enemyBaseStop+0.1;
+      const targetCombatStop=targetIsInsideEnemyBase
+        ? Number(target.x)+reach*0.9
+        : Math.max(enemyBaseStop,Number(target.x)+reach*0.1);
       if(distance>reach) {
-        const desiredStop=Math.max(enemyBaseStop,target.x+reach*0.1);
         cat.mode="moving";
-        cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
+        cat.x=Math.max(targetCombatStop,cat.x-(cat.speed*0.45)*dt);
       } else {
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
@@ -1724,7 +1727,8 @@ function tickBattle() {
           cat.mode="idle";
         }
       }
-      cat.x=Math.max(enemyBaseStop,Math.min(catHomeCenter,cat.x));
+      const targetSideStop=targetIsInsideEnemyBase?targetCombatStop:enemyBaseStop;
+      cat.x=Math.max(targetSideStop,Math.min(catHomeCenter,cat.x));
     } else if (state.enemyBaseHp>0) {
       const catBaseAttackStop=enemyBaseStop+battleRangePercent(cat.range)*0.1;
       if (cat.x>catBaseAttackStop) {
