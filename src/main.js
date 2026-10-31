@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-07";
+const BATTLE_ASSET_VERSION = "20261031-08";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1274,14 +1274,10 @@ function battleSlotImage(unit) {
 function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
   const mode=String(entity&&entity.mode||"idle");
   if(mode==="dead"||mode==="knockback") return mode;
-  if(mode==="attack") {
-    const attackEnd=Number(entity.attackEndsAt)||Number(entity.animUntil)||0;
-    return attackEnd>elapsed+0.0001?"attack":"idle";
-  }
-  if(mode==="damaged") {
-    const hurtEnd=Number(entity.hitUntil)||0;
-    return hurtEnd>elapsed+0.0001?"damaged":"idle";
-  }
+  const attackEnd=Number(entity.attackEndsAt)||Number(entity.animUntil)||0;
+  if(attackEnd>elapsed+0.0001) return "attack";
+  const hurtEnd=Number(entity.hitUntil)||0;
+  if(hurtEnd>elapsed+0.0001&&mode==="damaged") return "damaged";
   return mode==="moving"?"moving":"idle";
 }
 function battleImageFor(entity) {
@@ -1615,9 +1611,6 @@ function spawnPlayerCat(unit) {
 }
 function beginBattleKnockback(target,lethal,now) {
   if (!target || target.mode==="dead") return;
-  target.pendingAttackAt=0;
-  target.pendingAttackTargetKey="";
-  target.pendingAttackBase="";
   const stats = battleStatsForEntity(target);
   target.mode = lethal ? "dead" : "knockback";
   target.knockbackElapsed = 0;
@@ -1626,12 +1619,17 @@ function beginBattleKnockback(target,lethal,now) {
   target.knockbackDirection = target.kind==="cat" ? 1 : -1;
   target.knockbackDistance = lethal ? stats.knockbackDistance*1.4 : stats.knockbackDistance;
   target.attackTimer = 0;
-  target.animUntil = 0;
-  target.attackEndsAt = 0;
-  target.attackSoundPending = false;
-  target.attackHitLanded = false;
   target.hitUntil = 0;
-  if (lethal) target.queuedKnockbacks=0;
+  if(lethal) {
+    target.pendingAttackAt=0;
+    target.pendingAttackTargetKey="";
+    target.pendingAttackBase="";
+    target.animUntil=0;
+    target.attackEndsAt=0;
+    target.attackSoundPending=false;
+    target.attackHitLanded=false;
+    target.queuedKnockbacks=0;
+  }
   updateBattleEntityView(target);
 }
 function advanceBattleKnockback(deltaSeconds) {
@@ -1787,7 +1785,7 @@ function resolvePendingBattleAttacks(now) {
     attacker.pendingAttackAt=0;
     attacker.pendingAttackTargetKey="";
     attacker.pendingAttackBase="";
-    if (attacker.mode==="dead" || attacker.mode==="knockback" || Number(attacker.hp)<=0) continue;
+    if (attacker.mode==="dead" || Number(attacker.hp)<=0) continue;
 
     if(targetKey) {
       const lockedTarget=findBattleEntity(targetKey);
