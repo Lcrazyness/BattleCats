@@ -2324,8 +2324,8 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   position:absolute !important;
   z-index:12 !important;
   display:block !important;
-  width:clamp(28px,3.8vw,46px) !important;
-  height:clamp(36px,5.5vh,58px) !important;
+  width:clamp(34px,4.6vw,56px) !important;
+  height:clamp(42px,6.6vh,70px) !important;
   object-fit:contain !important;
   pointer-events:none !important;
   transform:translateX(-50%) !important;
