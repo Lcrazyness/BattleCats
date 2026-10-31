@@ -1,8 +1,5 @@
 {
   "name": "Tank Cat",
-  "source": "The Spriters Resource \u2014 Tank Cat animation sprite sheet supplied by the project owner. Original Battle Cats artwork belongs to PONOS.",
-  "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81253/",
-  "sourceImage": "User-supplied Tank Cat animation sheet (350x484); the cropped transparent PNG frames are stored below.",
   "moving": [
     "Cats/tank-cat/moving/frame-001.png",
     "Cats/tank-cat/moving/frame-002.png",
@@ -24,7 +21,5 @@
     "Cats/tank-cat/damaged/frame-001damaged.png"
   ],
   "idle": "Cats/tank-cat/moving/frame-001.png",
-  "damaged": "Cats/tank-cat/damaged/frame-001damaged.png",
-  "slot": "Cats/tank-cat/slot.svg",
-  "upgrade": "Cats/tank-cat/upgrade.svg"
-}\n
+  "damaged": "Cats/tank-cat/damaged/frame-001damaged.png"
+}
