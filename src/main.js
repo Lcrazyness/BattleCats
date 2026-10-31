@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-06";
+const BATTLE_ASSET_VERSION = "20261031-07";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -453,6 +453,7 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Cats/tank-cat/attack/frame-003attack.png?v=20261030-04",bytes:3897},
   {path:"Cats/tank-cat/attack/frame-004attack.png?v=20261030-04",bytes:2842},
   {path:"Cats/tank-cat/damaged/frame-001damaged.png?v=20261030-04",bytes:2908},
+  {path:"Cats/tank-cat/slot.png?v=20261031-07",bytes:12025},
   {path:"enemys/doge/moving/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/attack/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/attack/frame-002.png?v=20261029-31",bytes:9000},
@@ -1155,7 +1156,7 @@ function loadBattleAssetManifests() {
     statRequests.push({id:String(unit.id),key,path:unit.statsPath||"Cats/"+folder+"/stats.json"});
     if(key!=="cat"&&key!=="doge") {
       if(!assetRequests.some(([kind])=>kind===key)) assetRequests.push([key,unit.assetsPath||"Cats/"+folder+"/assets.json"]);
-      if(!BATTLE_ASSETS[key]) BATTLE_ASSETS[key]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+folder+"/slot.svg"};
+      if(!BATTLE_ASSETS[key]) BATTLE_ASSETS[key]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+folder+"/slot.png"};
     }
   });
   const assetJobs=assetRequests.map(async([kind,path])=>{
@@ -1263,9 +1264,12 @@ function battleAssetUrl(path) {
   }
 }
 function battleSlotImage(unit) {
-  const key = unit.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const key = battleUnitKey(unit);
   const assets = BATTLE_ASSETS[key];
-  return battleAssetUrl(unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp");
+  const source=key==="tank-cat"
+    ? "Cats/tank-cat/slot.png"
+    : unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp";
+  return battleAssetUrl(source);
 }
 function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
   const mode=String(entity&&entity.mode||"idle");
@@ -1701,7 +1705,7 @@ function damageBattleEntity(target,amount,now){
     beginBattleKnockback(target,false,hitTime);
     return;
   }
-  const attackStillPlaying=Number(target.pendingAttackAt)>hitTime+0.0001&&Number(target.attackEndsAt)>hitTime+0.0001;
+  const attackStillPlaying=Number(target.attackEndsAt)>hitTime+0.0001;
   target.hitUntil=Math.max(Number(target.hitUntil)||0,hitTime+0.18);
   if(!attackStillPlaying){
     target.attackEndsAt=0;
@@ -2504,7 +2508,7 @@ function perform(action) {
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
-        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,upgradeCost:400,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
+        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,upgradeCost:400,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json"});
         reward = "Victory! +250 XP · Tank Cat unlocked";
       }
       navigate("battle"); notify(reward);
