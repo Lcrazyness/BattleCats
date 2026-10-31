@@ -2570,3 +2570,29 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     -webkit-text-stroke:.5px #392014;
   }
 }
+
+
+/* Build the Cat Base wallpaper without a reference screenshot. */
+.base-sprite-frame {
+  background-color:#365b50;
+}
+.base-sprite-screen .base-background-sprite {
+  position:absolute;
+  z-index:0;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  background-color:#456f61;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, transparent 0 9px, #91b9a8 10px 12px, transparent 13px 23px),
+    radial-gradient(ellipse at 0 0, transparent 0 13px, #294d43 14px 16px, transparent 17px 29px),
+    linear-gradient(180deg,#507d6d 0%,#3e695b 52%,#31584d 100%);
+  background-size:64px 54px,86px 72px,100% 100%;
+  background-position:0 0,18px 13px,0 0;
+  background-repeat:repeat,repeat,no-repeat;
+  opacity:1;
+  transform:none;
+  animation:none;
+  pointer-events:none;
+}
