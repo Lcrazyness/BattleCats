@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-14";
+const BATTLE_ASSET_VERSION = "20261031-15";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -477,7 +477,6 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/ui/Play_button.png?v=20261026-9",bytes:5844},
   {path:"sprites/ui/title-settings.png?v=20261026-9",bytes:38154},
   {path:"sprites/ui/title-mailbox.png?v=20261026-9",bytes:48748},
-  {path:"sprites/backgrounds/cat-base-background-clean.webp?v=20261031-01",bytes:275812},
   {path:"sprites/backgrounds/CatBase/MenuCat.png?v=20261031-01",bytes:16787},
   {path:"sprites/backgrounds/CatBase/bottem.png?v=20261031-01",bytes:9633},
   {path:"sprites/backgrounds/CatBase/catbase-top.png?v=20261031-01",bytes:15592},
@@ -965,7 +964,7 @@ function renderBase() {
   baseFadeFromBlack = false;
   return '<section class="screen base-sprite-screen'+(fadeFromBlack?' base-fade-from-black':'')+'">'+
     '<div class="base-sprite-frame">'+
-      '<img class="base-background-sprite" src="sprites/backgrounds/cat-base-background-clean.webp?v=20261031-01" alt="" draggable="false">'+
+      '<div class="base-background-sprite" aria-hidden="true"></div>'+
       '<img class="base-door-sprite base-door-left" src="sprites/backgrounds/CatBase/doorleft.png?v=20261031-01" alt="" draggable="false">'+
       '<img class="base-door-sprite base-door-right" src="sprites/backgrounds/CatBase/doorright.png?v=20261031-01" alt="" draggable="false">'+
       '<img class="base-menu-cat" src="sprites/backgrounds/CatBase/MenuCat.png?v=20261031-01" alt="" draggable="false">'+
