@@ -1280,6 +1280,53 @@ def import_tank_cat_assets(api: str | None = None) -> None:
     for directory in (moving_dir, attack_dir, damaged_dir):
         directory.mkdir(parents=True, exist_ok=True)
 
+    # Prefer the checked-in owner-cropped PNGs on later imports; no third-party download is needed.
+    checked_in_frames = {
+        "moving": ["frame-001.png", "frame-002.png", "frame-003.png"],
+        "attack": ["frame-001attack.png", "frame-002attack.png", "frame-003attack.png", "frame-004attack.png"],
+        "damaged": ["frame-001damaged.png"],
+    }
+    checked_in_dirs = {"moving": moving_dir, "attack": attack_dir, "damaged": damaged_dir}
+    if all(
+        (checked_in_dirs[kind] / filename).is_file()
+        and (checked_in_dirs[kind] / filename).stat().st_size > 100
+        for kind, names in checked_in_frames.items()
+        for filename in names
+    ):
+        output_paths = {
+            kind: [(checked_in_dirs[kind] / filename).relative_to(ROOT).as_posix() for filename in names]
+            for kind, names in checked_in_frames.items()
+        }
+        for directory in (moving_dir, attack_dir, damaged_dir):
+            for stale in directory.glob("frame-*.svg"):
+                stale.unlink()
+        for kind, frames in output_paths.items():
+            (checked_in_dirs[kind] / "frames.json").write_text(
+                json.dumps({"frames": frames}, indent=2), encoding="utf-8"
+            )
+        manifest_path = folder / "assets.json"
+        existing = {}
+        if manifest_path.exists():
+            try:
+                existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except Exception:
+                existing = {}
+        existing.update({
+            "name": "Tank Cat",
+            "moving": output_paths["moving"],
+            "attacks": output_paths["attack"],
+            "attack": output_paths["attack"][0],
+            "attackFrameRate": 8,
+            "attackDuration": 0.5,
+            "damagedFrames": output_paths["damaged"],
+            "knockbackFrames": output_paths["damaged"],
+            "idle": output_paths["moving"][0],
+            "damaged": output_paths["damaged"][0],
+        })
+        manifest_path.write_text(json.dumps(existing, indent=2) + "\\n", encoding="utf-8")
+        print("Using the checked-in, owner-cropped Tank Cat PNG frames; no remote sprite download needed.")
+        return
+
     source_page = "https://www.spriters-resource.com/mobile/thebattlecats/asset/81253/"
     source_image = "https://www.spriters-resource.com/media/assets/78/81253.png?updated=1755474505"
     sheet_path = SHEETS / "battlecats-tank-cat-spritesheet.png"

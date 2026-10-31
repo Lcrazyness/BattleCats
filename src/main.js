@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-03";
+const BATTLE_ASSET_VERSION = "20261030-04";
 const BATTLE_ATTACK_FRAME_RATE = 10;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -424,14 +424,14 @@ const LOADING_IMAGE_ASSETS = [
 
 
 
-  {path:"Cats/tank-cat/moving/frame-001.png?v=20261030-03",bytes:1600},
-  {path:"Cats/tank-cat/moving/frame-002.png?v=20261030-03",bytes:1600},
-  {path:"Cats/tank-cat/moving/frame-003.png?v=20261030-03",bytes:1600},
-  {path:"Cats/tank-cat/attack/frame-001attack.png?v=20261030-03",bytes:1600},
-  {path:"Cats/tank-cat/attack/frame-002attack.png?v=20261030-03",bytes:1600},
-  {path:"Cats/tank-cat/attack/frame-003attack.png?v=20261030-03",bytes:2200},
-  {path:"Cats/tank-cat/attack/frame-004attack.png?v=20261030-03",bytes:1800},
-  {path:"Cats/tank-cat/damaged/frame-001damaged.png?v=20261030-03",bytes:1800},
+  {path:"Cats/tank-cat/moving/frame-001.png?v=20261030-04",bytes:2552},
+  {path:"Cats/tank-cat/moving/frame-002.png?v=20261030-04",bytes:2595},
+  {path:"Cats/tank-cat/moving/frame-003.png?v=20261030-04",bytes:2610},
+  {path:"Cats/tank-cat/attack/frame-001attack.png?v=20261030-04",bytes:2859},
+  {path:"Cats/tank-cat/attack/frame-002attack.png?v=20261030-04",bytes:3129},
+  {path:"Cats/tank-cat/attack/frame-003attack.png?v=20261030-04",bytes:3897},
+  {path:"Cats/tank-cat/attack/frame-004attack.png?v=20261030-04",bytes:2842},
+  {path:"Cats/tank-cat/damaged/frame-001damaged.png?v=20261030-04",bytes:2908},
   {path:"enemys/doge/moving/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/attack/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/attack/frame-002.png?v=20261029-31",bytes:9000},
