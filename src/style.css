@@ -2665,3 +2665,14 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     font-size:clamp(9px,2.15vw,13px);
   }
 }
+
+
+/* Keep the Cat Base character below both HUD bars. */
+.base-menu-cat {
+  z-index:5;
+  bottom:4%;
+}
+.base-header-art,
+.base-footer-art {
+  z-index:12;
+}
