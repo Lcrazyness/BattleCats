@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-01";
+const BATTLE_ASSET_VERSION = "20261031-02";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1253,8 +1253,14 @@ function battleSlotImage(unit) {
 function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
   const mode=String(entity&&entity.mode||"idle");
   if(mode==="dead"||mode==="knockback") return mode;
-  if(mode==="attack") return Number(entity.attackEndsAt)>elapsed+0.0001?"attack":"idle";
-  if(mode==="damaged") return Number(entity.hitUntil)>elapsed+0.0001?"damaged":"idle";
+  if(mode==="attack") {
+    const attackEnd=Number(entity.attackEndsAt)||Number(entity.animUntil)||0;
+    return attackEnd>elapsed+0.0001?"attack":"idle";
+  }
+  if(mode==="damaged") {
+    const hurtEnd=Number(entity.hitUntil)||0;
+    return hurtEnd>elapsed+0.0001?"damaged":"idle";
+  }
   return mode==="moving"?"moving":"idle";
 }
 function battleImageFor(entity) {
@@ -1318,7 +1324,7 @@ function findBattleTargetFor(attacker) {
   const currentTarget=attacker.currentTargetKey
     ? candidates.find(target=>target&&target.key===attacker.currentTargetKey&&Number(target.hp)>0&&target.mode!=="dead")
     : null;
-  if(currentTarget&&battleTargetGap(attacker,currentTarget)>=-1) return currentTarget;
+  if(currentTarget) return currentTarget;
   const nextTarget=candidates
     .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead")
     .map(target=>({target,gap:battleTargetGap(attacker,target)}))
@@ -1455,6 +1461,17 @@ function battleRangePercent(range) {
   const screen=stage.querySelector(".fight-screen");
   const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
   return Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/width)*100));
+}
+function battleEntityContactGapPercent() {
+  const screen=stage.querySelector(".fight-screen");
+  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
+  const unitWidth=Math.max(54,Math.min(96,width*0.073));
+  const catSpriteWidth=unitWidth*0.62;
+  const enemySpriteWidth=unitWidth*0.72;
+  return ((catSpriteWidth+enemySpriteWidth)*0.5/width)*100;
+}
+function battleCombatReachPercent(range) {
+  return Math.max(battleRangePercent(range),battleEntityContactGapPercent());
 }
 function applyBattleLevelVisuals() {
   if(scene!=="fight"||!battleState) return;
@@ -1733,16 +1750,18 @@ function tickBattle() {
       cat.mode="attack";
     } else if (target) {
       const distance=battleTargetGap(cat,target);
-      const reach=battleRangePercent(cat.range);
+      const reach=battleCombatReachPercent(cat.range);
+      const contactGap=battleEntityContactGapPercent();
       const targetIsInsideEnemyBase=Number(target.x)<=enemyBaseStop+0.1;
       const baseHoldX=targetIsInsideEnemyBase?battleEnemyBaseHoldPosition(cat,enemyHomeCenter):enemyBaseStop;
       const targetCombatStop=targetIsInsideEnemyBase
-        ? Math.max(baseHoldX,Number(target.x)+reach*0.1)
-        : Math.max(enemyBaseStop,Number(target.x)+reach*0.1);
+        ? Math.max(baseHoldX,Number(target.x)+contactGap)
+        : Math.max(enemyBaseStop,Number(target.x)+contactGap);
       if(distance>reach) {
         cat.mode="moving";
         cat.x=Math.max(targetCombatStop,cat.x-(cat.speed*0.45)*dt);
       } else {
+        if(distance<contactGap) cat.x=Number(target.x)+contactGap;
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
         const attackDuration=battleAttackAnimationDuration(cat,0.62);
@@ -1778,11 +1797,13 @@ function tickBattle() {
 
     const target=findBattleTargetFor(enemy);
     const enemyDistance=target?battleTargetGap(enemy,target):Infinity;
-    const enemyReach=battleRangePercent(enemy.range);
+    const enemyReach=battleCombatReachPercent(enemy.range);
+    const contactGap=battleEntityContactGapPercent();
 
     if(attackActive) {
       enemy.mode="attack";
     } else if(target&&enemyDistance<=enemyReach) {
+      if(enemyDistance<contactGap) enemy.x=Number(target.x)-contactGap;
       prepareBattleAttackPhase(enemy,now);
       const enemyStats=battleStatsForEntity(enemy);
       const attackDuration=battleAttackAnimationDuration(enemy,0.55);
@@ -1791,7 +1812,7 @@ function tickBattle() {
         enemy.mode="idle";
       }
     } else if(target&&enemyDistance>enemyReach) {
-      const desiredStop=Math.min(catBaseStop,target.x-enemyReach);
+      const desiredStop=Math.min(catBaseStop,target.x-contactGap);
       enemy.mode="moving";
       enemy.x=Math.min(desiredStop,enemy.x+Number(enemy.speed||2.8)*dt);
     }
