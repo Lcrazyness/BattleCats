@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-08";
+const BATTLE_ASSET_VERSION = "20261030-09";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -44,7 +44,7 @@ const BATTLE_ASSETS = {
 const BATTLE_UNIT_STATS = {
   cat: {health:70,damage:8,price:50,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55},
-  "tank-cat": {health:300,damage:8,price:150,speed:3.2,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:35,recharge:6,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  "tank-cat": {health:300,damage:8,price:150,speed:3.2,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:6,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -1307,7 +1307,7 @@ function findBattleTargetFor(attacker) {
   if(!battleState||!attacker) return null;
   const candidates=attacker.kind==="cat" ? battleState.enemies : battleState.playerUnits;
   return candidates
-    .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead"&&target.mode!=="knockback")
+    .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead")
     .map(target=>({target,gap:battleTargetGap(attacker,target)}))
     .filter(item=>item.gap>=-1)
     .sort((a,b)=>a.gap-b.gap)[0]?.target||null;
@@ -1350,14 +1350,7 @@ function ensureBattleEntityNode(entity) {
 function updateBattleEntityView(entity) {
   const element = ensureBattleEntityNode(entity);
   if (!element) return;
-  const formationSlot=Math.max(0,Number(entity.formationSlot)||0);
-  const depthLayer=entity.kind==="cat" ? Math.max(0,Math.min(2,Math.floor(Number(entity.depthLayer)||0))) : 0;
-  const visualStagger=entity.kind==="cat" ? ((formationSlot%3)-1)*2.1 : 0;
-  const visualRow=entity.kind==="cat" ? depthLayer*7 : 0;
-  element.style.left = Math.max(2,Math.min(97,entity.x+visualStagger))+"%";
-  element.style.bottom = visualRow+"px";
-  const isTankCat=entity.kind==="cat"&&battleUnitKey(entity.name||"cat")==="tank-cat";
-  element.style.zIndex = String(isTankCat ? 12 : entity.kind==="cat" ? 6+depthLayer : 6);
+  element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
   element.classList.toggle("is-attacking",entity.mode==="attack");
   element.classList.toggle("is-idle",entity.mode==="idle");
   element.classList.toggle("is-damaged",entity.mode==="damaged");
@@ -1479,20 +1472,19 @@ function spawnPlayerCat(unit) {
   if (cooldown > 0.05) return notify(unit.name+" is recharging.");
   battleState.money -= cost;
   battleState.cooldowns[unit.id] = stats.recharge;
-  const depthLayer = Math.floor(Math.random()*3);
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
   const isTankCat=battleUnitKey(unit)==="tank-cat";
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
-    x:battleBaseCenterPercent("cat"),formationSlot:battleState.playerUnits.length,depthLayer:isTankCat?2:depthLayer,
-    walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
+    x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
     hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,recharge:stats.recharge,mode:"moving",attackTimer:0,
     animUntil:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
-    nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0
+    nextKnockbackHp:stats.health*(1-stats.knockbackThresholdPercent/100),queuedKnockbacks:0,
+    knockbackCount:0
   };
   battleState.playerUnits.push(entity);
   ensureBattleEntityNode(entity);
@@ -1568,6 +1560,19 @@ function damageBattleEntity(target,amount,now){
   let crossings=0;
   while(threshold>0&&target.hp<=threshold){crossings++;threshold-=maxHp*0.25;}
   target.nextKnockbackHp=threshold;
+  const isTankCat=target.kind==="cat"&&battleUnitKey(target.name||"cat")==="tank-cat";
+  if(isTankCat&&crossings>0){
+    if((Number(target.knockbackCount)||0)>=1){
+      target.hp=0;
+      target.queuedKnockbacks=0;
+      beginBattleKnockback(target,true,hitTime);
+    } else {
+      target.knockbackCount=1;
+      target.queuedKnockbacks=0;
+      beginBattleKnockback(target,false,hitTime);
+    }
+    return;
+  }
   if(target.mode==="knockback") return;
   if(crossings>0){
     target.queuedKnockbacks=Math.max(0,crossings-1);
@@ -2324,7 +2329,7 @@ function perform(action) {
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
-        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:150,upgradeCost:400,hp:300,attack:8,range:35,speed:3.2,recharge:6,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
+        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:150,upgradeCost:400,hp:300,attack:8,range:25,speed:3.2,recharge:6,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
         reward = "Victory! +250 XP · Tank Cat unlocked";
       }
       navigate("battle"); notify(reward);
