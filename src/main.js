@@ -35,16 +35,16 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-07";
+const BATTLE_ASSET_VERSION = "20261030-08";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:70,damage:8,price:50,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:85,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  cat: {health:70,damage:8,price:50,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:2.5,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55},
-  "tank-cat": {health:300,damage:8,price:150,speed:3.2,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:55,recharge:6,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  "tank-cat": {health:300,damage:8,price:150,speed:3.2,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:35,recharge:6,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -78,7 +78,7 @@ function battleUnitStats(unitOrKey) {
     speed:positive(config.speed,positive(unit.speed,key==="doge"?2.8:10)),
     spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,key==="doge"?5:6)),
     walkSpriteChangeSpeed:positive(config.walkSpriteChangeSpeed,positive(unit.walkSpriteChangeSpeed,2.5)),
-    range:positive(config.range,positive(unit.range,85)),
+    range:positive(config.range,positive(unit.range,55)),
     recharge:positive(config.recharge,positive(unit.recharge,2.5)),
     attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
     knockbackThresholdPercent:thresholdPercent,
@@ -2324,7 +2324,7 @@ function perform(action) {
       save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
-        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:150,upgradeCost:400,hp:300,attack:8,range:55,speed:3.2,recharge:6,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
+        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:150,upgradeCost:400,hp:300,attack:8,range:35,speed:3.2,recharge:6,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.svg",statsPath:"Cats/tank-cat/stats.json"});
         reward = "Victory! +250 XP · Tank Cat unlocked";
       }
       navigate("battle"); notify(reward);
