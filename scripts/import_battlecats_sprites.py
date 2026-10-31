@@ -1269,7 +1269,7 @@ def import_enemy_base_sprite(api: str) -> None:
 
 
 
-def import_tank_cat_assets() -> None:
+def import_tank_cat_assets(api: str | None = None) -> None:
     """Download the original Tank Cat sheet and export its real Walk/Attack/Hurt frames as PNGs."""
     from PIL import Image
 
@@ -1285,8 +1285,31 @@ def import_tank_cat_assets() -> None:
     sheet_path = SHEETS / "battlecats-tank-cat-spritesheet.png"
     sheet_path.parent.mkdir(parents=True, exist_ok=True)
     if not sheet_path.exists() or sheet_path.stat().st_size < 10000:
-        if not download(source_image, sheet_path, referer=source_page):
-            raise RuntimeError("Could not download the original Tank Cat sprite sheet.")
+        mirrored_sheet = None
+        if api:
+            # The wiki gallery mirrors the same sheet and can serve it when Spriters Resource blocks CI.
+            wiki_title = find_unit_asset(
+                api,
+                ["Tank Cat's spritesheet", "Tank Cat sprite sheet", "Tank Cat spritesheet"],
+                required=("tank", "cat"),
+                excluded=("wall", "eraser", "icon", "attack", "upgrade", "storage", "evolved", "true form"),
+            )
+            if wiki_title:
+                mirrored_sheet = download_wiki_image(api, wiki_title, SHEETS / "battlecats-tank-cat-wiki")
+        if mirrored_sheet:
+            try:
+                with Image.open(mirrored_sheet) as mirrored:
+                    mirrored_size = mirrored.size
+                if mirrored_size == (1366, 457):
+                    mirrored_sheet.replace(sheet_path)
+                    print("Using the exact 1366x457 Tank Cat gallery mirror.")
+                else:
+                    print("Wiki Tank Cat image was {}x{}; expected 1366x457, ignoring it.".format(*mirrored_size))
+            except Exception as exc:
+                print("WARNING: could not validate mirrored Tank Cat sheet: {}".format(exc))
+        if not sheet_path.exists() or sheet_path.stat().st_size < 10000:
+            if not download(source_image, sheet_path, referer=source_page):
+                raise RuntimeError("Could not download the original Tank Cat sprite sheet from Spriters Resource or its wiki mirror.")
 
     with Image.open(sheet_path) as opened:
         if opened.size != (1366, 457):
@@ -1384,6 +1407,7 @@ def main() -> int:
             continue
         download(url, destination)
 
+    api = None
     try:
         api, _ = get_category_files()
         import_battle_scene_assets(api)
@@ -1391,7 +1415,7 @@ def main() -> int:
         print(f"WARNING: could not import first-battle assets: {exc}")
 
     # Tank Cat has its own unit folder and manifest, exactly like Cats/cat.
-    import_tank_cat_assets()
+    import_tank_cat_assets(api)
 
     sheets = import_relevant_sheets()
     cat_source = SHEETS / "battlecats-cat-spritesheet.png"
