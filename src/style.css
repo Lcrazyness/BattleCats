@@ -2321,7 +2321,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   width:100% !important;
   height:70% !important;
   max-width:100% !important;
-  object-fit:contain !important;
+  object-fit:fill !important;
   scale:0.88 !important;
   transform-origin:center bottom !important;
 }
@@ -2329,4 +2329,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 /* Every deployed cat stays above the bases; per-instance z-index controls its depth. */
 .fight-screen .fight-unit-layer {
   isolation:auto !important;
+}
+
+
+/* The meatshield is always rendered in front of the other friendly units. */
+.fight-screen .fight-unit[data-unit-type="tank-cat"] {
+  z-index:12 !important;
+}
+.fight-screen .fight-unit[data-unit-type="tank-cat"] .fight-unit-sprite {
+  object-fit:fill !important;
 }
