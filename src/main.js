@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-03";
+const BATTLE_ASSET_VERSION = "20261031-04";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -2011,11 +2011,7 @@ function renderFight() {
     '<div class="fight-battle-controls">'+
       '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
       '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
-        '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
-        '<span class="fight-worker-details"><span class="fight-worker-heading">WALLET</span>'+
-        '<strong class="fight-worker-cat-level">LEVEL 1</strong>'+
-        '<span class="fight-worker-bar"><span style="width:33%"></span></span>'+
-        '<small class="fight-worker-cost">UPGRADE 50¢</small></span></button>'+
+        '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false"></button>'+
     '</div>'+
     '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
     '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
