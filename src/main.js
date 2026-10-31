@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261030-13";
+const BATTLE_ASSET_VERSION = "20261030-14";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1313,34 +1313,7 @@ function findBattleTargetFor(attacker) {
     .filter(item=>item.gap>=-1)
     .sort((a,b)=>a.gap-b.gap)[0]?.target||null;
 }
-function battleCatFormationOrder(cat) {
-  return Math.max(0,Number(cat&&cat.spawnOrder)||0);
-}
-function battleCatSpacingPercent() {
-  const screen=stage.querySelector(".fight-screen");
-  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
-  const unitWidth=Math.max(54,Math.min(96,width*0.073));
-  return unitWidth*0.48/Math.max(1,width)*100;
-}
-function moveBattleCatToward(cat,desiredStop,dt) {
-  if(!battleState||!cat||cat.kind!=="cat") return false;
-  const currentX=Number(cat.x)||0;
-  const gap=battleCatSpacingPercent();
-  const front=battleState.playerUnits
-    .filter(other=>other&&other!==cat&&Number(other.hp)>0&&other.mode!=="dead"&&other.mode!=="knockback"&&
-      (Number(other.x)<currentX-0.0001||
-       (Math.abs(Number(other.x)-currentX)<=0.0001&&Number(other.spawnOrder)<Number(cat.spawnOrder))))
-    .sort((a,b)=>Number(b.x)-Number(a.x))[0];
-  const nextX=Math.max(Number(desiredStop)||0,currentX-Math.max(0,Number(cat.speed)||0)*0.45*Math.max(0,Number(dt)||0));
-  if(front) {
-    const followLimit=Number(front.x)+gap;
-    if(currentX<=followLimit+0.0001) return false;
-    cat.x=Math.max(nextX,followLimit);
-  } else {
-    cat.x=nextX;
-  }
-  return cat.x<currentX-0.0001;
-}
+
 function battleEntityMarkup(entity) {
   const source=battleImageFor(entity);
   const unitType=entity.kind==="cat" ? battleUnitKey(entity.name||"cat") : battleUnitKey(entity.enemyType||"doge");
@@ -1502,9 +1475,8 @@ function spawnPlayerCat(unit) {
   battleState.money -= cost;
   battleState.cooldowns[unit.id] = stats.recharge;
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
-  const spawnOrder=battleState.nextUnitKey;
   const entity = {
-    key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,spawnOrder,
+    key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
     x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
     hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
@@ -1720,9 +1692,7 @@ function tickBattle() {
   const catHomeCenter=battleBaseCenterPercent("cat");
   const enemyHomeCenter=battleBaseCenterPercent("enemy");
 
-  const catsInFormationOrder=[...state.playerUnits].sort((a,b)=>battleCatFormationOrder(a)-battleCatFormationOrder(b));
-  const leadCatKey=catsInFormationOrder.find(cat=>cat&&Number(cat.hp)>0&&cat.mode!=="dead"&&cat.mode!=="knockback")?.key||"";
-  for (const cat of catsInFormationOrder) {
+  for (const cat of state.playerUnits) {
     if (cat.mode==="dead" || cat.mode==="knockback") { updateBattleEntityView(cat); continue; }
     if (cat.hp<=0) continue;
     cat.attackTimer=Math.max(0,cat.attackTimer-dt);
@@ -1736,12 +1706,10 @@ function tickBattle() {
     if (target) {
       const distance=battleTargetGap(cat,target);
       const reach=battleRangePercent(cat.range);
-      const preferredAttackDistance=reach*0.1;
-      const isFrontLineCat=cat.key===leadCatKey;
-      if(distance>reach||(isFrontLineCat&&distance>preferredAttackDistance)) {
-        const desiredStop=Math.max(enemyBaseStop,target.x+preferredAttackDistance);
+      if(distance>reach) {
+        const desiredStop=Math.max(enemyBaseStop,target.x+reach*0.1);
         cat.mode="moving";
-        moveBattleCatToward(cat,desiredStop,dt);
+        cat.x=Math.max(desiredStop,cat.x-(cat.speed*0.45)*dt);
       } else {
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
@@ -1756,7 +1724,7 @@ function tickBattle() {
       const catBaseAttackStop=enemyBaseStop+battleRangePercent(cat.range)*0.1;
       if (cat.x>catBaseAttackStop) {
         cat.mode="moving";
-        moveBattleCatToward(cat,catBaseAttackStop,dt);
+        cat.x=Math.max(catBaseAttackStop,cat.x-(cat.speed*0.45)*dt);
       } else if (now+0.0001>=Number(cat.nextAttackAt||0)) {
         if (!attackBattleBase(cat,now)) cat.mode="idle";
       } else {
