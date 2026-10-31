@@ -1310,16 +1310,32 @@ def import_tank_cat_assets(api: str | None = None) -> None:
                         gallery_title,
                         " | ".join(title for title in image_titles if title),
                     ))
-                    candidates = []
-                    for title in image_titles:
-                        normalized = normalized_webp_file_title(title)
-                        if (
-                            "tank" in normalized
-                            and "cat" in normalized
-                            and ("spritesheet" in normalized or "sprite sheet" in normalized)
-                            and not any(word in normalized for word in ("wall", "eraser", "upgrade", "icon", "storage", "evolved", "true form"))
-                        ):
-                            candidates.append(title)
+                    # First inspect every image size; this prevents a portrait/icon being used as the animation atlas.
+                    matching_sizes = []
+                    for offset in range(0, len(image_titles), 40):
+                        batch = image_titles[offset:offset + 40]
+                        try:
+                            info_params = {
+                                "action": "query",
+                                "titles": "|".join(batch),
+                                "prop": "imageinfo",
+                                "iiprop": "url|mime|size",
+                                "format": "json",
+                            }
+                            info_response = session.get(api, params=info_params, timeout=30)
+                            info_response.raise_for_status()
+                            info_pages = info_response.json().get("query", {}).get("pages", {})
+                            for page in info_pages.values():
+                                info = (page.get("imageinfo") or [{}])[0]
+                                title = page.get("title", "")
+                                width, height = info.get("width"), info.get("height")
+                                if width and height:
+                                    print("Tank Cat gallery image: {} ({}x{})".format(title, width, height))
+                                if width == 1366 and height == 457 and info.get("mime") == "image/png":
+                                    matching_sizes.append(title)
+                        except Exception as exc:
+                            print("WARNING: Tank Cat gallery dimensions lookup failed: {}".format(exc))
+                    candidates = matching_sizes
                     if candidates:
                         mirrored_sheet = download_wiki_image(
                             api, candidates[0], SHEETS / "battlecats-tank-cat-wiki"
@@ -1329,12 +1345,14 @@ def import_tank_cat_assets(api: str | None = None) -> None:
                                 mirrored_size = mirrored.size
                             if mirrored_size == (1366, 457):
                                 mirrored_sheet.replace(sheet_path)
-                                print("Using exact 1366x457 Tank Cat sheet from the gallery API.")
+                                print("Using exact 1366x457 Tank Cat sheet from the gallery API: {}".format(candidates[0]))
                                 break
                             print("Wiki Tank Cat sheet {} was {}x{}; not the requested 1366x457 sheet.".format(
                                 candidates[0], mirrored_size[0], mirrored_size[1]
                             ))
                             mirrored_sheet.unlink(missing_ok=True)
+                    else:
+                        print("No 1366x457 PNG in the Tank Cat gallery image list; checking explicit sheet-file names.")
                 except Exception as exc:
                     print("WARNING: Tank Cat gallery API lookup failed for {}: {}".format(gallery_title, exc))
         if not sheet_path.exists() or sheet_path.stat().st_size < 10000:
