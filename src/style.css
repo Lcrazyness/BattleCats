@@ -2596,3 +2596,21 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   animation:none;
   pointer-events:none;
 }
+
+
+/* Align the matching Cat Base door panels to the outer sides. */
+.base-door-sprite {
+  top:10.15%;
+  bottom:auto;
+  width:32.5%;
+  height:80.57%;
+  object-fit:fill;
+}
+.base-door-left {
+  left:0;
+  right:auto;
+}
+.base-door-right {
+  left:auto;
+  right:0;
+}
