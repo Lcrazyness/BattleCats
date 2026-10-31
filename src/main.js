@@ -35,16 +35,16 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-08";
+const BATTLE_ASSET_VERSION = "20261031-09";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:70,damage:8,price:1,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55},
-  "tank-cat": {health:300,damage:8,price:1,speed:5,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  cat: {health:70,damage:8,price:1,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55,AreaAttack:false},
+  "tank-cat": {health:300,damage:8,price:1,speed:5,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -69,6 +69,9 @@ function battleUnitStats(unitOrKey) {
   const health = Math.round(positive(config.health,positive(unit.hp,100))*levelMultiplier);
   const damage = Math.round(positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier);
   const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
+  const areaAttack = typeof config.AreaAttack === "boolean"
+    ? config.AreaAttack
+    : (typeof config.areaAttack === "boolean" ? config.areaAttack : unit.AreaAttack === true || unit.areaAttack === true);
   return {
     level:unitLevel,
     levelMultiplier,
@@ -81,6 +84,7 @@ function battleUnitStats(unitOrKey) {
     range:positive(config.range,positive(unit.range,55)),
     recharge:positive(config.recharge,positive(unit.recharge,2.5)),
     attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
+    areaAttack,
     knockbackThresholdPercent:thresholdPercent,
     knockbackDuration:positive(config.knockbackDuration,0.64,0.2),
     knockbackDistance:positive(config.knockbackDistance,4.5),
@@ -95,6 +99,7 @@ function applyBattleStatsToEntity(entity,unitOrKey) {
   entity.maxHp = stats.health;
   entity.hp = wasFull ? stats.health : Math.min(stats.health,Math.max(0,Number(entity.hp)||0));
   entity.attackPower = stats.damage;
+  entity.areaAttack = stats.areaAttack === true;
   const walkSpeedModifier = entity.kind==="cat" ? Math.max(-2,Math.min(2,Number(entity.walkSpeedModifier)||0)) : 0;
   entity.statsSnapshot = {...stats};
   entity.baseSpeed = stats.speed;
@@ -374,7 +379,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261031-01";
+const AUDIO_VERSION = "20261031-02";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
@@ -393,7 +398,8 @@ const SOUND_FILES = {
   attack2: "sounds/attack2.mp3",
   baseAttack: "sounds/baseattack.mp3",
   deadUnit: "sounds/deadunit.mp3",
-  deploy: "sounds/deploy.mp3"
+  deploy: "sounds/deploy.mp3",
+  endOfRecharge: "sounds/endofrecharge.ogg"
 };
 const MUSIC_FILES = {
   intro: "sounds/intro-theme.mp3",
@@ -516,6 +522,7 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/baseattack.mp3?v="+AUDIO_VERSION,bytes:23138},
   {path:"sounds/deadunit.mp3?v="+AUDIO_VERSION,bytes:44044},
   {path:"sounds/deploy.mp3?v="+AUDIO_VERSION,bytes:31991},
+  {path:"sounds/endofrecharge.ogg?v="+AUDIO_VERSION,bytes:18858},
 ];
 const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
@@ -669,8 +676,11 @@ async function startGameAssetLoading() {
 function createAudioPlayer(path) {
   const player = new Audio();
   player.preload = "auto";
-  const basePath = path.replace(/\.mp3$/i, "");
-  const formats = ["mp3"];
+  const sourcePath = String(path||"");
+  const extensionMatch = sourcePath.match(/\.(mp3|ogg)$/i);
+  const extension = extensionMatch ? extensionMatch[1].toLowerCase() : "mp3";
+  const basePath = extensionMatch ? sourcePath.slice(0,-extensionMatch[0].length) : sourcePath;
+  const formats = [extension];
   let formatIndex = 0;
   let wantsPlayback = false;
 
@@ -1124,7 +1134,7 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
   return {
     key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
     statsSnapshot:{...stats},baseSpeed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,walkSpriteChangeSpeed:stats.walkSpriteChangeSpeed,
-    attackCooldown:stats.attackCooldown,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",
+    attackCooldown:stats.attackCooldown,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",areaAttack:stats.areaAttack===true,
     mode:"moving",attackTimer:0,animUntil:0,attackEndsAt:0,hitUntil:0,frameAt,killReward:stats.killReward,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
@@ -1140,7 +1150,7 @@ function createBattleState() {
     nextEnemySpawn:defaults.initialSpawnDelay,
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
-    cooldowns:{},nextUnitKey:1,nextEnemyKey:1,ended:"",workerLevel:1,
+    cooldowns:{},cooldownWasActive:{},nextUnitKey:1,nextEnemyKey:1,ended:"",workerLevel:1,
     deathSouls:[],nextDeathSoulKey:1,
     levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
@@ -1591,11 +1601,12 @@ function spawnPlayerCat(unit) {
   if (cooldown > 0.05) return notify(unit.name+" is recharging.");
   battleState.money -= cost;
   battleState.cooldowns[unit.id] = stats.recharge;
+  battleState.cooldownWasActive[String(unit.id)] = stats.recharge > 0.05;
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
     x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
-    hp:stats.health,maxHp:stats.health,attackPower:stats.damage,
+    hp:stats.health,maxHp:stats.health,attackPower:stats.damage,areaAttack:stats.areaAttack===true,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",enemyBaseHoldX:undefined,recharge:stats.recharge,mode:"moving",
     animUntil:0,attackEndsAt:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
@@ -1747,9 +1758,18 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   return true;
 }
 function resolveBattleAttackOnce(attacker,target,damage,now) {
-  if (!attacker || !target || !Number(attacker.attackCycleId) ||
-      attacker.lastResolvedAttackCycle===attacker.attackCycleId) return false;
-  attacker.lastResolvedAttackCycle=attacker.attackCycleId;
+  if (!attacker || !target || !Number(attacker.attackCycleId)) return false;
+  const cycle=attacker.attackCycleId;
+  if(attacker.areaAttack===true) {
+    if(!attacker.areaAttackResolvedTargets || attacker.areaAttackResolvedTargets.cycle!==cycle) {
+      attacker.areaAttackResolvedTargets={cycle,targets:{}};
+    }
+    if(attacker.areaAttackResolvedTargets.targets[target.key]) return false;
+    attacker.areaAttackResolvedTargets.targets[target.key]=true;
+  } else {
+    if(attacker.lastResolvedAttackCycle===cycle) return false;
+    attacker.lastResolvedAttackCycle=cycle;
+  }
   damageBattleEntity(target,damage,now);
   return true;
 }
@@ -1788,9 +1808,17 @@ function resolvePendingBattleAttacks(now) {
     if (attacker.mode==="dead" || Number(attacker.hp)<=0) continue;
 
     if(targetKey) {
+      const candidates=attacker.kind==="cat"?battleState.enemies:battleState.playerUnits;
       const lockedTarget=findBattleEntity(targetKey);
-      if(lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead") {
-        if(resolveBattleAttackOnce(attacker,lockedTarget,damage,now)) attacker.attackHitLanded=true;
+      const targets=attacker.areaAttack===true
+        ? candidates.filter(target=>{
+            if(!target||Number(target.hp)<=0||target.mode==="dead") return false;
+            const gap=battleTargetGap(attacker,target);
+            return gap>=-1&&gap<=battleCombatReachPercent(attacker.range)+0.0001;
+          })
+        : (lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead"?[lockedTarget]:[]);
+      for(const target of targets) {
+        if(resolveBattleAttackOnce(attacker,target,damage,now)) attacker.attackHitLanded=true;
       }
     } else if(baseTarget&&attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
       const baseHp=baseTarget==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
@@ -2013,8 +2041,12 @@ function updateFightUI() {
     const stats=battleUnitStats(unit);
     const cost=stats.price;
     const cooldown=Number(state.cooldowns[id]||0);
-    button.disabled=Boolean(state.ended)||state.money<cost||cooldown>0.05;
-    button.classList.toggle("is-recharging",cooldown>0.05);
+    const isRecharging=cooldown>0.05;
+    const wasRecharging=state.cooldownWasActive[String(id)]===true;
+    if(wasRecharging&&!isRecharging) playSfx("endOfRecharge");
+    state.cooldownWasActive[String(id)]=isRecharging;
+    button.disabled=Boolean(state.ended)||state.money<cost||isRecharging;
+    button.classList.toggle("is-recharging",isRecharging);
     const cooldownText=button.querySelector(".fight-slot-cooldown");
     if (cooldownText) cooldownText.textContent=cooldown>0.05?Math.ceil(cooldown):String(cost)+"¢";
     const rechargeFill=button.querySelector(".fight-slot-recharge-fill");
