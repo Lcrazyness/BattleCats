@@ -2615,3 +2615,53 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   left:auto;
   right:0;
 }
+
+
+/* Final Cat Base character, bars and currency sizing. */
+.base-menu-cat {
+  right:-1.4%;
+  bottom:9.3%;
+  width:29%;
+  height:54%;
+}
+.base-header-art {
+  height:9.35%;
+}
+.base-footer-art {
+  height:8.55%;
+}
+.base-xp-count {
+  right:1.4%;
+  width:14%;
+  font-size:clamp(11px,1.95vw,23px);
+  -webkit-text-stroke:1px #392014;
+}
+.base-sprite-button.base-cat-food .base-cat-food-count {
+  right:2.7%;
+  width:39%;
+  font-size:clamp(10px,1.75vw,21px);
+  -webkit-text-stroke:1px #392014;
+}
+@media(max-width:600px) {
+  .base-menu-cat {
+    right:-1.5%;
+    width:30%;
+    height:54%;
+  }
+  .base-header-art {
+    height:9.35%;
+  }
+  .base-footer-art {
+    height:8.55%;
+  }
+  .base-xp-count {
+    right:1%;
+    width:15%;
+    font-size:clamp(9px,2.35vw,14px);
+  }
+  .base-sprite-button.base-cat-food .base-cat-food-count {
+    right:2%;
+    width:40%;
+    font-size:clamp(9px,2.15vw,13px);
+  }
+}
