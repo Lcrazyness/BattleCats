@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-09";
+const BATTLE_ASSET_VERSION = "20261031-10";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1346,17 +1346,27 @@ function battleTargetGap(attacker,target) {
 }
 function findBattleTargetFor(attacker) {
   if(!battleState||!attacker) return null;
-  // Keep attacking the current living target; newly spawned enemies must not pull units toward the base.
   const candidates=attacker.kind==="cat" ? battleState.enemies : battleState.playerUnits;
   const currentTarget=attacker.currentTargetKey
     ? candidates.find(target=>target&&target.key===attacker.currentTargetKey&&Number(target.hp)>0&&target.mode!=="dead")
     : null;
   if(currentTarget) return currentTarget;
+
+  const allies=attacker.kind==="cat" ? battleState.playerUnits : battleState.enemies;
+  const assignedCounts=new Map();
+  for(const ally of allies) {
+    if(ally===attacker||Number(ally.hp)<=0||ally.mode==="dead"||!ally.currentTargetKey) continue;
+    assignedCounts.set(ally.currentTargetKey,(assignedCounts.get(ally.currentTargetKey)||0)+1);
+  }
+  const loadPenalty=Math.max(1.5,battleEntityContactGapPercent()*1.75);
   const nextTarget=candidates
     .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead")
-    .map(target=>({target,gap:battleTargetGap(attacker,target)}))
+    .map(target=>{
+      const gap=battleTargetGap(attacker,target);
+      return {target,gap,score:gap+(assignedCounts.get(target.key)||0)*loadPenalty};
+    })
     .filter(item=>item.gap>=-1)
-    .sort((a,b)=>a.gap-b.gap)[0]?.target||null;
+    .sort((a,b)=>a.score-b.score||a.gap-b.gap)[0]?.target||null;
   attacker.currentTargetKey=nextTarget?nextTarget.key:"";
   return nextTarget;
 }
@@ -1469,6 +1479,12 @@ function updateBattleEntityView(entity) {
   if (!element) return;
   element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
   const animationMode=battleAnimationMode(entity);
+  const attackCycle=String(Number(entity.attackCycleId)||0);
+  if(animationMode==="attack"&&element.dataset.attackVisualCycle!==attackCycle) {
+    element.classList.remove("is-attacking");
+    void element.offsetWidth;
+    element.dataset.attackVisualCycle=attackCycle;
+  }
   element.classList.toggle("is-attacking",animationMode==="attack");
   element.classList.toggle("is-idle",animationMode==="idle");
   element.classList.toggle("is-damaged",animationMode==="damaged");
@@ -1522,43 +1538,59 @@ function updateBattleEntityView(entity) {
     sprite.src=source;
   }
 }
-function battleBaseGeometry(side) {
+function calculateBattleLayoutMetrics() {
   const screen=stage.querySelector(".fight-screen");
-  const base=screen&&screen.querySelector(side==="cat"?".player-castle":".enemy-castle");
   const screenRect=screen&&screen.getBoundingClientRect();
-  const baseRect=base&&base.getBoundingClientRect();
-  if(screenRect&&screenRect.width>0&&baseRect&&baseRect.width>0) {
-    return {center:(baseRect.left+baseRect.width/2-screenRect.left)/screenRect.width*100,halfWidth:baseRect.width/2/screenRect.width*100};
-  }
-  return side==="cat"?{center:94.5,halfWidth:3.5}:{center:6,halfWidth:3.5};
+  const width=(screenRect&&screenRect.width)||window.innerWidth||1000;
+  const geometryFor=(side)=>{
+    const base=screen&&screen.querySelector(side==="cat"?".player-castle":".enemy-castle");
+    const rect=base&&base.getBoundingClientRect();
+    if(screenRect&&screenRect.width>0&&rect&&rect.width>0) {
+      return {center:(rect.left+rect.width/2-screenRect.left)/screenRect.width*100,halfWidth:rect.width/2/screenRect.width*100};
+    }
+    return side==="cat"?{center:94.5,halfWidth:3.5}:{center:6,halfWidth:3.5};
+  };
+  const unitWidth=Math.max(54,Math.min(96,width*0.073));
+  return {
+    width,
+    catBase:geometryFor("cat"),
+    enemyBase:geometryFor("enemy"),
+    unitWidth,
+    contactGap:((unitWidth*0.62+unitWidth*0.72)*0.5/width)*100
+  };
+}
+function battleLayoutMetrics() {
+  if(!battleState) return calculateBattleLayoutMetrics();
+  if(!battleState.layoutMetrics) battleState.layoutMetrics=calculateBattleLayoutMetrics();
+  return battleState.layoutMetrics;
+}
+function refreshBattleLayoutMetrics() {
+  if(battleState) battleState.layoutMetrics=calculateBattleLayoutMetrics();
+}
+function battleBaseGeometry(side) {
+  const metrics=battleLayoutMetrics();
+  return side==="cat"?metrics.catBase:metrics.enemyBase;
 }
 function battleBaseCenterPercent(side) {
   return battleBaseGeometry(side).center;
 }
 function battleBaseContactPercent(side) {
-  const geometry=battleBaseGeometry(side);
-  const screen=stage.querySelector(".fight-screen");
-  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
-  const unitWidth=Math.max(54,Math.min(96,width*0.073));
-  const unitHalf=unitWidth/2/width*100;
+  const metrics=battleLayoutMetrics();
+  const geometry=side==="cat"?metrics.catBase:metrics.enemyBase;
+  const unitHalf=metrics.unitWidth/2/metrics.width*100;
   if(side==="cat") return Math.max(2,geometry.center-geometry.halfWidth-unitHalf-0.3);
   return Math.min(98,geometry.center+geometry.halfWidth+unitHalf+0.3);
 }
 function battleRangePercent(range) {
-  const screen=stage.querySelector(".fight-screen");
-  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
+  const width=battleLayoutMetrics().width;
   return Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/width)*100));
 }
 function battleEntityContactGapPercent() {
-  const screen=stage.querySelector(".fight-screen");
-  const width=(screen&&screen.getBoundingClientRect().width)||window.innerWidth||1000;
-  const unitWidth=Math.max(54,Math.min(96,width*0.073));
-  const catSpriteWidth=unitWidth*0.62;
-  const enemySpriteWidth=unitWidth*0.72;
-  return ((catSpriteWidth+enemySpriteWidth)*0.5/width)*100;
+  return battleLayoutMetrics().contactGap;
 }
 function battleCombatReachPercent(range) {
-  return Math.max(battleRangePercent(range),battleEntityContactGapPercent());
+  const metrics=battleLayoutMetrics();
+  return Math.max(Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/metrics.width)*100)),metrics.contactGap);
 }
 function applyBattleLevelVisuals() {
   if(scene!=="fight"||!battleState) return;
@@ -1668,7 +1700,7 @@ function advanceBattleKnockback(deltaSeconds) {
         entity.attackTimer=0;
       }
     }
-    updateBattleEntityView(entity);
+    if(battleState.ended) updateBattleEntityView(entity);
   }
   const expired = entities.filter(entity=>entity.mode==="dead" && entity.knockbackElapsed>=(Number(entity.knockbackDuration)||0.68));
   for (const entity of expired) {
@@ -1796,6 +1828,7 @@ function shakeBattleBase(side) {
 function resolvePendingBattleAttacks(now) {
   if (!battleState) return;
   const entities=[...(battleState.playerUnits||[]),...(battleState.enemies||[])];
+  const entityByKey=new Map(entities.map(entity=>[entity.key,entity]));
   for (const attacker of entities) {
     const strikeAt=Number(attacker.pendingAttackAt)||0;
     if (!strikeAt || now+0.0001<strikeAt) continue;
@@ -1809,7 +1842,7 @@ function resolvePendingBattleAttacks(now) {
 
     if(targetKey) {
       const candidates=attacker.kind==="cat"?battleState.enemies:battleState.playerUnits;
-      const lockedTarget=findBattleEntity(targetKey);
+      const lockedTarget=entityByKey.get(targetKey)||null;
       const targets=attacker.areaAttack===true
         ? candidates.filter(target=>{
             if(!target||Number(target.hp)<=0||target.mode==="dead") return false;
@@ -1854,6 +1887,7 @@ function attackBattleBase(attacker,now) {
 function tickBattle() {
   if (scene!=="fight" || !battleState) return;
   const state=battleState;
+  refreshBattleLayoutMetrics();
   const tickAt=performance.now();
   const previousTickAt=Number(state.lastTickAt)||tickAt;
   const dt=Math.max(0.001,Math.min(0.2,(tickAt-previousTickAt)/1000));
