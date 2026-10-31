@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-05";
+const BATTLE_ASSET_VERSION = "20261031-06";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -374,7 +374,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
-const AUDIO_VERSION = "20261029-13";
+const AUDIO_VERSION = "20261031-01";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
@@ -388,7 +388,12 @@ const SOUND_FILES = {
   defeat: "sounds/defeat.mp3",
   reward: "sounds/reward.mp3",
   loginReward: "sounds/login-reward.mp3",
-  capsule: "sounds/capsule-draw.mp3"
+  capsule: "sounds/capsule-draw.mp3",
+  attack1: "sounds/attack1.mp3",
+  attack2: "sounds/attack2.mp3",
+  baseAttack: "sounds/baseattack.mp3",
+  deadUnit: "sounds/deadunit.mp3",
+  deploy: "sounds/deploy.mp3"
 };
 const MUSIC_FILES = {
   intro: "sounds/intro-theme.mp3",
@@ -505,6 +510,11 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/upgrade.mp3?v="+AUDIO_VERSION,bytes:16941},
   {path:"sounds/victory.mp3?v="+AUDIO_VERSION,bytes:116845},
   {path:"sounds/defeat.mp3?v="+AUDIO_VERSION,bytes:107818},
+  {path:"sounds/attack1.mp3?v="+AUDIO_VERSION,bytes:11772},
+  {path:"sounds/attack2.mp3?v="+AUDIO_VERSION,bytes:21672},
+  {path:"sounds/baseattack.mp3?v="+AUDIO_VERSION,bytes:23138},
+  {path:"sounds/deadunit.mp3?v="+AUDIO_VERSION,bytes:44044},
+  {path:"sounds/deploy.mp3?v="+AUDIO_VERSION,bytes:31991},
 ];
 const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
@@ -1382,6 +1392,7 @@ function createBattleDeathSoul(entity) {
   };
   battleState.deathSouls.push(soul);
   if(layer) layer.insertAdjacentHTML("beforeend",battleDeathSoulMarkup(soul));
+  playSfx("deadUnit");
 }
 function updateBattleDeathSouls(deltaSeconds) {
   if(!battleState||!battleState.deathSouls) return;
@@ -1613,6 +1624,8 @@ function beginBattleKnockback(target,lethal,now) {
   target.attackTimer = 0;
   target.animUntil = 0;
   target.attackEndsAt = 0;
+  target.attackSoundPending = false;
+  target.attackHitLanded = false;
   target.hitUntil = 0;
   if (lethal) target.queuedKnockbacks=0;
   updateBattleEntityView(target);
@@ -1722,6 +1735,8 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.nextAttackAt=now+attackCooldown;
   attacker.animUntil=now+animationDuration;
   attacker.attackEndsAt=attacker.animUntil;
+  attacker.attackSoundPending=true;
+  attacker.attackHitLanded=false;
   attacker.pendingAttackAt=now+Math.max(0.1,animationDuration*0.62);
   attacker.pendingAttackTargetKey=target ? target.key : "";
   attacker.pendingAttackBase=baseTarget;
@@ -1735,6 +1750,26 @@ function resolveBattleAttackOnce(attacker,target,damage,now) {
   attacker.lastResolvedAttackCycle=attacker.attackCycleId;
   damageBattleEntity(target,damage,now);
   return true;
+}
+function finishBattleAttackSounds(now) {
+  if(!battleState) return;
+  const entities=[...(battleState.playerUnits||[]),...(battleState.enemies||[])];
+  for(const attacker of entities) {
+    if(!attacker.attackSoundPending || Number(attacker.attackEndsAt)>now+0.0001) continue;
+    attacker.attackSoundPending=false;
+    if(attacker.attackHitLanded) playSfx(Math.random()<0.5?"attack1":"attack2");
+    attacker.attackHitLanded=false;
+  }
+}
+function shakeBattleBase(side) {
+  const base=stage.querySelector(side==="enemy"?".enemy-castle":".player-castle");
+  if(!base) return;
+  base.classList.remove("is-being-attacked");
+  void base.offsetWidth;
+  base.classList.add("is-being-attacked");
+  base.addEventListener("animationend",()=>{
+    base.classList.remove("is-being-attacked");
+  },{once:true});
 }
 function resolvePendingBattleAttacks(now) {
   if (!battleState) return;
@@ -1753,12 +1788,17 @@ function resolvePendingBattleAttacks(now) {
     if(targetKey) {
       const lockedTarget=findBattleEntity(targetKey);
       if(lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead") {
-        resolveBattleAttackOnce(attacker,lockedTarget,damage,now);
+        if(resolveBattleAttackOnce(attacker,lockedTarget,damage,now)) attacker.attackHitLanded=true;
       }
     } else if(baseTarget&&attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
-      attacker.lastResolvedAttackCycle=attacker.attackCycleId;
-      if(baseTarget==="enemy") battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-damage);
-      else battleState.catBaseHp=Math.max(0,battleState.catBaseHp-damage);
+      const baseHp=baseTarget==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
+      if(baseHp>0) {
+        attacker.lastResolvedAttackCycle=attacker.attackCycleId;
+        if(baseTarget==="enemy") battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-damage);
+        else battleState.catBaseHp=Math.max(0,battleState.catBaseHp-damage);
+        playSfx("baseAttack");
+        shakeBattleBase(baseTarget);
+      }
     }
   }
 }
@@ -1799,6 +1839,7 @@ function tickBattle() {
 
   const now=state.elapsed;
   resolvePendingBattleAttacks(now);
+  finishBattleAttackSounds(now);
   const enemyBaseStop=battleBaseContactPercent("enemy");
   const catBaseStop=battleBaseContactPercent("cat");
   const catHomeCenter=battleBaseCenterPercent("cat");
@@ -2518,7 +2559,7 @@ stage.addEventListener("click", event => {
     return;
   }
 
-  playSfx(action === "intro-back" ? "back" : isStageChoice ? "enterBattle" : "button");
+  playSfx(action.startsWith("deploy:") ? "deploy" : action === "intro-back" ? "back" : isStageChoice ? "enterBattle" : "button");
   if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
