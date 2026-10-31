@@ -35,7 +35,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-10";
+const BATTLE_ASSET_VERSION = "20261031-11";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1284,10 +1284,10 @@ function battleSlotImage(unit) {
 function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
   const mode=String(entity&&entity.mode||"idle");
   if(mode==="dead"||mode==="knockback") return mode;
-  const attackEnd=Number(entity.attackEndsAt)||Number(entity.animUntil)||0;
-  if(attackEnd>elapsed+0.0001) return "attack";
+  const attackEnd=Number(entity.attackEndsAt)||0;
+  if(mode==="attack"&&attackEnd>elapsed+0.0001) return "attack";
   const hurtEnd=Number(entity.hitUntil)||0;
-  if(hurtEnd>elapsed+0.0001&&mode==="damaged") return "damaged";
+  if(mode==="damaged"&&hurtEnd>elapsed+0.0001) return "damaged";
   return mode==="moving"?"moving":"idle";
 }
 function battleImageFor(entity) {
