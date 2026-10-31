@@ -4,7 +4,7 @@ const $ = (selector, root=document) => root.querySelector(selector);
 const money = value => Number(value || 0).toLocaleString();
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
-  energy:100, maxEnergy:100, level:1, exp:0, stageClears:0,
+  energy:100, maxEnergy:100, exp:0, stageClears:0,
   units:[
     {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:0.1}
   ],
@@ -19,6 +19,7 @@ try {
   save = old && old.menuVersion === 4 ? {...defaults, ...old} : {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
   if (!Array.isArray(save.units) || !save.units.length) save.units = defaults.units.map(unit => ({...unit}));
   if (!Array.isArray(save.equipped)) save.equipped = save.units.slice(0,1).map(unit => unit.id);
+  delete save.level;
 } catch {
   save = {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
 }
@@ -35,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-13";
+const BATTLE_ASSET_VERSION = "20261031-14";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -379,6 +380,8 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
+const totalCatLevels = () => save.units.reduce((total,unit) =>
+  total + Math.max(1,Math.floor(Number(unit.level)||1)),0);
 const AUDIO_VERSION = "20261031-02";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
@@ -474,7 +477,13 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/ui/Play_button.png?v=20261026-9",bytes:5844},
   {path:"sprites/ui/title-settings.png?v=20261026-9",bytes:38154},
   {path:"sprites/ui/title-mailbox.png?v=20261026-9",bytes:48748},
-  {path:"sprites/backgrounds/bg_restored.png?v=20261028-13",bytes:203596},
+  {path:"sprites/backgrounds/cat-base-background-clean.webp?v=20261031-01",bytes:275812},
+  {path:"sprites/backgrounds/CatBase/MenuCat.png?v=20261031-01",bytes:16787},
+  {path:"sprites/backgrounds/CatBase/bottem.png?v=20261031-01",bytes:9633},
+  {path:"sprites/backgrounds/CatBase/catbase-top.png?v=20261031-01",bytes:15592},
+  {path:"sprites/backgrounds/CatBase/doorleft.png?v=20261031-01",bytes:106187},
+  {path:"sprites/backgrounds/CatBase/doorright.png?v=20261031-01",bytes:105741},
+  {path:"sprites/backgrounds/CatBase/userRank.png?v=20261031-01",bytes:38080},
   {path:"sprites/ui/backboard.png?v=20261026-25",bytes:62313},
   {path:"sprites/ui/startbutton.png?v=20261026-9",bytes:111427},
   {path:"sprites/ui/upgradebutton.png?v=20261026-9",bytes:137546},
@@ -956,8 +965,16 @@ function renderBase() {
   baseFadeFromBlack = false;
   return '<section class="screen base-sprite-screen'+(fadeFromBlack?' base-fade-from-black':'')+'">'+
     '<div class="base-sprite-frame">'+
-      '<img class="base-background-sprite" src="sprites/backgrounds/bg_restored.png?v=20261028-13" alt="" draggable="false">'+
-    '<img class="base-backboard-sprite" src="sprites/ui/backboard.png?v=20261026-25" alt="" draggable="false">'+
+      '<img class="base-background-sprite" src="sprites/backgrounds/cat-base-background-clean.webp?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-door-sprite base-door-left" src="sprites/backgrounds/CatBase/doorleft.png?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-door-sprite base-door-right" src="sprites/backgrounds/CatBase/doorright.png?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-menu-cat" src="sprites/backgrounds/CatBase/MenuCat.png?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-backboard-sprite" src="sprites/ui/backboard.png?v=20261026-25" alt="" draggable="false">'+
+      '<img class="base-header-art" src="sprites/backgrounds/CatBase/catbase-top.png?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-footer-art" src="sprites/backgrounds/CatBase/bottem.png?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-user-rank-art" src="sprites/backgrounds/CatBase/userRank.png?v=20261031-01" alt="" draggable="false">'+
+      '<strong class="base-user-rank-value" aria-label="User Rank '+totalCatLevels()+'">'+money(totalCatLevels())+'</strong>'+
+      '<strong class="base-xp-count" aria-label="Experience points '+money(save.xp)+'">'+money(save.xp)+'</strong>'+
       '<button class="base-sprite-button base-start" data-go="stage:empire" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
@@ -969,7 +986,7 @@ function renderBase() {
       '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"></button>'+
       '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/storebutton.png?v=20261026-26" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img class="base-cat-food-icon" src="sprites/ui/Cat_Food.png?v=20261026-27" alt="" draggable="false"><span class="base-cat-food-count" aria-label="Cat Food balance">'+money(save.catFood)+'</span></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><span class="base-cat-food-count" aria-label="Cat Food balance '+money(save.catFood)+'">'+money(save.catFood)+'</span></button>'+
     '</div>'+
   '</section>';
 }
@@ -2152,7 +2169,6 @@ function renderFight() {
 }
 function renderUpgrade() {
   const body = pageCopy("Each Cat level increases its health and attack power by 10%.")+
-    row("Player Rank","Rank "+save.level+" · "+money(save.xp)+" XP available","rank","RANK UP · 500 XP")+
     '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
     '<div class="menu-list">'+save.units.map((unit,i)=>{
       const level=Math.max(1,Math.floor(Number(unit.level)||1));
@@ -2571,7 +2587,7 @@ function perform(action) {
       if (!battleState || battleState.ended!=="win") playSfx("victory");
       save.xp += 250; save.missions = (save.missions||0)+1; save.stageClears = (save.stageClears||0)+1;
       selectedLevelIndex = Math.min(Math.max(0,save.stageClears),47);
-      save.level = Math.max(save.level,1+Math.floor(save.xp/1000));
+
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
         save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,upgradeCost:400,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json"});
@@ -2580,9 +2596,6 @@ function perform(action) {
       navigate("battle"); notify(reward);
       break;
     }
-    case "rank":
-      if (save.xp < 500) return notify("Not enough XP!");
-      save.xp -= 500; save.level++; playSfx("upgrade"); render(); notify("Rank increased!"); break;
     case "rare":
       if (save.rareTickets < 1) return notify("You need a Rare Ticket.");
       save.rareTickets--; playSfx("capsule"); recruit(true); break;
