@@ -103,7 +103,7 @@ def safe_slug(title: str) -> str:
     return (title[:100] or "sprite-sheet")
 
 
-def download(url: str, destination: Path) -> bool:
+def download(url: str, destination: Path, referer: str | None = None) -> bool:
     urls = [url]
     is_spriters = "spriters-resource.com" in url.lower()
     if is_spriters:
@@ -121,7 +121,7 @@ def download(url: str, destination: Path) -> bool:
             if "spriters-resource.com" in candidate_url.lower():
                 headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-                    "Referer": "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/",
+                    "Referer": referer or "https://www.spriters-resource.com/mobile/thebattlecats/asset/81040/",
                     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
                 }
             else:
@@ -1268,6 +1268,101 @@ def import_enemy_base_sprite(api: str) -> None:
 
 
 
+
+def import_tank_cat_assets() -> None:
+    """Download the original Tank Cat sheet and export its real Walk/Attack/Hurt frames as PNGs."""
+    from PIL import Image
+
+    folder = ROOT / "Cats" / "tank-cat"
+    moving_dir = folder / "moving"
+    attack_dir = folder / "attack"
+    damaged_dir = folder / "damaged"
+    for directory in (moving_dir, attack_dir, damaged_dir):
+        directory.mkdir(parents=True, exist_ok=True)
+
+    source_page = "https://www.spriters-resource.com/mobile/thebattlecats/asset/81253/"
+    source_image = "https://www.spriters-resource.com/media/assets/78/81253.png?updated=1755474505"
+    sheet_path = SHEETS / "battlecats-tank-cat-spritesheet.png"
+    sheet_path.parent.mkdir(parents=True, exist_ok=True)
+    if not sheet_path.exists() or sheet_path.stat().st_size < 10000:
+        if not download(source_image, sheet_path, referer=source_page):
+            raise RuntimeError("Could not download the original Tank Cat sprite sheet.")
+
+    with Image.open(sheet_path) as opened:
+        if opened.size != (1366, 457):
+            raise ValueError("Expected the Tank Cat sheet to be 1366x457, got {}".format(opened.size))
+        sheet = opened.convert("RGBA")
+
+    frame_specs = {
+        "moving": [
+            ("frame-001.png", (0, 38, 50, 134)),
+            ("frame-002.png", (48, 38, 98, 134)),
+            ("frame-003.png", (99, 38, 149, 134)),
+        ],
+        "attack": [
+            ("frame-001attack.png", (0, 171, 51, 267)),
+            ("frame-002attack.png", (49, 171, 100, 267)),
+            ("frame-003attack.png", (104, 151, 173, 267)),
+            ("frame-004attack.png", (174, 171, 249, 267)),
+        ],
+        "damaged": [
+            ("frame-001damaged.png", (0, 262, 54, 366)),
+        ],
+    }
+    folders = {"moving": moving_dir, "attack": attack_dir, "damaged": damaged_dir}
+    output_paths = {"moving": [], "attack": [], "damaged": []}
+
+    for kind, specs in frame_specs.items():
+        output_dir = folders[kind]
+        # Remove only the old SVG frame wrappers; leave slot/upgrade art untouched.
+        for stale in output_dir.glob("frame-*.svg"):
+            stale.unlink()
+        for filename, bounds in specs:
+            frame = sheet.crop(bounds).convert("RGBA")
+            if frame.size != (bounds[2] - bounds[0], bounds[3] - bounds[1]):
+                raise ValueError("Invalid Tank Cat crop size for {}".format(filename))
+            if frame.getchannel("A").getbbox() is None:
+                raise ValueError("Tank Cat crop is empty/transparent: {}".format(filename))
+            destination = output_dir / filename
+            frame.save(destination, format="PNG", optimize=True)
+            output_paths[kind].append(destination.relative_to(ROOT).as_posix())
+            print("Saved {} ({}x{}, {:,} bytes)".format(
+                destination.relative_to(ROOT), frame.width, frame.height, destination.stat().st_size
+            ))
+
+        (output_dir / "frames.json").write_text(
+            json.dumps({"frames": output_paths[kind]}, indent=2),
+            encoding="utf-8",
+        )
+
+    manifest_path = folder / "assets.json"
+    existing = {}
+    if manifest_path.exists():
+        try:
+            existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except Exception:
+            existing = {}
+    manifest = {
+        "name": "Tank Cat",
+        "source": "The Spriters Resource — Tank Cat sprite sheet (1366x457 PNG). Original Battle Cats artwork belongs to PONOS.",
+        "sourceUrl": source_page,
+        "sourceImage": sheet_path.relative_to(ROOT).as_posix(),
+        "moving": output_paths["moving"],
+        "attacks": output_paths["attack"],
+        "attack": output_paths["attack"][0],
+        "attackFrameRate": 8,
+        "attackDuration": 0.5,
+        "damagedFrames": output_paths["damaged"],
+        "knockbackFrames": output_paths["damaged"],
+        "idle": output_paths["moving"][0],
+        "damaged": output_paths["damaged"][0],
+        "slot": existing.get("slot", "Cats/tank-cat/slot.svg"),
+        "upgrade": existing.get("upgrade", "Cats/tank-cat/upgrade.svg"),
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    print("Wrote Cats/tank-cat/assets.json using PNG frame paths (same manifest format as Normal Cat).")
+
+
 def import_battle_scene_assets(api: str) -> None:
     """Create the exact content folders used by the first playable Korea battle."""
     (ROOT / "Cats").mkdir(parents=True, exist_ok=True)
@@ -1294,6 +1389,9 @@ def main() -> int:
         import_battle_scene_assets(api)
     except Exception as exc:
         print(f"WARNING: could not import first-battle assets: {exc}")
+
+    # Tank Cat has its own unit folder and manifest, exactly like Cats/cat.
+    import_tank_cat_assets()
 
     sheets = import_relevant_sheets()
     cat_source = SHEETS / "battlecats-cat-spritesheet.png"
