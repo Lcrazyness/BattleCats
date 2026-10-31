@@ -522,7 +522,7 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/baseattack.mp3?v="+AUDIO_VERSION,bytes:23138},
   {path:"sounds/deadunit.mp3?v="+AUDIO_VERSION,bytes:44044},
   {path:"sounds/deploy.mp3?v="+AUDIO_VERSION,bytes:31991},
-  {path:"sounds/endofrecharge.ogg?v="+AUDIO_VERSION,bytes:18858},
+  {path:"sounds/endofrecharge.ogg?v="+AUDIO_VERSION,bytes:18549},
 ];
 const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
