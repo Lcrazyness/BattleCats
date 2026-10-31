@@ -13,14 +13,12 @@
     "Cats/cat/attack/frame-004attack.png"
   ],
   "attack": "Cats/cat/attack/frame-001attack.png",
-  "damagedFrames": [
-    "Cats/cat/damaged/frame-001damaged.png"
-  ],
+  "damagedFrames": [],
   "knockbackFrames": [
     "Cats/cat/damaged/frame-001damaged.png"
   ],
-  "idle": "Cats/cat/idle.png",
-  "damaged": "Cats/cat/damaged/frame-001damaged.png",
+  "idle": "Cats/cat/moving/frame-001.png",
+  "damaged": "Cats/cat/moving/frame-001.png",
   "slot": "Cats/cat/slot.png",
   "upgrade": "Cats/cat/upgrade.png"
 }
