@@ -2932,7 +2932,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 /* Larger live currency counters on the original Cat Base artwork. */
 .base-xp-count { width:24%; overflow:visible; }
-.base-xp-count .currency-sprite-run { --currency-scale:.42; }
+.base-xp-count .currency-sprite-run { --currency-scale:.56; }
 .base-sprite-button.base-cat-food {
   left:80% !important;
   top:91.5% !important;
@@ -2954,15 +2954,15 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   transform:translateY(-50%) !important;
   padding:0 !important;
 }
-.base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.42; }
+.base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.56; }
 @media(max-width:600px) {
   .base-xp-count { width:26%; right:.8%; }
-  .base-xp-count .currency-sprite-run { --currency-scale:.34; }
+  .base-xp-count .currency-sprite-run { --currency-scale:.44; }
   .base-sprite-button.base-cat-food {
-    left:78% !important;
-    width:21% !important;
+    left:75% !important;
+    width:25% !important;
     top:91.5% !important;
     height:8.5% !important;
   }
-  .base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.30; }
+  .base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.36; }
 }
