@@ -3,7 +3,7 @@
   "health": 70,
   "damage": 4,
   "price": 1,
-  "speed": 9,
+  "speed": 7,
   "spriteChangeSpeed": 6,
   "walkSpriteChangeSpeed": 2.5,
   "range": 55,
