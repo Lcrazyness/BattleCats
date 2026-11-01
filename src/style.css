@@ -2884,6 +2884,41 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 
 /* Axe Cat is a little larger than the basic Cat in every battle animation. */
-.fight-screen .fight-unit-cat[data-unit-type="axe-cat"] .fight-unit-sprite {
-  scale:1.1 !important;
+
+
+/* Keep the battle money readout floating with no panel behind it. */
+.fight-screen .fight-money {
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  min-height:0 !important;
+  text-shadow:none !important;
+}
+.fight-screen .fight-money .fight-money-value {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:1px !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+/* The slash is a separate atlas glyph, so it needs the same inherited scale as the digits. */
+.currency-sprite-readout { --currency-scale:.34; }
+.currency-glyph-slash {
+  display:block !important;
+  flex:0 0 auto !important;
+  width:calc(43px * var(--currency-scale)) !important;
+  height:calc(62px * var(--currency-scale)) !important;
+  background-image:url("../sprites/ui/numbers/currency-atlas.png?v=20261101-07") !important;
+  background-repeat:no-repeat !important;
+  background-size:calc(393px * var(--currency-scale)) calc(134px * var(--currency-scale)) !important;
+  background-position:calc(-100px * var(--currency-scale)) calc(-70px * var(--currency-scale)) !important;
+}
+@media(max-width:650px) {
+  .currency-sprite-readout { --currency-scale:.25; }
 }
