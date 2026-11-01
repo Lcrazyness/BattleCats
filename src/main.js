@@ -1396,10 +1396,12 @@ function findBattleTargetFor(attacker) {
   const nextTarget=targetPool
     .map(target=>{
       const gap=battleTargetGap(attacker,target);
-      return {target,gap,score:gap+(assignedCounts.get(target.key)||0)*loadPenalty};
+      const distance=Math.abs(gap);
+      const reach=battleCombatReachPercent(attacker.range,attacker,target);
+      return {target,gap,distance,reach,score:distance+(assignedCounts.get(target.key)||0)*loadPenalty};
     })
-    .filter(item=>item.gap>=-1)
-    .sort((a,b)=>a.score-b.score||a.gap-b.gap)[0]?.target||null;
+    .filter(item=>item.gap>=-item.reach-0.0001)
+    .sort((a,b)=>a.score-b.score||a.distance-b.distance)[0]?.target||null;
 
   attacker.currentTargetKey=nextTarget?nextTarget.key:"";
   return nextTarget;
@@ -1896,14 +1898,14 @@ function resolvePendingBattleAttacks(now) {
       if(attacker.areaAttack===true) {
         targets=candidates.filter(target=>{
           if(!target||Number(target.hp)<=0||target.mode==="dead"||target.mode==="knockback") return false;
-          const gap=battleTargetGap(attacker,target);
-          return gap>=-1&&gap<=battleCombatReachPercent(attacker.range,attacker,target)+0.0001;
+          const distance=Math.abs(battleTargetGap(attacker,target));
+          return distance<=battleCombatReachPercent(attacker.range,attacker,target)+0.0001;
         });
       } else {
         const currentTarget=findBattleTargetFor(attacker);
         if(currentTarget&&currentTarget.mode!=="knockback") {
-          const gap=battleTargetGap(attacker,currentTarget);
-          if(gap>=-1&&gap<=battleCombatReachPercent(attacker.range,attacker,currentTarget)+0.0001) {
+          const distance=Math.abs(battleTargetGap(attacker,currentTarget));
+          if(distance<=battleCombatReachPercent(attacker.range,attacker,currentTarget)+0.0001) {
             targets=[currentTarget];
           }
         }
@@ -1923,7 +1925,6 @@ function resolvePendingBattleAttacks(now) {
     }
   }
 }
-
 function prepareBattleAttackPhase(attacker,now) {
   if(!attacker||attacker.hasEnteredCombatRange) return;
   attacker.hasEnteredCombatRange=true;
@@ -1979,39 +1980,44 @@ function tickBattle() {
     const target=findBattleTargetFor(cat);
 
     if(target&&target.mode==="knockback") {
-      cat.mode=attackActive?"attack":"idle";
-    } else if (attackActive) {
+      cat.mode="idle";
+    } else if(attackActive) {
       cat.mode="attack";
-    } else if (target) {
-      const distance=battleTargetGap(cat,target);
+    } else if(target) {
+      const distance=Math.abs(battleTargetGap(cat,target));
       const reach=battleCombatReachPercent(cat.range,cat,target);
-      const contactGap=battleEntityContactGapPercent(cat,target);
       const targetIsInsideEnemyBase=Number(target.x)<=enemyBaseStop+0.1;
       const baseHoldX=targetIsInsideEnemyBase?battleEnemyBaseHoldPosition(cat,enemyHomeCenter):enemyBaseStop;
-      const targetCombatStop=targetIsInsideEnemyBase
-        ? Math.max(baseHoldX,Number(target.x)+contactGap)
-        : Math.max(enemyBaseStop,Number(target.x)+contactGap);
+      const targetApproachStop=targetIsInsideEnemyBase
+        ? Math.max(baseHoldX,Number(target.x)+reach)
+        : Math.max(enemyBaseStop,Number(target.x)+reach);
+
       if(distance>reach) {
-        cat.x=Math.max(targetCombatStop,cat.x-(cat.speed*0.45)*dt);
-        const distanceAfterMove=battleTargetGap(cat,target);
-        if(distanceAfterMove<=reach+0.0001) {
-          prepareBattleAttackPhase(cat,now);
-          const catStats=battleStatsForEntity(cat);
-          const attackDuration=battleAttackAnimationDuration(cat,0.62);
-          if(now+0.0001>=Number(cat.nextAttackAt||0)&&startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target)) {
-          } else {
+        const targetGap=battleTargetGap(cat,target);
+        if(targetGap>0) {
+          cat.x=Math.max(targetApproachStop,cat.x-(cat.speed*0.45)*dt);
+          const distanceAfterMove=Math.abs(battleTargetGap(cat,target));
+          if(distanceAfterMove<=reach+0.0001) {
             cat.mode="idle";
+            prepareBattleAttackPhase(cat,now);
+            const catStats=battleStatsForEntity(cat);
+            const attackDuration=battleAttackAnimationDuration(cat,0.62);
+            if(now+0.0001>=Number(cat.nextAttackAt||0)) {
+              startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target);
+            }
+          } else {
+            cat.mode=cat.x<=targetApproachStop+0.15?"idle":"moving";
           }
         } else {
-          cat.mode=cat.x<=targetCombatStop+0.15?"idle":"moving";
+          cat.mode="idle";
         }
       } else {
+        cat.mode="idle";
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
         const attackDuration=battleAttackAnimationDuration(cat,0.62);
-        if(now+0.0001>=Number(cat.nextAttackAt||0)&&startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target)) {
-        } else if(!(cat.animUntil>now)) {
-          cat.mode="idle";
+        if(now+0.0001>=Number(cat.nextAttackAt||0)) {
+          startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target);
         }
       }
       const targetSideStop=targetIsInsideEnemyBase?baseHoldX:enemyBaseStop;
@@ -2040,26 +2046,41 @@ function tickBattle() {
     else enemy.mode="idle";
 
     const target=findBattleTargetFor(enemy);
-    const enemyDistance=target?battleTargetGap(enemy,target):Infinity;
+    const enemyDistance=target?Math.abs(battleTargetGap(enemy,target)):Infinity;
     const enemyReach=battleCombatReachPercent(enemy.range,enemy,target);
-    const contactGap=target?battleEntityContactGapPercent(enemy,target):battleEntityContactGapPercent();
 
     if(attackActive) {
       enemy.mode="attack";
     } else if(target&&target.mode==="knockback") {
       enemy.mode="idle";
     } else if(target&&enemyDistance<=enemyReach) {
+      enemy.mode="idle";
       prepareBattleAttackPhase(enemy,now);
       const enemyStats=battleStatsForEntity(enemy);
       const attackDuration=battleAttackAnimationDuration(enemy,0.55);
-      if(now+0.0001>=Number(enemy.nextAttackAt||0)&&startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target)) {
-      } else if(!(enemy.animUntil>now)) {
-        enemy.mode="idle";
+      if(now+0.0001>=Number(enemy.nextAttackAt||0)) {
+        startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target);
       }
     } else if(target&&enemyDistance>enemyReach) {
-      const desiredStop=Math.min(catBaseStop,target.x-contactGap);
-      enemy.mode="moving";
-      enemy.x=Math.min(desiredStop,enemy.x+Number(enemy.speed||2.8)*dt);
+      const targetGap=battleTargetGap(enemy,target);
+      if(targetGap>0) {
+        const desiredStop=Math.min(catBaseStop,Number(target.x)-enemyReach);
+        enemy.x=Math.min(desiredStop,enemy.x+Number(enemy.speed||2.8)*dt);
+        const distanceAfterMove=Math.abs(battleTargetGap(enemy,target));
+        if(distanceAfterMove<=enemyReach+0.0001) {
+          enemy.mode="idle";
+          prepareBattleAttackPhase(enemy,now);
+          const enemyStats=battleStatsForEntity(enemy);
+          const attackDuration=battleAttackAnimationDuration(enemy,0.55);
+          if(now+0.0001>=Number(enemy.nextAttackAt||0)) {
+            startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target);
+          }
+        } else {
+          enemy.mode=enemy.x>=desiredStop-0.15?"idle":"moving";
+        }
+      } else {
+        enemy.mode="idle";
+      }
     }
 
     if (target) {
