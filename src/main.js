@@ -66,7 +66,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-04";
+const BATTLE_ASSET_VERSION = "20261101-05";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -670,6 +670,7 @@ async function startGameAssetLoading() {
   if (loadingAssetsStarted || scene !== "loading") return;
   loadingAssetsStarted = true;
   let failedAssets = 0;
+  const failedAssetPaths = [];
   const imageCount = LOADING_IMAGE_ASSETS.length;
   const audioCount = LOADING_AUDIO_ASSETS.length;
 
@@ -681,6 +682,7 @@ async function startGameAssetLoading() {
     const loaded = await loadImageAssetSequentially(asset);
     if (!loaded) {
       failedAssets++;
+      failedAssetPaths.push(asset.path);
       console.warn("Battle Cats loader could not load image:",asset.path);
     }
     loadingBytesFinished += asset.bytes;
@@ -693,12 +695,16 @@ async function startGameAssetLoading() {
     const status = "Loading audio "+(i+1)+"/"+audioCount+" — "+name;
     updateLoadingProgress(status);
     const loaded = await loadAudioAssetSequentially(asset,status);
-    if (!loaded) failedAssets++;
+    if (!loaded) {
+      failedAssets++;
+      failedAssetPaths.push(asset.path);
+    }
     loadingBytesFinished += asset.bytes;
     updateLoadingProgress(status);
   }
 
-  updateLoadingProgress(failedAssets ? "Ready — "+failedAssets+" asset(s) could not be cached." : "Everything loaded. Starting story...");
+  if(failedAssetPaths.length) console.warn("Battle Cats assets that failed to load:",failedAssetPaths);
+  updateLoadingProgress(failedAssets ? "Ready — "+failedAssets+" asset(s) could not be loaded." : "Everything loaded. Starting story...");
   setTimeout(() => {
     if (scene !== "loading") return;
     const loadingScreen = stage.querySelector(".loading-screen");
@@ -1406,17 +1412,15 @@ function battleTargetGap(attacker,target) {
 function findBattleTargetFor(attacker) {
   if(!battleState||!attacker) return null;
   const candidates=attacker.kind==="cat" ? battleState.enemies : battleState.playerUnits;
-  const livingCandidates=candidates.filter(target=>
-    target&&Number(target.hp)>0&&target.mode!=="dead"
+  const availableCandidates=candidates.filter(target=>
+    target&&Number(target.hp)>0&&target.mode!=="dead"&&target.mode!=="knockback"
   );
-  if(!livingCandidates.length) {
+  if(!availableCandidates.length) {
     attacker.currentTargetKey="";
     return null;
   }
 
-  const readyCandidates=livingCandidates.filter(target=>target.mode!=="knockback");
-  const targetPool=readyCandidates.length?readyCandidates:livingCandidates;
-  const nextTarget=targetPool
+  const nextTarget=availableCandidates
     .map(target=>{
       const gap=battleTargetGap(attacker,target);
       const distance=Math.abs(gap);
