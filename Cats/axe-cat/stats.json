@@ -1,7 +1,7 @@
 {
   "name": "Axe Cat",
   "health": 70,
-  "damage": 4,
+  "damage": 5,
   "price": 1,
   "speed": 7,
   "spriteChangeSpeed": 6,
