@@ -1,0 +1,16 @@
+{
+  "name": "Axe Cat",
+  "health": 70,
+  "damage": 4,
+  "price": 1,
+  "speed": 9,
+  "spriteChangeSpeed": 6,
+  "walkSpriteChangeSpeed": 2.5,
+  "range": 55,
+  "recharge": 0.1,
+  "attackCooldown": 2,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "AreaAttack": false
+}
