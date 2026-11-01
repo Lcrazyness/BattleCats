@@ -1424,8 +1424,9 @@ function findBattleTargetFor(attacker) {
       const gap=battleTargetGap(attacker,target);
       const distance=Math.abs(gap);
       const reach=battleCombatReachPercent(attacker.range,attacker,target);
-      return {target,distance,inRange:distance<=reach+0.0001};
+      return {target,gap,distance,inRange:distance<=reach+0.0001};
     })
+    .filter(item=>item.gap>=-1)
     .sort((first,second)=>
       Number(second.inRange)-Number(first.inRange)||
       first.distance-second.distance
