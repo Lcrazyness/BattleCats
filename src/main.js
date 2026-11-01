@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-10";
+const BATTLE_ASSET_VERSION = "20261101-11";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -1672,6 +1672,7 @@ function updateBattleEntityView(entity) {
       sprite.classList.add("sprite-load-failed");
       console.warn("Battle Cats sprite could not load:",source);
     };
+    if(element.dataset.unitType==="axe-cat") sprite.crossOrigin="anonymous";
     sprite.src=source;
   }
 }
