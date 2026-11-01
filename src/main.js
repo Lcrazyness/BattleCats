@@ -1373,26 +1373,34 @@ function battleTargetGap(attacker,target) {
 function findBattleTargetFor(attacker) {
   if(!battleState||!attacker) return null;
   const candidates=attacker.kind==="cat" ? battleState.enemies : battleState.playerUnits;
-  const currentTarget=attacker.currentTargetKey
-    ? candidates.find(target=>target&&target.key===attacker.currentTargetKey&&Number(target.hp)>0&&target.mode!=="dead")
-    : null;
-  if(currentTarget) return currentTarget;
+  const livingCandidates=candidates.filter(target=>
+    target&&Number(target.hp)>0&&target.mode!=="dead"
+  );
+  if(!livingCandidates.length) {
+    attacker.currentTargetKey="";
+    return null;
+  }
 
   const allies=attacker.kind==="cat" ? battleState.playerUnits : battleState.enemies;
+  const validTargetKeys=new Set(livingCandidates.map(target=>target.key));
   const assignedCounts=new Map();
   for(const ally of allies) {
-    if(ally===attacker||Number(ally.hp)<=0||ally.mode==="dead"||!ally.currentTargetKey) continue;
+    if(ally===attacker||Number(ally.hp)<=0||ally.mode==="dead"||ally.mode==="knockback"||
+       !ally.currentTargetKey||!validTargetKeys.has(ally.currentTargetKey)) continue;
     assignedCounts.set(ally.currentTargetKey,(assignedCounts.get(ally.currentTargetKey)||0)+1);
   }
+
+  const readyCandidates=livingCandidates.filter(target=>target.mode!=="knockback");
+  const targetPool=readyCandidates.length?readyCandidates:livingCandidates;
   const loadPenalty=Math.max(1.5,battleEntityContactGapPercent()*1.75);
-  const nextTarget=candidates
-    .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead")
+  const nextTarget=targetPool
     .map(target=>{
       const gap=battleTargetGap(attacker,target);
       return {target,gap,score:gap+(assignedCounts.get(target.key)||0)*loadPenalty};
     })
     .filter(item=>item.gap>=-1)
     .sort((a,b)=>a.score-b.score||a.gap-b.gap)[0]?.target||null;
+
   attacker.currentTargetKey=nextTarget?nextTarget.key:"";
   return nextTarget;
 }
@@ -1871,7 +1879,6 @@ function shakeBattleBase(side) {
 function resolvePendingBattleAttacks(now) {
   if (!battleState) return;
   const entities=[...(battleState.playerUnits||[]),...(battleState.enemies||[])];
-  const entityByKey=new Map(entities.map(entity=>[entity.key,entity]));
   for (const attacker of entities) {
     const strikeAt=Number(attacker.pendingAttackAt)||0;
     if (!strikeAt || now+0.0001<strikeAt) continue;
@@ -1885,14 +1892,22 @@ function resolvePendingBattleAttacks(now) {
 
     if(targetKey) {
       const candidates=attacker.kind==="cat"?battleState.enemies:battleState.playerUnits;
-      const lockedTarget=entityByKey.get(targetKey)||null;
-      const targets=attacker.areaAttack===true
-        ? candidates.filter(target=>{
-            if(!target||Number(target.hp)<=0||target.mode==="dead") return false;
-            const gap=battleTargetGap(attacker,target);
-            return gap>=-1&&gap<=battleCombatReachPercent(attacker.range,attacker,target)+0.0001;
-          })
-        : (lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead"?[lockedTarget]:[]);
+      let targets=[];
+      if(attacker.areaAttack===true) {
+        targets=candidates.filter(target=>{
+          if(!target||Number(target.hp)<=0||target.mode==="dead"||target.mode==="knockback") return false;
+          const gap=battleTargetGap(attacker,target);
+          return gap>=-1&&gap<=battleCombatReachPercent(attacker.range,attacker,target)+0.0001;
+        });
+      } else {
+        const currentTarget=findBattleTargetFor(attacker);
+        if(currentTarget&&currentTarget.mode!=="knockback") {
+          const gap=battleTargetGap(attacker,currentTarget);
+          if(gap>=-1&&gap<=battleCombatReachPercent(attacker.range,attacker,currentTarget)+0.0001) {
+            targets=[currentTarget];
+          }
+        }
+      }
       for(const target of targets) {
         if(resolveBattleAttackOnce(attacker,target,damage,now)) attacker.attackHitLanded=true;
       }
@@ -2031,6 +2046,8 @@ function tickBattle() {
 
     if(attackActive) {
       enemy.mode="attack";
+    } else if(target&&target.mode==="knockback") {
+      enemy.mode="idle";
     } else if(target&&enemyDistance<=enemyReach) {
       prepareBattleAttackPhase(enemy,now);
       const enemyStats=battleStatsForEntity(enemy);
