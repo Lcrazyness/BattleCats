@@ -1,7 +1,7 @@
 {
   "name": "Cat",
   "health": 70,
-  "damage": 7,
+  "damage": 3,
   "price": 1,
   "speed": 5,
   "spriteChangeSpeed": 6,
