@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-16";
+const BATTLE_ASSET_VERSION = "20261031-17";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -427,7 +427,7 @@ const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
-  {path:"Levels/Korea/enemybase.png?v=20261031-16",bytes:7294},
+  {path:"Levels/Korea/enemybase.png?v=20261031-17",bytes:7294},
   {path:"sprites/battle/catbase.png?v=20261031-03",bytes:109977},
   {path:"sprites/battle/Deathsoul1.png?v=20261031-03",bytes:11785},
   {path:"sprites/battle/Deathsoul2.png?v=20261031-03",bytes:38607},
@@ -1614,7 +1614,7 @@ function battleEntityContactGapPercent(first=null,second=null) {
     return battleUnitKey(entity.name||entity.assetFolder||entity.spriteFolder||"cat")==="tank-cat" ? 0.76 : 0.62;
   };
   const combinedHalfWidth=metrics.unitWidth*(spriteScale(first)+spriteScale(second))*0.5;
-  const safetyMargin=4;
+  const safetyMargin=Math.max(10,metrics.unitWidth*0.2);
   return Math.max(metrics.contactGap,((combinedHalfWidth+safetyMargin)/metrics.width)*100);
 }
 function battleCombatReachPercent(range) {
@@ -2209,11 +2209,9 @@ function renderFight() {
     '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
-    '<div class="fight-battle-controls">'+
-      '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
-      '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
-        '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false"></button>'+
-    '</div>'+
+    '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
+    '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
+      '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false"></button>'+
     '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
     '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
     '<img class="fight-base enemy-castle" src="' + enemyBaseUrl + '" alt="" draggable="false">'+
