@@ -12,7 +12,7 @@
     "Cats/axe-cat/attack/frame-004attack.png"
   ],
   "attackFrameRate": 6,
-  "idle": "Cats/axe-cat/moving/frame-001.png",
+  "idle": "Cats/axe-cat/idle.png",
   "damagedFrames": [
     "Cats/axe-cat/damaged/frame-001damaged.png"
   ],

@@ -13,5 +13,6 @@
   "walkSpriteChangeSpeed": 2.5,
   "attackCooldown": 2,
   "AreaAttack": false,
-  "attack": 6
+  "attack": 6,
+  "knockbackCount": 3
 }
