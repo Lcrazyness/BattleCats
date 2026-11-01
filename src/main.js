@@ -25,7 +25,7 @@ function walletLevelSpriteMarkup(level) {
 }
 function makeAxeCatUnit() {
   return {
-    id:3,name:"Axe Cat",level:1,deployCost:1,upgradeCost:400,hp:70,attack:4,range:55,speed:9,recharge:0.1,
+    id:3,name:"Axe Cat",level:1,deployCost:1,upgradeCost:400,hp:70,attack:4,range:55,speed:7,recharge:0.1,
     assetFolder:"axe-cat",spriteSlot:"Cats/axe-cat/slot.png",statsPath:"Cats/axe-cat/stats.json",assetsPath:"Cats/axe-cat/assets.json"
   };
 }
@@ -33,7 +33,7 @@ const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, exp:0, stageClears:0,
   units:[
-    {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:7,range:140,speed:7,recharge:0.1}
+    {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:6,range:140,speed:5,recharge:0.1}
   ],
   equipped:[1], mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
 };
@@ -66,7 +66,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-03";
+const BATTLE_ASSET_VERSION = "20261101-04";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -74,8 +74,8 @@ const BATTLE_ASSETS = {
   "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:70,damage:7,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "axe-cat": {health:70,damage:4,price:1,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:2,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  cat: {health:70,damage:6,price:1,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "axe-cat": {health:70,damage:4,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:2,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55,AreaAttack:false},
   "tank-cat": {health:300,damage:8,price:1,speed:5,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
