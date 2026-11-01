@@ -2743,3 +2743,44 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     height:6.75%;
   }
 }
+
+
+/* Final battle collision and enemy base rendering fix. */
+.fight-screen .fight-unit {
+  transition:none !important;
+}
+.fight-screen .enemy-castle {
+  object-fit:contain !important;
+  object-position:center bottom !important;
+}
+.fight-screen > .fight-worker-cat {
+  position:absolute !important;
+  left:0 !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:0 !important;
+  z-index:15 !important;
+  display:block !important;
+  width:clamp(108px,10.5vw,140px) !important;
+  height:clamp(108px,10.5vw,140px) !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+  line-height:0 !important;
+}
+@media(max-width:650px) {
+  .fight-screen > .fight-worker-cat {
+    left:0 !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:0 !important;
+    width:108px !important;
+    height:108px !important;
+  }
+}
