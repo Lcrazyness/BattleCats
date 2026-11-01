@@ -1,0 +1,24 @@
+{
+  "name": "Axe Cat",
+  "moving": [
+    "Cats/axe-cat/moving/frame-001.png",
+    "Cats/axe-cat/moving/frame-002.png",
+    "Cats/axe-cat/moving/frame-003.png"
+  ],
+  "attackFrames": [
+    "Cats/axe-cat/attack/frame-001attack.png",
+    "Cats/axe-cat/attack/frame-002attack.png",
+    "Cats/axe-cat/attack/frame-003attack.png",
+    "Cats/axe-cat/attack/frame-004attack.png"
+  ],
+  "attackFrameRate": 6,
+  "idle": "Cats/axe-cat/moving/frame-001.png",
+  "damagedFrames": [
+    "Cats/axe-cat/damaged/frame-001damaged.png"
+  ],
+  "knockbackFrames": [
+    "Cats/axe-cat/damaged/frame-001damaged.png"
+  ],
+  "damaged": "Cats/axe-cat/damaged/frame-001damaged.png",
+  "slot": "Cats/axe-cat/slot.png"
+}
