@@ -1381,27 +1381,19 @@ function findBattleTargetFor(attacker) {
     return null;
   }
 
-  const allies=attacker.kind==="cat" ? battleState.playerUnits : battleState.enemies;
-  const validTargetKeys=new Set(livingCandidates.map(target=>target.key));
-  const assignedCounts=new Map();
-  for(const ally of allies) {
-    if(ally===attacker||Number(ally.hp)<=0||ally.mode==="dead"||ally.mode==="knockback"||
-       !ally.currentTargetKey||!validTargetKeys.has(ally.currentTargetKey)) continue;
-    assignedCounts.set(ally.currentTargetKey,(assignedCounts.get(ally.currentTargetKey)||0)+1);
-  }
-
   const readyCandidates=livingCandidates.filter(target=>target.mode!=="knockback");
   const targetPool=readyCandidates.length?readyCandidates:livingCandidates;
-  const loadPenalty=Math.max(1.5,battleEntityContactGapPercent()*1.75);
   const nextTarget=targetPool
     .map(target=>{
       const gap=battleTargetGap(attacker,target);
       const distance=Math.abs(gap);
       const reach=battleCombatReachPercent(attacker.range,attacker,target);
-      return {target,gap,distance,reach,score:distance+(assignedCounts.get(target.key)||0)*loadPenalty};
+      return {target,distance,inRange:distance<=reach+0.0001};
     })
-    .filter(item=>item.gap>=-item.reach-0.0001)
-    .sort((a,b)=>a.score-b.score||a.distance-b.distance)[0]?.target||null;
+    .sort((first,second)=>
+      Number(second.inRange)-Number(first.inRange)||
+      first.distance-second.distance
+    )[0]?.target||null;
 
   attacker.currentTargetKey=nextTarget?nextTarget.key:"";
   return nextTarget;
