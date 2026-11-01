@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-11";
+const BATTLE_ASSET_VERSION = "20261101-12";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2255,7 +2255,11 @@ function updateFightUI() {
   const workerCostText=stage.querySelector(".fight-worker-cost");
   const workerLevelIndicator=stage.querySelector(".fight-wallet-level-indicator");
   const workerBar=stage.querySelector(".fight-worker-bar span");
-  if (moneyText) moneyText.innerHTML=currencyRatioSpriteMarkup(Math.floor(state.money),state.maxMoney);
+  if (moneyText) {
+    const displayedMoney=Math.floor(state.money);
+    moneyText.innerHTML=currencyRatioSpriteMarkup(displayedMoney,state.maxMoney);
+    moneyText.setAttribute("aria-label","Money "+displayedMoney+" of "+state.maxMoney);
+  }
   if (timerText) timerText.textContent=Math.floor(state.elapsed/60).toString().padStart(2,"0")+":"+Math.floor(state.elapsed%60).toString().padStart(2,"0");
   if (enemyHpText) enemyHpText.textContent=Math.ceil(state.enemyBaseHp)+" / "+state.enemyBaseMaxHp;
   if (catHpText) catHpText.textContent=Math.ceil(state.catBaseHp)+" / "+state.catBaseMaxHp;

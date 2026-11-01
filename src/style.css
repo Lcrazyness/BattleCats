@@ -1920,7 +1920,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 
 /* Cat idle art has a slightly larger transparent canvas than its walk frames. */
-.fight-screen .fight-unit-cat.is-idle .fight-unit-sprite {
+.fight-screen .fight-unit-cat[data-unit-type="cat"].is-idle .fight-unit-sprite {
   scale:0.62 !important;
 }
 
@@ -1971,7 +1971,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   justify-content:center !important;
   padding:7px 10px !important;
 }
-.fight-screen .fight-money span { display:none !important; }
+.fight-screen .fight-money > span { display:none !important; }
 .fight-screen .fight-worker-cat {
   display:flex !important;
   width:clamp(82px,10vw,130px) !important;
@@ -2846,7 +2846,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .axe-cat-card-sprite { object-fit:contain !important; }
 
 /* White LEVEL digits sit above the worker-cat icon; MAX replaces them at level cap. */
-.wallet-sprite-run { --wallet-scale:.32; display:inline-flex; align-items:center; justify-content:center; gap:1px; height:calc(40px * var(--wallet-scale)); line-height:0; }
+.wallet-sprite-run { --wallet-scale:.36; display:inline-flex; align-items:center; justify-content:center; gap:1px; height:calc(40px * var(--wallet-scale)); line-height:0; }
 .wallet-sprite-level, .wallet-sprite-digit {
   display:block; flex:0 0 auto; height:calc(40px * var(--wallet-scale));
   background-image:url("../sprites/ui/numbers/wallet-atlas.png?v=20261101-07");
@@ -2878,6 +2878,12 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .currency-size-fight { --currency-scale:.25; }
   .base-xp-count .currency-sprite-run { --currency-scale:.22; }
   .base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.28; }
-  .wallet-sprite-run { --wallet-scale:.29; }
+  .wallet-sprite-run { --wallet-scale:.32; }
   .fight-wallet-max-label { font-size:9px !important; }
+}
+
+
+/* Axe Cat is a little larger than the basic Cat in every battle animation. */
+.fight-screen .fight-unit-cat[data-unit-type="axe-cat"] .fight-unit-sprite {
+  scale:1.1 !important;
 }
