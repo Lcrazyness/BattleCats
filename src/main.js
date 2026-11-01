@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-14";
+const BATTLE_ASSET_VERSION = "20261101-15";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -518,10 +518,11 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/ui/title-settings.png?v=20261026-9",bytes:38154},
   {path:"sprites/ui/title-mailbox.png?v=20261026-9",bytes:48748},
   {path:"sprites/backgrounds/CatBase/MenuCat.png?v=20261031-01",bytes:16787},
+  {path:"sprites/backgrounds/CatBase/bottem.png?v=20261031-01",bytes:9633},
+  {path:"sprites/backgrounds/CatBase/catbase-top.png?v=20261031-01",bytes:15592},
   {path:"sprites/backgrounds/CatBase/doorleft.png?v=20261031-01",bytes:106187},
   {path:"sprites/backgrounds/CatBase/doorright.png?v=20261031-01",bytes:105741},
   {path:"sprites/backgrounds/CatBase/userRank.png?v=20261031-01",bytes:38080},
-  {path:"sprites/ui/Cat_Food.png?v=20261101-01",bytes:14745},
   {path:"sprites/ui/backboard.png?v=20261026-25",bytes:62313},
   {path:"sprites/ui/startbutton.png?v=20261026-9",bytes:111427},
   {path:"sprites/ui/upgradebutton.png?v=20261026-9",bytes:137546},
@@ -946,12 +947,11 @@ function prepareAudioForAction() {
 const gold = (label, action, small=false) =>
   '<button class="gold-button'+(small?' small':'')+'" data-go="'+action+'">'+label+'</button>';
 const headBar = (label) =>
-  '<div class="top-strip"><span class="top-title">'+label+'</span><span class="top-xp">XP<span class="top-xp-plus">＋</span></span><strong class="top-value">'+money(save.xp)+'</strong></div>';
+  '<div class="top-strip"><span class="top-title">'+label+'</span></div>';
 const bottomBar = (back="base") =>
   '<div class="bottom-strip">'+
     '<button class="back-button" data-go="go:'+back+'" aria-label="Back">↶</button>'+
     '<button class="store-button" data-go="go:store"><span class="store-cart">🛒</span> STORE</button>'+
-    '<button class="catfood-display" data-go="go:store"><span class="catfood-label">CAT FOOD</span><span class="catfood-can">🥫</span><strong class="catfood-number">'+money(save.catFood)+'</strong><span class="top-xp-plus">＋</span></button>'+
   '</div>';
 const catHead = (className="") =>
   '<img class="cat-head-sprite '+className+'" src="sprites/original_sheets/normal-cat-right-icon.webp?v=20261026-9" alt="" draggable="false">';
@@ -1023,6 +1023,8 @@ function renderBase() {
       '<img class="base-door-sprite base-door-right" src="sprites/backgrounds/CatBase/doorright.png?v=20261031-01" alt="" draggable="false">'+
       '<img class="base-menu-cat" src="sprites/backgrounds/CatBase/MenuCat.png?v=20261031-01" alt="" draggable="false">'+
       '<img class="base-backboard-sprite" src="sprites/ui/backboard.png?v=20261026-25" alt="" draggable="false">'+
+      '<img class="base-header-art" src="sprites/backgrounds/CatBase/catbase-top.png?v=20261031-01" alt="" draggable="false">'+
+      '<img class="base-footer-art" src="sprites/backgrounds/CatBase/bottem.png?v=20261031-01" alt="" draggable="false">'+
       '<img class="base-user-rank-art" src="sprites/backgrounds/CatBase/userRank.png?v=20261031-01" alt="" draggable="false">'+
       '<strong class="base-user-rank-value" aria-label="User Rank '+totalCatLevels()+'">'+money(totalCatLevels())+'</strong>'+
       '<strong class="base-xp-count" aria-label="Experience points '+money(save.xp)+'">'+currencySpriteMarkup(save.xp,"currency-size-base")+'</strong>'+
@@ -1037,7 +1039,7 @@ function renderBase() {
       '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"></button>'+
       '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/storebutton.png?v=20261026-26" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><img class="base-cat-food-icon" src="sprites/ui/Cat_Food.png?v=20261101-01" alt="" draggable="false"><span class="base-cat-food-count" aria-label="Cat Food balance '+money(save.catFood)+'">'+currencySpriteMarkup(save.catFood,"currency-size-base")+'</span></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><span class="base-cat-food-count" aria-label="Cat Food balance '+money(save.catFood)+'">'+currencySpriteMarkup(save.catFood,"currency-size-base")+'</span></button>'+
     '</div>'+
   '</section>';
 }
