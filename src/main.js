@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-19";
+const BATTLE_ASSET_VERSION = "20261031-20";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1925,47 +1925,19 @@ function resolveBattleUnitSeparation() {
   if(!cats.length||!enemies.length) return;
 
   const catHome=battleBaseCenterPercent("cat");
-  const enemyHome=battleBaseCenterPercent("enemy");
-  const originalX=new Map();
-  for(const unit of [...cats,...enemies]) originalX.set(unit,Number(unit.x)||0);
-
-  for(let pass=0;pass<cats.length+enemies.length;pass++) {
-    let changed=false;
+  for(const cat of cats) {
+    let safePosition=Number(cat.x)||0;
     for(const enemy of enemies) {
-      for(const cat of cats) {
-        const minGap=battleEntityContactGapPercent(cat,enemy);
-        const overlap=(Number(enemy.x)||0)+minGap-(Number(cat.x)||0);
-        if(overlap<=0.0001) continue;
-
-        const catRoom=Math.max(0,catHome-(Number(cat.x)||0));
-        const enemyRoom=Math.max(0,(Number(enemy.x)||0)-enemyHome);
-        let moveCat=Math.min(catRoom,overlap*0.5);
-        let moveEnemy=Math.min(enemyRoom,overlap-moveCat);
-        let remaining=overlap-moveCat-moveEnemy;
-
-        if(remaining>0.0001) {
-          const extraCat=Math.min(remaining,Math.max(0,catRoom-moveCat));
-          moveCat+=extraCat;
-          remaining-=extraCat;
-        }
-        if(remaining>0.0001) {
-          const extraEnemy=Math.min(remaining,Math.max(0,enemyRoom-moveEnemy));
-          moveEnemy+=extraEnemy;
-          remaining-=extraEnemy;
-        }
-        if(moveCat>0.0001) cat.x=(Number(cat.x)||0)+moveCat;
-        if(moveEnemy>0.0001) enemy.x=(Number(enemy.x)||0)-moveEnemy;
-        if(moveCat+moveEnemy>0.0001) changed=true;
-      }
+      const minGap=battleEntityContactGapPercent(cat,enemy);
+      safePosition=Math.max(safePosition,(Number(enemy.x)||0)+minGap);
     }
-    if(!changed) break;
-  }
-
-  for(const unit of [...cats,...enemies]) {
-    if(Math.abs((Number(unit.x)||0)-originalX.get(unit))>0.0001) updateBattleEntityView(unit);
+    safePosition=Math.min(catHome,safePosition);
+    if(safePosition>(Number(cat.x)||0)+0.0001) {
+      cat.x=safePosition;
+      updateBattleEntityView(cat);
+    }
   }
 }
-
 function tickBattle() {
   if (scene!=="fight" || !battleState) return;
   const state=battleState;
