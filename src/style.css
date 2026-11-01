@@ -2977,3 +2977,9 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .base-sprite-button.base-cat-food .base-cat-food-count { width:67% !important; }
   .base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.30; }
 }
+
+
+/* Axe Cat is slightly larger than the regular Cat in battle. */
+.fight-screen .fight-unit-cat[data-unit-type="axe-cat"] .fight-unit-sprite {
+  scale:1.06 !important;
+}
