@@ -2,11 +2,38 @@
 "use strict";
 const $ = (selector, root=document) => root.querySelector(selector);
 const money = value => Number(value || 0).toLocaleString();
+function currencySpriteMarkup(value,sizeClass="") {
+  const numeric=Number(value);
+  const digits=String(Number.isFinite(numeric)?Math.max(0,Math.floor(numeric)):0);
+  const glyphs=Array.from(digits).map(character=>
+    '<i class="currency-sprite-glyph currency-glyph-'+character+'" aria-hidden="true"></i>'
+  ).join("");
+  return '<span class="currency-sprite-run '+sizeClass+'" aria-hidden="true">'+glyphs+'</span>';
+}
+function currencyRatioSpriteMarkup(current,maximum) {
+  return '<span class="currency-sprite-readout">'+currencySpriteMarkup(current,"currency-size-fight")+
+    '<i class="currency-sprite-glyph currency-glyph-slash" aria-hidden="true"></i>'+
+    currencySpriteMarkup(maximum,"currency-size-fight")+
+    '<span class="currency-sprite-suffix">¢</span></span>';
+}
+function walletLevelSpriteMarkup(level) {
+  if(Number(level)>=8) return '<span class="fight-wallet-max-label">MAX</span>';
+  return '<span class="wallet-sprite-run" aria-hidden="true">'+
+    '<i class="wallet-sprite-level"></i>'+
+    '<i class="wallet-sprite-digit wallet-digit-'+Math.max(1,Math.floor(Number(level)||1))+'"></i>'+
+  '</span>';
+}
+function makeAxeCatUnit() {
+  return {
+    id:3,name:"Axe Cat",level:1,deployCost:1,upgradeCost:400,hp:70,attack:4,range:55,speed:9,recharge:0.1,
+    assetFolder:"axe-cat",spriteSlot:"Cats/axe-cat/slot.png",statsPath:"Cats/axe-cat/stats.json",assetsPath:"Cats/axe-cat/assets.json"
+  };
+}
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, exp:0, stageClears:0,
   units:[
-    {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:8,range:140,speed:10,recharge:0.1}
+    {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:7,range:140,speed:7,recharge:0.1}
   ],
   equipped:[1], mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
 };
@@ -27,6 +54,9 @@ if (savedSoundSettingsVersion < 1) {
   save.sound = true;
   save.soundSettingsVersion = 1;
 }
+if(Number(save.stageClears)>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Number(unit.id)===3)) {
+  save.units.push(makeAxeCatUnit());
+}
 let scene = "loading";
 let currentRegion = "empire";
 let selectedLevelIndex = 0;
@@ -36,14 +66,16 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-22";
+const BATTLE_ASSET_VERSION = "20261101-03";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
+  "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:70,damage:8,price:1,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  cat: {health:70,damage:7,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "axe-cat": {health:70,damage:4,price:1,speed:9,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:2,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55,AreaAttack:false},
   "tank-cat": {health:300,damage:8,price:1,speed:5,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
@@ -444,15 +476,16 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-31",bytes:17381},
   {path:"Cats/cat/slot.png?v=20261029-31",bytes:9000},
   {path:"Cats/cat/upgrade.png?v=20261029-31",bytes:9000},
-
-
-
-
-
-
-
-
-
+  {path:"Cats/axe-cat/moving/frame-001.png?v=20261101-03",bytes:2635},
+  {path:"Cats/axe-cat/moving/frame-002.png?v=20261101-03",bytes:2602},
+  {path:"Cats/axe-cat/moving/frame-003.png?v=20261101-03",bytes:2623},
+  {path:"Cats/axe-cat/attack/frame-001attack.png?v=20261101-03",bytes:2772},
+  {path:"Cats/axe-cat/attack/frame-002attack.png?v=20261101-03",bytes:2724},
+  {path:"Cats/axe-cat/attack/frame-003attack.png?v=20261101-03",bytes:4027},
+  {path:"Cats/axe-cat/attack/frame-004attack.png?v=20261101-03",bytes:2576},
+  {path:"Cats/axe-cat/damaged/frame-001damaged.png?v=20261101-03",bytes:2837},
+  {path:"sprites/ui/numbers/currency-atlas.png?v=20261101-03",bytes:4547},
+  {path:"sprites/ui/numbers/wallet-atlas.png?v=20261101-03",bytes:2177},
 
   {path:"Cats/tank-cat/moving/frame-001.png?v=20261030-04",bytes:2552},
   {path:"Cats/tank-cat/moving/frame-002.png?v=20261030-04",bytes:2595},
@@ -982,7 +1015,7 @@ function renderBase() {
       '<img class="base-footer-art" src="sprites/backgrounds/CatBase/bottem.png?v=20261031-01" alt="" draggable="false">'+
       '<img class="base-user-rank-art" src="sprites/backgrounds/CatBase/userRank.png?v=20261031-01" alt="" draggable="false">'+
       '<strong class="base-user-rank-value" aria-label="User Rank '+totalCatLevels()+'">'+money(totalCatLevels())+'</strong>'+
-      '<strong class="base-xp-count" aria-label="Experience points '+money(save.xp)+'">'+money(save.xp)+'</strong>'+
+      '<strong class="base-xp-count" aria-label="Experience points '+money(save.xp)+'">'+currencySpriteMarkup(save.xp,"currency-size-base")+'</strong>'+
       '<button class="base-sprite-button base-start" data-go="stage:empire" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
@@ -994,7 +1027,7 @@ function renderBase() {
       '<button class="base-sprite-button base-rare-capsule" data-go="go:capsules" aria-label="Rare Cat Capsule"></button>'+
       '<button class="base-sprite-button base-back" data-go="go:title" aria-label="Back to title"><img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-store" data-go="go:store" aria-label="Store"><img src="sprites/ui/storebutton.png?v=20261026-26" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><span class="base-cat-food-count" aria-label="Cat Food balance '+money(save.catFood)+'">'+money(save.catFood)+'</span></button>'+
+      '<button class="base-sprite-button base-cat-food" data-go="go:store" aria-label="Cat Food store"><span class="base-cat-food-count" aria-label="Cat Food balance '+money(save.catFood)+'">'+currencySpriteMarkup(save.catFood,"currency-size-base")+'</span></button>'+
     '</div>'+
   '</section>';
 }
@@ -2130,8 +2163,9 @@ function updateFightUI() {
   const workerIcon=stage.querySelector(".fight-worker-icon");
   const workerLevelText=stage.querySelector(".fight-worker-cat-level");
   const workerCostText=stage.querySelector(".fight-worker-cost");
+  const workerLevelIndicator=stage.querySelector(".fight-wallet-level-indicator");
   const workerBar=stage.querySelector(".fight-worker-bar span");
-  if (moneyText) moneyText.textContent=Math.floor(state.money)+"/"+state.maxMoney+"¢";
+  if (moneyText) moneyText.innerHTML=currencyRatioSpriteMarkup(Math.floor(state.money),state.maxMoney);
   if (timerText) timerText.textContent=Math.floor(state.elapsed/60).toString().padStart(2,"0")+":"+Math.floor(state.elapsed%60).toString().padStart(2,"0");
   if (enemyHpText) enemyHpText.textContent=Math.ceil(state.enemyBaseHp)+" / "+state.enemyBaseMaxHp;
   if (catHpText) catHpText.textContent=Math.ceil(state.catBaseHp)+" / "+state.catBaseMaxHp;
@@ -2142,6 +2176,11 @@ function updateFightUI() {
   const walletMaxLevel=8;
   if (workerLevelText) workerLevelText.textContent="LEVEL "+walletLevel;
   if (workerCostText) workerCostText.textContent=walletLevel>=walletMaxLevel?"MAX LEVEL":"UPGRADE "+walletCost+"¢";
+  if(workerLevelIndicator&&workerLevelIndicator.dataset.level!==String(walletLevel)) {
+    workerLevelIndicator.dataset.level=String(walletLevel);
+    workerLevelIndicator.innerHTML=walletLevelSpriteMarkup(walletLevel);
+    workerLevelIndicator.setAttribute("aria-label",walletLevel>=walletMaxLevel?"Wallet MAX":"Wallet level "+walletLevel);
+  }
   const walletAvailable=walletLevel<walletMaxLevel && state.money>=walletCost && !state.ended;
   if(state.walletAvailabilityInitialized && walletAvailable && !state.walletWasAvailable) playSfx("endOfRecharge");
   state.walletAvailabilityInitialized=true;
@@ -2211,9 +2250,10 @@ function renderFight() {
     '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
-    '<div class="fight-money"><strong class="fight-money-value">50/150¢</strong></div>'+
+    '<div class="fight-money"><strong class="fight-money-value" aria-label="Money '+Math.floor(battleState.money)+' of '+battleState.maxMoney+'">'+currencyRatioSpriteMarkup(Math.floor(battleState.money),battleState.maxMoney)+'</strong></div>'+
     '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
-      '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false"></button>'+
+      '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
+      '<span class="fight-wallet-level-indicator" data-level="'+walletLevel+'" aria-label="Wallet level '+walletLevel+'">'+walletLevelSpriteMarkup(walletLevel)+'</span></button>'+
     '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
     '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
     '<img class="fight-base enemy-castle" src="' + enemyBaseUrl + '" alt="" draggable="false">'+
@@ -2247,7 +2287,10 @@ function renderDictionary(equip=false) {
       const isEquipped = save.equipped.includes(unit.id);
       const stats=battleUnitStats(unit);
       const level=Math.max(1,Math.floor(Number(unit.level)||1));
-      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+catHead()+'</div><strong>'+unit.name+'</strong><small>Level '+level+' · HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
+      const unitArt=unit.assetFolder==="axe-cat"
+        ? '<img class="cat-head-sprite axe-cat-card-sprite" src="'+battleAssetUrl("Cats/axe-cat/moving/frame-001.png")+'" alt="" draggable="false">'
+        : catHead();
+      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+unitArt+'</div><strong>'+unit.name+'</strong><small>Level '+level+' · HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
     }).join("")+'</div>';
   if (equip) return renderWindow("Equip Cats",body,"base");
   return renderWindow("Cat Dictionary",body,"base");
@@ -2652,6 +2695,10 @@ function perform(action) {
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
         save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,upgradeCost:400,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json"});
         reward = "Victory! +250 XP · Tank Cat unlocked";
+      }
+      if(save.stageClears>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Number(unit.id)===3)) {
+        save.units.push(makeAxeCatUnit());
+        reward += " · Axe Cat unlocked";
       }
       navigate("battle"); notify(reward);
       break;
