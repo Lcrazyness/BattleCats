@@ -2789,11 +2789,11 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 /* Pin the Battle Cat wallet lower at the bottom-left screen corner. */
 .fight-screen > .fight-worker-cat {
   position:absolute !important;
-  inset:auto auto -14px 0 !important;
+  inset:auto auto -55px 0 !important;
   left:0 !important;
   right:auto !important;
   top:auto !important;
-  bottom:-14px !important;
+  bottom:-55px !important;
   margin:0 !important;
   transform:none !important;
   z-index:100 !important;
@@ -2806,10 +2806,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 @media(max-width:650px) {
   .fight-screen > .fight-worker-cat {
-    inset:auto auto -14px 0 !important;
+    inset:auto auto -55px 0 !important;
     left:0 !important;
     right:auto !important;
-    bottom:-14px !important;
+    bottom:-55px !important;
     width:108px !important;
     height:108px !important;
   }
