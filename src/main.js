@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-20";
+const BATTLE_ASSET_VERSION = "20261031-21";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1974,7 +1974,9 @@ function tickBattle() {
 
     const target=findBattleTargetFor(cat);
 
-    if (attackActive) {
+    if(target&&target.mode==="knockback") {
+      cat.mode=attackActive?"attack":"idle";
+    } else if (attackActive) {
       cat.mode="attack";
     } else if (target) {
       const distance=battleTargetGap(cat,target);
