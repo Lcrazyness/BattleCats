@@ -1,9 +1,9 @@
 {
   "name": "Cat",
   "health": 70,
-  "damage": 8,
+  "damage": 7,
   "price": 1,
-  "speed": 9,
+  "speed": 7,
   "spriteChangeSpeed": 6,
   "range": 55,
   "recharge": 0.1,
