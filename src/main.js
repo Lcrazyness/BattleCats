@@ -427,7 +427,7 @@ const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
-  {path:"Levels/Korea/enemybase.png?v=20261031-18",bytes:7294},
+  {path:"Levels/Korea/enemybase.png?v=20261031-19",bytes:7294},
   {path:"sprites/battle/catbase.png?v=20261031-03",bytes:109977},
   {path:"sprites/battle/Deathsoul1.png?v=20261031-03",bytes:11785},
   {path:"sprites/battle/Deathsoul2.png?v=20261031-03",bytes:38607},
