@@ -2820,7 +2820,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .currency-sprite-run { --currency-scale:.34; display:inline-flex; flex:0 0 auto; align-items:center; height:calc(62px * var(--currency-scale)); gap:0; line-height:0; }
 .currency-sprite-glyph {
   display:block; flex:0 0 auto; height:calc(62px * var(--currency-scale));
-  background-image:url("../sprites/ui/numbers/currency-atlas.png?v=20261101-03");
+  background-image:url("../sprites/ui/numbers/currency-atlas.png?v=20261101-04");
   background-repeat:no-repeat;
   background-size:calc(393px * var(--currency-scale)) calc(134px * var(--currency-scale));
 }
@@ -2849,7 +2849,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .wallet-sprite-run { --wallet-scale:.32; display:inline-flex; align-items:center; justify-content:center; gap:1px; height:calc(40px * var(--wallet-scale)); line-height:0; }
 .wallet-sprite-level, .wallet-sprite-digit {
   display:block; flex:0 0 auto; height:calc(40px * var(--wallet-scale));
-  background-image:url("../sprites/ui/numbers/wallet-atlas.png?v=20261101-03");
+  background-image:url("../sprites/ui/numbers/wallet-atlas.png?v=20261101-04");
   background-repeat:no-repeat;
   background-size:calc(393px * var(--wallet-scale)) calc(49px * var(--wallet-scale));
 }

@@ -13,8 +13,7 @@ function currencySpriteMarkup(value,sizeClass="") {
 function currencyRatioSpriteMarkup(current,maximum) {
   return '<span class="currency-sprite-readout">'+currencySpriteMarkup(current,"currency-size-fight")+
     '<i class="currency-sprite-glyph currency-glyph-slash" aria-hidden="true"></i>'+
-    currencySpriteMarkup(maximum,"currency-size-fight")+
-    '<span class="currency-sprite-suffix">¢</span></span>';
+    currencySpriteMarkup(maximum,"currency-size-fight")+'</span>';
 }
 function walletLevelSpriteMarkup(level) {
   if(Number(level)>=8) return '<span class="fight-wallet-max-label">MAX</span>';
@@ -66,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-05";
+const BATTLE_ASSET_VERSION = "20261101-06";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -476,16 +475,16 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-31",bytes:17381},
   {path:"Cats/cat/slot.png?v=20261029-31",bytes:9000},
   {path:"Cats/cat/upgrade.png?v=20261029-31",bytes:9000},
-  {path:"Cats/axe-cat/moving/frame-001.png?v=20261101-04",bytes:6525},
-  {path:"Cats/axe-cat/moving/frame-002.png?v=20261101-04",bytes:6576},
-  {path:"Cats/axe-cat/moving/frame-003.png?v=20261101-04",bytes:6700},
-  {path:"Cats/axe-cat/attack/frame-001attack.png?v=20261101-04",bytes:6906},
-  {path:"Cats/axe-cat/attack/frame-002attack.png?v=20261101-04",bytes:7148},
-  {path:"Cats/axe-cat/attack/frame-003attack.png?v=20261101-04",bytes:9429},
-  {path:"Cats/axe-cat/attack/frame-004attack.png?v=20261101-04",bytes:6022},
-  {path:"Cats/axe-cat/damaged/frame-001damaged.png?v=20261101-04",bytes:7224},
-  {path:"sprites/ui/numbers/currency-atlas.png?v=20261101-03",bytes:4547},
-  {path:"sprites/ui/numbers/wallet-atlas.png?v=20261101-03",bytes:2177},
+  {path:"Cats/axe-cat/moving/frame-001.png?v=20261101-06",bytes:2720},
+  {path:"Cats/axe-cat/moving/frame-002.png?v=20261101-06",bytes:2716},
+  {path:"Cats/axe-cat/moving/frame-003.png?v=20261101-06",bytes:2749},
+  {path:"Cats/axe-cat/attack/frame-001attack.png?v=20261101-06",bytes:2902},
+  {path:"Cats/axe-cat/attack/frame-002attack.png?v=20261101-06",bytes:2822},
+  {path:"Cats/axe-cat/attack/frame-003attack.png?v=20261101-06",bytes:4336},
+  {path:"Cats/axe-cat/attack/frame-004attack.png?v=20261101-06",bytes:2721},
+  {path:"Cats/axe-cat/damaged/frame-001damaged.png?v=20261101-06",bytes:2852},
+  {path:"sprites/ui/numbers/currency-atlas.png?v=20261101-06",bytes:4603},
+  {path:"sprites/ui/numbers/wallet-atlas.png?v=20261101-06",bytes:2133},
 
   {path:"Cats/tank-cat/moving/frame-001.png?v=20261030-04",bytes:2552},
   {path:"Cats/tank-cat/moving/frame-002.png?v=20261030-04",bytes:2595},
