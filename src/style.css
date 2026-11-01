@@ -2922,3 +2922,58 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(max-width:650px) {
   .currency-sprite-readout { --currency-scale:.25; }
 }
+
+
+/* Cat Base now uses the live atlas counters instead of the old printed placeholder strips. */
+.base-xp-count { width:24%; overflow:visible; }
+.base-xp-count .currency-sprite-run { --currency-scale:.42; }
+.base-sprite-button.base-cat-food {
+  left:82% !important;
+  top:91.5% !important;
+  width:16.5% !important;
+  height:8.5% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:1% !important;
+  overflow:visible !important;
+}
+.base-sprite-button.base-cat-food .base-cat-food-icon {
+  display:block !important;
+  position:static !important;
+  flex:0 0 34% !important;
+  width:34% !important;
+  height:82% !important;
+  object-fit:contain !important;
+}
+.base-sprite-button.base-cat-food .base-cat-food-count {
+  position:absolute !important;
+  top:50% !important;
+  right:0 !important;
+  width:63% !important;
+  height:78% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  overflow:visible !important;
+  transform:translateY(-50%) !important;
+  padding:0 !important;
+}
+.base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.42; }
+@media(max-width:600px) {
+  .base-xp-count { width:26%; right:.8%; }
+  .base-xp-count .currency-sprite-run { --currency-scale:.34; }
+  .base-sprite-button.base-cat-food {
+    left:78% !important;
+    width:21% !important;
+    top:91.5% !important;
+    height:8.5% !important;
+  }
+  .base-sprite-button.base-cat-food .base-cat-food-icon {
+    flex-basis:30% !important;
+    width:30% !important;
+    height:76% !important;
+  }
+  .base-sprite-button.base-cat-food .base-cat-food-count { width:67% !important; }
+  .base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.30; }
+}
