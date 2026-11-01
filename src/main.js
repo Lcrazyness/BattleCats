@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-18";
+const BATTLE_ASSET_VERSION = "20261031-19";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1762,17 +1762,15 @@ function damageBattleEntity(target,amount,now){
   let crossings=0;
   while(threshold>0&&target.hp<=threshold){crossings++;threshold-=maxHp*0.25;}
   target.nextKnockbackHp=threshold;
-  const isTankCat=target.kind==="cat"&&battleUnitKey(target.name||"cat")==="tank-cat";
-  if(isTankCat&&crossings>0){
-    if((Number(target.knockbackCount)||0)>=1){
-      target.hp=0;
-      target.queuedKnockbacks=0;
-      beginBattleKnockback(target,true,hitTime);
-    } else {
-      target.knockbackCount=1;
-      target.queuedKnockbacks=0;
-      beginBattleKnockback(target,false,hitTime);
+  if(target.kind==="cat"){
+    const attackStillPlaying=Number(target.attackEndsAt)>hitTime+0.0001;
+    target.hitUntil=0;
+    if(!attackStillPlaying){
+      target.mode="idle";
+      target.animUntil=0;
+      target.attackEndsAt=0;
     }
+    updateBattleEntityView(target);
     return;
   }
   if(target.mode==="knockback") return;
@@ -2016,15 +2014,26 @@ function tickBattle() {
         ? Math.max(baseHoldX,Number(target.x)+contactGap)
         : Math.max(enemyBaseStop,Number(target.x)+contactGap);
       if(distance>reach) {
-        cat.mode="moving";
         cat.x=Math.max(targetCombatStop,cat.x-(cat.speed*0.45)*dt);
+        const distanceAfterMove=battleTargetGap(cat,target);
+        if(distanceAfterMove<=reach+0.0001) {
+          prepareBattleAttackPhase(cat,now);
+          const catStats=battleStatsForEntity(cat);
+          const attackDuration=battleAttackAnimationDuration(cat,0.62);
+          if(now+0.0001>=Number(cat.nextAttackAt||0)&&startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target)) {
+          } else {
+            cat.mode="idle";
+          }
+        } else {
+          cat.mode=cat.x<=targetCombatStop+0.15?"idle":"moving";
+        }
       } else {
         if(distance<contactGap) cat.x=Number(target.x)+contactGap;
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
         const attackDuration=battleAttackAnimationDuration(cat,0.62);
-        if (now+0.0001>=Number(cat.nextAttackAt||0)&&startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target)) {
-        } else if (!(cat.animUntil>now)) {
+        if(now+0.0001>=Number(cat.nextAttackAt||0)&&startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target)) {
+        } else if(!(cat.animUntil>now)) {
           cat.mode="idle";
         }
       }
@@ -2181,12 +2190,6 @@ function updateFightUI() {
     const img=button.querySelector("img");
     if (img) img.src=battleSlotImage(unit);
   });
-  const message=stage.querySelector(".fight-message");
-  if (message) {
-    const available=save.units.find(unit=>save.equipped.includes(unit.id) && state.money>=battleUnitStats(unit).price && Number(state.cooldowns[unit.id]||0)<=0.05);
-    message.textContent=state.ended ? "BATTLE FINISHED" : available ? "TAP A CAT SLOT TO DEPLOY" : "";
-    message.hidden=!state.ended&&!available;
-  }
 }
 
 function renderFight() {
@@ -2227,7 +2230,6 @@ function renderFight() {
     
     '<img class="fight-base player-castle" src="' + catBaseUrl + '" alt="" draggable="false">'+
     '<div class="fight-unit-layer">'+entities+deathSouls+'</div>'+
-    '<div class="fight-message">TAP A CAT SLOT TO DEPLOY</div>'+
     '<footer class="fight-bottom">'+
       '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
