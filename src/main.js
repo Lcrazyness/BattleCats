@@ -36,7 +36,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261031-17";
+const BATTLE_ASSET_VERSION = "20261031-18";
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -1167,6 +1167,7 @@ function createBattleState() {
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
     cooldowns:{},cooldownWasActive:{},nextUnitKey:1,nextEnemyKey:1,ended:"",workerLevel:1,
+    walletAvailabilityInitialized:false,walletWasAvailable:false,
     deathSouls:[],nextDeathSoulKey:1,
     levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
@@ -1617,9 +1618,13 @@ function battleEntityContactGapPercent(first=null,second=null) {
   const safetyMargin=Math.max(10,metrics.unitWidth*0.2);
   return Math.max(metrics.contactGap,((combinedHalfWidth+safetyMargin)/metrics.width)*100);
 }
-function battleCombatReachPercent(range) {
+function battleCombatReachPercent(range,attacker=null,target=null) {
   const metrics=battleLayoutMetrics();
-  return Math.max(Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/metrics.width)*100)),metrics.contactGap);
+  const visualContactReach=attacker&&target
+    ? battleEntityContactGapPercent(attacker,target)+0.3
+    : metrics.contactGap;
+  const statReach=Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/metrics.width)*100));
+  return Math.max(statReach,metrics.contactGap,visualContactReach);
 }
 function applyBattleLevelVisuals() {
   if(scene!=="fight"||!battleState) return;
@@ -1878,7 +1883,7 @@ function resolvePendingBattleAttacks(now) {
         ? candidates.filter(target=>{
             if(!target||Number(target.hp)<=0||target.mode==="dead") return false;
             const gap=battleTargetGap(attacker,target);
-            return gap>=-1&&gap<=battleCombatReachPercent(attacker.range)+0.0001;
+            return gap>=-1&&gap<=battleCombatReachPercent(attacker.range,attacker,target)+0.0001;
           })
         : (lockedTarget&&Number(lockedTarget.hp)>0&&lockedTarget.mode!=="dead"?[lockedTarget]:[]);
       for(const target of targets) {
@@ -2003,7 +2008,7 @@ function tickBattle() {
       cat.mode="attack";
     } else if (target) {
       const distance=battleTargetGap(cat,target);
-      const reach=battleCombatReachPercent(cat.range);
+      const reach=battleCombatReachPercent(cat.range,cat,target);
       const contactGap=battleEntityContactGapPercent(cat,target);
       const targetIsInsideEnemyBase=Number(target.x)<=enemyBaseStop+0.1;
       const baseHoldX=targetIsInsideEnemyBase?battleEnemyBaseHoldPosition(cat,enemyHomeCenter):enemyBaseStop;
@@ -2050,7 +2055,7 @@ function tickBattle() {
 
     const target=findBattleTargetFor(enemy);
     const enemyDistance=target?battleTargetGap(enemy,target):Infinity;
-    const enemyReach=battleCombatReachPercent(enemy.range);
+    const enemyReach=battleCombatReachPercent(enemy.range,enemy,target);
     const contactGap=target?battleEntityContactGapPercent(enemy,target):battleEntityContactGapPercent();
 
     if(attackActive) {
@@ -2138,6 +2143,9 @@ function updateFightUI() {
   if (workerLevelText) workerLevelText.textContent="LEVEL "+walletLevel;
   if (workerCostText) workerCostText.textContent=walletLevel>=walletMaxLevel?"MAX LEVEL":"UPGRADE "+walletCost+"¢";
   const walletAvailable=walletLevel<walletMaxLevel && state.money>=walletCost && !state.ended;
+  if(state.walletAvailabilityInitialized && walletAvailable && !state.walletWasAvailable) playSfx("endOfRecharge");
+  state.walletAvailabilityInitialized=true;
+  state.walletWasAvailable=walletAvailable;
   const walletImagePath=battleAssetUrl(walletAvailable?"sprites/battle/walletup.png":"sprites/battle/walletdown.png");
   if(workerIcon&&workerIcon.dataset.activeSource!==walletImagePath) {
     workerIcon.dataset.activeSource=walletImagePath;
@@ -2601,7 +2609,6 @@ function perform(action) {
     battleState.money-=cost;
     battleState.workerLevel=currentLevel+1;
     battleState.maxMoney+=50;
-    playSfx("upgrade");
     updateFightUI();
     notify("Wallet upgraded to level "+battleState.workerLevel+"! Maximum money increased.");
     return;
@@ -2702,7 +2709,7 @@ stage.addEventListener("click", event => {
     return;
   }
 
-  playSfx(action.startsWith("deploy:") ? "deploy" : action === "intro-back" ? "back" : isStageChoice ? "enterBattle" : "button");
+  playSfx(action==="wallet-upgrade" || action.startsWith("deploy:") ? "deploy" : action === "intro-back" ? "back" : isStageChoice ? "enterBattle" : "button");
   if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
