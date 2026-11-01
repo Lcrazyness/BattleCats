@@ -2814,3 +2814,70 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     height:108px !important;
   }
 }
+
+/* Battle Cats number sprites supplied for currency and the wallet level. */
+.currency-sprite-readout { display:inline-flex; align-items:center; justify-content:flex-end; gap:1px; white-space:nowrap; line-height:0; }
+.currency-sprite-run { --currency-scale:.34; display:inline-flex; flex:0 0 auto; align-items:center; height:calc(62px * var(--currency-scale)); gap:0; line-height:0; }
+.currency-sprite-glyph {
+  display:block; flex:0 0 auto; height:calc(62px * var(--currency-scale));
+  background-image:url("../sprites/ui/numbers/currency-atlas.png?v=20261101-03");
+  background-repeat:no-repeat;
+  background-size:calc(393px * var(--currency-scale)) calc(134px * var(--currency-scale));
+}
+.currency-glyph-0 { width:calc(44px * var(--currency-scale)); background-position:calc(-3px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-1 { width:calc(36px * var(--currency-scale)); background-position:calc(-55px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-2 { width:calc(44px * var(--currency-scale)); background-position:calc(-99px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-3 { width:calc(44px * var(--currency-scale)); background-position:calc(-147px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-4 { width:calc(44px * var(--currency-scale)); background-position:calc(-195px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-5 { width:calc(44px * var(--currency-scale)); background-position:calc(-243px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-6 { width:calc(44px * var(--currency-scale)); background-position:calc(-291px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-7 { width:calc(44px * var(--currency-scale)); background-position:calc(-339px * var(--currency-scale)) calc(-4px * var(--currency-scale)); }
+.currency-glyph-8 { width:calc(44px * var(--currency-scale)); background-position:calc(-3px * var(--currency-scale)) calc(-70px * var(--currency-scale)); }
+.currency-glyph-9 { width:calc(44px * var(--currency-scale)); background-position:calc(-51px * var(--currency-scale)) calc(-70px * var(--currency-scale)); }
+.currency-glyph-slash { width:calc(43px * var(--currency-scale)); background-position:calc(-100px * var(--currency-scale)) calc(-70px * var(--currency-scale)); }
+.currency-size-base { --currency-scale:.27; }
+.currency-size-fight { --currency-scale:.34; }
+.currency-sprite-suffix { display:inline-block; align-self:center; margin-left:2px; color:#4b2911; font:900 clamp(7px,.75vw,10px)/1 Arial,sans-serif !important; text-shadow:none; }
+.fight-money .fight-money-value { display:flex; align-items:center; justify-content:flex-end; gap:1px; line-height:0; }
+.base-xp-count { align-items:center; }
+.base-xp-count .currency-sprite-run { --currency-scale:.27; }
+.base-sprite-button.base-cat-food .base-cat-food-count { align-items:center; justify-content:flex-end; overflow:visible; -webkit-text-stroke:0; text-shadow:none; }
+.base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.34; }
+.axe-cat-card-sprite { object-fit:contain !important; }
+
+/* White LEVEL digits sit above the worker-cat icon; MAX replaces them at level cap. */
+.wallet-sprite-run { --wallet-scale:.32; display:inline-flex; align-items:center; justify-content:center; gap:1px; height:calc(40px * var(--wallet-scale)); line-height:0; }
+.wallet-sprite-level, .wallet-sprite-digit {
+  display:block; flex:0 0 auto; height:calc(40px * var(--wallet-scale));
+  background-image:url("../sprites/ui/numbers/wallet-atlas.png?v=20261101-03");
+  background-repeat:no-repeat;
+  background-size:calc(393px * var(--wallet-scale)) calc(49px * var(--wallet-scale));
+}
+.wallet-sprite-level { width:calc(101px * var(--wallet-scale)); background-position:calc(-3px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-0 { width:calc(26px * var(--wallet-scale)); background-position:calc(-114px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-1 { width:calc(16px * var(--wallet-scale)); background-position:calc(-150px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-2 { width:calc(26px * var(--wallet-scale)); background-position:calc(-174px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-3 { width:calc(26px * var(--wallet-scale)); background-position:calc(-204px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-4 { width:calc(26px * var(--wallet-scale)); background-position:calc(-234px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-5 { width:calc(26px * var(--wallet-scale)); background-position:calc(-264px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-6 { width:calc(26px * var(--wallet-scale)); background-position:calc(-294px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-7 { width:calc(26px * var(--wallet-scale)); background-position:calc(-324px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.wallet-digit-8 { width:calc(26px * var(--wallet-scale)); background-position:calc(-354px * var(--wallet-scale)) calc(-6px * var(--wallet-scale)); }
+.fight-wallet-level-indicator {
+  position:absolute !important; z-index:110 !important; top:1px !important; left:50% !important;
+  display:flex !important; min-width:0 !important; width:max-content !important; height:auto !important;
+  align-items:center !important; justify-content:center !important; padding:2px 4px !important;
+  border:1px solid #29190f !important; border-radius:4px !important; background:rgba(18,12,8,.82) !important;
+  box-shadow:0 1px 2px #0009 !important; transform:translateX(-50%) !important; pointer-events:none !important;
+}
+.fight-wallet-max-label {
+  display:block !important; color:#fff !important; font:1000 11px/1 Impact,Haettenschweiler,sans-serif !important;
+  letter-spacing:.04em; -webkit-text-stroke:.65px #100a06; text-shadow:1px 1px #100a06;
+}
+@media(max-width:650px) {
+  .currency-size-fight { --currency-scale:.25; }
+  .base-xp-count .currency-sprite-run { --currency-scale:.22; }
+  .base-sprite-button.base-cat-food .currency-sprite-run { --currency-scale:.28; }
+  .wallet-sprite-run { --wallet-scale:.29; }
+  .fight-wallet-max-label { font-size:9px !important; }
+}
