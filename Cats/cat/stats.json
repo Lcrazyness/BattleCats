@@ -3,7 +3,7 @@
   "health": 70,
   "damage": 7,
   "price": 1,
-  "speed": 7,
+  "speed": 5,
   "spriteChangeSpeed": 6,
   "range": 55,
   "recharge": 0.1,
@@ -12,5 +12,6 @@
   "knockbackDistance": 4.5,
   "walkSpriteChangeSpeed": 2.5,
   "attackCooldown": 2,
-  "AreaAttack": false
+  "AreaAttack": false,
+  "attack": 6
 }
