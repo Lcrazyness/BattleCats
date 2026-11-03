@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-02";
+const BATTLE_ASSET_VERSION = "20261104-03";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -1965,7 +1965,12 @@ function attemptBattleEnemySpawn(state) {
   if(!state||!state.levelReady||state.enemyBaseHp<=0) return;
   const configuredLimit=Number(state.levelConfig&&state.levelConfig.maxEnemies);
   const totalLimit=Math.max(1,Math.floor(Number.isFinite(configuredLimit)&&configuredLimit>0?configuredLimit:6));
-  for(const rule of state.spawnRules||[]) {
+  const rules=state.spawnRules||[];
+  const prioritySpawnPending=rules.some(rule=>
+    rule&&rule.priority===true&&!rule.triggered&&(rule.infinite===true||rule.spawned<rule.amount)
+  );
+  const normalSpawnLimit=prioritySpawnPending?Math.max(1,totalLimit-1):totalLimit;
+  for(const rule of rules) {
     if(!rule||!rule.enemy) continue;
     const hasBaseTrigger=rule.baseHealthPercent!==null&&rule.baseHealthPercent!==undefined;
     if(hasBaseTrigger&&!rule.triggered) {
@@ -1980,8 +1985,8 @@ function attemptBattleEnemySpawn(state) {
     if(state.elapsed+0.0001<Number(rule.nextAttemptAt)) continue;
     const aliveOfType=state.enemies.filter(enemy=>enemy.enemyType===rule.enemy&&enemy.hp>0&&enemy.mode!=="dead").length;
     const totalAlive=state.enemies.filter(enemy=>enemy.hp>0&&enemy.mode!=="dead").length;
-    const prioritySlot=rule.priority===true&&totalAlive===totalLimit;
-    if(aliveOfType<rule.maxAlive&&(totalAlive<totalLimit||prioritySlot)&&Math.random()<=rule.spawnChance) {
+    const spawnLimit=rule.priority===true?totalLimit:normalSpawnLimit;
+    if(aliveOfType<rule.maxAlive&&totalAlive<spawnLimit&&Math.random()<=rule.spawnChance) {
       const key=rule.enemy+"-"+state.nextEnemyKey++;
       state.enemies.push(createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey));
       rule.spawned++;
