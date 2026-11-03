@@ -1,0 +1,15 @@
+{
+  "name": "Pigge",
+  "idle": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp",
+  "moving": [
+    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp"
+  ],
+  "attacks": [
+    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp"
+  ],
+  "attackSprite": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp",
+  "attackDuration": 2.4,
+  "attackFrameRate": 8,
+  "damaged": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp",
+  "slot": "enemys/pigge/slot.png"
+}

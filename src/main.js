@@ -65,9 +65,10 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261101-15";
+const BATTLE_ASSET_VERSION = "20261103-01";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
+const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
@@ -78,6 +79,11 @@ const BATTLE_UNIT_STATS = {
   cat: {health:70,damage:6,price:1,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "axe-cat": {health:100,damage:12,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:65,recharge:0.1,attackCooldown:1.4,AreaAttack:false,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55,AreaAttack:false},
+  snache: {health:100,damage:15,speed:8,spriteChangeSpeed:8,range:110,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false},
+  "those-guys": {health:200,damage:20,speed:10,spriteChangeSpeed:10,range:110,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1,AreaAttack:false},
+  hippoe: {health:1000,damage:100,speed:4,spriteChangeSpeed:4,range:160,killReward:400,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.2,AreaAttack:true},
+  pigge: {health:1500,damage:120,speed:5,spriteChangeSpeed:5,range:150,killReward:400,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.4,AreaAttack:true,traits:["Red"]},
+  "jackie-peng": {health:1300,damage:80,speed:11,spriteChangeSpeed:11,range:150,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.8,AreaAttack:false},
   "tank-cat": {health:300,damage:8,price:1,speed:3,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
@@ -510,6 +516,7 @@ const LOADING_IMAGE_ASSETS = [
   {path:"enemys/doge/attack/frame-004.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/damaged/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/slot.png?v=20261029-31",bytes:9000},
+  {path:"enemys/early-enemies/atlas.webp?v=20261103-01",bytes:23438},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -1126,15 +1133,108 @@ function renderStage() {
     '</div>'+
   '</section>';
 }
+const EOC1_ENEMY_BASE_HEALTH = [
+  500,500,500,500,750,750,2400,1500,3000,2500,3500,4000,
+  5000,6000,6100,7000,7000,8000,9000,9000,10000,12000,15000,15000,
+  15000,15000,15000,15000,18000,15000,8000,18000,18000,18000,20000,20000,
+  20000,20000,20000,20000,20000,25000,20000,25000,20000,20000,30000,99999
+];
+function timedEnemySpawn(enemy,amount,startTime,intervalMin,intervalMax,maxAlive=3,spawnChance=1) {
+  return {enemy,amount,startTime,intervalMin,intervalMax,maxAlive,spawnChance};
+}
+function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1) {
+  return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance};
+}
 function defaultBattleLevelConfig(levelName="Korea") {
+  const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
+  const enemyBaseHealth=EOC1_ENEMY_BASE_HEALTH[stageIndex]||500;
+  let enemySpawns=[];
+  if(stageIndex<=0) {
+    enemySpawns=[
+      timedEnemySpawn("doge",18,2,5.5,9,3,0.82)
+    ];
+  } else {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,6.67,13.33,3)
+    ];
+    if(stageIndex>=1) enemySpawns.push(timedEnemySpawn("snache","infinite",20,6.67,13.33,3));
+    if(stageIndex>=3) enemySpawns.push(timedEnemySpawn("those-guys","infinite",40,10,26.67,3));
+    if(stageIndex>=6) enemySpawns.push(timedEnemySpawn("hippoe",3,65,25,40,1));
+    if(stageIndex>=9) enemySpawns.push(timedEnemySpawn("pigge",2,80,35,50,1));
+    if(stageIndex>=12) enemySpawns.push(timedEnemySpawn("jackie-peng",2,100,40,55,1));
+  }
+
+  if(levelName==="China") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,8,15,3),
+      timedEnemySpawn("snache",3,10,26.67,26.67,2),
+      timedEnemySpawn("those-guys",2,16.67,16.67,16.67,2),
+      timedEnemySpawn("snache",2,30,13.33,13.33,2)
+    ];
+  }
+  if(levelName==="Thailand") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,6.67,13.33,3),
+      timedEnemySpawn("snache","infinite",10,10,26.67,3),
+      timedEnemySpawn("those-guys","infinite",40,10,26.67,3)
+    ];
+  }
+  if(levelName==="Japan") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,8,16,3),
+      timedEnemySpawn("snache","infinite",15,12,22,3),
+      timedEnemySpawn("those-guys","infinite",40,12,24,3),
+      baseTriggeredEnemySpawn("hippoe",1,90,1,1,1),
+      baseTriggeredEnemySpawn("those-guys",6,90,2,4,6)
+    ];
+  }
+  if(levelName==="Maldives") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,10.67,18.67,3),
+      timedEnemySpawn("snache","infinite",8,20,53.33,3),
+      timedEnemySpawn("those-guys","infinite",40,10,40,3),
+      baseTriggeredEnemySpawn("those-guys",6,95,2,4,6),
+      baseTriggeredEnemySpawn("pigge",1,90,1,1,1)
+    ];
+  }
+  if(levelName==="Dubai") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,6.67,13.33,3),
+      timedEnemySpawn("snache","infinite",20,6.67,13.33,3),
+      timedEnemySpawn("those-guys","infinite",40,6.67,13.33,3),
+      baseTriggeredEnemySpawn("those-guys",6,90,2,4,6),
+      baseTriggeredEnemySpawn("jackie-peng",1,90,1,1,1),
+      baseTriggeredEnemySpawn("those-guys","infinite",88,3.33,13.33,3),
+      baseTriggeredEnemySpawn("jackie-peng",1,88,1,1,1)
+    ];
+  }
+  if(levelName==="Saudi Arabia") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,8,16,3),
+      timedEnemySpawn("snache","infinite",20,12,24,3),
+      timedEnemySpawn("those-guys","infinite",40,12,24,3),
+      timedEnemySpawn("hippoe","infinite",0,35,55,1)
+    ];
+  }
+  if(levelName==="Kenya") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,6,12,4),
+      timedEnemySpawn("snache","infinite",12,10,18,3),
+      timedEnemySpawn("those-guys","infinite",30,10,18,3),
+      timedEnemySpawn("pigge",3,60,24,36,1),
+      timedEnemySpawn("hippoe",2,80,30,45,1)
+    ];
+  }
+
   return {
     name:levelName,
     background:"background.png",
     enemyBase:"enemybase.png",
-    enemyBaseHealth:500,
+    enemyBaseHealth,
     catBaseHealth:1000,
-    initialSpawnDelay:2,
-    enemySpawns:[{enemy:"doge",amount:18,startTime:2,intervalMin:5.5,intervalMax:9,spawnChance:0.82,maxAlive:3}]
+    maxEnemies:6,
+    initialSpawnDelay:stageIndex<=0?2:0,
+    enemySpawns
   };
 }
 function normalizeBattleLevelConfig(raw,levelName="Korea") {
@@ -1145,14 +1245,23 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
   const enemySpawns=sourceRules.filter(rule=>rule&&typeof rule==="object").map((rule,index)=>{
     const enemy=battleUnitKey(rule.enemy||rule.type||"doge")||"doge";
     const requestedAmount=Number(rule.amount ?? rule.count);
-    const amount=Math.max(0,Math.floor(Number.isFinite(requestedAmount)?requestedAmount:10));
+    const infinite=rule.infinite===true||String(rule.amount??rule.count??"").toLowerCase()==="infinite"||String(rule.amount??rule.count??"")==="∞";
+    const amount=infinite?0:Math.max(0,Math.floor(Number.isFinite(requestedAmount)?requestedAmount:10));
     const startTime=Math.max(0,Number.isFinite(Number(rule.startTime))?Number(rule.startTime):initialSpawnDelay);
     const intervalMin=Math.max(0.25,Number.isFinite(Number(rule.intervalMin))?Number(rule.intervalMin):5.5);
     const intervalMax=Math.max(intervalMin,Number.isFinite(Number(rule.intervalMax))?Number(rule.intervalMax):intervalMin);
     const rawChance=Number(rule.spawnChance ?? rule.randomRate ?? 1);
     const spawnChance=Math.max(0,Math.min(1,Number.isFinite(rawChance)?rawChance:1));
     const maxAlive=Math.max(1,Math.floor(Number.isFinite(Number(rule.maxAlive))?Number(rule.maxAlive):3));
-    return {id:index,enemy,amount,startTime,intervalMin,intervalMax,spawnChance,maxAlive,spawned:0,nextAttemptAt:startTime};
+    const rawBasePercent=rule.baseHealthPercent;
+    const baseHealthPercent=rawBasePercent===undefined||rawBasePercent===null
+      ? null
+      : Math.max(1,Math.min(99,Number.isFinite(Number(rawBasePercent))?Number(rawBasePercent):90));
+    return {
+      id:index,enemy,amount,infinite,startTime,intervalMin,intervalMax,spawnChance,maxAlive,
+      baseHealthPercent,spawned:0,triggered:baseHealthPercent===null,
+      nextAttemptAt:baseHealthPercent===null?startTime:Infinity
+    };
   });
   const positive=(value,fallback)=>Number.isFinite(Number(value))&&Number(value)>0?Number(value):fallback;
   const safeAssetFile=(value,fallback)=>{
@@ -1165,6 +1274,7 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     enemyBase:safeAssetFile(data.enemyBase||data.enemyBaseFile,defaults.enemyBase),
     enemyBaseHealth:positive(data.enemyBaseHealth,defaults.enemyBaseHealth),
     catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth),
+    maxEnemies:Math.max(1,Math.floor(positive(data.maxEnemies,defaults.maxEnemies||6))),
     initialSpawnDelay,enemySpawns
   };
 }
@@ -1185,7 +1295,7 @@ async function loadBattleLevelConfig() {
     if(battleState) {
       battleState.levelName=battleLevelName;
       battleState.levelConfig=battleLevelConfig;
-      battleState.spawnRules=battleLevelConfig.enemySpawns.map(rule=>({...rule,spawned:0,nextAttemptAt:rule.startTime}));
+      battleState.spawnRules=battleLevelConfig.enemySpawns.map(rule=>({...rule,spawned:0,triggered:rule.baseHealthPercent===null,nextAttemptAt:rule.baseHealthPercent===null?rule.startTime:Infinity}));
       battleState.enemyBaseHp=battleLevelConfig.enemyBaseHealth;
       battleState.enemyBaseMaxHp=battleLevelConfig.enemyBaseHealth;
       battleState.catBaseHp=battleLevelConfig.catBaseHealth;
@@ -1602,6 +1712,38 @@ function normalizeAxeCatBattleSprite(image,source){
     return "";
   }
 }
+function normalizeEnemyBattleSprite(image,source) {
+  if(!image||!image.naturalWidth||!image.naturalHeight||!source) return "";
+  const cached=BATTLE_ENEMY_SPRITE_CACHE.get(source);
+  if(cached) return cached;
+  try {
+    const url=new URL(source,APP_BASE_URL);
+    const match=url.hash.match(/^#frame=(\d+),(\d+),(\d+),(\d+)$/);
+    if(!match) return "";
+    const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
+    if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>image.naturalWidth||sy+sh>image.naturalHeight) return "";
+    const padding=2;
+    const left=Math.max(0,sx-padding),top=Math.max(0,sy-padding);
+    const right=Math.min(image.naturalWidth,sx+sw+padding),bottom=Math.min(image.naturalHeight,sy+sh+padding);
+    const cropWidth=right-left,cropHeight=bottom-top;
+    const maxSize=144,canvasSize=160;
+    const scale=Math.min(maxSize/cropWidth,maxSize/cropHeight);
+    const drawWidth=cropWidth*scale,drawHeight=cropHeight*scale;
+    const canvas=document.createElement("canvas");
+    canvas.width=canvasSize;canvas.height=canvasSize;
+    const context=canvas.getContext("2d");
+    if(!context) return "";
+    context.imageSmoothingEnabled=true;
+    context.drawImage(image,left,top,cropWidth,cropHeight,
+      (canvasSize-drawWidth)/2,canvasSize-4-drawHeight,drawWidth,drawHeight);
+    const result=canvas.toDataURL("image/png");
+    BATTLE_ENEMY_SPRITE_CACHE.set(source,result);
+    return result;
+  } catch(error) {
+    console.warn("Enemy sprite sheet frame could not be cropped:",source,error);
+    return "";
+  }
+}
 function updateBattleEntityView(entity) {
   const element = ensureBattleEntityNode(entity);
   if (!element) return;
@@ -1648,6 +1790,14 @@ function updateBattleEntityView(entity) {
       sprite.classList.remove("sprite-load-failed");
       sprite.style.visibility="";
       sprite.dataset.fallbackTried="";
+      if(source.includes("#frame=")&&sprite.dataset.normalizedSource!==source){
+        const normalized=normalizeEnemyBattleSprite(sprite,source);
+        if(normalized){
+          sprite.dataset.normalizedSource=source;
+          sprite.src=normalized;
+          return;
+        }
+      }
       if(element.dataset.unitType==="axe-cat"&&sprite.dataset.normalizedSource!==source){
         const normalized=normalizeAxeCatBattleSprite(sprite,source);
         if(normalized){
@@ -1671,7 +1821,7 @@ function updateBattleEntityView(entity) {
       sprite.classList.add("sprite-load-failed");
       console.warn("Battle Cats sprite could not load:",source);
     };
-    if(element.dataset.unitType==="axe-cat") sprite.crossOrigin="anonymous";
+    if(element.dataset.unitType==="axe-cat"||source.includes("#frame=")) sprite.crossOrigin="anonymous";
     sprite.src=source;
   }
 }

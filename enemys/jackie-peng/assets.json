@@ -1,0 +1,15 @@
+{
+  "name": "Jackie Peng",
+  "idle": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp",
+  "moving": [
+    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp"
+  ],
+  "attacks": [
+    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp"
+  ],
+  "attackSprite": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp",
+  "attackDuration": 0.8,
+  "attackFrameRate": 8,
+  "damaged": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp",
+  "slot": "enemys/jackie-peng/slot.png"
+}

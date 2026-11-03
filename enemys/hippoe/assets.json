@@ -1,0 +1,15 @@
+{
+  "name": "Hippoe",
+  "idle": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp",
+  "moving": [
+    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp"
+  ],
+  "attacks": [
+    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp"
+  ],
+  "attackSprite": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp",
+  "attackDuration": 2.2,
+  "attackFrameRate": 8,
+  "damaged": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp",
+  "slot": "enemys/hippoe/slot.png"
+}

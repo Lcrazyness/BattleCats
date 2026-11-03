@@ -23,3 +23,21 @@ Example:
 The level loader reads the files and base health from that level's own folder. The Cat Base is a shared transparent sprite at `sprites/battle/cat-base.svg`; the Worker Cat wallet and Cat Cannon icons are in `sprites/ui/`.
 
 Korea is the first level folder configured with its own backdrop, enemy-base sprite, and base health. Add the equivalent assets and `stats.json` to each additional stage folder as those stages are built.
+
+
+## Enemy data and trigger rules
+
+Enemy folders under `enemys/<enemy-name>/` can contain:
+- `stats.json` — base HP, damage, movement speed, range, attack cooldown, knockbacks and reward.
+- `assets.json` — walking, attack, damaged and idle sprite paths. The battle loader reads these automatically.
+
+Each level's `stats.json` can also define:
+- `maxEnemies` — maximum enemies simultaneously alive on the field.
+- `enemyBaseHealth` — that stage's enemy base HP.
+- `enemySpawns` entries with `startTime`, `intervalMin`, `intervalMax`, `amount`, `infinite`, `maxAlive`, `spawnChance`.
+- `baseHealthPercent` — spawn the rule once the enemy base drops to that percentage or lower. This can be combined with `amount` or `infinite`.
+
+Example base-triggered spawn:
+```json
+{"enemy":"hippoe","amount":1,"baseHealthPercent":90,"intervalMin":1,"intervalMax":1,"maxAlive":1}
+```
