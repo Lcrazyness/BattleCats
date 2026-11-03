@@ -1,15 +1,23 @@
 {
   "name": "Hippoe",
-  "idle": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp",
+  "idle": "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=0,0,128,128",
   "moving": [
-    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp"
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=0,0,128,128",
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=128,0,128,128",
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,0,128,128",
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=384,0,128,128"
   ],
   "attacks": [
-    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp"
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=0,128,128,128",
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=128,128,128,128",
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,128,128,128",
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=384,128,128,128"
   ],
-  "attackSprite": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp",
   "attackDuration": 2.2,
-  "attackFrameRate": 8,
-  "damaged": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/5.webp",
-  "slot": "enemys/hippoe/slot.png"
+  "attackFrameRate": 2,
+  "damaged": "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,128,128,128",
+  "slot": "enemys/hippoe/slot.png",
+  "damagedFrames": [
+    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,128,128,128"
+  ]
 }

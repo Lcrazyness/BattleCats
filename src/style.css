@@ -1709,6 +1709,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-cat-cannon:after{content:"";position:absolute;top:-24%;left:37%;width:26%;height:32%;border:3px solid #53452f;border-radius:50%;background:#312a1e}
 .fight-unit-layer{position:absolute;z-index:5;inset:16% 0 19%;pointer-events:none}
 .fight-unit{position:absolute;bottom:0;width:clamp(54px,7.3vw,96px);height:clamp(78px,18vh,145px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transition:left .08s linear;filter:drop-shadow(2px 3px 0 #231b168c)}
+.fight-unit[data-unit-type="hippoe"]{overflow:hidden}
 .fight-unit-sprite{display:block;width:100%;height:calc(100% - 9px);object-fit:contain;image-rendering:auto;animation:fight-unit-idle .7s ease-in-out infinite alternate;transform-origin:bottom center}
 .fight-unit.is-attacking .fight-unit-sprite{animation:fight-unit-attack .28s ease-in-out 2 alternate}
 .fight-unit.is-damaged .fight-unit-sprite{animation:fight-unit-hit .14s linear 2;filter:brightness(1.5) sepia(.7) saturate(2)}

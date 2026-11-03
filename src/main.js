@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261103-02";
+const BATTLE_ASSET_VERSION = "20261103-03";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -516,7 +516,8 @@ const LOADING_IMAGE_ASSETS = [
   {path:"enemys/doge/attack/frame-004.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/damaged/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/slot.png?v=20261029-31",bytes:9000},
-  {path:"enemys/early-enemies/atlas.webp?v=20261103-01",bytes:23438},
+  {path:"enemys/snache/spritesheet.webp?v=20261103-03",bytes:4490},
+  {path:"enemys/those-guys/spritesheet.webp?v=20261103-03",bytes:7458},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -1744,6 +1745,33 @@ function normalizeEnemyBattleSprite(image,source) {
     return "";
   }
 }
+function applyCssEnemySpriteFrame(element,image,source) {
+  if(!element||!image||!image.naturalWidth||!image.naturalHeight||!source) return false;
+  try {
+    const url=new URL(source,APP_BASE_URL);
+    const match=url.hash.match(/^#frame=(\\d+),(\\d+),(\\d+),(\\d+)$/);
+    if(!match) return false;
+    const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
+    if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>image.naturalWidth||sy+sh>image.naturalHeight) return false;
+    const boxWidth=Math.max(1,element.clientWidth||96);
+    const boxHeight=Math.max(1,element.clientHeight||145);
+    const scale=Math.min((boxWidth-4)/sw,(boxHeight-8)/sh);
+    if(!Number.isFinite(scale)||scale<=0) return false;
+    image.style.position="absolute";
+    image.style.width=(image.naturalWidth*scale)+"px";
+    image.style.height=(image.naturalHeight*scale)+"px";
+    image.style.left=((boxWidth-sw*scale)/2-sx*scale)+"px";
+    image.style.top=(boxHeight-4-(sy+sh)*scale)+"px";
+    image.style.maxWidth="none";
+    image.style.maxHeight="none";
+    image.style.objectFit="fill";
+    image.dataset.cssCroppedSource=source;
+    return true;
+  } catch(error) {
+    console.warn("Enemy sprite CSS crop could not be applied:",source,error);
+    return false;
+  }
+}
 function updateBattleEntityView(entity) {
   const element = ensureBattleEntityNode(entity);
   if (!element) return;
@@ -1783,6 +1811,15 @@ function updateBattleEntityView(entity) {
   sprite.style.backgroundRepeat="";
   sprite.style.objectFit="";
   if (sprite.dataset.activeSource!==source) {
+    sprite.style.position="";
+    sprite.style.width="";
+    sprite.style.height="";
+    sprite.style.left="";
+    sprite.style.top="";
+    sprite.style.maxWidth="";
+    sprite.style.maxHeight="";
+    sprite.dataset.cssCroppedSource="";
+    sprite.dataset.normalizedSource="";
     sprite.dataset.activeSource=source;
     sprite.dataset.fallbackTried="";
     sprite.classList.remove("sprite-load-failed");
@@ -1795,6 +1832,10 @@ function updateBattleEntityView(entity) {
         if(normalized){
           sprite.dataset.normalizedSource=source;
           sprite.src=normalized;
+          return;
+        }
+        if(applyCssEnemySpriteFrame(element,sprite,source)){
+          sprite.dataset.normalizedSource=source;
           return;
         }
       }
@@ -1821,7 +1862,7 @@ function updateBattleEntityView(entity) {
       sprite.classList.add("sprite-load-failed");
       console.warn("Battle Cats sprite could not load:",source);
     };
-    if(element.dataset.unitType==="axe-cat"||source.includes("#frame=")) sprite.crossOrigin="anonymous";
+    if(element.dataset.unitType==="axe-cat") sprite.crossOrigin="anonymous";
     sprite.src=source;
   }
 }
