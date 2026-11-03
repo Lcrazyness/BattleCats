@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261103-01";
+const BATTLE_ASSET_VERSION = "20261103-02";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -1340,7 +1340,7 @@ function createBattleState() {
 function loadBattleAssetManifests() {
   if(battleAssetsPromise) return battleAssetsPromise;
   BATTLE_UNIT_STATS_BY_ID.clear();
-  const assetRequests=[["cat","Cats/cat/assets.json"],["doge","enemys/doge/assets.json"]];
+  const assetRequests=[["cat","Cats/cat/assets.json"],["doge","enemys/doge/assets.json"],["snache","enemys/snache/assets.json"],["those-guys","enemys/those-guys/assets.json"],["hippoe","enemys/hippoe/assets.json"],["pigge","enemys/pigge/assets.json"],["jackie-peng","enemys/jackie-peng/assets.json"]];
   const statRequests=[];
   save.units.forEach(unit=>{
     const key=battleUnitKey(unit);
