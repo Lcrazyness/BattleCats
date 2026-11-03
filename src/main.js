@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261103-03";
+const BATTLE_ASSET_VERSION = "20261103-04";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -1749,7 +1749,7 @@ function applyCssEnemySpriteFrame(element,image,source) {
   if(!element||!image||!image.naturalWidth||!image.naturalHeight||!source) return false;
   try {
     const url=new URL(source,APP_BASE_URL);
-    const match=url.hash.match(/^#frame=(\\d+),(\\d+),(\\d+),(\\d+)$/);
+    const match=url.hash.match(/^#frame=(\d+),(\d+),(\d+),(\d+)$/);
     if(!match) return false;
     const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
     if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>image.naturalWidth||sy+sh>image.naturalHeight) return false;
