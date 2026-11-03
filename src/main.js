@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-03";
+const BATTLE_ASSET_VERSION = "20261104-04";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -1143,8 +1143,8 @@ const EOC1_ENEMY_BASE_HEALTH = [
 function timedEnemySpawn(enemy,amount,startTime,intervalMin,intervalMax,maxAlive=3,spawnChance=1) {
   return {enemy,amount,startTime,intervalMin,intervalMax,maxAlive,spawnChance};
 }
-function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1,priority=false) {
-  return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true};
+function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1,priority=false,fallbackAfterSeconds=null) {
+  return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true,fallbackAfterSeconds};
 }
 const EOC1_MAX_ENEMIES = {
   Korea:3,
@@ -1190,7 +1190,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("doge","infinite",0,10.67,18.67,3),
       timedEnemySpawn("snache","infinite",0,20,53.33,3),
       timedEnemySpawn("those-guys","infinite",40,20,53.33,3),
-      baseTriggeredEnemySpawn("hippoe",1,90,1,1,1,1,true),
+      baseTriggeredEnemySpawn("hippoe",1,90,1,1,1,1,true,65),
       baseTriggeredEnemySpawn("those-guys",6,90,2,4,6)
     ];
   }
@@ -1258,9 +1258,13 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     const baseHealthPercent=rawBasePercent===undefined||rawBasePercent===null
       ? null
       : Math.max(1,Math.min(99,Number.isFinite(Number(rawBasePercent))?Number(rawBasePercent):90));
+    const rawFallback=rule.fallbackAfterSeconds;
+    const fallbackAfterSeconds=rawFallback===undefined||rawFallback===null
+      ? null
+      : Math.max(0,Number.isFinite(Number(rawFallback))?Number(rawFallback):0);
     return {
       id:index,enemy,amount,infinite,startTime,intervalMin,intervalMax,spawnChance,maxAlive,
-      baseHealthPercent,priority:rule.priority===true,spawned:0,triggered:baseHealthPercent===null,
+      baseHealthPercent,fallbackAfterSeconds,priority:rule.priority===true,spawned:0,triggered:baseHealthPercent===null,
       nextAttemptAt:baseHealthPercent===null?startTime:Infinity
     };
   });
@@ -1724,22 +1728,46 @@ function normalizeEnemyBattleSprite(image,source,element=null) {
     if(!match) return "";
     const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
     if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>image.naturalWidth||sy+sh>image.naturalHeight) return "";
+
+    const scan=document.createElement("canvas");
+    scan.width=sw;
+    scan.height=sh;
+    const scanContext=scan.getContext("2d",{willReadFrequently:true});
+    if(!scanContext) return "";
+    scanContext.drawImage(image,sx,sy,sw,sh,0,0,sw,sh);
+    const pixels=scanContext.getImageData(0,0,sw,sh).data;
+    let minX=sw,minY=sh,maxX=-1,maxY=-1;
+    for(let y=0;y<sh;y++){
+      for(let x=0;x<sw;x++){
+        if(pixels[(y*sw+x)*4+3]>12){
+          if(x<minX) minX=x;
+          if(x>maxX) maxX=x;
+          if(y<minY) minY=y;
+          if(y>maxY) maxY=y;
+        }
+      }
+    }
+    if(maxX<minX||maxY<minY) return "";
     const padding=2;
-    const left=Math.max(0,sx-padding),top=Math.max(0,sy-padding);
-    const right=Math.min(image.naturalWidth,sx+sw+padding),bottom=Math.min(image.naturalHeight,sy+sh+padding);
-    const cropWidth=right-left,cropHeight=bottom-top;
-    const maxSize=144,canvasSize=160;
+    minX=Math.max(0,minX-padding);
+    minY=Math.max(0,minY-padding);
+    maxX=Math.min(sw-1,maxX+padding);
+    maxY=Math.min(sh-1,maxY+padding);
+    const cropWidth=maxX-minX+1,cropHeight=maxY-minY+1;
     const unitType=element&&element.dataset?element.dataset.unitType:"";
-    const fixedEnemyScale=(unitType==="snache"||unitType==="those-guys")?0.84:0;
-    const scale=fixedEnemyScale||Math.min(maxSize/cropWidth,maxSize/cropHeight);
+    const sharedSize=unitType==="snache"||unitType==="those-guys";
+    const maxWidth=sharedSize?148:144;
+    const maxHeight=sharedSize?116:144;
+    const scale=Math.min(maxWidth/cropWidth,maxHeight/cropHeight);
     const drawWidth=cropWidth*scale,drawHeight=cropHeight*scale;
     const canvas=document.createElement("canvas");
-    canvas.width=canvasSize;canvas.height=canvasSize;
+    canvas.width=160;
+    canvas.height=160;
     const context=canvas.getContext("2d");
     if(!context) return "";
     context.imageSmoothingEnabled=true;
-    context.drawImage(image,left,top,cropWidth,cropHeight,
-      (canvasSize-drawWidth)/2,canvasSize-4-drawHeight,drawWidth,drawHeight);
+    context.drawImage(scan,minX,minY,cropWidth,cropHeight,
+      (160-drawWidth)/2,156-drawHeight,drawWidth,drawHeight);
     const result=canvas.toDataURL("image/png");
     BATTLE_ENEMY_SPRITE_CACHE.set(source,result);
     return result;
@@ -1831,6 +1859,14 @@ function updateBattleEntityView(entity) {
       sprite.style.visibility="";
       sprite.dataset.fallbackTried="";
       if(source.includes("#frame=")&&sprite.dataset.normalizedSource!==source){
+        let externalFrame=false;
+        try {
+          externalFrame=new URL(source,APP_BASE_URL).origin!==new URL(APP_BASE_URL).origin;
+        } catch {}
+        if(externalFrame&&applyCssEnemySpriteFrame(element,sprite,source)){
+          sprite.dataset.normalizedSource=source;
+          return;
+        }
         const normalized=normalizeEnemyBattleSprite(sprite,source,element);
         if(normalized){
           sprite.dataset.normalizedSource=source;
@@ -1976,7 +2012,11 @@ function attemptBattleEnemySpawn(state) {
     if(hasBaseTrigger&&!rule.triggered) {
       const baseMaximum=Math.max(1,Number(state.enemyBaseMaxHp)||Number(state.levelConfig&&state.levelConfig.enemyBaseHealth)||1);
       const basePercent=(Number(state.enemyBaseHp)||0)/baseMaximum*100;
-      if(basePercent>Number(rule.baseHealthPercent)) continue;
+      const baseHealthReached=basePercent<=Number(rule.baseHealthPercent);
+      const hasTimedFallback=rule.fallbackAfterSeconds!==null&&rule.fallbackAfterSeconds!==undefined;
+      const timedFallbackReached=hasTimedFallback&&Number.isFinite(Number(rule.fallbackAfterSeconds))&&
+        state.elapsed+0.0001>=Number(rule.fallbackAfterSeconds);
+      if(!baseHealthReached&&!timedFallbackReached) continue;
       rule.triggered=true;
       rule.nextAttemptAt=state.elapsed;
     }
