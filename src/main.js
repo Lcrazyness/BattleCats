@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-01";
+const BATTLE_ASSET_VERSION = "20261104-02";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -516,8 +516,8 @@ const LOADING_IMAGE_ASSETS = [
   {path:"enemys/doge/attack/frame-004.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/damaged/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/slot.png?v=20261029-31",bytes:9000},
-  {path:"enemys/snache/spritesheet.webp?v=20261103-03",bytes:4490},
-  {path:"enemys/those-guys/spritesheet.webp?v=20261103-03",bytes:7458},
+  {path:"enemys/snache/spritesheet.webp?v=20261104-02",bytes:4490},
+  {path:"enemys/those-guys/spritesheet.webp?v=20261104-02",bytes:7458},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
   {path:"sprites/ui/empirepfcatsbanner.png?v=20261027-1",bytes:270940},
   {path:"sprites/ui/backbutton.png?v=20261026-9",bytes:35794},
@@ -1143,8 +1143,8 @@ const EOC1_ENEMY_BASE_HEALTH = [
 function timedEnemySpawn(enemy,amount,startTime,intervalMin,intervalMax,maxAlive=3,spawnChance=1) {
   return {enemy,amount,startTime,intervalMin,intervalMax,maxAlive,spawnChance};
 }
-function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1) {
-  return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance};
+function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1,priority=false) {
+  return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true};
 }
 const EOC1_MAX_ENEMIES = {
   Korea:3,
@@ -1190,7 +1190,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("doge","infinite",0,10.67,18.67,3),
       timedEnemySpawn("snache","infinite",0,20,53.33,3),
       timedEnemySpawn("those-guys","infinite",40,20,53.33,3),
-      baseTriggeredEnemySpawn("hippoe",1,90,1,1,1),
+      baseTriggeredEnemySpawn("hippoe",1,90,1,1,1,1,true),
       baseTriggeredEnemySpawn("those-guys",6,90,2,4,6)
     ];
   }
@@ -1260,7 +1260,7 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
       : Math.max(1,Math.min(99,Number.isFinite(Number(rawBasePercent))?Number(rawBasePercent):90));
     return {
       id:index,enemy,amount,infinite,startTime,intervalMin,intervalMax,spawnChance,maxAlive,
-      baseHealthPercent,spawned:0,triggered:baseHealthPercent===null,
+      baseHealthPercent,priority:rule.priority===true,spawned:0,triggered:baseHealthPercent===null,
       nextAttemptAt:baseHealthPercent===null?startTime:Infinity
     };
   });
@@ -1450,7 +1450,8 @@ function battleAssetUrl(path) {
   if (!path) return "";
   try {
     const url=new URL(path,APP_BASE_URL);
-    if (!url.searchParams.has("v")) url.searchParams.set("v",BATTLE_ASSET_VERSION);
+    const appOrigin=new URL(APP_BASE_URL).origin;
+    if(url.origin===appOrigin&&!url.searchParams.has("v")) url.searchParams.set("v",BATTLE_ASSET_VERSION);
     return url.href;
   } catch {
     return path;
@@ -1713,7 +1714,7 @@ function normalizeAxeCatBattleSprite(image,source){
     return "";
   }
 }
-function normalizeEnemyBattleSprite(image,source) {
+function normalizeEnemyBattleSprite(image,source,element=null) {
   if(!image||!image.naturalWidth||!image.naturalHeight||!source) return "";
   const cached=BATTLE_ENEMY_SPRITE_CACHE.get(source);
   if(cached) return cached;
@@ -1728,7 +1729,9 @@ function normalizeEnemyBattleSprite(image,source) {
     const right=Math.min(image.naturalWidth,sx+sw+padding),bottom=Math.min(image.naturalHeight,sy+sh+padding);
     const cropWidth=right-left,cropHeight=bottom-top;
     const maxSize=144,canvasSize=160;
-    const scale=Math.min(maxSize/cropWidth,maxSize/cropHeight);
+    const unitType=element&&element.dataset?element.dataset.unitType:"";
+    const fixedEnemyScale=(unitType==="snache"||unitType==="those-guys")?0.84:0;
+    const scale=fixedEnemyScale||Math.min(maxSize/cropWidth,maxSize/cropHeight);
     const drawWidth=cropWidth*scale,drawHeight=cropHeight*scale;
     const canvas=document.createElement("canvas");
     canvas.width=canvasSize;canvas.height=canvasSize;
@@ -1828,7 +1831,7 @@ function updateBattleEntityView(entity) {
       sprite.style.visibility="";
       sprite.dataset.fallbackTried="";
       if(source.includes("#frame=")&&sprite.dataset.normalizedSource!==source){
-        const normalized=normalizeEnemyBattleSprite(sprite,source);
+        const normalized=normalizeEnemyBattleSprite(sprite,source,element);
         if(normalized){
           sprite.dataset.normalizedSource=source;
           sprite.src=normalized;
@@ -1853,9 +1856,11 @@ function updateBattleEntityView(entity) {
         sprite.dataset.fallbackTried="1";
         try {
           const fallbackUrl=new URL(source);
-          fallbackUrl.search="";
-          sprite.src=fallbackUrl.href;
-          return;
+          if(fallbackUrl.searchParams.has("v")) {
+            fallbackUrl.searchParams.delete("v");
+            sprite.src=fallbackUrl.href;
+            return;
+          }
         } catch {}
       }
       sprite.onerror=null;
@@ -1975,7 +1980,8 @@ function attemptBattleEnemySpawn(state) {
     if(state.elapsed+0.0001<Number(rule.nextAttemptAt)) continue;
     const aliveOfType=state.enemies.filter(enemy=>enemy.enemyType===rule.enemy&&enemy.hp>0&&enemy.mode!=="dead").length;
     const totalAlive=state.enemies.filter(enemy=>enemy.hp>0&&enemy.mode!=="dead").length;
-    if(aliveOfType<rule.maxAlive&&totalAlive<totalLimit&&Math.random()<=rule.spawnChance) {
+    const prioritySlot=rule.priority===true&&totalAlive===totalLimit;
+    if(aliveOfType<rule.maxAlive&&(totalAlive<totalLimit||prioritySlot)&&Math.random()<=rule.spawnChance) {
       const key=rule.enemy+"-"+state.nextEnemyKey++;
       state.enemies.push(createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey));
       rule.spawned++;
