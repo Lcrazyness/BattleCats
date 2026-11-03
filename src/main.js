@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261103-04";
+const BATTLE_ASSET_VERSION = "20261104-01";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -1146,45 +1146,50 @@ function timedEnemySpawn(enemy,amount,startTime,intervalMin,intervalMax,maxAlive
 function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1) {
   return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance};
 }
+const EOC1_MAX_ENEMIES = {
+  Korea:3,
+  Mongolia:4,
+  China:30,
+  Thailand:5,
+  Japan:6,
+  Maldives:5,
+  Dubai:12,
+  "Saudi Arabia":3,
+  Kenya:4
+};
 function defaultBattleLevelConfig(levelName="Korea") {
   const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
   const enemyBaseHealth=EOC1_ENEMY_BASE_HEALTH[stageIndex]||500;
   let enemySpawns=[];
   if(stageIndex<=0) {
-    enemySpawns=[
-      timedEnemySpawn("doge",18,2,5.5,9,3,0.82)
-    ];
+    enemySpawns=[timedEnemySpawn("doge",18,2,5.5,9,3,0.82)];
   } else {
-    enemySpawns=[
-      timedEnemySpawn("doge","infinite",0,6.67,13.33,3)
-    ];
-    if(stageIndex>=1) enemySpawns.push(timedEnemySpawn("snache","infinite",20,6.67,13.33,3));
-    if(stageIndex>=3) enemySpawns.push(timedEnemySpawn("those-guys","infinite",40,10,26.67,3));
+    enemySpawns=[timedEnemySpawn("doge","infinite",0,6.67,13.33,3)];
+    if(stageIndex>=1) enemySpawns.push(timedEnemySpawn("snache","infinite",20,20,53.33,3));
+    if(stageIndex>=3) enemySpawns.push(timedEnemySpawn("those-guys","infinite",40,20,53.33,3));
     if(stageIndex>=6) enemySpawns.push(timedEnemySpawn("hippoe",3,65,25,40,1));
     if(stageIndex>=9) enemySpawns.push(timedEnemySpawn("pigge",2,80,35,50,1));
     if(stageIndex>=12) enemySpawns.push(timedEnemySpawn("jackie-peng",2,100,40,55,1));
   }
-
   if(levelName==="China") {
     enemySpawns=[
-      timedEnemySpawn("doge","infinite",0,8,15,3),
-      timedEnemySpawn("snache",3,10,26.67,26.67,2),
-      timedEnemySpawn("those-guys",2,16.67,16.67,16.67,2),
+      timedEnemySpawn("doge",3,0.67,26.67,26.67,3),
+      timedEnemySpawn("snache",3,10,26.67,26.67,3),
       timedEnemySpawn("snache",2,30,13.33,13.33,2)
     ];
   }
   if(levelName==="Thailand") {
     enemySpawns=[
-      timedEnemySpawn("doge","infinite",0,6.67,13.33,3),
-      timedEnemySpawn("snache","infinite",10,10,26.67,3),
+      timedEnemySpawn("doge","infinite",0,6,10,3),
+      timedEnemySpawn("snache","infinite",0,10,26.67,3),
       timedEnemySpawn("those-guys","infinite",40,10,26.67,3)
     ];
   }
   if(levelName==="Japan") {
     enemySpawns=[
-      timedEnemySpawn("doge","infinite",0,8,16,3),
-      timedEnemySpawn("snache","infinite",15,12,22,3),
-      timedEnemySpawn("those-guys","infinite",40,12,24,3),
+      timedEnemySpawn("doge","infinite",0,10.67,18.67,3),
+      timedEnemySpawn("snache","infinite",0,20,53.33,3),
+      timedEnemySpawn("those-guys","infinite",40,20,53.33,3),
       baseTriggeredEnemySpawn("hippoe",1,90,1,1,1),
       baseTriggeredEnemySpawn("those-guys",6,90,2,4,6)
     ];
@@ -1194,46 +1199,41 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("doge","infinite",0,10.67,18.67,3),
       timedEnemySpawn("snache","infinite",8,20,53.33,3),
       timedEnemySpawn("those-guys","infinite",40,10,40,3),
-      baseTriggeredEnemySpawn("those-guys",6,95,2,4,6),
       baseTriggeredEnemySpawn("pigge",1,90,1,1,1)
     ];
   }
   if(levelName==="Dubai") {
     enemySpawns=[
-      timedEnemySpawn("doge","infinite",0,6.67,13.33,3),
-      timedEnemySpawn("snache","infinite",20,6.67,13.33,3),
-      timedEnemySpawn("those-guys","infinite",40,6.67,13.33,3),
-      baseTriggeredEnemySpawn("those-guys",6,90,2,4,6),
-      baseTriggeredEnemySpawn("jackie-peng",1,90,1,1,1),
-      baseTriggeredEnemySpawn("those-guys","infinite",88,3.33,13.33,3),
-      baseTriggeredEnemySpawn("jackie-peng",1,88,1,1,1)
+      timedEnemySpawn("doge","infinite",0,10,20,3),
+      timedEnemySpawn("snache","infinite",20,10,26.67,3),
+      timedEnemySpawn("those-guys","infinite",40,10,26.67,3),
+      baseTriggeredEnemySpawn("jackie-peng",1,90,1,1,1)
     ];
   }
   if(levelName==="Saudi Arabia") {
     enemySpawns=[
       timedEnemySpawn("doge","infinite",0,8,16,3),
+      timedEnemySpawn("hippoe",1,0,1,1,1),
       timedEnemySpawn("snache","infinite",20,12,24,3),
-      timedEnemySpawn("those-guys","infinite",40,12,24,3),
-      timedEnemySpawn("hippoe","infinite",0,35,55,1)
+      timedEnemySpawn("those-guys","infinite",40,12,24,3)
     ];
   }
   if(levelName==="Kenya") {
     enemySpawns=[
       timedEnemySpawn("doge","infinite",0,6,12,4),
-      timedEnemySpawn("snache","infinite",12,10,18,3),
-      timedEnemySpawn("those-guys","infinite",30,10,18,3),
-      timedEnemySpawn("pigge",3,60,24,36,1),
-      timedEnemySpawn("hippoe",2,80,30,45,1)
+      timedEnemySpawn("snache","infinite",20,10,18,3),
+      timedEnemySpawn("those-guys","infinite",40,10,18,3),
+      timedEnemySpawn("pigge",1,60,60,60,1),
+      timedEnemySpawn("hippoe",1,80,80,80,1)
     ];
   }
-
   return {
     name:levelName,
     background:"background.png",
     enemyBase:"enemybase.png",
     enemyBaseHealth,
     catBaseHealth:1000,
-    maxEnemies:6,
+    maxEnemies:EOC1_MAX_ENEMIES[levelName]||6,
     initialSpawnDelay:stageIndex<=0?2:0,
     enemySpawns
   };
@@ -1958,10 +1958,24 @@ function applyBattleLevelVisuals() {
 }
 function attemptBattleEnemySpawn(state) {
   if(!state||!state.levelReady||state.enemyBaseHp<=0) return;
+  const configuredLimit=Number(state.levelConfig&&state.levelConfig.maxEnemies);
+  const totalLimit=Math.max(1,Math.floor(Number.isFinite(configuredLimit)&&configuredLimit>0?configuredLimit:6));
   for(const rule of state.spawnRules||[]) {
-    if(rule.spawned>=rule.amount||state.elapsed+0.0001<rule.nextAttemptAt) continue;
-    const alive=state.enemies.filter(enemy=>enemy.enemyType===rule.enemy&&enemy.hp>0&&enemy.mode!=="dead").length;
-    if(alive<rule.maxAlive&&Math.random()<=rule.spawnChance) {
+    if(!rule||!rule.enemy) continue;
+    const hasBaseTrigger=rule.baseHealthPercent!==null&&rule.baseHealthPercent!==undefined;
+    if(hasBaseTrigger&&!rule.triggered) {
+      const baseMaximum=Math.max(1,Number(state.enemyBaseMaxHp)||Number(state.levelConfig&&state.levelConfig.enemyBaseHealth)||1);
+      const basePercent=(Number(state.enemyBaseHp)||0)/baseMaximum*100;
+      if(basePercent>Number(rule.baseHealthPercent)) continue;
+      rule.triggered=true;
+      rule.nextAttemptAt=state.elapsed;
+    }
+    if(hasBaseTrigger&&!rule.triggered) continue;
+    if(!rule.infinite&&rule.spawned>=rule.amount) continue;
+    if(state.elapsed+0.0001<Number(rule.nextAttemptAt)) continue;
+    const aliveOfType=state.enemies.filter(enemy=>enemy.enemyType===rule.enemy&&enemy.hp>0&&enemy.mode!=="dead").length;
+    const totalAlive=state.enemies.filter(enemy=>enemy.hp>0&&enemy.mode!=="dead").length;
+    if(aliveOfType<rule.maxAlive&&totalAlive<totalLimit&&Math.random()<=rule.spawnChance) {
       const key=rule.enemy+"-"+state.nextEnemyKey++;
       state.enemies.push(createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey));
       rule.spawned++;
