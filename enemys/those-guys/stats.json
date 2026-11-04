@@ -1,8 +1,8 @@
 {
   "name": "Those Guys",
   "health": 200,
-  "damage": 20,
-  "speed": 10,
+  "damage": 12.25,
+  "speed": 5,
   "spriteChangeSpeed": 10,
   "range": 110,
   "killReward": 75,
