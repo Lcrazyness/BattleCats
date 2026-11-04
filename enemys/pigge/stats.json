@@ -1,7 +1,7 @@
 {
   "name": "Pigge",
-  "health": 1500,
-  "damage": 120,
+  "health": 1200,
+  "damage": 80,
   "speed": 5,
   "spriteChangeSpeed": 5,
   "range": 150,
