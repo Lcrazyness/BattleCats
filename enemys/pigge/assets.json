@@ -1,15 +1,28 @@
 {
   "name": "Pigge",
-  "idle": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp",
+  "idle": "enemys/pigge/idle.png",
   "moving": [
-    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp"
+    "enemys/pigge/moving/frame-001.png",
+    "enemys/pigge/moving/frame-002.png",
+    "enemys/pigge/moving/frame-003.png",
+    "enemys/pigge/moving/frame-004.png"
   ],
   "attacks": [
-    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp"
+    "enemys/pigge/attack/frame-001.png",
+    "enemys/pigge/attack/frame-002.png",
+    "enemys/pigge/attack/frame-003.png",
+    "enemys/pigge/attack/frame-004.png",
+    "enemys/pigge/attack/frame-005.png",
+    "enemys/pigge/attack/frame-006.png"
   ],
-  "attackSprite": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp",
-  "attackDuration": 2.4,
-  "attackFrameRate": 8,
-  "damaged": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/6.webp",
-  "slot": "enemys/pigge/slot.png"
+  "attack": "enemys/pigge/attack/frame-001.png",
+  "attackFrameRate": 6,
+  "attackDuration": 1,
+  "damaged": "enemys/pigge/damaged/image-removebg-preview (12).png",
+  "damagedFrames": [
+    "enemys/pigge/damaged/image-removebg-preview (12).png"
+  ],
+  "knockbackFrames": [
+    "enemys/pigge/damaged/image-removebg-preview (12).png"
+  ]
 }
