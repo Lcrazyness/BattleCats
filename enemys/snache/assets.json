@@ -11,13 +11,16 @@
   "attacks": [
     "enemys/snache/spritesheet.webp#frame=54,220,102,112",
     "enemys/snache/spritesheet.webp#frame=162,216,102,116",
-    "enemys/snache/spritesheet.webp#frame=270,230,145,102",
+    "enemys/snache/spritesheet.webp#frame=270,230,145,102"
+  ],
+  "attackFrameRate": 6,
+  "attackDuration": 0.5,
+  "damaged": "enemys/snache/spritesheet.webp#frame=421,250,145,82",
+  "damagedFrames": [
     "enemys/snache/spritesheet.webp#frame=421,250,145,82"
   ],
-  "attackFrameRate": 4,
-  "attackDuration": 0.5,
-  "damaged": "enemys/snache/spritesheet.webp#frame=54,79,108,102",
-  "damagedFrames": [],
-  "knockbackFrames": [],
+  "knockbackFrames": [
+    "enemys/snache/spritesheet.webp#frame=421,250,145,82"
+  ],
   "slot": "enemys/snache/slot.png"
 }
