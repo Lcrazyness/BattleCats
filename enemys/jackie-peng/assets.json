@@ -1,15 +1,37 @@
 {
   "name": "Jackie Peng",
-  "idle": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp",
+  "idle": "enemys/jackie-peng/idle.png",
   "moving": [
-    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp"
+    "enemys/jackie-peng/moving/frame-001.png",
+    "enemys/jackie-peng/moving/frame-002.png",
+    "enemys/jackie-peng/moving/frame-003.png",
+    "enemys/jackie-peng/moving/frame-004.png",
+    "enemys/jackie-peng/moving/frame-005.png",
+    "enemys/jackie-peng/moving/frame-006.png",
+    "enemys/jackie-peng/moving/frame-007.png",
+    "enemys/jackie-peng/moving/frame-008.png",
+    "enemys/jackie-peng/moving/frame-009.png",
+    "enemys/jackie-peng/moving/frame-010.png",
+    "enemys/jackie-peng/moving/frame-011.png"
   ],
   "attacks": [
-    "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp"
+    "enemys/jackie-peng/attack/frame-001.png",
+    "enemys/jackie-peng/attack/frame-002.png",
+    "enemys/jackie-peng/attack/frame-003.png",
+    "enemys/jackie-peng/attack/frame-004.png",
+    "enemys/jackie-peng/attack/frame-005.png",
+    "enemys/jackie-peng/attack/frame-006.png",
+    "enemys/jackie-peng/attack/frame-007.png"
   ],
-  "attackSprite": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp",
+  "attack": "enemys/jackie-peng/attack/frame-001.png",
+  "attackFrameRate": 8.75,
   "attackDuration": 0.8,
-  "attackFrameRate": 8,
-  "damaged": "https://gacha-data.com/assets/img/battle-cats/ds/enemies/7.webp",
+  "damaged": "enemys/jackie-peng/damaged/frame-001.png",
+  "damagedFrames": [
+    "enemys/jackie-peng/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/jackie-peng/damaged/frame-001.png"
+  ],
   "slot": "enemys/jackie-peng/slot.png"
 }
