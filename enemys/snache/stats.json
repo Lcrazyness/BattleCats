@@ -2,7 +2,7 @@
   "name": "Snache",
   "health": 100,
   "damage": 15,
-  "speed": 8,
+  "speed": 4.8,
   "spriteChangeSpeed": 8,
   "range": 110,
   "killReward": 30,
