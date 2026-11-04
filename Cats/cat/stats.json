@@ -14,5 +14,7 @@
   "attackCooldown": 2,
   "AreaAttack": false,
   "attack": 6,
-  "knockbackCount": 3
+  "knockbackCount": 3,
+  "AttackTrait": "",
+  "AttackBoost": ""
 }

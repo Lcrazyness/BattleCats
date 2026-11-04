@@ -1,0 +1,19 @@
+{
+  "name": "Gross Cat",
+  "health": 130,
+  "damage": 22,
+  "price": 2,
+  "speed": 3.6,
+  "spriteChangeSpeed": 8,
+  "walkSpriteChangeSpeed": 2.2,
+  "range": 180,
+  "recharge": 3.2,
+  "attackCooldown": 2.6,
+  "knockbackCount": 3,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "AreaAttack": false,
+  "AttackTrait": "",
+  "AttackBoost": ""
+}

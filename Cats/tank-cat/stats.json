@@ -13,5 +13,7 @@
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "AreaAttack": true
+  "AreaAttack": true,
+  "AttackTrait": "",
+  "AttackBoost": ""
 }

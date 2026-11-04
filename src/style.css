@@ -2992,3 +2992,20 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(prefers-reduced-motion:reduce) {
   .fight-screen .fight-unit[data-unit-type="jackie-peng"].is-idle .fight-unit-sprite { animation:none !important; }
 }
+
+
+/* Gross Cat is a tall long-range attacker; keep its leg silhouette visible. */
+.fight-screen .fight-unit-cat[data-unit-type="gross-cat"] .fight-unit-sprite {
+  scale:.88 !important;
+  transform-origin:center bottom !important;
+}
+.fight-screen .fight-unit-cat[data-unit-type="gross-cat"].is-idle .fight-unit-sprite {
+  animation:gross-cat-idle 1.5s ease-in-out infinite !important;
+}
+@keyframes gross-cat-idle {
+  0%,100% { transform:translateY(0) rotate(0deg); }
+  50% { transform:translateY(-2px) rotate(.5deg); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .fight-screen .fight-unit-cat[data-unit-type="gross-cat"].is-idle .fight-unit-sprite { animation:none !important; }
+}

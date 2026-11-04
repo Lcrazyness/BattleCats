@@ -28,6 +28,12 @@ function makeAxeCatUnit() {
     assetFolder:"axe-cat",spriteSlot:"Cats/axe-cat/slot.png",statsPath:"Cats/axe-cat/stats.json",assetsPath:"Cats/axe-cat/assets.json"
   };
 }
+function makeGrossCatUnit() {
+  return {
+    id:4,name:"Gross Cat",level:1,deployCost:2,upgradeCost:500,hp:130,attack:22,range:180,speed:3.6,recharge:3.2,
+    assetFolder:"Gross-Cat",spriteSlot:"Cats/Gross-Cat/slot.png",statsPath:"Cats/Gross-Cat/stats.json",assetsPath:"Cats/Gross-Cat/assets.json"
+  };
+}
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, exp:0, stageClears:0,
@@ -56,6 +62,9 @@ if (savedSoundSettingsVersion < 1) {
 if(Number(save.stageClears)>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Number(unit.id)===3)) {
   save.units.push(makeAxeCatUnit());
 }
+if(Number(save.stageClears)>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
+  save.units.push(makeGrossCatUnit());
+}
 let scene = "loading";
 let currentRegion = "empire";
 let selectedLevelIndex = 0;
@@ -65,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-10";
+const BATTLE_ASSET_VERSION = "20261104-11";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -77,15 +86,16 @@ const BATTLE_ASSETS = {
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
 const BATTLE_UNIT_STATS = {
-  cat: {health:70,damage:6,price:1,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "axe-cat": {health:100,damage:12,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:65,recharge:0.1,attackCooldown:1.4,AreaAttack:false,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  cat: {health:70,damage:6,price:1,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "axe-cat": {health:100,damage:12,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:65,recharge:0.1,attackCooldown:1.4,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "tank-cat": {health:300,damage:8,price:1,speed:3,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "gross-cat": {health:130,damage:22,price:2,speed:3.6,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.2,range:180,recharge:3.2,attackCooldown:2.6,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55,AreaAttack:false},
   snache: {health:100,damage:15,speed:8,spriteChangeSpeed:8,range:110,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false},
   "those-guys": {health:200,damage:20,speed:10,spriteChangeSpeed:10,range:110,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1,AreaAttack:false},
   hippoe: {health:1000,damage:100,speed:4,spriteChangeSpeed:4,range:160,killReward:400,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.2,AreaAttack:true},
   pigge: {health:1500,damage:120,speed:5,spriteChangeSpeed:5,range:150,killReward:400,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.4,AreaAttack:true,traits:["Red"]},
-  "jackie-peng": {health:1300,damage:80,speed:11,spriteChangeSpeed:11,range:150,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.8,AreaAttack:false},
-  "tank-cat": {health:300,damage:8,price:1,speed:3,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5}
+  "jackie-peng": {health:1300,damage:80,speed:11,spriteChangeSpeed:11,range:150,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.8,AreaAttack:false}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -114,6 +124,11 @@ function battleUnitStats(unitOrKey) {
   const areaAttack = typeof config.AreaAttack === "boolean"
     ? config.AreaAttack
     : (typeof config.areaAttack === "boolean" ? config.areaAttack : unit.AreaAttack === true || unit.areaAttack === true);
+  const validTraits=["Red","Alien","Dark","Angelic","Metal"];
+  const validBoosts=["Strong","Massive Damage"];
+  const AttackTrait=validTraits.includes(config.AttackTrait)?config.AttackTrait:"";
+  const AttackBoost=validBoosts.includes(config.AttackBoost)?config.AttackBoost:"";
+  const traits=Array.isArray(config.traits)?config.traits.filter(trait=>validTraits.includes(trait)):[];
   return {
     level:unitLevel,
     levelMultiplier,
@@ -127,6 +142,9 @@ function battleUnitStats(unitOrKey) {
     recharge:positive(config.recharge,positive(unit.recharge,2.5)),
     attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
     areaAttack,
+    AttackTrait,
+    AttackBoost,
+    traits,
     knockbackThresholdPercent:thresholdPercent,
     knockbackCount,
     knockbackDuration:positive(config.knockbackDuration,0.64,0.2),
@@ -143,6 +161,9 @@ function applyBattleStatsToEntity(entity,unitOrKey) {
   entity.hp = wasFull ? stats.health : Math.min(stats.health,Math.max(0,Number(entity.hp)||0));
   entity.attackPower = stats.damage;
   entity.areaAttack = stats.areaAttack === true;
+  entity.AttackTrait = stats.AttackTrait;
+  entity.AttackBoost = stats.AttackBoost;
+  entity.traits = stats.traits;
   const walkSpeedModifier = entity.kind==="cat" ? Math.max(-2,Math.min(2,Number(entity.walkSpeedModifier)||0)) : 0;
   entity.statsSnapshot = {...stats};
   entity.baseSpeed = stats.speed;
@@ -170,6 +191,16 @@ function battleStatsForEntity(entity) {
   return entity && entity.statsSnapshot && typeof entity.statsSnapshot==="object"
     ? {...entity.statsSnapshot}
     : battleUnitStats(entity || "cat");
+}
+function battleDamageAgainstTarget(attacker,target,baseDamage) {
+  const attackStats=battleStatsForEntity(attacker);
+  const trait=String(attackStats.AttackTrait||"");
+  const boost=String(attackStats.AttackBoost||"");
+  if(!trait||!boost) return Math.max(0,Number(baseDamage)||0);
+  const targetTraits=battleStatsForEntity(target).traits;
+  if(!Array.isArray(targetTraits)||!targetTraits.includes(trait)) return Math.max(0,Number(baseDamage)||0);
+  const multiplier=boost==="Strong"?1.25:(boost==="Massive Damage"?3:1);
+  return Math.max(0,Math.round((Number(baseDamage)||0)*multiplier));
 }
 
 const EMPIRE_CHAPTER_ONE = [
@@ -757,19 +788,23 @@ async function startGameAssetLoading() {
   const imageCount = LOADING_IMAGE_ASSETS.length;
   const audioCount = LOADING_AUDIO_ASSETS.length;
 
-  for (let i=0; i<imageCount; i++) {
-    const asset = LOADING_IMAGE_ASSETS[i];
-    const name = asset.path.split("/").pop().split("?")[0];
-    const status = "Loading image "+(i+1)+"/"+imageCount+" — "+name;
-    updateLoadingProgress(status);
-    const loaded = await loadImageAssetSequentially(asset);
-    if (!loaded) {
-      failedAssets++;
-      failedAssetPaths.push(asset.path);
-      console.warn("Battle Cats loader could not load image:",asset.path);
-    }
-    loadingBytesFinished += asset.bytes;
-    updateLoadingProgress(status);
+  let completedImages=0;
+  const imageBatchSize=8;
+  for(let batchStart=0;batchStart<imageCount;batchStart+=imageBatchSize) {
+    const batch=LOADING_IMAGE_ASSETS.slice(batchStart,batchStart+imageBatchSize);
+    await Promise.all(batch.map(async asset=>{
+      const name=asset.path.split("/").pop().split("?")[0];
+      updateLoadingProgress("Loading images "+(completedImages+1)+"/"+imageCount+" — "+name);
+      const loaded=await loadImageAssetSequentially(asset);
+      if(!loaded) {
+        failedAssets++;
+        failedAssetPaths.push(asset.path);
+        console.warn("Battle Cats loader could not load image:",asset.path);
+      }
+      loadingBytesFinished+=asset.bytes;
+      completedImages++;
+      updateLoadingProgress("Loaded images "+completedImages+"/"+imageCount+" — "+name);
+    }));
   }
 
   for (let i=0; i<audioCount; i++) {
@@ -2117,6 +2152,7 @@ function spawnPlayerCat(unit) {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
     x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
     hp:stats.health,maxHp:stats.health,attackPower:stats.damage,areaAttack:stats.areaAttack===true,
+    AttackTrait:stats.AttackTrait,AttackBoost:stats.AttackBoost,traits:stats.traits,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",enemyBaseHoldX:undefined,recharge:stats.recharge,mode:"moving",
     animUntil:0,attackEndsAt:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
@@ -2349,7 +2385,8 @@ function resolvePendingBattleAttacks(now) {
         }
       }
       for(const target of targets) {
-        if(resolveBattleAttackOnce(attacker,target,damage,now)) attacker.attackHitLanded=true;
+        const targetDamage=battleDamageAgainstTarget(attacker,target,damage);
+        if(resolveBattleAttackOnce(attacker,target,targetDamage,now)) attacker.attackHitLanded=true;
       }
     } else if(baseTarget&&attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
       const baseHp=baseTarget==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
@@ -3116,6 +3153,10 @@ function perform(action) {
       if(save.stageClears>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Number(unit.id)===3)) {
         save.units.push(makeAxeCatUnit());
         reward += " · Axe Cat unlocked";
+      }
+      if(save.stageClears>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
+        save.units.push(makeGrossCatUnit());
+        reward += " · Gross Cat unlocked";
       }
       navigate("battle"); notify(reward);
       break;
