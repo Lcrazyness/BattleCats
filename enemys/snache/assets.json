@@ -1,26 +1,26 @@
 {
   "name": "Snache",
   "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/84895/",
-  "idle": "enemys/snache/spritesheet.webp#frame=54,79,108,102",
+  "idle": "enemys/snache/moving/frame-001.png",
   "moving": [
-    "enemys/snache/spritesheet.webp#frame=54,79,108,102",
-    "enemys/snache/spritesheet.webp#frame=168,79,114,102",
-    "enemys/snache/spritesheet.webp#frame=288,79,121,102",
-    "enemys/snache/spritesheet.webp#frame=415,79,135,102"
+    "enemys/snache/moving/frame-001.png",
+    "enemys/snache/moving/frame-002.png",
+    "enemys/snache/moving/frame-003.png",
+    "enemys/snache/moving/frame-004.png"
   ],
   "attacks": [
-    "enemys/snache/spritesheet.webp#frame=54,220,102,112",
-    "enemys/snache/spritesheet.webp#frame=162,216,102,116",
-    "enemys/snache/spritesheet.webp#frame=270,230,145,102"
+    "enemys/snache/attack/frame-001.png",
+    "enemys/snache/attack/frame-002.png",
+    "enemys/snache/attack/frame-003.png"
   ],
+  "attack": "enemys/snache/attack/frame-001.png",
   "attackFrameRate": 6,
   "attackDuration": 0.5,
-  "damaged": "enemys/snache/spritesheet.webp#frame=421,250,145,82",
+  "damaged": "enemys/snache/damaged/frame-001.png",
   "damagedFrames": [
-    "enemys/snache/spritesheet.webp#frame=421,250,145,82"
+    "enemys/snache/damaged/frame-001.png"
   ],
   "knockbackFrames": [
-    "enemys/snache/spritesheet.webp#frame=421,250,145,82"
-  ],
-  "slot": "enemys/snache/slot.png"
+    "enemys/snache/damaged/frame-001.png"
+  ]
 }
