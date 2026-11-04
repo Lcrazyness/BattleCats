@@ -1,33 +1,33 @@
 {
   "name": "Those Guys",
   "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/86363/",
-  "idle": "enemys/those-guys/spritesheet.webp#frame=103,59,118,87",
+  "idle": "enemys/those-guys/idle.png",
   "moving": [
-    "enemys/those-guys/spritesheet.webp#frame=103,59,118,87",
-    "enemys/those-guys/spritesheet.webp#frame=267,59,115,87",
-    "enemys/those-guys/spritesheet.webp#frame=431,59,117,87",
-    "enemys/those-guys/spritesheet.webp#frame=595,59,117,87",
-    "enemys/those-guys/spritesheet.webp#frame=758,59,118,87"
+    "enemys/those-guys/moving/frame-001.png",
+    "enemys/those-guys/moving/frame-002.png",
+    "enemys/those-guys/moving/frame-003.png",
+    "enemys/those-guys/moving/frame-004.png",
+    "enemys/those-guys/moving/frame-005.png"
   ],
   "attacks": [
-    "enemys/those-guys/spritesheet.webp#frame=103,223,118,88",
-    "enemys/those-guys/spritesheet.webp#frame=267,223,131,88",
-    "enemys/those-guys/spritesheet.webp#frame=431,223,139,88",
-    "enemys/those-guys/spritesheet.webp#frame=595,223,147,88",
-    "enemys/those-guys/spritesheet.webp#frame=758,215,153,96",
-    "enemys/those-guys/spritesheet.webp#frame=103,352,175,123",
-    "enemys/those-guys/spritesheet.webp#frame=294,371,134,104",
-    "enemys/those-guys/spritesheet.webp#frame=466,371,118,96",
-    "enemys/those-guys/spritesheet.webp#frame=622,390,117,85"
+    "enemys/those-guys/attack/frame-001.png",
+    "enemys/those-guys/attack/frame-002.png",
+    "enemys/those-guys/attack/frame-003.png",
+    "enemys/those-guys/attack/frame-004.png",
+    "enemys/those-guys/attack/frame-005.png",
+    "enemys/those-guys/attack/frame-006.png",
+    "enemys/those-guys/attack/frame-007.png",
+    "enemys/those-guys/attack/frame-008.png"
   ],
+  "attack": "enemys/those-guys/attack/frame-001.png",
   "attackFrameRate": 8,
-  "attackDuration": 1.125,
-  "damaged": "enemys/those-guys/spritesheet.webp#frame=111,554,112,81",
+  "attackDuration": 1,
+  "damaged": "enemys/those-guys/damaged/frame-001.png",
   "damagedFrames": [
-    "enemys/those-guys/spritesheet.webp#frame=111,554,112,81"
+    "enemys/those-guys/damaged/frame-001.png"
   ],
   "knockbackFrames": [
-    "enemys/those-guys/spritesheet.webp#frame=111,554,112,81"
+    "enemys/those-guys/damaged/frame-001.png"
   ],
   "slot": "enemys/those-guys/slot.png"
 }
