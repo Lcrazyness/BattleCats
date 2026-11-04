@@ -1,7 +1,7 @@
 {
   "name": "Snache",
   "sourceUrl": "https://www.spriters-resource.com/mobile/thebattlecats/asset/84895/",
-  "idle": "enemys/snache/moving/frame-001.png",
+  "idle": "enemys/snache/idle.png",
   "moving": [
     "enemys/snache/moving/frame-001.png",
     "enemys/snache/moving/frame-002.png",
@@ -22,5 +22,6 @@
   ],
   "knockbackFrames": [
     "enemys/snache/damaged/frame-001.png"
-  ]
+  ],
+  "slot": "enemys/snache/slot.png"
 }
