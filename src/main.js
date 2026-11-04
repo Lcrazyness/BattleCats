@@ -65,7 +65,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-04";
+const BATTLE_ASSET_VERSION = "20261104-05";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -74,6 +74,7 @@ const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
   "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
+  pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
 const BATTLE_UNIT_STATS = {
   cat: {health:70,damage:6,price:1,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
@@ -516,6 +517,18 @@ const LOADING_IMAGE_ASSETS = [
   {path:"enemys/doge/attack/frame-004.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/damaged/frame-001.png?v=20261029-31",bytes:9000},
   {path:"enemys/doge/slot.png?v=20261029-31",bytes:9000},
+  {path:"enemys/pigge/idle.png?v=20261104-05",bytes:25927},
+  {path:"enemys/pigge/moving/frame-001.png?v=20261104-05",bytes:25221},
+  {path:"enemys/pigge/moving/frame-002.png?v=20261104-05",bytes:25037},
+  {path:"enemys/pigge/moving/frame-003.png?v=20261104-05",bytes:24506},
+  {path:"enemys/pigge/moving/frame-004.png?v=20261104-05",bytes:24251},
+  {path:"enemys/pigge/attack/frame-001.png?v=20261104-05",bytes:26787},
+  {path:"enemys/pigge/attack/frame-002.png?v=20261104-05",bytes:43901},
+  {path:"enemys/pigge/attack/frame-003.png?v=20261104-05",bytes:31014},
+  {path:"enemys/pigge/attack/frame-004.png?v=20261104-05",bytes:30506},
+  {path:"enemys/pigge/attack/frame-005.png?v=20261104-05",bytes:30404},
+  {path:"enemys/pigge/attack/frame-006.png?v=20261104-05",bytes:23979},
+  {path:"enemys/pigge/damaged/image-removebg-preview (12).png?v=20261104-05",bytes:25927},
   {path:"enemys/snache/spritesheet.webp?v=20261104-02",bytes:4490},
   {path:"enemys/those-guys/spritesheet.webp?v=20261104-02",bytes:7458},
   {path:"sprites/backgrounds/intro-burning-city.webp?v=20261027-1",bytes:8248},
