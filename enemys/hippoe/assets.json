@@ -1,23 +1,26 @@
 {
   "name": "Hippoe",
-  "idle": "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=0,0,128,128",
+  "idle": "enemys/hippoe/idle.png",
   "moving": [
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=0,0,128,128",
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=128,0,128,128",
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,0,128,128",
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=384,0,128,128"
+    "enemys/hippoe/moving/frame-001.png",
+    "enemys/hippoe/moving/frame-002.png",
+    "enemys/hippoe/moving/frame-003.png"
   ],
   "attacks": [
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=0,128,128,128",
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=128,128,128,128",
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,128,128,128",
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=384,128,128,128"
+    "enemys/hippoe/attack/frame-001.png",
+    "enemys/hippoe/attack/frame-002.png",
+    "enemys/hippoe/attack/frame-003.png",
+    "enemys/hippoe/attack/frame-004.png"
   ],
-  "attackDuration": 2.2,
-  "attackFrameRate": 2,
-  "damaged": "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,128,128,128",
-  "slot": "enemys/hippoe/slot.png",
+  "attack": "enemys/hippoe/attack/frame-001.png",
+  "attackFrameRate": 4,
+  "attackDuration": 1,
+  "damaged": "enemys/hippoe/damaged/frame-001.png",
   "damagedFrames": [
-    "https://www.spriters-resource.com/media/assets/143/146323.png?updated=1755482621#frame=256,128,128,128"
-  ]
+    "enemys/hippoe/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/hippoe/damaged/frame-001.png"
+  ],
+  "slot": "enemys/hippoe/slot.png"
 }
