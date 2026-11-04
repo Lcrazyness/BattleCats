@@ -1,10 +1,10 @@
 {
   "name": "Hippoe",
   "health": 1000,
-  "damage": 100,
+  "damage": 60,
   "speed": 4,
   "spriteChangeSpeed": 4,
-  "range": 160,
+  "range": 155,
   "killReward": 400,
   "knockbackCount": 1,
   "knockbackThresholdPercent": 25,
