@@ -1,15 +1,15 @@
 {
   "name": "Hippoe",
-  "health": 1000,
-  "damage": 60,
-  "speed": 4,
+  "health": 800,
+  "damage": 35,
+  "speed": 3.7,
   "spriteChangeSpeed": 4,
-  "range": 155,
+  "range": 145,
   "killReward": 400,
   "knockbackCount": 1,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "attackCooldown": 2.2,
-  "AreaAttack": true
+  "attackCooldown": 2.8,
+  "AreaAttack": 1
 }

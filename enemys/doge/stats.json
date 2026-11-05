@@ -1,7 +1,7 @@
 {
   "name": "Doge",
-  "health": 90,
-  "damage": 4,
+  "health": 80,
+  "damage": 3,
   "speed": 2.8,
   "range": 85,
   "spriteChangeSpeed": 5,
@@ -9,6 +9,6 @@
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "attackCooldown": 1.55,
+  "attackCooldown": 1.7,
   "AreaAttack": false
 }

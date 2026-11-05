@@ -1,17 +1,17 @@
 {
   "name": "Pigge",
-  "health": 1200,
-  "damage": 80,
-  "speed": 5,
-  "spriteChangeSpeed": 5,
-  "range": 150,
+  "health": 1000,
+  "damage": 40,
+  "speed": 4.6,
+  "spriteChangeSpeed": 4.5,
+  "range": 140,
   "killReward": 400,
   "knockbackCount": 2,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "attackCooldown": 2.4,
-  "AreaAttack": true,
+  "attackCooldown": 3,
+  "AreaAttack": 1,
   "traits": [
     "Red"
   ]

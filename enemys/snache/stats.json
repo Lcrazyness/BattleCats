@@ -1,15 +1,15 @@
 {
   "name": "Snache",
-  "health": 100,
-  "damage": 15,
-  "speed": 4.8,
-  "spriteChangeSpeed": 8,
-  "range": 110,
+  "health": 85,
+  "damage": 8,
+  "speed": 4.3,
+  "spriteChangeSpeed": 7,
+  "range": 100,
   "killReward": 30,
   "knockbackCount": 3,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "attackCooldown": 1.2,
+  "attackCooldown": 1.5,
   "AreaAttack": false
 }

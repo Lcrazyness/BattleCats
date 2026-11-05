@@ -3009,3 +3009,57 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(prefers-reduced-motion:reduce) {
   .fight-screen .fight-unit-cat[data-unit-type="gross-cat"].is-idle .fight-unit-sprite { animation:none !important; }
 }
+
+
+/* Persistent 1x/2x battle speed control. */
+.fight-screen .fight-speed-toggle {
+  position:absolute !important; z-index:41 !important; top:12px !important; left:62px !important;
+  min-width:88px !important; min-height:34px !important; padding:6px 10px !important;
+  border:2px solid #f7e0a0 !important; border-radius:6px !important;
+  background:linear-gradient(#4c9cce,#17658f) !important; color:#fff !important;
+  font:1000 12px/1 Arial,sans-serif !important; letter-spacing:.03em !important;
+  text-shadow:1px 1px #16364b !important; box-shadow:0 2px 0 #153b52 !important; cursor:pointer !important;
+}
+.fight-screen .fight-speed-toggle[aria-pressed="true"] {
+  background:linear-gradient(#f4d36a,#c98224) !important; color:#34200d !important;
+  text-shadow:1px 1px #ffe9a4 !important; border-color:#fff0b5 !important;
+}
+.fight-screen .fight-speed-toggle:disabled { opacity:.55 !important; cursor:default !important; }
+.fight-screen.is-speed-up .fight-unit[data-unit-type="gross-cat"].is-idle .fight-unit-sprite,
+.fight-screen.is-speed-up .fight-unit[data-unit-type="jackie-peng"].is-idle .fight-unit-sprite,
+.fight-screen.is-speed-up .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite { animation-duration:.575s !important; }
+@media(max-width:650px) {
+  .fight-screen .fight-speed-toggle {
+    top:12px !important; left:54px !important; min-width:76px !important; min-height:32px !important;
+    padding:5px 7px !important; font-size:10px !important;
+  }
+}
+
+/* Give every Gross Cat frame an identical display box and bottom anchor. */
+.fight-screen .fight-unit-cat[data-unit-type="gross-cat"] .fight-unit-sprite {
+  width:100% !important; height:86% !important; max-width:100% !important; max-height:86% !important;
+  object-fit:contain !important; object-position:center bottom !important; scale:1.18 !important;
+  transform-origin:center bottom !important; animation:none !important;
+}
+.fight-screen .fight-unit-cat[data-unit-type="gross-cat"].is-idle .fight-unit-sprite { animation:none !important; }
+
+/* Keep Those Guys on their dedicated idle PNG and give the idle pose a subtle loop. */
+.fight-screen .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite {
+  animation:those-guys-idle 1.15s ease-in-out infinite alternate !important;
+}
+.fight-screen .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite {
+  animation-duration:1.15s !important;
+}
+.fight-screen.is-speed-up .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite { animation-duration:.575s !important; }
+@keyframes those-guys-idle {
+  from { transform:translateY(0); }
+  to { transform:translateY(-1.5px); }
+}
+
+/* Align Pigge's feet to the same battlefield baseline as the other enemies. */
+.fight-screen .fight-unit[data-unit-type="pigge"] { bottom:0 !important; }
+.fight-screen .fight-unit[data-unit-type="pigge"] .fight-unit-sprite {
+  width:100% !important; height:80% !important; max-width:100% !important; max-height:80% !important;
+  object-fit:contain !important; object-position:center bottom !important; scale:1.12 !important;
+  transform-origin:center bottom !important; margin-bottom:-5px !important;
+}

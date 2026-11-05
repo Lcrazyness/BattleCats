@@ -30,7 +30,7 @@ function makeAxeCatUnit() {
 }
 function makeGrossCatUnit() {
   return {
-    id:4,name:"Gross Cat",level:1,deployCost:2,upgradeCost:500,hp:130,attack:22,range:180,speed:3.6,recharge:3.2,
+    id:4,name:"Gross Cat",level:1,deployCost:2,upgradeCost:500,hp:130,attack:22,range:180,speed:5.2,recharge:3.2,
     assetFolder:"Gross-Cat",spriteSlot:"Cats/Gross-Cat/slot.png",statsPath:"Cats/Gross-Cat/stats.json",assetsPath:"Cats/Gross-Cat/assets.json"
   };
 }
@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-14";
+const BATTLE_ASSET_VERSION = "20261104-15";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -89,13 +89,13 @@ const BATTLE_UNIT_STATS = {
   cat: {health:70,damage:6,price:1,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:55,recharge:0.1,attackCooldown:1.15,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "axe-cat": {health:100,damage:12,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:65,recharge:0.1,attackCooldown:1.4,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "tank-cat": {health:300,damage:8,price:1,speed:3,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "gross-cat": {health:130,damage:22,price:2,speed:3.6,spriteChangeSpeed:8,walkSpriteChangeSpeed:2.2,range:180,recharge:3.2,attackCooldown:2.6,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  doge: {health:90,damage:4,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.55,AreaAttack:false},
-  snache: {health:100,damage:15,speed:8,spriteChangeSpeed:8,range:110,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false},
-  "those-guys": {health:200,damage:20,speed:10,spriteChangeSpeed:10,range:110,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1,AreaAttack:false},
-  hippoe: {health:1000,damage:100,speed:4,spriteChangeSpeed:4,range:160,killReward:400,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.2,AreaAttack:true},
-  pigge: {health:1500,damage:120,speed:5,spriteChangeSpeed:5,range:150,killReward:400,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.4,AreaAttack:true,traits:["Red"]},
-  "jackie-peng": {health:1300,damage:80,speed:11,spriteChangeSpeed:11,range:150,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.8,AreaAttack:false}
+  "gross-cat": {health:130,damage:22,price:2,speed:5.2,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.2,range:180,recharge:3.2,attackCooldown:2.3,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
+  snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
+  "those-guys": {health:160,damage:8,speed:5,spriteChangeSpeed:8,range:105,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:false},
+  hippoe: {health:800,damage:35,speed:3.7,spriteChangeSpeed:4,range:145,killReward:400,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.8,AreaAttack:1},
+  pigge: {health:1000,damage:40,speed:4.6,spriteChangeSpeed:4.5,range:140,killReward:400,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:3,AreaAttack:1,traits:["Red"]},
+  "jackie-peng": {health:1000,damage:30,speed:9,spriteChangeSpeed:9,range:145,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -116,14 +116,13 @@ function battleUnitStats(unitOrKey) {
     return Number.isFinite(number) && number >= min ? number : fallback;
   };
   const unitLevel = isObject && unit.kind !== "doge" ? Math.max(1,Math.floor(Number(unit.level)||1)) : 1;
-  const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.1;
+  const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.13;
   const health = Math.round(positive(config.health,positive(unit.hp,100))*levelMultiplier);
   const damage = Math.round(positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier);
   const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
   const knockbackCount = Math.max(0,Math.min(10,Math.floor(Number.isFinite(Number(config.knockbackCount))?Number(config.knockbackCount):3)));
-  const areaAttack = typeof config.AreaAttack === "boolean"
-    ? config.AreaAttack
-    : (typeof config.areaAttack === "boolean" ? config.areaAttack : unit.AreaAttack === true || unit.areaAttack === true);
+  const rawAreaAttack=config.AreaAttack??config.areaAttack??unit.AreaAttack??unit.areaAttack??0;
+  const areaAttack=rawAreaAttack===true?1:rawAreaAttack===false?0:Math.max(0,Math.min(2,Math.floor(Number(rawAreaAttack)||0)));
   const validTraits=["Red","Alien","Dark","Angelic","Metal"];
   const validBoosts=["Strong","Massive Damage"];
   const AttackTrait=validTraits.includes(config.AttackTrait)?config.AttackTrait:"";
@@ -160,7 +159,7 @@ function applyBattleStatsToEntity(entity,unitOrKey) {
   entity.maxHp = stats.health;
   entity.hp = wasFull ? stats.health : Math.min(stats.health,Math.max(0,Number(entity.hp)||0));
   entity.attackPower = stats.damage;
-  entity.areaAttack = stats.areaAttack === true;
+  entity.areaAttack = Number(stats.areaAttack)||0;
   entity.AttackTrait = stats.AttackTrait;
   entity.AttackBoost = stats.AttackBoost;
   entity.traits = stats.traits;
@@ -1422,7 +1421,7 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
   return {
     key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
     statsSnapshot:{...stats},baseSpeed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,walkSpriteChangeSpeed:stats.walkSpriteChangeSpeed,
-    attackCooldown:stats.attackCooldown,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",areaAttack:stats.areaAttack===true,
+    attackCooldown:stats.attackCooldown,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",areaAttack:Number(stats.areaAttack)||0,
     mode:"moving",attackTimer:0,animUntil:0,attackEndsAt:0,hitUntil:0,frameAt,killReward:stats.killReward,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
@@ -1435,7 +1434,7 @@ function createBattleState() {
   const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
   const defaults=defaultBattleLevelConfig(selected.name);
   return {
-    elapsed:0,money:50,maxMoney:150,playerUnits:[],enemies:[],
+    elapsed:0,money:50,maxMoney:150,playerUnits:[],enemies:[],speedMultiplier:1,
     nextEnemySpawn:defaults.initialSpawnDelay,
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
@@ -1588,6 +1587,7 @@ function battleImageFor(entity) {
   const entityStats=battleStatsForEntity(entity);
   const elapsed=battleState?battleState.elapsed:0;
   const animationMode=battleAnimationMode(entity,elapsed);
+  if(assetKey==="those-guys"&&animationMode==="idle") return battleAssetUrl("enemys/those-guys/idle.png");
   const configuredAttackRate=Math.max(1,Math.min(30,Number(assets.attackFrameRate)||BATTLE_ATTACK_FRAME_RATE));
   const frameRate=animationMode==="attack" ? configuredAttackRate : Math.max(0.5,Number(entity.spriteChangeSpeed||entityStats.spriteChangeSpeed||6));
   if(animationMode==="idle") return battleAssetUrl(assets.idle||(assets.moving&&assets.moving[0])||"");
@@ -1645,6 +1645,11 @@ function findBattleTargetFor(attacker) {
     attacker.currentTargetKey="";
     return null;
   }
+
+  const pinnedTarget=availableCandidates.find(target=>
+    target.key===attacker.currentTargetKey&&battleTargetGap(attacker,target)>=-0.0001
+  );
+  if(pinnedTarget) return pinnedTarget;
 
   const nextTarget=availableCandidates
     .map(target=>{
@@ -1927,13 +1932,15 @@ function updateBattleEntityView(entity) {
   if (!sprite) return;
   if (animationMode==="attack") {
     const duration=Math.max(0.1,Number(entity.animUntil)-Number(entity.attackStartedAt));
-    sprite.style.setProperty("--battle-attack-duration",duration+"s");
+    const visualSpeed=Number(battleState&&battleState.speedMultiplier)===2?2:1;
+    sprite.style.setProperty("--battle-attack-duration",(duration/visualSpeed)+"s");
   } else {
     sprite.style.removeProperty("--battle-attack-duration");
   }
   if (animationMode==="knockback") {
     const duration = Math.max(0.2,Number(entity.knockbackDuration)||Number(entity.knockbackDurationSetting)||0.64);
-    sprite.style.setProperty("--battle-knockback-duration",(duration*1000)+"ms");
+    const visualSpeed=Number(battleState&&battleState.speedMultiplier)===2?2:1;
+    sprite.style.setProperty("--battle-knockback-duration",(duration/visualSpeed*1000)+"ms");
   } else {
     sprite.style.removeProperty("--battle-knockback-duration");
   }
@@ -2151,7 +2158,7 @@ function spawnPlayerCat(unit) {
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
     x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
-    hp:stats.health,maxHp:stats.health,attackPower:stats.damage,areaAttack:stats.areaAttack===true,
+    hp:stats.health,maxHp:stats.health,attackPower:stats.damage,areaAttack:Number(stats.areaAttack)||0,
     AttackTrait:stats.AttackTrait,AttackBoost:stats.AttackBoost,traits:stats.traits,
     speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",enemyBaseHoldX:undefined,recharge:stats.recharge,mode:"moving",
@@ -2314,10 +2321,33 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.mode="attack";
   return true;
 }
+function battleAreaAttackTargets(attacker,candidates) {
+  const mode=Math.max(0,Math.min(2,Math.floor(Number(attacker&&attacker.areaAttack)||0)));
+  const reachable=(candidates||[])
+    .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead"&&target.mode!=="knockback")
+    .map(target=>({
+      target,
+      gap:battleTargetGap(attacker,target),
+      distance:Math.abs(battleTargetGap(attacker,target)),
+      reach:battleCombatReachPercent(attacker.range,attacker,target)
+    }))
+    .filter(item=>item.gap>=-0.0001&&item.distance<=item.reach+0.0001)
+    .sort((first,second)=>first.distance-second.distance);
+  if(!reachable.length) return [];
+  const frontline=reachable[0];
+  if(mode===0) return [frontline.target];
+  const frontlineBand=Math.max(0.65,battleEntityContactGapPercent(attacker,frontline.target)*0.6);
+  const splashBand=mode===1
+    ? frontlineBand
+    : Math.max(frontlineBand,Math.min(10,battleRangePercent(attacker.range)*0.65));
+  return reachable
+    .filter(item=>item.distance<=frontline.distance+splashBand+0.0001)
+    .map(item=>item.target);
+}
 function resolveBattleAttackOnce(attacker,target,damage,now) {
   if (!attacker || !target || !Number(attacker.attackCycleId)) return false;
   const cycle=attacker.attackCycleId;
-  if(attacker.areaAttack===true) {
+  if(Number(attacker.areaAttack)>0) {
     if(!attacker.areaAttackResolvedTargets || attacker.areaAttackResolvedTargets.cycle!==cycle) {
       attacker.areaAttackResolvedTargets={cycle,targets:{}};
     }
@@ -2369,19 +2399,14 @@ function resolvePendingBattleAttacks(now) {
     if(targetKey) {
       const candidates=attacker.kind==="cat"?battleState.enemies:battleState.playerUnits;
       let targets=[];
-      if(attacker.areaAttack===true) {
-        targets=candidates.filter(target=>{
-          if(!target||Number(target.hp)<=0||target.mode==="dead"||target.mode==="knockback") return false;
-          const distance=Math.abs(battleTargetGap(attacker,target));
-          return distance<=battleCombatReachPercent(attacker.range,attacker,target)+0.0001;
-        });
-      } else {
-        const currentTarget=findBattleTargetFor(attacker);
-        if(currentTarget&&currentTarget.mode!=="knockback") {
-          const distance=Math.abs(battleTargetGap(attacker,currentTarget));
-          if(distance<=battleCombatReachPercent(attacker.range,attacker,currentTarget)+0.0001) {
-            targets=[currentTarget];
-          }
+      const areaMode=Math.max(0,Math.min(2,Math.floor(Number(attacker.areaAttack)||0)));
+      const currentTarget=findBattleTargetFor(attacker);
+      if(areaMode>0) {
+        targets=battleAreaAttackTargets(attacker,candidates);
+      } else if(currentTarget&&currentTarget.mode!=="knockback") {
+        const distance=Math.abs(battleTargetGap(attacker,currentTarget));
+        if(distance<=battleCombatReachPercent(attacker.range,attacker,currentTarget)+0.0001) {
+          targets=[currentTarget];
         }
       }
       for(const target of targets) {
@@ -2424,7 +2449,9 @@ function tickBattle() {
   refreshBattleLayoutMetrics();
   const tickAt=performance.now();
   const previousTickAt=Number(state.lastTickAt)||tickAt;
-  const dt=Math.max(0.001,Math.min(0.2,(tickAt-previousTickAt)/1000));
+  const realDt=Math.max(0.001,Math.min(0.2,(tickAt-previousTickAt)/1000));
+  const speedMultiplier=Number(state.speedMultiplier)===2?2:1;
+  const dt=realDt*speedMultiplier;
   state.lastTickAt=tickAt;
   state.elapsed+=dt;
   advanceBattleKnockback(dt);
@@ -2468,6 +2495,7 @@ function tickBattle() {
         : Math.max(enemyBaseStop,Number(target.x)+reach);
 
       if(distance>reach) {
+        cat.rangeHoldX=null;
         const targetGap=battleTargetGap(cat,target);
         if(targetGap>0) {
           cat.x=Math.max(targetApproachStop,cat.x-(cat.speed*0.45)*dt);
@@ -2488,6 +2516,7 @@ function tickBattle() {
         }
       } else {
         cat.mode="idle";
+        if(typeof cat.rangeHoldX!=="number"||!Number.isFinite(cat.rangeHoldX)) cat.rangeHoldX=cat.x;
         prepareBattleAttackPhase(cat,now);
         const catStats=battleStatsForEntity(cat);
         const attackDuration=battleAttackAnimationDuration(cat,0.62);
@@ -2496,8 +2525,10 @@ function tickBattle() {
         }
       }
       const targetSideStop=targetIsInsideEnemyBase?baseHoldX:enemyBaseStop;
-      cat.x=Math.max(targetSideStop,Math.min(catHomeCenter,cat.x));
+      const heldRangePosition=typeof cat.rangeHoldX==="number"&&Number.isFinite(cat.rangeHoldX)?cat.rangeHoldX:cat.x;
+      cat.x=Math.max(targetSideStop,Math.min(catHomeCenter,heldRangePosition));
     } else if (state.enemyBaseHp>0) {
+      cat.rangeHoldX=null;
       const catBaseAttackStop=enemyBaseStop+battleRangePercent(cat.range)*0.1;
       if (cat.x>catBaseAttackStop) {
         cat.mode="moving";
@@ -2615,6 +2646,14 @@ function updateFightUI() {
   const workerCostText=stage.querySelector(".fight-worker-cost");
   const workerLevelIndicator=stage.querySelector(".fight-wallet-level-indicator");
   const workerBar=stage.querySelector(".fight-worker-bar span");
+  const speedButton=stage.querySelector(".fight-speed-toggle");
+  const speedMultiplier=Number(state.speedMultiplier)===2?2:1;
+  if(speedButton) {
+    speedButton.textContent=speedMultiplier===2?"2× SPEED":"1× SPEED";
+    speedButton.setAttribute("aria-pressed",speedMultiplier===2?"true":"false");
+    speedButton.disabled=Boolean(state.ended);
+    stage.querySelector(".fight-screen")?.classList.toggle("is-speed-up",speedMultiplier===2);
+  }
   if (moneyText) {
     const displayedMoney=Math.floor(state.money);
     moneyText.innerHTML=currencyRatioSpriteMarkup(displayedMoney,state.maxMoney);
@@ -2704,6 +2743,7 @@ function renderFight() {
     '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
     '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
+    '<button class="fight-speed-toggle" data-go="toggle-speed" aria-pressed="false" aria-label="Toggle 2x battle speed">1× SPEED</button>'+
     '<div class="fight-money"><strong class="fight-money-value" aria-label="Money '+Math.floor(battleState.money)+' of '+battleState.maxMoney+'">'+currencyRatioSpriteMarkup(Math.floor(battleState.money),battleState.maxMoney)+'</strong></div>'+
     '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
       '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
@@ -2723,7 +2763,7 @@ function renderFight() {
   '</section>';
 }
 function renderUpgrade() {
-  const body = pageCopy("Each Cat level increases its health and attack power by 10%.")+
+  const body = pageCopy("Each Cat level increases its health and attack power by 13%.")+
     '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
     '<div class="menu-list">'+save.units.map((unit,i)=>{
       const level=Math.max(1,Math.floor(Number(unit.level)||1));
@@ -3087,6 +3127,12 @@ function perform(action) {
   if (action.startsWith("deploy:")) {
     const unit=save.units.find(item=>String(item.id)===action.slice(7));
     if (unit) spawnPlayerCat(unit);
+    return;
+  }
+  if(action==="toggle-speed") {
+    if(scene!=="fight"||!battleState||battleState.ended) return;
+    battleState.speedMultiplier=Number(battleState.speedMultiplier)===2?1:2;
+    updateFightUI();
     return;
   }
   if (action==="wallet-upgrade") {

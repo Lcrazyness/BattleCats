@@ -1,15 +1,15 @@
 {
   "name": "Jackie Peng",
-  "health": 1300,
-  "damage": 80,
-  "speed": 11,
-  "spriteChangeSpeed": 11,
-  "range": 150,
+  "health": 1000,
+  "damage": 30,
+  "speed": 9,
+  "spriteChangeSpeed": 9,
+  "range": 145,
   "killReward": 450,
   "knockbackCount": 3,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "attackCooldown": 0.8,
+  "attackCooldown": 1.2,
   "AreaAttack": false
 }
