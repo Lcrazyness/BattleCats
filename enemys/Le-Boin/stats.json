@@ -1,7 +1,7 @@
 {
   "name": "Le'boin",
-  "health": 2400,
-  "damage": 125,
+  "health": 3000,
+  "damage": 200,
   "speed": 2.8,
   "range": 400,
   "spriteChangeSpeed": 4,
