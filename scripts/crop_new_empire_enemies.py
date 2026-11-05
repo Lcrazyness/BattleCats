@@ -164,16 +164,28 @@ ENEMIES = {
 
 
 def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.Image:
-    """Remove any connected neutral background visible at a source-sheet edge."""
+    """Flood-remove neutral sheet colors sampled from all four edges."""
     image = image.convert("RGBA")
     pixels = image.load()
     width, height = image.size
-    corners = [pixels[0, 0][:3], pixels[width - 1, 0][:3],
-               pixels[0, height - 1][:3], pixels[width - 1, height - 1][:3]]
-    backgrounds = []
-    for color in corners:
-        if color not in backgrounds:
-            backgrounds.append(color)
+    from collections import Counter
+
+    edge_colors = []
+    for x in range(width):
+        edge_colors.append(pixels[x, 0][:3])
+        edge_colors.append(pixels[x, height - 1][:3])
+    for y in range(height):
+        edge_colors.append(pixels[0, y][:3])
+        edge_colors.append(pixels[width - 1, y][:3])
+
+    bins = Counter()
+    for r, g, b in edge_colors:
+        if max(r, g, b) - min(r, g, b) <= 60:
+            bins[((r // 16) * 16 + 8, (g // 16) * 16 + 8, (b // 16) * 16 + 8)] += 1
+    backgrounds = [color for color, _ in bins.most_common(16)]
+    if not backgrounds:
+        backgrounds = [pixels[0, 0][:3], pixels[width - 1, 0][:3],
+                       pixels[0, height - 1][:3], pixels[width - 1, height - 1][:3]]
 
     def is_background(index: int) -> bool:
         x, y = index % width, index // width
@@ -216,7 +228,7 @@ def crop_pose(sheet: Image.Image, box, rotate=0, local_background=False) -> Imag
         raise ValueError(f"Crop {box} is outside sheet {sheet.size}")
     pose = sheet.crop(box).convert("RGBA")
     if local_background:
-        pose = remove_border_background(pose, tolerance=64)
+        pose = remove_border_background(pose, tolerance=128)
     bbox = pose.getchannel("A").point(lambda value: 255 if value > 10 else 0).getbbox()
     if not bbox:
         raise ValueError(f"Empty sprite crop {box}")
