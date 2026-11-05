@@ -1,7 +1,7 @@
 {
   "name": "Baa Baa",
-  "health": 40,
-  "damage": 10,
+  "health": 400,
+  "damage": 20,
   "speed": 5.5,
   "range": 110,
   "spriteChangeSpeed": 7,
