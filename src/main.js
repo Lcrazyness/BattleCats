@@ -74,9 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-10";
-const BATTLE_AXE_SPRITE_SIZE = 160;
-const BATTLE_AXE_SPRITE_CACHE = new Map();
+const BATTLE_ASSET_VERSION = "20261105-11";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -2154,61 +2152,6 @@ function ensureBattleEntityNode(entity) {
   element = stage.querySelector('[data-battle-entity="'+entity.key+'"]');
   return element;
 }
-function normalizeAxeCatBattleSprite(image,source){
-  if(!image||!image.naturalWidth||!image.naturalHeight||!source) return "";
-  const cached=BATTLE_AXE_SPRITE_CACHE.get(source);
-  if(cached) return cached;
-  try {
-    const width=image.naturalWidth;
-    const height=image.naturalHeight;
-    const scan=document.createElement("canvas");
-    scan.width=width;
-    scan.height=height;
-    const scanContext=scan.getContext("2d",{willReadFrequently:true});
-    if(!scanContext) return "";
-    scanContext.drawImage(image,0,0);
-    const pixels=scanContext.getImageData(0,0,width,height).data;
-    let minX=width,minY=height,maxX=-1,maxY=-1;
-    for(let y=0;y<height;y++){
-      for(let x=0;x<width;x++){
-        if(pixels[(y*width+x)*4+3]>12){
-          if(x<minX) minX=x;
-          if(x>maxX) maxX=x;
-          if(y<minY) minY=y;
-          if(y>maxY) maxY=y;
-        }
-      }
-    }
-    if(maxX<minX||maxY<minY) return "";
-    const padding=2;
-    minX=Math.max(0,minX-padding);
-    minY=Math.max(0,minY-padding);
-    maxX=Math.min(width-1,maxX+padding);
-    maxY=Math.min(height-1,maxY+padding);
-    const cropWidth=maxX-minX+1;
-    const cropHeight=maxY-minY+1;
-    const target=BATTLE_AXE_SPRITE_SIZE-16;
-    const scale=Math.min(target/cropWidth,target/cropHeight);
-    const drawWidth=cropWidth*scale;
-    const drawHeight=cropHeight*scale;
-    const normalized=document.createElement("canvas");
-    normalized.width=BATTLE_AXE_SPRITE_SIZE;
-    normalized.height=BATTLE_AXE_SPRITE_SIZE;
-    const context=normalized.getContext("2d");
-    if(!context) return "";
-    context.imageSmoothingEnabled=true;
-    context.drawImage(image,minX,minY,cropWidth,cropHeight,
-      (BATTLE_AXE_SPRITE_SIZE-drawWidth)/2,
-      BATTLE_AXE_SPRITE_SIZE-4-drawHeight,
-      drawWidth,drawHeight);
-    const result=normalized.toDataURL("image/png");
-    BATTLE_AXE_SPRITE_CACHE.set(source,result);
-    return result;
-  } catch(error) {
-    console.warn("Axe Cat sprite could not be normalized:",source,error);
-    return "";
-  }
-}
 function normalizeEnemyBattleSprite(image,source,element=null) {
   if(!image||!image.naturalWidth||!image.naturalHeight||!source) return "";
   const cached=BATTLE_ENEMY_SPRITE_CACHE.get(source);
@@ -2384,6 +2327,7 @@ function updateBattleEntityView(entity) {
     sprite.dataset.fallbackTried="";
     sprite.classList.remove("sprite-load-failed");
     sprite.onload=()=>{
+      if(sprite.dataset.activeSource!==source) return;
       sprite.classList.remove("sprite-load-failed");
       sprite.style.visibility="";
       sprite.dataset.fallbackTried="";
@@ -2403,16 +2347,9 @@ function updateBattleEntityView(entity) {
           return;
         }
       }
-      if(element.dataset.unitType==="axe-cat"&&sprite.dataset.normalizedSource!==source){
-        const normalized=normalizeAxeCatBattleSprite(sprite,source);
-        if(normalized){
-          sprite.dataset.normalizedSource=source;
-          sprite.src=normalized;
-          return;
-        }
-      }
     };
     sprite.onerror=()=>{
+      if(sprite.dataset.activeSource!==source) return;
       if (!sprite.dataset.fallbackTried) {
         sprite.dataset.fallbackTried="1";
         try {
@@ -2428,7 +2365,6 @@ function updateBattleEntityView(entity) {
       sprite.classList.add("sprite-load-failed");
       console.warn("Battle Cats sprite could not load:",source);
     };
-    if(element.dataset.unitType==="axe-cat") sprite.crossOrigin="anonymous";
     sprite.src=source;
   }
 }
@@ -2761,7 +2697,6 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.pendingAttackAt=now+Math.max(0.1,animationDuration*0.62);
   attacker.pendingAttackTargetKey=target ? target.key : "";
   attacker.pendingAttackBase=baseTarget;
-  attacker.pendingAttackRange=target?battleCombatReachPercent(attacker.range,attacker,target):0;
   attacker.pendingAttackDamage=Number(attacker.attackPower)||8;
   attacker.mode="attack";
   return true;
@@ -2835,12 +2770,10 @@ function resolvePendingBattleAttacks(now) {
     if (!strikeAt || now+0.0001<strikeAt) continue;
     const targetKey=attacker.pendingAttackTargetKey;
     const baseTarget=attacker.pendingAttackBase;
-    const attackRangeAtStart=Math.max(0,Number(attacker.pendingAttackRange)||0);
     const damage=Number(attacker.pendingAttackDamage)||Number(attacker.attackPower)||8;
     attacker.pendingAttackAt=0;
     attacker.pendingAttackTargetKey="";
     attacker.pendingAttackBase="";
-    attacker.pendingAttackRange=0;
     if (attacker.mode==="dead" || Number(attacker.hp)<=0) continue;
 
     if(targetKey) {
@@ -2852,17 +2785,12 @@ function resolvePendingBattleAttacks(now) {
       const areaMode=Math.max(0,Math.min(2,Math.floor(Number(attacker.areaAttack)||0)));
       if(areaMode>0) {
         targets=battleAreaAttackTargets(attacker,candidates);
-        if(lockedTarget&&!targets.includes(lockedTarget)) {
-          const distance=Math.abs(battleTargetGap(attacker,lockedTarget));
-          const liveReach=battleCombatReachPercent(attacker.range,attacker,lockedTarget);
-          const hitGrace=Math.max(0.75,battleEntityContactGapPercent(attacker,lockedTarget)*0.35);
-          if(distance<=Math.max(attackRangeAtStart,liveReach)+hitGrace) targets.unshift(lockedTarget);
-        }
+        if(lockedTarget&&!targets.includes(lockedTarget)) targets.unshift(lockedTarget);
       } else if(lockedTarget) {
-        const distance=Math.abs(battleTargetGap(attacker,lockedTarget));
-        const liveReach=battleCombatReachPercent(attacker.range,attacker,lockedTarget);
-        const hitGrace=Math.max(0.75,battleEntityContactGapPercent(attacker,lockedTarget)*0.35);
-        if(distance<=Math.max(attackRangeAtStart,liveReach)+hitGrace) targets=[lockedTarget];
+        // The target was selected while in range when the swing began.
+        // Keep that lock through the wind-up so small collision/knockback
+        // shifts cannot turn a valid cat attack into a visual-only miss.
+        targets=[lockedTarget];
       }
       for(const target of targets) {
         const targetDamage=battleDamageAgainstTarget(attacker,target,damage);
