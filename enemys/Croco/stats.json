@@ -2,7 +2,7 @@
   "name": "Croco",
   "health": 35,
   "damage": 6,
-  "speed": 14,
+  "speed": 9,
   "range": 110,
   "spriteChangeSpeed": 10,
   "walkSpriteChangeSpeed": 6,
