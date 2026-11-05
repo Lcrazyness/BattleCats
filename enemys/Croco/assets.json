@@ -13,7 +13,9 @@
     "enemys/Croco/attack/frame-001.png",
     "enemys/Croco/attack/frame-002.png",
     "enemys/Croco/attack/frame-003.png",
-    "enemys/Croco/attack/frame-004.png"
+    "enemys/Croco/attack/frame-004.png",
+    "enemys/Croco/attack/frame-005.png",
+    "enemys/Croco/attack/frame-006.png"
   ],
   "attack": "enemys/Croco/attack/frame-001.png",
   "attackFrameRate": 8,
