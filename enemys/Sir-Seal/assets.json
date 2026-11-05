@@ -1,0 +1,30 @@
+{
+  "name": "Sir Seal",
+  "source": "Battle Cats sprite artwork. Original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/blob/main/enemys/Sir-Seal/Screenshot%202026-11-04%20202024.png",
+  "moving": [
+    "enemys/Sir-Seal/moving/frame-001.png",
+    "enemys/Sir-Seal/moving/frame-002.png",
+    "enemys/Sir-Seal/moving/frame-003.png",
+    "enemys/Sir-Seal/moving/frame-004.png"
+  ],
+  "attacks": [
+    "enemys/Sir-Seal/attack/frame-001.png",
+    "enemys/Sir-Seal/attack/frame-002.png",
+    "enemys/Sir-Seal/attack/frame-003.png",
+    "enemys/Sir-Seal/attack/frame-004.png",
+    "enemys/Sir-Seal/attack/frame-005.png"
+  ],
+  "attack": "enemys/Sir-Seal/attack/frame-001.png",
+  "attackFrameRate": 6,
+  "damagedFrames": [
+    "enemys/Sir-Seal/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Sir-Seal/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Sir-Seal/idle.png",
+  "damaged": "enemys/Sir-Seal/damaged/frame-001.png",
+  "slot": "enemys/Sir-Seal/slot.png",
+  "upgrade": null
+}

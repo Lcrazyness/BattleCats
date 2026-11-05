@@ -1,0 +1,15 @@
+{
+  "name": "Gory",
+  "health": 650,
+  "damage": 24,
+  "speed": 8,
+  "range": 150,
+  "spriteChangeSpeed": 7,
+  "killReward": 180,
+  "knockbackCount": 3,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "attackCooldown": 1.1,
+  "AreaAttack": 1
+}
