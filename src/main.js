@@ -1266,15 +1266,15 @@ function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,in
   return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true,fallbackAfterSeconds};
 }
 const EOC1_ENEMY_STAGES = {
-  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,33,34,35,36],
-  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,47,48],
-  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,45,47,48],
-  pigge: [10,12,15,17,18,20,21,23,24,28,30,31,32,33,34,36,37,43,45,46,48],
-  "jackie-peng": [13,17,18,21,22,24,25,28,30,33,34,39,40,42,45,47,48],
-  gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47,48],
-  "baa-baa": [19,20,21,22,25,27,30,31,33,34,36,37],
-  "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47,48],
-  croco: [26,27,28,29,30,31,33,34,35,36,37,38,41,43,48],
+  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,31,33,34,35,36,37,38,39,40,42],
+  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,47],
+  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,40,45,47],
+  pigge: [10,12,15,17,18,20,21,23,24,28,30,31,32,33,34,36,37,43,44,46],
+  "jackie-peng": [13,17,18,21,22,24,25,28,30,33,34,39,40,42],
+  gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47],
+  "baa-baa": [19,20,21,22,25,27,28,30,31,36,37],
+  "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
+  croco: [26,27,28,29,30,31,33,34,35,36,37,38,41],
   "le-boin": [29,31,36,40,42,45,47]
 };
 const EOC1_MAX_ENEMIES = {
@@ -1299,12 +1299,25 @@ const EOC1_MAX_ENEMIES = {
   France:8,
   Germany:8,
   Denmark:10,
+  Norway:10,
   "United Kingdom":10,
+  Greenland:8,
+  Canada:6,
+  "New York":10,
+  Bermuda:10,
   Jamaica:10,
+  Colombia:4,
+  Brazil:8,
+  Argentina:5,
   "Machu Picchu":10,
-  Mexico:10,
-  Hollywood:10,
-  Hawaii:10
+  "Easter Island":10,
+  Mexico:5,
+  NASA:10,
+  "Las Vegas":10,
+  Hollywood:2,
+  Alaska:10,
+  Hawaii:3,
+  Moon:10
 };
 function defaultBattleLevelConfig(levelName="Korea") {
   const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
@@ -1543,8 +1556,113 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("those-guys","infinite",20,10,10,3),
       timedEnemySpawn("croco","infinite",40,10,40,3),
       baseTriggeredEnemySpawn("le-boin",1,90,1,1,1,1,true),
-      baseTriggeredEnemySpawn("those-guys","infinite",90,0.25,1,9,1,true),
-      baseTriggeredEnemySpawn("those-guys",20,90,0.25,0.25,10,1,true)
+      baseTriggeredEnemySpawn("those-guys","infinite",90,0.25,1,9,1,true)
+    ];
+  } else if(levelName==="Norway") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("snache","infinite",10,5,6.7,3),
+      timedEnemySpawn("those-guys","infinite",20,6.7,10,3),
+      timedEnemySpawn("croco","infinite",40,10,20,3),
+      timedEnemySpawn("baa-baa","infinite",60,10,20,3),
+      timedEnemySpawn("jackie-peng","infinite",80,30,60,1),
+      timedEnemySpawn("hippoe","infinite",120,30,60,1),
+      timedEnemySpawn("pigge","infinite",120,30,60,1),
+      timedEnemySpawn("gory","infinite",160,30,60,1),
+      timedEnemySpawn("sir-seal","infinite",200,30,60,1)
+    ];
+  } else if(levelName==="United Kingdom") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("croco","infinite",0,3.3,10,3),
+      timedEnemySpawn("those-guys","infinite",10,5,10,3),
+      timedEnemySpawn("baa-baa","infinite",20,6.7,10,3),
+      timedEnemySpawn("le-boin",1,60,1,1,1),
+      timedEnemySpawn("pigge","infinite",180,20,40,1)
+    ];
+  } else if(levelName==="Bermuda") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,4,13.3,3),
+      timedEnemySpawn("snache","infinite",13.3,4,13.3,3),
+      timedEnemySpawn("those-guys","infinite",60,4,13.3,3),
+      timedEnemySpawn("croco","infinite",80,10,20,3)
+    ];
+  } else if(levelName==="Jamaica") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("snache","infinite",13.3,3.3,13.3,3),
+      timedEnemySpawn("those-guys","infinite",60,3.3,13.3,3),
+      timedEnemySpawn("croco","infinite",80,3.3,10,3),
+      timedEnemySpawn("baa-baa","infinite",100,3.3,20,3),
+      timedEnemySpawn("le-boin",1,100,1,1,1),
+      timedEnemySpawn("hippoe","infinite",120,20,40,1),
+      timedEnemySpawn("pigge","infinite",120,20,40,1),
+      timedEnemySpawn("le-boin","infinite",233.3,133.3,200,1)
+    ];
+  } else if(levelName==="Colombia") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("snache","infinite",13.3,3.3,13.3,3),
+      timedEnemySpawn("those-guys","infinite",20,3.3,13.3,3),
+      timedEnemySpawn("croco","infinite",80,3.3,10,3),
+      timedEnemySpawn("baa-baa","infinite",100,3.3,20,3),
+      timedEnemySpawn("hippoe","infinite",120,20,40,1),
+      timedEnemySpawn("pigge","infinite",120,20,40,1)
+    ];
+  } else if(levelName==="Brazil") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("those-guys","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("croco","infinite",0,10,20,2),
+      baseTriggeredEnemySpawn("gory","infinite",93,0.25,10,2,1,true),
+      baseTriggeredEnemySpawn("gory","infinite",92,0.25,10,2,1,true),
+      baseTriggeredEnemySpawn("croco","infinite",92,1,10,5,1,true)
+    ];
+  } else if(levelName==="Argentina") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("snache","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("those-guys","infinite",40,3.3,13.3,3),
+      timedEnemySpawn("gory","infinite",66.7,20,40,1),
+      timedEnemySpawn("sir-seal","infinite",86.7,40,60,1),
+      timedEnemySpawn("jackie-peng","infinite",120,40,60,1)
+    ];
+  } else if(levelName==="Machu Picchu") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3,14,3),
+      timedEnemySpawn("snache","infinite",0,3,14,3),
+      timedEnemySpawn("those-guys","infinite",40,6,14,3),
+      timedEnemySpawn("jackie-peng","infinite",40,20,30,1),
+      timedEnemySpawn("gory","infinite",66.7,30,60,1),
+      timedEnemySpawn("gory","infinite",80,40,60,1),
+      timedEnemySpawn("sir-seal","infinite",86.7,66.7,100,1),
+      timedEnemySpawn("le-boin","infinite",100,100,100,1)
+    ];
+  } else if(levelName==="Easter Island") {
+    enemySpawns=[
+      timedEnemySpawn("those-guys","infinite",0,1,10,4),
+      timedEnemySpawn("croco","infinite",20,10,30,2)
+    ];
+  } else if(levelName==="Mexico") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3,14,3),
+      timedEnemySpawn("snache","infinite",0,3,14,3),
+      timedEnemySpawn("those-guys","infinite",40,6,14,3),
+      timedEnemySpawn("gory","infinite",80,10,30,1),
+      timedEnemySpawn("sir-seal","infinite",86.7,66.7,100,1),
+      timedEnemySpawn("le-boin","infinite",100,100,100,1)
+    ];
+  } else if(levelName==="Hollywood") {
+    enemySpawns=[
+      timedEnemySpawn("gory","infinite",60,13.3,30,1),
+      timedEnemySpawn("sir-seal","infinite",80,40,53.3,1),
+      timedEnemySpawn("le-boin","infinite",100,73.3,113.3,1)
+    ];
+  } else if(levelName==="Hawaii") {
+    enemySpawns=[
+      timedEnemySpawn("gory","infinite",60,13.3,30,1),
+      timedEnemySpawn("sir-seal","infinite",80,26.7,53.3,1),
+      timedEnemySpawn("le-boin","infinite",100,53.3,100,1)
     ];
   }
   return {
