@@ -14,15 +14,15 @@ ENEMIES = {
         "key": "baa-baa", "name": "Baa Baa",
         "sheet": ROOT / "enemys/Baa-Baa/Screenshot 2026-11-05 100131.png",
         "size": (487, 451),
-        "moving": [(58, 48, 151, 132), (157, 48, 251, 132), (255, 48, 350, 132)],
-        "attack": [(60, 150, 158, 246), (164, 150, 259, 246), (270, 150, 373, 246),
-                   (378, 150, 482, 246), (60, 251, 187, 346), (252, 251, 364, 346),
-                   (368, 251, 482, 346)],
+        "moving": [(58, 52, 151, 132), (157, 52, 251, 132), (255, 52, 350, 132)],
+        "attack": [(60, 166, 158, 246), (164, 166, 259, 246), (270, 166, 373, 246),
+                   (378, 166, 482, 246), (60, 256, 187, 346), (252, 256, 364, 346),
+                   (368, 256, 482, 346)],
         "hurt": (58, 366, 151, 444),
         "attack_rate": 7,
         "stats": {
-            "name": "Baa Baa", "health": 40, "damage": 10, "speed": 3.6,
-            "range": 110, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 3.2,
+            "name": "Baa Baa", "health": 40, "damage": 10, "speed": 5.5,
+            "range": 110, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 3.8,
             "killReward": 40, "knockbackCount": 3, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
             "attackCooldown": 1.77, "AreaAttack": 0, "traits": []
@@ -34,16 +34,16 @@ ENEMIES = {
         "size": (606, 249),
         "moving": [(18, 4, 119, 64), (120, 4, 220, 64), (221, 4, 321, 64),
                    (322, 4, 422, 64), (423, 4, 525, 64)],
-        "attack": [(121, 66, 222, 163), (222, 66, 323, 163),
-                   (323, 66, 423, 163), (118, 141, 229, 230)],
-        "hurt": (416, 174, 526, 231),
+        "attack": [(20, 86, 119, 163), (120, 57, 220, 149), (220, 57, 321, 149),
+                   (320, 57, 421, 149), (418, 86, 519, 163), (119, 141, 226, 218)],
+        "hurt": (416, 171, 526, 231),
         "attack_rate": 8,
         "stats": {
-            "name": "Croco", "health": 60, "damage": 6, "speed": 8.5,
-            "range": 110, "spriteChangeSpeed": 10, "walkSpriteChangeSpeed": 4.5,
+            "name": "Croco", "health": 35, "damage": 6, "speed": 14,
+            "range": 110, "spriteChangeSpeed": 10, "walkSpriteChangeSpeed": 6,
             "killReward": 20, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
-            "attackCooldown": 0.60, "AreaAttack": 0, "traits": []
+            "attackCooldown": 0.9, "AreaAttack": 0, "traits": []
         }
     }
 }
@@ -185,8 +185,7 @@ def crop_le_boin():
     for part in parts:
         part.unlink()
 
-    # The atlas contains separate head, torso, and leg poses. Layer them into
-    # a complete elephant silhouette with the head in front of the shoulder.
+    # Connect the separate elephant head, body, walking-leg strips and attack trunk.
     head_b = trim_alpha(atlas.crop((160, 0, 300, 150)))
     head_c = trim_alpha(atlas.crop((294, 0, 430, 150)))
     head_a = trim_alpha(atlas.crop((0, 0, 160, 154)))
@@ -199,29 +198,30 @@ def crop_le_boin():
     ]
     trunk_extension = trim_alpha(atlas.crop((429, 0, 512, 116)))
 
-    def assemble(head, leg, extend=False):
-        out = Image.new("RGBA", (270, 190), (0, 0, 0, 0))
-        # Place feet first, then torso, then head, so the joints overlap naturally.
-        out.alpha_composite(leg, (72, 102))
-        out.alpha_composite(torso, (100, 43))
+    def assemble(head, leg_index=None, extend=False):
+        out = Image.new("RGBA", (250, 190), (0, 0, 0, 0))
+        # Set the rear body first; overlap the head across the shoulder joint.
+        out.alpha_composite(torso, (90, 45))
+        if leg_index is not None:
+            out.alpha_composite(legs[leg_index], (99, 112))
         out.alpha_composite(head, (0, 0))
         if extend:
-            # The loose trunk segment joins the upright trunk and points forward.
+            # This detached piece extends the raised trunk through the slam.
             out.alpha_composite(trunk_extension, (83, 0))
         return trim_alpha(out)
 
     moving_raw = [
-        assemble(head_b, legs[0]),
-        assemble(head_c, legs[1]),
-        assemble(head_b, legs[2])
+        assemble(head_b, 0),
+        assemble(head_c, 1),
+        assemble(head_b, 2)
     ]
     attack_raw = [
-        assemble(head_b, legs[0], True),
-        assemble(head_c, legs[1], True),
-        assemble(head_a, legs[2]),
-        assemble(head_c, legs[2], True)
+        assemble(head_b, 0, True),
+        assemble(head_c, 1, True),
+        assemble(head_a, 2),
+        assemble(head_c, 2, True)
     ]
-    hurt_raw = assemble(head_hurt, legs[1])
+    hurt_raw = assemble(head_hurt, 1)
     write_enemy(
         "Le-Boin", "le-boin", "Le'boin", moving_raw, attack_raw, hurt_raw,
         {
