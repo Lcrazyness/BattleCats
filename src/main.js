@@ -1266,13 +1266,13 @@ function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,in
   return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true,fallbackAfterSeconds};
 }
 const EOC1_ENEMY_STAGES = {
-  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,31,33,34,35,36,37,38,39,40,42],
-  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,47],
-  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,40,45,47],
+  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,33,34,35,36,37,38,39,40,42],
+  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44],
+  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,40],
   pigge: [10,12,15,17,18,20,21,23,24,28,30,31,32,33,34,36,37,43,44,46],
   "jackie-peng": [13,17,18,21,22,24,25,28,30,33,34,39,40,42],
   gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47],
-  "baa-baa": [19,20,21,22,25,27,28,30,31,36,37],
+  "baa-baa": [19,20,21,22,25,27,30,31,33,34,36,37],
   "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
   croco: [26,27,28,29,30,31,33,34,35,36,37,38,41],
   "le-boin": [29,31,36,40,42,45,47]
@@ -1557,6 +1557,37 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("croco","infinite",40,10,40,3),
       baseTriggeredEnemySpawn("le-boin",1,90,1,1,1,1,true),
       baseTriggeredEnemySpawn("those-guys","infinite",90,0.25,1,9,1,true)
+    ];
+  } else if(levelName==="Canada") {
+    enemySpawns=[
+      timedEnemySpawn("snache","infinite",10,5,6.67,3),
+      timedEnemySpawn("those-guys","infinite",20,6.67,10,3),
+      timedEnemySpawn("croco","infinite",40,10,20,3),
+      timedEnemySpawn("baa-baa","infinite",60,10,20,3),
+      timedEnemySpawn("jackie-peng","infinite",80,30,60,1),
+      timedEnemySpawn("gory","infinite",100,30,60,1),
+      timedEnemySpawn("hippoe","infinite",120,30,60,1),
+      timedEnemySpawn("pigge","infinite",120,30,60,1),
+      timedEnemySpawn("sir-seal","infinite",200,30,60,1),
+      timedEnemySpawn("gory","infinite",133.33,30,60,4),
+      baseTriggeredEnemySpawn("gory",4,50,0.25,0.25,4,1,true)
+    ];
+  } else if(levelName==="New York") {
+    enemySpawns=[
+      timedEnemySpawn("snache","infinite",10,5,6.67,3),
+      timedEnemySpawn("those-guys","infinite",20,6.67,10,3),
+      timedEnemySpawn("croco","infinite",40,10,20,3),
+      timedEnemySpawn("baa-baa","infinite",60,10,20,3),
+      timedEnemySpawn("jackie-peng","infinite",80,30,60,1),
+      timedEnemySpawn("gory","infinite",100,30,60,1),
+      timedEnemySpawn("hippoe","infinite",120,30,60,1),
+      timedEnemySpawn("pigge","infinite",120,30,60,1),
+      timedEnemySpawn("pigge","infinite",133.33,30,60,1),
+      timedEnemySpawn("sir-seal","infinite",200,66.67,133.33,1),
+      baseTriggeredEnemySpawn("sir-seal",1,90,1,1,1,1,true),
+      baseTriggeredEnemySpawn("sir-seal",1,70,1,1,1,1,true),
+      baseTriggeredEnemySpawn("sir-seal",1,50,1,1,1,1,true),
+      baseTriggeredEnemySpawn("sir-seal",1,30,1,1,1,1,true)
     ];
   } else if(levelName==="Norway") {
     enemySpawns=[
