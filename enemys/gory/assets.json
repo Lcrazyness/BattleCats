@@ -1,33 +1,34 @@
 {
   "name": "Gory",
+  "source": "Cropped from the source sheet stored alongside this asset folder.",
   "sourceUrl": "https://github.com/Lcrazyness/BattleCats/blob/main/enemys/Gory/Screenshot%202026-11-04%20201609.png",
   "moving": [
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=65,44,116,145",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=177,44,120,145",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=292,42,120,146",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=403,42,120,146",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=514,42,120,146",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=625,44,120,145"
+    "enemys/gory/moving/frame-001.png",
+    "enemys/gory/moving/frame-002.png",
+    "enemys/gory/moving/frame-003.png",
+    "enemys/gory/moving/frame-004.png",
+    "enemys/gory/moving/frame-005.png",
+    "enemys/gory/moving/frame-006.png"
   ],
   "attacks": [
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=68,185,117,160",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=180,182,120,162",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=300,191,122,130",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=439,187,139,133",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=598,187,142,133",
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=447,305,149,118"
+    "enemys/gory/attack/frame-001.png",
+    "enemys/gory/attack/frame-002.png",
+    "enemys/gory/attack/frame-003.png",
+    "enemys/gory/attack/frame-004.png",
+    "enemys/gory/attack/frame-005.png",
+    "enemys/gory/attack/frame-006.png"
   ],
-  "attack": "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=68,185,117,160",
+  "attack": "enemys/gory/attack/frame-001.png",
   "attackFrameRate": 7,
   "attackDuration": 0.86,
-  "damaged": "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=65,44,116,145",
   "damagedFrames": [
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=65,44,116,145"
+    "enemys/gory/damaged/frame-001.png"
   ],
   "knockbackFrames": [
-    "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=65,44,116,145"
+    "enemys/gory/damaged/frame-001.png"
   ],
-  "idle": "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=65,44,116,145",
-  "slot": "enemys/Gory/Screenshot 2026-11-04 201609.png#frame=65,44,116,145",
+  "idle": "enemys/gory/idle.png",
+  "damaged": "enemys/gory/damaged/frame-001.png",
+  "slot": "enemys/gory/slot.png",
   "upgrade": null
 }

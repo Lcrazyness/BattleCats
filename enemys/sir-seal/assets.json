@@ -1,30 +1,31 @@
 {
   "name": "Sir Seal",
+  "source": "Cropped from the source sheet stored alongside this asset folder.",
   "sourceUrl": "https://github.com/Lcrazyness/BattleCats/blob/main/enemys/Sir-Seal/Screenshot%202026-11-04%20202024.png",
   "moving": [
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=225,16,177,132",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,143,178,120",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,261,178,120"
+    "enemys/sir-seal/moving/frame-001.png",
+    "enemys/sir-seal/moving/frame-002.png",
+    "enemys/sir-seal/moving/frame-003.png",
+    "enemys/sir-seal/moving/frame-004.png"
   ],
   "attacks": [
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=394,23,180,180",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=575,17,179,193",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=218,142,188,121",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=217,255,190,127",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=565,181,190,185"
+    "enemys/sir-seal/attack/frame-001.png",
+    "enemys/sir-seal/attack/frame-002.png",
+    "enemys/sir-seal/attack/frame-003.png",
+    "enemys/sir-seal/attack/frame-004.png",
+    "enemys/sir-seal/attack/frame-005.png"
   ],
-  "attack": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=394,23,180,180",
+  "attack": "enemys/sir-seal/attack/frame-001.png",
   "attackFrameRate": 5.5,
   "attackDuration": 0.91,
-  "damaged": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
   "damagedFrames": [
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122"
+    "enemys/sir-seal/damaged/frame-001.png"
   ],
   "knockbackFrames": [
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122"
+    "enemys/sir-seal/damaged/frame-001.png"
   ],
-  "idle": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
-  "slot": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
+  "idle": "enemys/sir-seal/idle.png",
+  "damaged": "enemys/sir-seal/damaged/frame-001.png",
+  "slot": "enemys/sir-seal/slot.png",
   "upgrade": null
 }

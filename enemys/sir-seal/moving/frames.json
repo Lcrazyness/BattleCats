@@ -1,8 +1,8 @@
 {
   "frames": [
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=225,16,177,132",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,143,178,120",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,261,178,120"
+    "enemys/sir-seal/moving/frame-001.png",
+    "enemys/sir-seal/moving/frame-002.png",
+    "enemys/sir-seal/moving/frame-003.png",
+    "enemys/sir-seal/moving/frame-004.png"
   ]
 }

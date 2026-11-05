@@ -1,9 +1,9 @@
 {
   "frames": [
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=394,23,180,180",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=575,17,179,193",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=218,142,188,121",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=217,255,190,127",
-    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=565,181,190,185"
+    "enemys/sir-seal/attack/frame-001.png",
+    "enemys/sir-seal/attack/frame-002.png",
+    "enemys/sir-seal/attack/frame-003.png",
+    "enemys/sir-seal/attack/frame-004.png",
+    "enemys/sir-seal/attack/frame-005.png"
   ]
 }
