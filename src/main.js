@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261104-15";
+const BATTLE_ASSET_VERSION = "20261104-16";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -95,7 +95,9 @@ const BATTLE_UNIT_STATS = {
   "those-guys": {health:160,damage:8,speed:5,spriteChangeSpeed:8,range:105,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:false},
   hippoe: {health:800,damage:35,speed:3.7,spriteChangeSpeed:4,range:145,killReward:400,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:2.8,AreaAttack:1},
   pigge: {health:1000,damage:40,speed:4.6,spriteChangeSpeed:4.5,range:140,killReward:400,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:3,AreaAttack:1,traits:["Red"]},
-  "jackie-peng": {health:1000,damage:30,speed:9,spriteChangeSpeed:9,range:145,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false}
+  "jackie-peng": {health:1000,damage:30,speed:9,spriteChangeSpeed:9,range:145,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false},
+  gory: {health:650,damage:24,speed:8,spriteChangeSpeed:7,range:150,killReward:180,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.1,AreaAttack:1,traits:[]},
+  "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -193,13 +195,18 @@ function battleStatsForEntity(entity) {
 }
 function battleDamageAgainstTarget(attacker,target,baseDamage) {
   const attackStats=battleStatsForEntity(attacker);
+  const targetStats=battleStatsForEntity(target);
+  let damage=Math.max(0,Number(baseDamage)||0);
   const trait=String(attackStats.AttackTrait||"");
   const boost=String(attackStats.AttackBoost||"");
-  if(!trait||!boost) return Math.max(0,Number(baseDamage)||0);
-  const targetTraits=battleStatsForEntity(target).traits;
-  if(!Array.isArray(targetTraits)||!targetTraits.includes(trait)) return Math.max(0,Number(baseDamage)||0);
-  const multiplier=boost==="Strong"?1.25:(boost==="Massive Damage"?3:1);
-  return Math.max(0,Math.round((Number(baseDamage)||0)*multiplier));
+  if(trait&&boost&&Array.isArray(targetStats.traits)&&targetStats.traits.includes(trait)) {
+    const multiplier=boost==="Strong"?1.25:(boost==="Massive Damage"?3:1);
+    damage*=multiplier;
+  }
+  const isStrongAgainstRed=targetStats.AttackTrait==="Red"&&targetStats.AttackBoost==="Strong";
+  const incomingTraits=Array.isArray(attackStats.traits)?attackStats.traits:[];
+  if(isStrongAgainstRed&&incomingTraits.includes("Red")) damage*=0.8;
+  return Math.max(0,Math.round(damage));
 }
 
 const EMPIRE_CHAPTER_ONE = [
@@ -458,7 +465,7 @@ const persist = () => {
 };
 const totalCatLevels = () => save.units.reduce((total,unit) =>
   total + Math.max(1,Math.floor(Number(unit.level)||1)),0);
-const AUDIO_VERSION = "20261031-02";
+const AUDIO_VERSION = "20261104-16";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
@@ -478,7 +485,7 @@ const SOUND_FILES = {
   baseAttack: "sounds/baseattack.mp3",
   deadUnit: "sounds/deadunit.mp3",
   deploy: "sounds/deploy.mp3",
-  endOfRecharge: "sounds/endofrecharge.ogg"
+  endOfRecharge: "sounds/endofrecharge.mp3"
 };
 const MUSIC_FILES = {
   intro: "sounds/intro-theme.mp3",
@@ -487,6 +494,7 @@ const MUSIC_FILES = {
   battle: "sounds/battle-theme.mp3"
 };
 const activeSfxPlayers = new Set();
+const preloadedAudioPlayers = new Map();
 let battleStartPlayer = null;
 let audioUnlocked = false;
 let musicPlayer = null;
@@ -504,6 +512,8 @@ const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
   {path:"Levels/Korea/enemybase.png?v=20261031-19",bytes:7294},
+  {path:"enemys/Gory/Screenshot 2026-11-04 201609.png?v=20261104-16",bytes:221492},
+  {path:"enemys/Sir-Seal/Screenshot 2026-11-04 202024.png?v=20261104-16",bytes:224118},
   {path:"sprites/battle/catbase.png?v=20261031-03",bytes:109977},
   {path:"sprites/battle/Deathsoul1.png?v=20261031-03",bytes:11785},
   {path:"sprites/battle/Deathsoul2.png?v=20261031-03",bytes:38607},
@@ -676,9 +686,9 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/baseattack.mp3?v="+AUDIO_VERSION,bytes:23138},
   {path:"sounds/deadunit.mp3?v="+AUDIO_VERSION,bytes:44044},
   {path:"sounds/deploy.mp3?v="+AUDIO_VERSION,bytes:31991},
-  {path:"sounds/endofrecharge.ogg?v="+AUDIO_VERSION,bytes:18549},
+  {path:"sounds/endofrecharge.mp3?v="+AUDIO_VERSION,bytes:18549},
 ];
-const LOADING_TOTAL_BYTES = [...LOADING_IMAGE_ASSETS,...LOADING_AUDIO_ASSETS].reduce((sum,asset)=>sum+asset.bytes,0);
+const LOADING_TOTAL_BYTES = LOADING_IMAGE_ASSETS.reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
 let loadingBytesFinished = 0;
 const preloadedImageCache = new Map();
@@ -785,7 +795,6 @@ async function startGameAssetLoading() {
   let failedAssets = 0;
   const failedAssetPaths = [];
   const imageCount = LOADING_IMAGE_ASSETS.length;
-  const audioCount = LOADING_AUDIO_ASSETS.length;
 
   let completedImages=0;
   const imageBatchSize=8;
@@ -806,22 +815,9 @@ async function startGameAssetLoading() {
     }));
   }
 
-  for (let i=0; i<audioCount; i++) {
-    const asset = LOADING_AUDIO_ASSETS[i];
-    const name = asset.path.split("/").pop().split("?")[0];
-    const status = "Loading audio "+(i+1)+"/"+audioCount+" — "+name;
-    updateLoadingProgress(status);
-    const loaded = await loadAudioAssetSequentially(asset,status);
-    if (!loaded) {
-      failedAssets++;
-      failedAssetPaths.push(asset.path);
-    }
-    loadingBytesFinished += asset.bytes;
-    updateLoadingProgress(status);
-  }
-
-  if(failedAssetPaths.length) console.warn("Battle Cats assets that failed to load:",failedAssetPaths);
-  updateLoadingProgress(failedAssets ? "Ready — "+failedAssets+" asset(s) could not be loaded." : "Everything loaded. Starting story...");
+  preloadGameAudioAssets();
+  if(failedAssetPaths.length) console.warn("Battle Cats image assets that failed to load:",failedAssetPaths);
+  updateLoadingProgress(failedAssets ? "Images ready — "+failedAssets+" image(s) could not be loaded. Audio is loading separately." : "Images ready. Audio is loading in the background.");
   setTimeout(() => {
     if (scene !== "loading") return;
     const loadingScreen = stage.querySelector(".loading-screen");
@@ -909,6 +905,24 @@ function createAudioPlayer(path) {
   return player;
 }
 
+function preloadGameAudioAssets() {
+  if(typeof Audio==="undefined"||preloadedAudioPlayers.size) return;
+  const allAudio={...SOUND_FILES,...MUSIC_FILES};
+  for(const [key,path] of Object.entries(allAudio)) {
+    try {
+      const player=createAudioPlayer(path);
+      player.preload="auto";
+      player.volume=0;
+      player.load();
+      player.addEventListener("error",()=>{
+        console.warn("Battle Cats audio preload skipped:",key,player.currentSrc);
+      },{once:true});
+      preloadedAudioPlayers.set(key,player);
+    } catch(error) {
+      console.warn("Battle Cats audio preload could not start:",key,error);
+    }
+  }
+}
 function playSfx(key) {
   if (!save.sound || !SOUND_FILES[key] || typeof Audio === "undefined") return;
   let player;
@@ -928,15 +942,13 @@ function playSfx(key) {
     player.addEventListener("ended", cleanup, {once:true});
     player.onAudioFailure = () => {
       cleanup();
-      console.error("Battle Cats sound asset failed in both formats:", key, player.currentSrc, player.error);
-      notify("Couldn't load sound: " + key);
+      console.warn("Battle Cats sound asset unavailable; continuing without it:",key,player.currentSrc,player.error);
     };
     const promise = player.playCompat();
     if (promise && typeof promise.catch === "function") {
       promise.catch(error => {
         cleanup();
-        console.error("Battle Cats sound failed to play:", key, player.currentSrc, error);
-        notify("Couldn't play sound: " + key);
+        console.warn("Battle Cats sound could not play; continuing:",key,player.currentSrc,error);
       });
     }
   } catch (error) {
@@ -1006,8 +1018,7 @@ function syncMusicForScene(targetScene = scene) {
       const resumePromise = musicPlayer.playCompat();
       if (resumePromise && typeof resumePromise.catch === "function") {
         resumePromise.catch(error => {
-          console.error("Battle Cats music resume failed:", musicPlayer.currentSrc, error);
-          if (error.name === "NotAllowedError") notify("Tap the game to allow music playback.");
+          console.warn("Battle Cats music resume skipped:",musicPlayer.currentSrc,error);
         });
       }
     }
@@ -1018,7 +1029,7 @@ function syncMusicForScene(targetScene = scene) {
     musicPlayer.pauseCompat();
     musicPlayer.currentTime = 0;
   }
-  musicPlayer = createAudioPlayer(MUSIC_FILES[nextKey]);
+  musicPlayer = preloadedAudioPlayers.get(nextKey)||createAudioPlayer(MUSIC_FILES[nextKey]);
   musicPlayer.loop = true;
   musicPlayer.preload = "auto";
   musicPlayer.volume = 0.24;
@@ -1029,7 +1040,7 @@ function syncMusicForScene(targetScene = scene) {
     if (musicPlayer === activePlayer) {
       musicPlayer = null;
       currentMusicKey = "";
-      notify("Couldn't load music: " + nextKey);
+      console.warn("Battle Cats music unavailable; continuing without it:",nextKey);
     }
   };
   const promise = activePlayer.playCompat();
@@ -1039,11 +1050,7 @@ function syncMusicForScene(targetScene = scene) {
       if (musicPlayer === activePlayer) {
         musicPlayer = null;
         currentMusicKey = "";
-        if (error && error.name === "NotAllowedError") {
-          if (targetScene !== "intro") notify("The browser blocked music playback. Check this site's sound permission and device volume.");
-        } else {
-          notify("Couldn't play music: " + nextKey + ". Check the loaded audio file.");
-        }
+        if(error&&error.name!=="NotAllowedError") console.warn("Battle Cats music playback skipped:",nextKey,error);
       }
     });
   }
@@ -1257,7 +1264,9 @@ const EOC1_MAX_ENEMIES = {
   Maldives:5,
   Dubai:12,
   "Saudi Arabia":3,
-  Kenya:4
+  Kenya:4,
+  Madagascar:6,
+  Greece:5
 };
 function defaultBattleLevelConfig(levelName="Korea") {
   const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
@@ -1328,6 +1337,26 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("pigge",1,60,60,60,1),
       timedEnemySpawn("hippoe",1,80,80,80,1)
     ];
+  }
+  if(levelName==="Madagascar") {
+    enemySpawns=[
+      timedEnemySpawn("those-guys","infinite",0,1,10,3),
+      timedEnemySpawn("doge","infinite",0,10,20,2),
+      baseTriggeredEnemySpawn("those-guys",8,85,0.7,2,4,1,true,55),
+      baseTriggeredEnemySpawn("gory",1,85,1,1,1,1,true,70),
+      baseTriggeredEnemySpawn("gory",1,60,2,3,1,1,true,140)
+    ];
+  } else if(stageIndex>15&&levelName!=="Greece") {
+    enemySpawns.push(timedEnemySpawn("gory",1,115,75,100,1,0.55));
+  }
+  if(levelName==="Greece") {
+    enemySpawns=[
+      timedEnemySpawn("those-guys","infinite",0,1,4,4),
+      timedEnemySpawn("pigge",1,10,10,10,1),
+      baseTriggeredEnemySpawn("sir-seal",1,93,1,1,1,1,true,80)
+    ];
+  } else if(stageIndex>22) {
+    enemySpawns.push(timedEnemySpawn("sir-seal",1,140,85,110,1,0.4));
   }
   return {
     name:levelName,
@@ -1680,7 +1709,7 @@ function battleEntityMarkup(entity) {
   const source=battleImageFor(entity);
   const unitType=entity.kind==="cat" ? battleUnitKey(entity.name||"cat") : battleUnitKey(entity.enemyType||"doge");
   return '<div class="fight-unit '+(entity.kind==="cat"?"fight-unit-cat":"fight-unit-doge")+'" data-unit-type="'+unitType+'" data-battle-entity="'+entity.key+'" style="left:'+entity.x+'%">'+
-    '<img class="fight-unit-sprite" '+(source?'src="'+source+'"':'')+' alt="'+(entity.kind==="cat"?"Cat":"Doge")+'" draggable="false">'+
+    '<img class="fight-unit-sprite" crossorigin="anonymous" '+(source?'src="'+source+'"':'')+' alt="'+(entity.kind==="cat"?"Cat":"Enemy")+'" draggable="false">'+
   '</div>';
 }
 function battleDeathSoulMarkup(soul) {
@@ -1843,7 +1872,43 @@ function normalizeEnemyBattleSprite(image,source,element=null) {
     const scanContext=scan.getContext("2d",{willReadFrequently:true});
     if(!scanContext) return "";
     scanContext.drawImage(image,sx,sy,sw,sh,0,0,sw,sh);
-    const pixels=scanContext.getImageData(0,0,sw,sh).data;
+    const imageData=scanContext.getImageData(0,0,sw,sh);
+    const pixels=imageData.data;
+    const cornerIndexes=[0,(sw-1)*4,((sh-1)*sw)*4,((sh*sw)-1)*4];
+    let bgR=0,bgG=0,bgB=0;
+    for(const p of cornerIndexes){bgR+=pixels[p];bgG+=pixels[p+1];bgB+=pixels[p+2];}
+    bgR/=cornerIndexes.length;bgG/=cornerIndexes.length;bgB/=cornerIndexes.length;
+
+    const pixelCount=sw*sh;
+    const visited=new Uint8Array(pixelCount);
+    const queue=new Int32Array(pixelCount);
+    let readAt=0,writeAt=0;
+    const isSheetBackground=index=>{
+      const p=index*4;
+      if(pixels[p+3]<=12) return false;
+      const r=pixels[p],g=pixels[p+1],b=pixels[p+2];
+      const difference=Math.max(Math.abs(r-bgR),Math.abs(g-bgG),Math.abs(b-bgB));
+      const chroma=Math.max(r,g,b)-Math.min(r,g,b);
+      return difference<=38&&chroma<=48;
+    };
+    const pushBackground=index=>{
+      if(index<0||index>=pixelCount||visited[index]||!isSheetBackground(index)) return;
+      visited[index]=1;
+      pixels[index*4+3]=0;
+      queue[writeAt++]=index;
+    };
+    for(let x=0;x<sw;x++){pushBackground(x);pushBackground((sh-1)*sw+x);}
+    for(let y=0;y<sh;y++){pushBackground(y*sw);pushBackground(y*sw+sw-1);}
+    while(readAt<writeAt){
+      const index=queue[readAt++];
+      const x=index%sw;
+      if(x>0) pushBackground(index-1);
+      if(x<sw-1) pushBackground(index+1);
+      if(index>=sw) pushBackground(index-sw);
+      if(index<pixelCount-sw) pushBackground(index+sw);
+    }
+    scanContext.putImageData(imageData,0,0);
+
     let minX=sw,minY=sh,maxX=-1,maxY=-1;
     for(let y=0;y<sh;y++){
       for(let x=0;x<sw;x++){
@@ -1973,17 +2038,13 @@ function updateBattleEntityView(entity) {
         try {
           externalFrame=new URL(source,APP_BASE_URL).origin!==new URL(APP_BASE_URL).origin;
         } catch {}
-        if(externalFrame&&applyCssEnemySpriteFrame(element,sprite,source)){
-          sprite.dataset.normalizedSource=source;
-          return;
-        }
         const normalized=normalizeEnemyBattleSprite(sprite,source,element);
         if(normalized){
           sprite.dataset.normalizedSource=source;
           sprite.src=normalized;
           return;
         }
-        if(applyCssEnemySpriteFrame(element,sprite,source)){
+        if(externalFrame&&applyCssEnemySpriteFrame(element,sprite,source)){
           sprite.dataset.normalizedSource=source;
           return;
         }
@@ -2443,15 +2504,43 @@ function attackBattleBase(attacker,now) {
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
   return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
 }
+function enforceBattleContactSeparation() {
+  if(!battleState) return;
+  const cats=battleState.playerUnits||[];
+  const enemies=battleState.enemies||[];
+  for(const cat of cats) {
+    if(!cat||Number(cat.hp)<=0||cat.mode==="dead") continue;
+    for(const enemy of enemies) {
+      if(!enemy||Number(enemy.hp)<=0||enemy.mode==="dead") continue;
+      const requiredGap=battleEntityContactGapPercent(cat,enemy)+0.45;
+      const currentGap=Number(cat.x)-Number(enemy.x);
+      if(currentGap>=requiredGap) continue;
+      let overlap=requiredGap-currentGap;
+      const catRoom=Math.max(0,battleBaseCenterPercent("cat")-Number(cat.x));
+      const enemyRoom=Math.max(0,Number(enemy.x)-battleBaseCenterPercent("enemy"));
+      const catPush=Math.min(catRoom,overlap*0.5);
+      cat.x+=catPush;
+      overlap-=catPush;
+      const enemyPush=Math.min(enemyRoom,overlap);
+      enemy.x-=enemyPush;
+      overlap-=enemyPush;
+      if(overlap>0) cat.x=Math.min(battleBaseCenterPercent("cat"),cat.x+overlap);
+      if(cat.mode==="moving") cat.mode="idle";
+      if(enemy.mode==="moving") enemy.mode="idle";
+      updateBattleEntityView(cat);
+      updateBattleEntityView(enemy);
+    }
+  }
+}
 function tickBattle() {
   if (scene!=="fight" || !battleState) return;
   const state=battleState;
   refreshBattleLayoutMetrics();
   const tickAt=performance.now();
   const previousTickAt=Number(state.lastTickAt)||tickAt;
-  const realDt=Math.max(0.001,Math.min(0.2,(tickAt-previousTickAt)/1000));
+  const realDt=Math.max(0.001,Math.min(0.12,(tickAt-previousTickAt)/1000));
   const speedMultiplier=Number(state.speedMultiplier)===2?2:1;
-  const dt=realDt*speedMultiplier;
+  const dt=Math.min(0.12,realDt*speedMultiplier);
   state.lastTickAt=tickAt;
   state.elapsed+=dt;
   advanceBattleKnockback(dt);
@@ -2607,6 +2696,7 @@ function tickBattle() {
   }
 
 
+  enforceBattleContactSeparation();
   state.playerUnits=state.playerUnits.filter(cat=>cat.hp>0 || cat.mode==="dead" || cat.mode==="knockback");
   state.enemies=state.enemies.filter(enemy=>enemy.hp>0 || enemy.mode==="dead" || enemy.mode==="knockback");
 

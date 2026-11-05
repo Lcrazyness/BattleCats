@@ -1,0 +1,18 @@
+{
+  "name": "Sir Seal",
+  "health": 1150,
+  "damage": 30,
+  "speed": 5.5,
+  "spriteChangeSpeed": 5.5,
+  "range": 170,
+  "killReward": 220,
+  "knockbackCount": 1,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "attackCooldown": 1.3,
+  "AreaAttack": 1,
+  "traits": [
+    "Red"
+  ]
+}

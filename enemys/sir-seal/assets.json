@@ -1,0 +1,30 @@
+{
+  "name": "Sir Seal",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/blob/main/enemys/Sir-Seal/Screenshot%202026-11-04%20202024.png",
+  "moving": [
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=225,16,177,132",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,143,178,120",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,261,178,120"
+  ],
+  "attacks": [
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=394,23,180,180",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=575,17,179,193",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=218,142,188,121",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=217,255,190,127",
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=565,181,190,185"
+  ],
+  "attack": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=394,23,180,180",
+  "attackFrameRate": 5.5,
+  "attackDuration": 0.91,
+  "damaged": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
+  "damagedFrames": [
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122"
+  ],
+  "knockbackFrames": [
+    "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122"
+  ],
+  "idle": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
+  "slot": "enemys/Sir-Seal/Screenshot 2026-11-04 202024.png#frame=48,22,178,122",
+  "upgrade": null
+}
