@@ -26,7 +26,7 @@ ENEMIES = {
         ],
         "hurt": (80, 411, 158, 485),
         "stats": {
-            "name": "B.B.Bunny", "health": 500, "damage": 50, "speed": 22,
+            "name": "B.B.Bunny", "health": 500, "damage": 50, "speed": 12,
             "range": 110, "spriteChangeSpeed": 8, "walkSpriteChangeSpeed": 6,
             "killReward": 45, "knockbackCount": 3, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
@@ -48,7 +48,7 @@ ENEMIES = {
         # This sheet has no separate, clearly isolated hurt drawing; use its clean resting pose.
         "hurt": (8, 18, 151, 220),
         "stats": {
-            "name": "Kang Roo", "health": 4000, "damage": 250, "speed": 20,
+            "name": "Kang Roo", "health": 4000, "damage": 250, "speed": 11,
             "range": 160, "spriteChangeSpeed": 8, "walkSpriteChangeSpeed": 6,
             "killReward": 180, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
@@ -68,7 +68,7 @@ ENEMIES = {
         # The flattened crouch at the lower-right is the only distinct reaction pose.
         "hurt": (390, 108, 528, 235),
         "stats": {
-            "name": "Squire Rel", "health": 80, "damage": 30, "speed": 30,
+            "name": "Squire Rel", "health": 80, "damage": 30, "speed": 13,
             "range": 110, "spriteChangeSpeed": 10, "walkSpriteChangeSpeed": 8,
             "killReward": 15, "knockbackCount": 3, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.48, "knockbackDistance": 5,
@@ -87,7 +87,7 @@ ENEMIES = {
         "attack": [(546, 12, 788, 224)],
         "hurt": (157, 244, 334, 400),
         "stats": {
-            "name": "Mooth", "health": 5000, "damage": 350, "speed": 20,
+            "name": "Mooth", "health": 5000, "damage": 350, "speed": 10,
             "range": 340, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 5,
             "killReward": 250, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.72, "knockbackDistance": 4.5,
