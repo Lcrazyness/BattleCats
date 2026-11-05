@@ -2,7 +2,7 @@
   "name": "Mooth",
   "health": 5000,
   "damage": 350,
-  "speed": 20,
+  "speed": 10,
   "range": 340,
   "spriteChangeSpeed": 7,
   "walkSpriteChangeSpeed": 5,
