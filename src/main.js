@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-13";
+const BATTLE_ASSET_VERSION = "20261105-14";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -1968,7 +1968,7 @@ function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
   const mode=String(entity&&entity.mode||"idle");
   if(mode==="dead"||mode==="knockback") return mode;
   const attackEnd=Number(entity.attackEndsAt)||0;
-  if(mode==="attack"&&attackEnd>elapsed+0.0001) return "attack";
+  if(attackEnd>elapsed+0.0001) return "attack";
   const hurtEnd=Number(entity.hitUntil)||0;
   if(mode==="damaged"&&hurtEnd>elapsed+0.0001) return "damaged";
   return mode==="moving"?"moving":"idle";
@@ -2893,7 +2893,11 @@ function tickBattle() {
 
     const target=findBattleTargetFor(cat);
 
-    if(target&&target.mode==="knockback") {
+    if(attackActive) {
+      // Keep the full swing active even if its target gets knocked back or dies.
+      // The hit is already locked; never replace the attack pose with idle early.
+      cat.mode="attack";
+    } else if(target&&target.mode==="knockback") {
       // A knocked-back enemy still blocks its square, but should not freeze
       // cats that are still approaching it. Let each cat walk up to the
       // player-side edge and wait there until the blocker recovers.
@@ -2905,8 +2909,6 @@ function tickBattle() {
       } else {
         cat.mode="idle";
       }
-    } else if(attackActive) {
-      cat.mode="attack";
     } else if(target) {
       const distance=Math.abs(battleTargetGap(cat,target));
       const reach=battleCombatReachPercent(cat.range,cat,target);
