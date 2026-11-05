@@ -1,0 +1,30 @@
+{
+  "name": "Croco",
+  "source": "User-provided Battle Cats sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Croco",
+  "moving": [
+    "enemys/Croco/moving/frame-001.png",
+    "enemys/Croco/moving/frame-002.png",
+    "enemys/Croco/moving/frame-003.png",
+    "enemys/Croco/moving/frame-004.png",
+    "enemys/Croco/moving/frame-005.png"
+  ],
+  "attacks": [
+    "enemys/Croco/attack/frame-001.png",
+    "enemys/Croco/attack/frame-002.png",
+    "enemys/Croco/attack/frame-003.png",
+    "enemys/Croco/attack/frame-004.png"
+  ],
+  "attack": "enemys/Croco/attack/frame-001.png",
+  "attackFrameRate": 8,
+  "damagedFrames": [
+    "enemys/Croco/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Croco/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Croco/idle.png",
+  "damaged": "enemys/Croco/damaged/frame-001.png",
+  "slot": "enemys/Croco/slot.png",
+  "upgrade": null
+}

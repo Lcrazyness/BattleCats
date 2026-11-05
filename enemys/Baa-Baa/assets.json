@@ -1,0 +1,31 @@
+{
+  "name": "Baa Baa",
+  "source": "User-provided Battle Cats sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Baa-Baa",
+  "moving": [
+    "enemys/Baa-Baa/moving/frame-001.png",
+    "enemys/Baa-Baa/moving/frame-002.png",
+    "enemys/Baa-Baa/moving/frame-003.png"
+  ],
+  "attacks": [
+    "enemys/Baa-Baa/attack/frame-001.png",
+    "enemys/Baa-Baa/attack/frame-002.png",
+    "enemys/Baa-Baa/attack/frame-003.png",
+    "enemys/Baa-Baa/attack/frame-004.png",
+    "enemys/Baa-Baa/attack/frame-005.png",
+    "enemys/Baa-Baa/attack/frame-006.png",
+    "enemys/Baa-Baa/attack/frame-007.png"
+  ],
+  "attack": "enemys/Baa-Baa/attack/frame-001.png",
+  "attackFrameRate": 7,
+  "damagedFrames": [
+    "enemys/Baa-Baa/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Baa-Baa/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Baa-Baa/idle.png",
+  "damaged": "enemys/Baa-Baa/damaged/frame-001.png",
+  "slot": "enemys/Baa-Baa/slot.png",
+  "upgrade": null
+}

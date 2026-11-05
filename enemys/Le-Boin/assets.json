@@ -1,0 +1,28 @@
+{
+  "name": "Le'boin",
+  "source": "User-provided Battle Cats sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Le-Boin",
+  "moving": [
+    "enemys/Le-Boin/moving/frame-001.png",
+    "enemys/Le-Boin/moving/frame-002.png",
+    "enemys/Le-Boin/moving/frame-003.png"
+  ],
+  "attacks": [
+    "enemys/Le-Boin/attack/frame-001.png",
+    "enemys/Le-Boin/attack/frame-002.png",
+    "enemys/Le-Boin/attack/frame-003.png",
+    "enemys/Le-Boin/attack/frame-004.png"
+  ],
+  "attack": "enemys/Le-Boin/attack/frame-001.png",
+  "attackFrameRate": 5,
+  "damagedFrames": [
+    "enemys/Le-Boin/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Le-Boin/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Le-Boin/idle.png",
+  "damaged": "enemys/Le-Boin/damaged/frame-001.png",
+  "slot": "enemys/Le-Boin/slot.png",
+  "upgrade": null
+}

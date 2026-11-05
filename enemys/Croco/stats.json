@@ -1,0 +1,17 @@
+{
+  "name": "Croco",
+  "health": 60,
+  "damage": 6,
+  "speed": 8.5,
+  "range": 110,
+  "spriteChangeSpeed": 10,
+  "walkSpriteChangeSpeed": 4.5,
+  "killReward": 20,
+  "knockbackCount": 1,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "attackCooldown": 0.6,
+  "AreaAttack": 0,
+  "traits": []
+}
