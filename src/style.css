@@ -3160,7 +3160,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   object-position:center bottom !important;
   transform-origin:center bottom !important;
 }
-.fight-screen .fight-unit[data-unit-type="baa-baa"] .fight-unit-sprite { scale:.92 !important; }
+.fight-screen .fight-unit[data-unit-type="baa-baa"] .fight-unit-sprite { scale:1.0 !important; }
 .fight-screen .fight-unit[data-unit-type="croco"] .fight-unit-sprite { scale:1.02 !important; }
 .fight-screen .fight-unit[data-unit-type="le-boin"] .fight-unit-sprite {
   scale:1.48 !important;
