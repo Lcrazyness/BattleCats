@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-20";
+const BATTLE_ASSET_VERSION = "20261105-21";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -1288,7 +1288,7 @@ const EOC1_ENEMY_STAGES = {
   "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
   croco: [26,27,28,29,30,31,33,34,35,36,38,41,43],
   "le-boin": [29,31,36,40,42,45,47],
-  "b-b-bunny": [33,35,36,37,43,46],
+  "b-b-bunny": [32,35,36,37,43,46],
   "kang-roo": [35,37,40,42,45,47,48],
   "squire-rel": [38,39,40,41,42,44,46],
   mooth: [38,45,46],
