@@ -82,20 +82,35 @@
     {
       "enemy": "squire-rel",
       "amount": "infinite",
-      "startTime": 30,
-      "intervalMin": 20,
-      "intervalMax": 35,
+      "startTime": 80,
+      "intervalMin": 6,
+      "intervalMax": 14,
       "maxAlive": 3,
       "spawnChance": 1
     },
     {
       "enemy": "kang-roo",
-      "amount": "infinite",
-      "startTime": 110,
-      "intervalMin": 110,
-      "intervalMax": 140,
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
       "maxAlive": 1,
-      "spawnChance": 1
+      "spawnChance": 1,
+      "baseHealthPercent": 80,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "kang-roo",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "baseHealthPercent": 60,
+      "priority": true,
+      "fallbackAfterSeconds": null
     }
   ]
 }

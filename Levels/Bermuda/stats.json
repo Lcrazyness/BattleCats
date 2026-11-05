@@ -46,10 +46,10 @@
     {
       "enemy": "b-b-bunny",
       "amount": "infinite",
-      "startTime": 45,
-      "intervalMin": 30,
-      "intervalMax": 45,
-      "maxAlive": 2,
+      "startTime": 100,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 3,
       "spawnChance": 1
     },
     {
@@ -60,7 +60,7 @@
       "intervalMax": 1,
       "maxAlive": 1,
       "spawnChance": 1,
-      "baseHealthPercent": 90,
+      "baseHealthPercent": 99,
       "priority": true,
       "fallbackAfterSeconds": null
     }
