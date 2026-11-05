@@ -280,7 +280,7 @@ def write_enemy(folder_name: str, config: dict) -> None:
             frame.save(path, format="PNG", optimize=True)
             paths.append(path.relative_to(ROOT).as_posix())
         (output / "frames.json").write_text(
-            json.dumps({"frames": paths}, indent=2) + "\\n", encoding="utf-8"
+            json.dumps({"frames": paths}, indent=2) + "\n", encoding="utf-8"
         )
         return paths
 
@@ -306,8 +306,8 @@ def write_enemy(folder_name: str, config: dict) -> None:
         "upgrade": None,
         "traits": config["stats"]["traits"]
     }
-    (folder / "assets.json").write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
-    (folder / "stats.json").write_text(json.dumps(config["stats"], indent=2) + "\\n", encoding="utf-8")
+    (folder / "assets.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (folder / "stats.json").write_text(json.dumps(config["stats"], indent=2) + "\n", encoding="utf-8")
 
 
 def main() -> None:
