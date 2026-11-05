@@ -64,20 +64,53 @@
     {
       "enemy": "b-b-bunny",
       "amount": "infinite",
-      "startTime": 60,
-      "intervalMin": 35,
-      "intervalMax": 50,
+      "startTime": 20,
+      "intervalMin": 3,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "one-horn",
+      "amount": 1,
+      "startTime": 20,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "b-b-bunny",
+      "amount": "infinite",
+      "startTime": 90,
+      "intervalMin": 30,
+      "intervalMax": 60,
       "maxAlive": 2,
       "spawnChance": 1
     },
     {
       "enemy": "one-horn",
-      "amount": "infinite",
-      "startTime": 120,
-      "intervalMin": 120,
-      "intervalMax": 160,
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
       "maxAlive": 1,
-      "spawnChance": 1
+      "spawnChance": 1,
+      "baseHealthPercent": 80,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "one-horn",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "baseHealthPercent": 60,
+      "priority": true,
+      "fallbackAfterSeconds": null
     }
   ]
 }

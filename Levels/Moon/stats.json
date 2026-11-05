@@ -20,8 +20,8 @@
       "enemy": "kang-roo",
       "amount": "infinite",
       "startTime": 120,
-      "intervalMin": 120,
-      "intervalMax": 180,
+      "intervalMin": 30,
+      "intervalMax": 50,
       "maxAlive": 1,
       "spawnChance": 1
     },
@@ -32,10 +32,7 @@
       "intervalMin": 1,
       "intervalMax": 1,
       "maxAlive": 1,
-      "spawnChance": 1,
-      "baseHealthPercent": 90,
-      "priority": true,
-      "fallbackAfterSeconds": null
+      "spawnChance": 1
     }
   ]
 }

@@ -17,40 +17,70 @@
       "spawnChance": 1
     },
     {
-      "enemy": "b-b-bunny",
-      "amount": "infinite",
-      "startTime": 100,
-      "intervalMin": 45,
-      "intervalMax": 60,
-      "maxAlive": 2,
-      "spawnChance": 1
-    },
-    {
       "enemy": "squire-rel",
-      "amount": "infinite",
-      "startTime": 30,
-      "intervalMin": 20,
-      "intervalMax": 35,
-      "maxAlive": 3,
-      "spawnChance": 1
-    },
-    {
-      "enemy": "mooth",
-      "amount": "infinite",
-      "startTime": 140,
-      "intervalMin": 120,
-      "intervalMax": 160,
-      "maxAlive": 1,
+      "amount": 20,
+      "startTime": 0,
+      "intervalMin": 0.7,
+      "intervalMax": 1,
+      "maxAlive": 10,
       "spawnChance": 1
     },
     {
       "enemy": "teacher-bear",
-      "amount": "infinite",
-      "startTime": 160,
-      "intervalMin": 140,
-      "intervalMax": 180,
-      "maxAlive": 1,
+      "amount": 2,
+      "startTime": 100,
+      "intervalMin": 100,
+      "intervalMax": 133.3,
+      "maxAlive": 2,
       "spawnChance": 1
+    },
+    {
+      "enemy": "teacher-bear",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "baseHealthPercent": 99,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "squire-rel",
+      "amount": "infinite",
+      "baseHealthPercent": 99,
+      "startTime": 0,
+      "intervalMin": 3.3,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "b-b-bunny",
+      "amount": "infinite",
+      "baseHealthPercent": 99,
+      "startTime": 0,
+      "intervalMin": 20,
+      "intervalMax": 40,
+      "maxAlive": 2,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "mooth",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "baseHealthPercent": 90,
+      "priority": true,
+      "fallbackAfterSeconds": null
     }
   ]
 }
