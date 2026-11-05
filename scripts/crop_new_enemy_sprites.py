@@ -21,7 +21,7 @@ ENEMIES = {
         "hurt": (58, 366, 151, 444),
         "attack_rate": 7,
         "stats": {
-            "name": "Baa Baa", "health": 40, "damage": 10, "speed": 5.5,
+            "name": "Baa Baa", "health": 400, "damage": 20, "speed": 5.5,
             "range": 110, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 3.8,
             "killReward": 40, "knockbackCount": 3, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
