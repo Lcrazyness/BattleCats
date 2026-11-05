@@ -84,7 +84,7 @@ ENEMIES = {
             (344, 12, 482, 161), (0, 213, 163, 395),
             (344, 245, 540, 390)
         ],
-        "attack": [(632, 86, 786, 229)],
+        "attack": [(546, 12, 788, 224)],
         "hurt": (157, 244, 334, 400),
         "stats": {
             "name": "Mooth", "health": 5000, "damage": 350, "speed": 20,
@@ -107,8 +107,9 @@ ENEMIES = {
         ],
         # One Horn uses a short repeated ram animation in-game; these poses are
         # the forward-leaning frames visible in the supplied sheet.
-        "attack": [(340, 12, 497, 154), (500, 12, 666, 155)],
-        "hurt": (177, 285, 338, 431),
+        "attack": [(614, 275, 768, 432)],
+        "attack_local_bg_indices": [0],
+        "hurt": (339, 285, 500, 431),
         "stats": {
             "name": "One Horn", "health": 15000, "damage": 500, "speed": 3,
             "range": 40, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 3,
@@ -209,11 +210,13 @@ def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.I
     return image
 
 
-def crop_pose(sheet: Image.Image, box, rotate=0) -> Image.Image:
+def crop_pose(sheet: Image.Image, box, rotate=0, local_background=False) -> Image.Image:
     left, top, right, bottom = box
     if not (0 <= left < right <= sheet.width and 0 <= top < bottom <= sheet.height):
         raise ValueError(f"Crop {box} is outside sheet {sheet.size}")
     pose = sheet.crop(box).convert("RGBA")
+    if local_background:
+        pose = remove_border_background(pose, tolerance=64)
     bbox = pose.getchannel("A").point(lambda value: 255 if value > 10 else 0).getbbox()
     if not bbox:
         raise ValueError(f"Empty sprite crop {box}")
@@ -250,9 +253,10 @@ def write_enemy(folder_name: str, config: dict) -> None:
     idle = crop_pose(clean, config["idle"])
     moving = [crop_pose(clean, box) for box in config["moving"]]
     attacks = []
+    local_background_indices = set(config.get("attack_local_bg_indices", []))
     for index, box in enumerate(config["attack"]):
         rotate = config.get("attack_rotate_last", 0) if index == len(config["attack"]) - 1 else 0
-        attacks.append(crop_pose(clean, box, rotate))
+        attacks.append(crop_pose(clean, box, rotate, index in local_background_indices))
     hurt = crop_pose(clean, config["hurt"])
 
     # One common art scale across movement, idle, attack and hurt keeps animation poses stable.

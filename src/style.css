@@ -3188,11 +3188,11 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 /* New Empire of Cats enemies: stable sizes and proper floating height. */
 .fight-screen .fight-unit[data-unit-type="b-b-bunny"] .fight-unit-sprite { scale:.94 !important; }
-.fight-screen .fight-unit[data-unit-type="kang-roo"] .fight-unit-sprite { scale:1.12 !important; }
+.fight-screen .fight-unit[data-unit-type="kang-roo"] .fight-unit-sprite { scale:1.35 !important; }
 .fight-screen .fight-unit[data-unit-type="squire-rel"] .fight-unit-sprite { scale:.82 !important; }
-.fight-screen .fight-unit[data-unit-type="mooth"] .fight-unit-sprite { scale:1.18 !important; }
+.fight-screen .fight-unit[data-unit-type="mooth"] .fight-unit-sprite { scale:1.25 !important; }
 .fight-screen .fight-unit[data-unit-type="one-horn"] .fight-unit-sprite { scale:1.24 !important; }
-.fight-screen .fight-unit[data-unit-type="teacher-bear"] .fight-unit-sprite { scale:1.30 !important; }
+.fight-screen .fight-unit[data-unit-type="teacher-bear"] .fight-unit-sprite { scale:1.45 !important; }
 .fight-screen .fight-unit[data-unit-type="the-face"] .fight-unit-sprite { scale:1.75 !important; }
 .fight-screen .fight-unit[data-unit-type="mooth"] { bottom:clamp(22px,4.5vh,54px) !important; }
 .fight-screen .fight-unit[data-unit-type="the-face"] { bottom:clamp(38px,7vh,82px) !important; }
