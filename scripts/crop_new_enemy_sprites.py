@@ -170,14 +170,20 @@ def crop_sheet_enemy(folder_name, config):
 def crop_le_boin():
     folder = ROOT / "enemys/Le-Boin"
     parts = sorted(folder.glob("reference-atlas.b64.part*"))
-    if len(parts) != 6:
-        raise ValueError(f"Le-Boin atlas must have exactly 6 base64 parts; found {len(parts)}")
-    encoded = "".join(p.read_text(encoding="ascii").strip() for p in parts)
     atlas_path = folder / "reference-atlas.png"
-    atlas_path.write_bytes(base64.b64decode(encoded, validate=True))
+    if parts:
+        if len(parts) != 6:
+            raise ValueError(f"Le-Boin atlas must have exactly 6 base64 parts; found {len(parts)}")
+        encoded = "".join(p.read_text(encoding="ascii").strip() for p in parts)
+        atlas_path.write_bytes(base64.b64decode(encoded, validate=True))
+    elif not atlas_path.is_file():
+        raise FileNotFoundError("Le-Boin reference-atlas.png is missing")
     atlas = Image.open(atlas_path).convert("RGBA")
     if atlas.size != (512, 256):
         raise ValueError(f"Le-Boin atlas must be 512x256; got {atlas.size}")
+    # The PNG is now the retained source reference; remove temporary text chunks.
+    for part in parts:
+        part.unlink()
 
     # The atlas contains separate head, torso, and leg poses. Layer them into
     # a complete elephant silhouette with the head in front of the shoulder.
