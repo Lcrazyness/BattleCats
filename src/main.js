@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-04";
+const BATTLE_ASSET_VERSION = "20261105-05";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -97,7 +97,10 @@ const BATTLE_UNIT_STATS = {
   pigge: {health:1000,damage:40,speed:4.6,spriteChangeSpeed:4.5,range:140,killReward:400,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:3,AreaAttack:1,traits:["Red"]},
   "jackie-peng": {health:1000,damage:30,speed:9,spriteChangeSpeed:9,range:145,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false},
   gory: {health:650,damage:24,speed:8,spriteChangeSpeed:7,range:150,killReward:180,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.1,AreaAttack:1,traits:[]},
-  "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]}
+  "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
+  "baa-baa": {health:40,damage:10,speed:3.6,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.2,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
+  croco: {health:35,damage:6,speed:8.5,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.5,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.6,AreaAttack:0,traits:[]},
+  "le-boin": {health:2400,damage:125,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:400,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -109,6 +112,9 @@ function battleEnemyFolder(enemyType) {
   const key=battleUnitKey(enemyType);
   if(key==="gory") return "Gory";
   if(key==="sir-seal") return "Sir-Seal";
+  if(key==="baa-baa") return "Baa-Baa";
+  if(key==="croco") return "Croco";
+  if(key==="le-boin") return "Le-Boin";
   return key;
 }
 function battleUnitStats(unitOrKey) {
@@ -1259,6 +1265,18 @@ function timedEnemySpawn(enemy,amount,startTime,intervalMin,intervalMax,maxAlive
 function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,intervalMax=4,maxAlive=6,spawnChance=1,priority=false,fallbackAfterSeconds=null) {
   return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true,fallbackAfterSeconds};
 }
+const EOC1_ENEMY_STAGES = {
+  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,33,34,35,36],
+  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,47,48],
+  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,45,47,48],
+  pigge: [10,12,15,17,18,20,21,23,24,28,30,31,32,33,34,36,37,43,45,46,48],
+  "jackie-peng": [13,17,18,21,22,24,25,28,30,33,34,39,40,42,45,47,48],
+  gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47,48],
+  "baa-baa": [19,20,21,22,25,27,30,31,33,34,36,37],
+  "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47,48],
+  croco: [26,27,28,29,30,31,33,34,35,36,37,38,41,43,48],
+  "le-boin": [29,31,36,40,42,45,47]
+};
 const EOC1_MAX_ENEMIES = {
   Korea:3,
   Mongolia:4,
@@ -1270,21 +1288,33 @@ const EOC1_MAX_ENEMIES = {
   "Saudi Arabia":3,
   Kenya:4,
   Madagascar:6,
-  Greece:5
+  Greece:5,
+  Sahara:10,
+  Egypt:10,
+  Spain:14,
+  Denmark:10,
+  "United Kingdom":10,
+  Jamaica:10,
+  "Machu Picchu":10,
+  Mexico:10,
+  Hollywood:10,
+  Hawaii:10
 };
 function defaultBattleLevelConfig(levelName="Korea") {
   const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
+  const stageNumber=stageIndex+1;
+  const appearsAt=(enemy)=>Array.isArray(EOC1_ENEMY_STAGES[enemy])&&EOC1_ENEMY_STAGES[enemy].includes(stageNumber);
   const enemyBaseHealth=EOC1_ENEMY_BASE_HEALTH[stageIndex]||500;
   let enemySpawns=[];
   if(stageIndex<=0) {
     enemySpawns=[timedEnemySpawn("doge",18,2,5.5,9,3,0.82)];
   } else {
     enemySpawns=[timedEnemySpawn("doge","infinite",0,6.67,13.33,3)];
-    if(stageIndex>=1) enemySpawns.push(timedEnemySpawn("snache","infinite",20,20,53.33,3));
-    if(stageIndex>=3) enemySpawns.push(timedEnemySpawn("those-guys","infinite",40,20,53.33,3));
-    if(stageIndex>=6) enemySpawns.push(timedEnemySpawn("hippoe",3,65,25,40,1));
-    if(stageIndex>=9) enemySpawns.push(timedEnemySpawn("pigge",2,80,35,50,1));
-    if(stageIndex>=12) enemySpawns.push(timedEnemySpawn("jackie-peng",2,100,40,55,1));
+    if(appearsAt("snache")) enemySpawns.push(timedEnemySpawn("snache","infinite",20,20,53.33,3));
+    if(appearsAt("those-guys")) enemySpawns.push(timedEnemySpawn("those-guys","infinite",40,20,53.33,3));
+    if(appearsAt("hippoe")) enemySpawns.push(timedEnemySpawn("hippoe",2,65,30,50,1));
+    if(appearsAt("pigge")) enemySpawns.push(timedEnemySpawn("pigge",2,80,35,55,1));
+    if(appearsAt("jackie-peng")) enemySpawns.push(timedEnemySpawn("jackie-peng",2,100,40,60,1));
   }
   if(levelName==="China") {
     enemySpawns=[
@@ -1351,7 +1381,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       baseTriggeredEnemySpawn("gory",1,85,1,1,1,1,true,70),
       baseTriggeredEnemySpawn("gory",1,60,2,3,1,1,true,140)
     ];
-  } else if(stageIndex>15&&levelName!=="Greece") {
+  } else if(appearsAt("gory")&&levelName!=="Sahara"&&levelName!=="Egypt") {
     enemySpawns.push(timedEnemySpawn("gory",1,115,75,100,1,0.55));
   }
   if(levelName==="Greece") {
@@ -1360,8 +1390,43 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("pigge",1,10,10,10,1),
       baseTriggeredEnemySpawn("sir-seal",1,93,1,1,1,1,true,80)
     ];
-  } else if(stageIndex>22) {
+  } else if(appearsAt("sir-seal")&&levelName==="Spain") {
+    enemySpawns.push(baseTriggeredEnemySpawn("sir-seal",1,90,1,1,1,1,true,120));
+  } else if(appearsAt("sir-seal")) {
     enemySpawns.push(timedEnemySpawn("sir-seal",1,140,85,110,1,0.4));
+  }
+
+  if(appearsAt("baa-baa")) {
+    if(levelName==="Sahara") {
+      enemySpawns.push(timedEnemySpawn("baa-baa","infinite",60,1,10,5));
+      enemySpawns.push(baseTriggeredEnemySpawn("baa-baa",10,60,1,2,10,1,true,180));
+      enemySpawns.push(timedEnemySpawn("gory",1,100,100,100,1));
+      enemySpawns.push(timedEnemySpawn("gory",2,133,133,133,1));
+    } else if(levelName==="Egypt") {
+      enemySpawns.push(timedEnemySpawn("baa-baa","infinite",60,10,20,4));
+      enemySpawns.push(timedEnemySpawn("gory",4,133,133,133,4));
+    } else {
+      enemySpawns.push(timedEnemySpawn("baa-baa","infinite",80,16,30,3));
+    }
+  }
+
+  if(appearsAt("croco")) {
+    if(levelName==="Spain") {
+      enemySpawns.push(timedEnemySpawn("croco","infinite",0,10,22,4));
+    } else if(levelName==="Denmark") {
+      enemySpawns.push(timedEnemySpawn("croco","infinite",40,10,40,4));
+    } else {
+      enemySpawns.push(timedEnemySpawn("croco","infinite",85,20,35,3));
+    }
+  }
+
+  if(appearsAt("le-boin")) {
+    if(levelName==="Denmark") {
+      enemySpawns.push(baseTriggeredEnemySpawn("le-boin",1,90,1,1,1,1,true,180));
+      enemySpawns.push(baseTriggeredEnemySpawn("those-guys",20,90,0.6,1.5,9,1,true,180));
+    } else {
+      enemySpawns.push(timedEnemySpawn("le-boin",1,145,145,145,1));
+    }
   }
   return {
     name:levelName,
@@ -2134,8 +2199,11 @@ function battleEntitySpriteScale(entity) {
   if(!entity) return 0.72;
   if(entity.kind==="doge") {
     const key=battleUnitKey(entity.enemyType||"doge");
-    if(key==="gory") return 1.16;
-    if(key==="sir-seal") return 1.08;
+    if(key==="gory") return 1.32;
+    if(key==="sir-seal") return 1.20;
+    if(key==="le-boin") return 1.48;
+    if(key==="baa-baa") return 0.84;
+    if(key==="croco") return 0.90;
     if(key==="hippoe") return 1.22;
     if(key==="pigge") return 1.12;
     if(key==="jackie-peng") return 1.10;
