@@ -15,19 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - name: Cancel older Pages deployments that block this publish
+      - name: Cancel the stuck deployment blocking the latest publish
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: bash
+          STALE_PAGES_DEPLOYMENT: "216ff1839c71725b3c423fe5e2b9f256df159b9c"
         run: |
-          set -euo pipefail
-          deployment_ids="$(gh api "repos/${GITHUB_REPOSITORY}/pages/deployments?per_page=100" --jq '.[] | select(.status == "in_progress") | select(.sha != env.GITHUB_SHA) | .id')"
-          if [[ -z "${deployment_ids}" ]]; then
-            echo "No stale in-progress Pages deployments found."
-            exit 0
-          fi
-          while IFS= read -r deployment_id; do
-            [[ -z "${deployment_id}" ]] && continue
-            echo "Cancelling stale Pages deployment ${deployment_id}"
-            gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/deployments/${deployment_id}/cancel" --silent
-          done <<< "${deployment_ids}"
+          gh api --method POST \
+            "repos/${GITHUB_REPOSITORY}/pages/deployments/${STALE_PAGES_DEPLOYMENT}/cancel" \
+            --silent
+          echo "Cancelled the stale Pages deployment ${STALE_PAGES_DEPLOYMENT}."
