@@ -2,7 +2,7 @@
   "name": "Kang Roo",
   "health": 4000,
   "damage": 250,
-  "speed": 20,
+  "speed": 11,
   "range": 160,
   "spriteChangeSpeed": 8,
   "walkSpriteChangeSpeed": 6,
