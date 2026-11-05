@@ -4,14 +4,10 @@
   "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Le-Boin",
   "moving": [
     "enemys/Le-Boin/moving/frame-001.png",
-    "enemys/Le-Boin/moving/frame-002.png",
-    "enemys/Le-Boin/moving/frame-003.png"
+    "enemys/Le-Boin/moving/frame-002.png"
   ],
   "attacks": [
-    "enemys/Le-Boin/attack/frame-001.png",
-    "enemys/Le-Boin/attack/frame-002.png",
-    "enemys/Le-Boin/attack/frame-003.png",
-    "enemys/Le-Boin/attack/frame-004.png"
+    "enemys/Le-Boin/attack/frame-001.png"
   ],
   "attack": "enemys/Le-Boin/attack/frame-001.png",
   "attackFrameRate": 5,

@@ -3,7 +3,7 @@
   "health": 3000,
   "damage": 200,
   "speed": 2.8,
-  "range": 400,
+  "range": 160,
   "spriteChangeSpeed": 4,
   "walkSpriteChangeSpeed": 2,
   "killReward": 1000,

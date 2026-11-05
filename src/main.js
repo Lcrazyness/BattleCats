@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-12";
+const BATTLE_ASSET_VERSION = "20261105-13";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -98,7 +98,7 @@ const BATTLE_UNIT_STATS = {
   "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
   "baa-baa": {health:400,damage:20,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
   croco: {health:35,damage:6,speed:14,spriteChangeSpeed:10,walkSpriteChangeSpeed:6,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:0,traits:[]},
-  "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:400,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
+  "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:160,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
