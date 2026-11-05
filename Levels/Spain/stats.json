@@ -11,8 +11,8 @@
       "enemy": "croco",
       "amount": 1,
       "startTime": 0,
-      "intervalMin": 1,
-      "intervalMax": 1,
+      "intervalMin": 5,
+      "intervalMax": 5,
       "maxAlive": 1,
       "spawnChance": 1
     },
