@@ -1342,7 +1342,8 @@ function defaultBattleLevelConfig(levelName="Korea") {
     enemySpawns=[
       timedEnemySpawn("those-guys","infinite",0,1,10,3),
       timedEnemySpawn("doge","infinite",0,10,20,2),
-      baseTriggeredEnemySpawn("those-guys",8,85,0.7,2,4,1,true,55),
+      timedEnemySpawn("those-guys","infinite",0,10,20,3),
+      baseTriggeredEnemySpawn("those-guys",12,85,0.7,2,4,1,true,55),
       baseTriggeredEnemySpawn("gory",1,85,1,1,1,1,true,70),
       baseTriggeredEnemySpawn("gory",1,60,2,3,1,1,true,140)
     ];
