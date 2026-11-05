@@ -1554,6 +1554,12 @@ function defaultBattleLevelConfig(levelName="Korea") {
       baseTriggeredEnemySpawn("those-guys",20,90,0.25,0.25,10,1,true),
       baseTriggeredEnemySpawn("those-guys","infinite",90,0.25,1,9,1,true)
     ];
+  } else if(levelName==="Greenland") {
+    enemySpawns=[
+      timedEnemySpawn("those-guys","infinite",0,3.3,13.3,3),
+      timedEnemySpawn("pigge",1,0,1,1,1),
+      timedEnemySpawn("sir-seal","infinite",60,20,40,1)
+    ];
   } else if(levelName==="Canada") {
     enemySpawns=[
       timedEnemySpawn("snache","infinite",10,5,6.67,3),
@@ -1681,6 +1687,25 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("sir-seal","infinite",86.7,66.7,100,1),
       timedEnemySpawn("le-boin","infinite",100,100,100,1)
     ];
+  } else if(levelName==="NASA") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3,20,3),
+      timedEnemySpawn("snache","infinite",0,3,20,3),
+      timedEnemySpawn("croco","infinite",20,3,20,3),
+      timedEnemySpawn("pigge","infinite",30,30,60,1),
+      timedEnemySpawn("those-guys","infinite",40,3,20,3),
+      timedEnemySpawn("sir-seal","infinite",60,30,60,1)
+    ];
+  } else if(levelName==="Las Vegas") {
+    enemySpawns=[
+      timedEnemySpawn("doge","infinite",0,3,14,3),
+      timedEnemySpawn("snache","infinite",0,3,14,3),
+      timedEnemySpawn("those-guys","infinite",40,6,14,3)
+    ];
+  } else if(levelName==="Alaska") {
+    enemySpawns=[
+      timedEnemySpawn("pigge","infinite",99,40,60,1)
+    ];
   } else if(levelName==="Hollywood") {
     enemySpawns=[
       timedEnemySpawn("gory","infinite",60,13.3,30,1),
@@ -1689,6 +1714,9 @@ function defaultBattleLevelConfig(levelName="Korea") {
     ];
   } else if(levelName==="Hawaii") {
     enemySpawns=[
+      timedEnemySpawn("those-guys","infinite",0,0,0.1,1),
+      timedEnemySpawn("hippoe","infinite",0,1,2,1),
+      timedEnemySpawn("jackie-peng","infinite",0,1,2,1),
       timedEnemySpawn("gory","infinite",60,13.3,30,1),
       timedEnemySpawn("sir-seal","infinite",80,26.7,53.3,1),
       timedEnemySpawn("le-boin","infinite",100,53.3,100,1)
