@@ -3116,3 +3116,30 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   scale:1.08 !important;
   transform-origin:center bottom !important;
 }
+
+
+/* Invisible square hitboxes: each square is the unit sprite's display height and scale. */
+.fight-screen .fight-unit-hitbox {
+  position:absolute !important;
+  left:50% !important;
+  bottom:0 !important;
+  height:var(--battle-hitbox-height,70%) !important;
+  width:auto !important;
+  aspect-ratio:1 / 1 !important;
+  transform:translateX(-50%) scale(var(--battle-hitbox-scale,1)) !important;
+  transform-origin:center bottom !important;
+  z-index:0 !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+.fight-screen .fight-unit-sprite {
+  position:relative !important;
+  z-index:1 !important;
+}
+
+/* Gory is intentionally larger; its collision square uses the matching scale. */
+.fight-screen .fight-unit[data-unit-type="gory"] .fight-unit-sprite {
+  scale:1.16 !important;
+  transform-origin:center bottom !important;
+}

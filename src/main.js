@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-02";
+const BATTLE_ASSET_VERSION = "20261105-03";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -1673,31 +1673,25 @@ function battleTargetGap(attacker,target) {
 function findBattleTargetFor(attacker) {
   if(!battleState||!attacker) return null;
   const candidates=attacker.kind==="cat" ? battleState.enemies : battleState.playerUnits;
+  // Knocked-back units still occupy their square. Keep them in the front-line
+  // selection so a unit cannot walk through an enemy during its knockback.
   const availableCandidates=candidates.filter(target=>
-    target&&Number(target.hp)>0&&target.mode!=="dead"&&target.mode!=="knockback"
+    target&&Number(target.hp)>0&&target.mode!=="dead"
   );
   if(!availableCandidates.length) {
     attacker.currentTargetKey="";
     return null;
   }
 
-  const pinnedTarget=availableCandidates.find(target=>
-    target.key===attacker.currentTargetKey&&battleTargetGap(attacker,target)>=-0.0001
-  );
-  if(pinnedTarget) return pinnedTarget;
-
+  // Always face the closest unit ahead. Do not prefer a farther target just
+  // because that farther target happens to be inside attack range.
   const nextTarget=availableCandidates
     .map(target=>{
       const gap=battleTargetGap(attacker,target);
-      const distance=Math.abs(gap);
-      const reach=battleCombatReachPercent(attacker.range,attacker,target);
-      return {target,gap,distance,inRange:distance<=reach+0.0001};
+      return {target,gap,distance:Math.abs(gap)};
     })
-    .filter(item=>item.gap>=0)
-    .sort((first,second)=>
-      Number(second.inRange)-Number(first.inRange)||
-      first.distance-second.distance
-    )[0]?.target||null;
+    .filter(item=>item.gap>=-0.0001)
+    .sort((first,second)=>first.distance-second.distance)[0]?.target||null;
 
   attacker.currentTargetKey=nextTarget?nextTarget.key:"";
   return nextTarget;
@@ -1705,7 +1699,10 @@ function findBattleTargetFor(attacker) {
 function battleEntityMarkup(entity) {
   const source=battleImageFor(entity);
   const unitType=entity.kind==="cat" ? battleUnitKey(entity.name||"cat") : battleUnitKey(entity.enemyType||"doge");
-  return '<div class="fight-unit '+(entity.kind==="cat"?"fight-unit-cat":"fight-unit-doge")+'" data-unit-type="'+unitType+'" data-battle-entity="'+entity.key+'" style="left:'+entity.x+'%">'+
+  const hitboxScale=battleEntitySpriteScale(entity);
+  const hitboxHeight=(battleEntityHitboxHeightScale(entity)*100)+"%";
+  return '<div class="fight-unit '+(entity.kind==="cat"?"fight-unit-cat":"fight-unit-doge")+'" data-unit-type="'+unitType+'" data-battle-entity="'+entity.key+'" style="left:'+entity.x+'%;--battle-hitbox-scale:'+hitboxScale+';--battle-hitbox-height:'+hitboxHeight+'">'+
+    '<span class="fight-unit-hitbox" aria-hidden="true"></span>'+
     '<img class="fight-unit-sprite" crossorigin="anonymous" '+(source?'src="'+source+'"':'')+' alt="'+(entity.kind==="cat"?"Cat":"Enemy")+'" draggable="false">'+
   '</div>';
 }
@@ -2093,12 +2090,18 @@ function calculateBattleLayoutMetrics() {
     ? Math.max(42,Math.min(68,width*0.11))
     : Math.max(54,Math.min(96,width*0.073));
   const unitWidth=sampleRect&&sampleRect.width>0?sampleRect.width:fallbackUnitWidth;
+  const fallbackUnitHeight=width<=650
+    ? Math.max(67,Math.min(96,(window.innerHeight||600)*0.15))
+    : Math.max(78,Math.min(145,(window.innerHeight||900)*0.18));
+  const unitHeight=sampleRect&&sampleRect.height>0?sampleRect.height:fallbackUnitHeight;
+  const baseSquareSide=unitHeight*0.70;
   return {
     width,
     catBase:geometryFor("cat"),
     enemyBase:geometryFor("enemy"),
     unitWidth,
-    contactGap:((unitWidth*0.62+unitWidth*0.72)*0.5/width)*100
+    unitHeight,
+    contactGap:((baseSquareSide*0.62+baseSquareSide*0.72)*0.5/width)*100
   };
 }
 function battleLayoutMetrics() {
@@ -2127,19 +2130,35 @@ function battleRangePercent(range) {
   const width=battleLayoutMetrics().width;
   return Math.max(0.5,Math.min(45,(Math.max(0,Number(range)||0)/width)*100));
 }
+function battleEntitySpriteScale(entity) {
+  if(!entity) return 0.72;
+  if(entity.kind==="doge") {
+    const key=battleUnitKey(entity.enemyType||"doge");
+    if(key==="gory") return 1.16;
+    if(key==="sir-seal") return 1.08;
+    if(key==="hippoe") return 1.22;
+    if(key==="pigge") return 1.12;
+    if(key==="jackie-peng") return 1.10;
+    return 0.72;
+  }
+  const key=battleUnitKey(entity.name||entity.assetFolder||entity.spriteFolder||"cat");
+  if(key==="gross-cat") return 1.18;
+  if(key==="axe-cat") return 1.06;
+  if(key==="tank-cat") return 0.76;
+  return 0.62;
+}
+function battleEntityHitboxHeightScale(entity) {
+  return entity&&entity.kind==="doge"&&battleUnitKey(entity.enemyType||"doge")==="pigge" ? 0.80 : 0.70;
+}
+function battleEntityCollisionSquareSide(entity) {
+  const metrics=battleLayoutMetrics();
+  return metrics.unitHeight*battleEntityHitboxHeightScale(entity)*battleEntitySpriteScale(entity);
+}
 function battleEntityContactGapPercent(first=null,second=null) {
   const metrics=battleLayoutMetrics();
   if(!first||!second) return metrics.contactGap;
-  const spriteScale=entity=>{
-    if(entity.kind==="doge") {
-      const enemyKey=battleUnitKey(entity.enemyType||"doge");
-      if(enemyKey==="gory"||enemyKey==="sir-seal") return 0.86;
-      return 0.72;
-    }
-    return battleUnitKey(entity.name||entity.assetFolder||entity.spriteFolder||"cat")==="tank-cat" ? 0.76 : 0.62;
-  };
-  const combinedHalfWidth=metrics.unitWidth*(spriteScale(first)+spriteScale(second))*0.5;
-  const safetyMargin=Math.max(10,metrics.unitWidth*0.2);
+  const combinedHalfWidth=(battleEntityCollisionSquareSide(first)+battleEntityCollisionSquareSide(second))*0.5;
+  const safetyMargin=2;
   return Math.max(metrics.contactGap,((combinedHalfWidth+safetyMargin)/metrics.width)*100);
 }
 function battleCombatReachPercent(range,attacker=null,target=null) {
@@ -2515,6 +2534,36 @@ function attackBattleBase(attacker,now) {
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
   return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
 }
+function clampBattleSquareBoundaries() {
+  if(!battleState) return;
+  const cats=battleState.playerUnits||[];
+  const enemies=(battleState.enemies||[]).filter(enemy=>
+    enemy&&Number(enemy.hp)>0&&enemy.mode!=="dead"
+  );
+  for(const cat of cats) {
+    if(!cat||Number(cat.hp)<=0||cat.mode==="dead") continue;
+    for(let pass=0;pass<enemies.length+1;pass++) {
+      const blockers=enemies
+        .map(enemy=>({enemy,gap:Number(cat.x)-Number(enemy.x)}))
+        .sort((a,b)=>Math.abs(a.gap)-Math.abs(b.gap));
+      let adjusted=false;
+      for(const item of blockers) {
+        const enemy=item.enemy;
+        const requiredGap=battleEntityContactGapPercent(cat,enemy);
+        const gap=Number(cat.x)-Number(enemy.x);
+        if(gap>=requiredGap) continue;
+        // Never move the enemy or shove it backward: return the cat to the
+        // player-side edge of the nearest occupied square.
+        cat.x=Number(enemy.x)+requiredGap;
+        if(cat.mode==="moving") cat.mode="idle";
+        updateBattleEntityView(cat);
+        adjusted=true;
+        break;
+      }
+      if(!adjusted) break;
+    }
+  }
+}
 function tickBattle() {
   if (scene!=="fight" || !battleState) return;
   const state=battleState;
@@ -2590,7 +2639,8 @@ function tickBattle() {
           startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target);
         }
       }
-      cat.x=Math.max(0.5,Math.min(catHomeCenter,cat.x));
+      const squareStopGap=battleEntityContactGapPercent(cat,target);
+      cat.x=Math.max(target.x+squareStopGap,Math.min(catHomeCenter,cat.x));
     } else if (state.enemyBaseHp>0) {
       const catBaseAttackStop=enemyBaseStop+battleRangePercent(cat.range)*0.1;
       if (cat.x>catBaseAttackStop) {
@@ -2670,6 +2720,7 @@ function tickBattle() {
   }
 
 
+  clampBattleSquareBoundaries();
   state.playerUnits=state.playerUnits.filter(cat=>cat.hp>0 || cat.mode==="dead" || cat.mode==="knockback");
   state.enemies=state.enemies.filter(enemy=>enemy.hp>0 || enemy.mode==="dead" || enemy.mode==="knockback");
 
