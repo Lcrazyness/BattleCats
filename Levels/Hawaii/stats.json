@@ -1,0 +1,65 @@
+{
+  "name": "Hawaii",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 30000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 3,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 0,
+      "intervalMax": 0.1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 2,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 2,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 13.3,
+      "intervalMax": 30,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 26.7,
+      "intervalMax": 53.3,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "le-boin",
+      "amount": "infinite",
+      "startTime": 100,
+      "intervalMin": 53.3,
+      "intervalMax": 100,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "name": "Egypt",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 9000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 4,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 60,
+      "intervalMax": 120,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 60,
+      "intervalMax": 120,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 4,
+      "startTime": 133.33,
+      "intervalMin": 60,
+      "intervalMax": 120,
+      "maxAlive": 4,
+      "spawnChance": 1
+    }
+  ]
+}

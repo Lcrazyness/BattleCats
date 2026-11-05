@@ -1,0 +1,59 @@
+{
+  "name": "Russia",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 12000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 4,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 2,
+      "baseHealthPercent": 80,
+      "startTime": 0,
+      "intervalMin": 0.25,
+      "intervalMax": 2,
+      "maxAlive": 2,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

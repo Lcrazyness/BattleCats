@@ -1,0 +1,20 @@
+{
+  "name": "Moon",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 99999,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 6.67,
+      "intervalMax": 13.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    }
+  ]
+}

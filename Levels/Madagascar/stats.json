@@ -1,0 +1,74 @@
+{
+  "name": "Madagascar",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 7000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 6,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 2,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": 12,
+      "baseHealthPercent": 85,
+      "startTime": 0,
+      "intervalMin": 0.7,
+      "intervalMax": 2,
+      "maxAlive": 4,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": 55
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "baseHealthPercent": 85,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": 70
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "baseHealthPercent": 60,
+      "startTime": 0,
+      "intervalMin": 2,
+      "intervalMax": 3,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": 140
+    }
+  ]
+}

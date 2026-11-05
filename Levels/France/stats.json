@@ -1,0 +1,77 @@
+{
+  "name": "France",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 15000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 8,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3.3,
+      "intervalMax": 13.3,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 6.7,
+      "intervalMax": 26.7,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 12,
+      "intervalMax": 48,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 20,
+      "intervalMax": 80,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "baseHealthPercent": 50,
+      "startTime": 0,
+      "intervalMin": 25.3,
+      "intervalMax": 101.3,
+      "maxAlive": 2,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "China",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 500,
+  "catBaseHealth": 1000,
+  "maxEnemies": 30,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": 3,
+      "startTime": 0.67,
+      "intervalMin": 26.67,
+      "intervalMax": 26.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": 3,
+      "startTime": 10,
+      "intervalMin": 26.67,
+      "intervalMax": 26.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": 2,
+      "startTime": 30,
+      "intervalMin": 13.33,
+      "intervalMax": 13.33,
+      "maxAlive": 2,
+      "spawnChance": 1
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "Maldives",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 2500,
+  "catBaseHealth": 1000,
+  "maxEnemies": 5,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10.67,
+      "intervalMax": 18.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 8,
+      "intervalMin": 20,
+      "intervalMax": 53.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 10,
+      "intervalMax": 40,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": 1,
+      "baseHealthPercent": 90,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": false,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

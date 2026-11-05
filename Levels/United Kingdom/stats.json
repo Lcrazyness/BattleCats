@@ -1,0 +1,56 @@
+{
+  "name": "United Kingdom",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 8000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3.3,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 5,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 6.7,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "le-boin",
+      "amount": 1,
+      "startTime": 60,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": "infinite",
+      "startTime": 180,
+      "intervalMin": 20,
+      "intervalMax": 40,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

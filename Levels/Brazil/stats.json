@@ -1,0 +1,101 @@
+{
+  "name": "Brazil",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 8,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10,
+      "intervalMax": 30,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10,
+      "intervalMax": 30,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "baseHealthPercent": 99,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "baseHealthPercent": 97,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "baseHealthPercent": 95,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "baseHealthPercent": 95,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "baseHealthPercent": 93,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "baseHealthPercent": 92,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 6,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

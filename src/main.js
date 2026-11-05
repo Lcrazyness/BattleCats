@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-11";
+const BATTLE_ASSET_VERSION = "20261105-12";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -1518,7 +1518,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       baseTriggeredEnemySpawn("croco","infinite",90,4,10,8,1,true),
       baseTriggeredEnemySpawn("sir-seal",1,90,1,1,1,1,true),
       baseTriggeredEnemySpawn("croco","infinite",70,3,8,8,1,true),
-      baseTriggeredEnemySpawn("croco","infinite",70,0.25,2,8,1,true)
+      baseTriggeredEnemySpawn("croco","infinite",70,3,3,8,1,true)
     ];
   } else if(levelName==="France") {
     enemySpawns=[

@@ -1,0 +1,83 @@
+{
+  "name": "Machu Picchu",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 6,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 20,
+      "intervalMax": 30,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 66.7,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 40,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 86.7,
+      "intervalMin": 66.7,
+      "intervalMax": 100,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "le-boin",
+      "amount": "infinite",
+      "startTime": 100,
+      "intervalMin": 100,
+      "intervalMax": 100,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "Dubai",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 5000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 12,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 10,
+      "intervalMax": 26.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 10,
+      "intervalMax": 26.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": 1,
+      "baseHealthPercent": 90,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": false,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

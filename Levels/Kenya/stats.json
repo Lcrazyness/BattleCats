@@ -1,0 +1,56 @@
+{
+  "name": "Kenya",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 6100,
+  "catBaseHealth": 1000,
+  "maxEnemies": 4,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 6,
+      "intervalMax": 12,
+      "maxAlive": 4,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 10,
+      "intervalMax": 18,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 10,
+      "intervalMax": 18,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": 1,
+      "startTime": 60,
+      "intervalMin": 60,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": 1,
+      "startTime": 80,
+      "intervalMin": 80,
+      "intervalMax": 80,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

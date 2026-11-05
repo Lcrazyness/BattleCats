@@ -1,0 +1,38 @@
+{
+  "name": "Las Vegas",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 25000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 4,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 6,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    }
+  ]
+}

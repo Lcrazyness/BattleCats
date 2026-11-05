@@ -1,0 +1,62 @@
+{
+  "name": "Japan",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 2400,
+  "catBaseHealth": 1000,
+  "maxEnemies": 6,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10.67,
+      "intervalMax": 18.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 20,
+      "intervalMax": 53.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 20,
+      "intervalMax": 53.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": 1,
+      "baseHealthPercent": 90,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": 65
+    },
+    {
+      "enemy": "those-guys",
+      "amount": 6,
+      "baseHealthPercent": 90,
+      "startTime": 0,
+      "intervalMin": 2,
+      "intervalMax": 4,
+      "maxAlive": 6,
+      "spawnChance": 1,
+      "priority": false,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

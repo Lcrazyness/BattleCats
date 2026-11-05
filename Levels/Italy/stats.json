@@ -1,0 +1,47 @@
+{
+  "name": "Italy",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 15000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 3,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "hippoe",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": 1,
+      "startTime": 60,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": 1,
+      "startTime": 120,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "startTime": 180,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

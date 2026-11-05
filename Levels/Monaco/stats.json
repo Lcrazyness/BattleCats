@@ -1,0 +1,71 @@
+{
+  "name": "Monaco",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 15000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 5,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 1,
+      "intervalMax": 2,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": 1,
+      "startTime": 40,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "baseHealthPercent": 50,
+      "startTime": 0,
+      "intervalMin": 4.3,
+      "intervalMax": 8,
+      "maxAlive": 3,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": "infinite",
+      "baseHealthPercent": 50,
+      "startTime": 0,
+      "intervalMin": 4.3,
+      "intervalMax": 8,
+      "maxAlive": 2,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

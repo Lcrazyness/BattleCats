@@ -1,0 +1,29 @@
+{
+  "name": "Easter Island",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 4,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 10,
+      "intervalMax": 30,
+      "maxAlive": 2,
+      "spawnChance": 1
+    }
+  ]
+}

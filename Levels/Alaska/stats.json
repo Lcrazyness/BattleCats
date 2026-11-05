@@ -1,0 +1,20 @@
+{
+  "name": "Alaska",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "pigge",
+      "amount": "infinite",
+      "startTime": 99,
+      "intervalMin": 40,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Thailand",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 500,
+  "catBaseHealth": 1000,
+  "maxEnemies": 5,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 6,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 10,
+      "intervalMax": 26.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 10,
+      "intervalMax": 26.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    }
+  ]
+}

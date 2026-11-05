@@ -1,0 +1,38 @@
+{
+  "name": "Greenland",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 18000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 8,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3.3,
+      "intervalMax": 13.3,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 20,
+      "intervalMax": 40,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

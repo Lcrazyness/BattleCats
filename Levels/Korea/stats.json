@@ -15,5 +15,6 @@
     }
   ],
   "background": "background.png",
-  "enemyBase": "enemybase.png"
+  "enemyBase": "enemybase.png",
+  "maxEnemies": 3
 }

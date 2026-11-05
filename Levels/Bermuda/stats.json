@@ -1,0 +1,47 @@
+{
+  "name": "Bermuda",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 4,
+      "intervalMax": 13.3,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 13.3,
+      "intervalMin": 4,
+      "intervalMax": 13.3,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 4,
+      "intervalMax": 13.3,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    }
+  ]
+}

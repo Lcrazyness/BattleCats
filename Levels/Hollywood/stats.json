@@ -1,0 +1,38 @@
+{
+  "name": "Hollywood",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 2,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 13.3,
+      "intervalMax": 30,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 40,
+      "intervalMax": 53.3,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "le-boin",
+      "amount": "infinite",
+      "startTime": 100,
+      "intervalMin": 73.3,
+      "intervalMax": 113.3,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "Saudi Arabia",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 6000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 3,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 8,
+      "intervalMax": 16,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 12,
+      "intervalMax": 24,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 12,
+      "intervalMax": 24,
+      "maxAlive": 3,
+      "spawnChance": 1
+    }
+  ]
+}

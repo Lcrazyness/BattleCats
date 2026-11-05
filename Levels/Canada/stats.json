@@ -1,0 +1,104 @@
+{
+  "name": "Canada",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 18000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 6,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 5,
+      "intervalMax": 6.67,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 6.67,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 10,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 200,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 133.33,
+      "intervalMin": 30,
+      "intervalMax": 60,
+      "maxAlive": 4,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 4,
+      "baseHealthPercent": 50,
+      "startTime": 0,
+      "intervalMin": 0.25,
+      "intervalMax": 0.25,
+      "maxAlive": 4,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

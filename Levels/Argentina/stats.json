@@ -1,0 +1,101 @@
+{
+  "name": "Argentina",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 20000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 5,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 6,
+      "intervalMax": 14,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": "infinite",
+      "startTime": 66.7,
+      "intervalMin": 66.7,
+      "intervalMax": 100,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": "infinite",
+      "startTime": 86.7,
+      "intervalMin": 66.7,
+      "intervalMax": 100,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": "infinite",
+      "startTime": 106.7,
+      "intervalMin": 66.7,
+      "intervalMax": 100,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 3,
+      "baseHealthPercent": 80,
+      "startTime": 0,
+      "intervalMin": 0.25,
+      "intervalMax": 0.25,
+      "maxAlive": 3,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": 8,
+      "baseHealthPercent": 60,
+      "startTime": 0,
+      "intervalMin": 0.25,
+      "intervalMax": 0.25,
+      "maxAlive": 8,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": 4,
+      "baseHealthPercent": 40,
+      "startTime": 0,
+      "intervalMin": 0.25,
+      "intervalMax": 0.25,
+      "maxAlive": 4,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

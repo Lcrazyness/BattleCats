@@ -1,0 +1,77 @@
+{
+  "name": "Sahara",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 9000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 10,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 20,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 1,
+      "intervalMax": 10,
+      "maxAlive": 5,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 1,
+      "startTime": 100,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "gory",
+      "amount": 2,
+      "startTime": 133.33,
+      "intervalMin": 0.25,
+      "intervalMax": 2,
+      "maxAlive": 2,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "baa-baa",
+      "amount": 10,
+      "baseHealthPercent": 60,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 2,
+      "maxAlive": 10,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}

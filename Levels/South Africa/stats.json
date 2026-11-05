@@ -1,0 +1,65 @@
+{
+  "name": "South Africa",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 7000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 6,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "doge",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 6.67,
+      "intervalMax": 13.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "snache",
+      "amount": "infinite",
+      "startTime": 20,
+      "intervalMin": 20,
+      "intervalMax": 53.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "those-guys",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 20,
+      "intervalMax": 53.33,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "hippoe",
+      "amount": 2,
+      "startTime": 65,
+      "intervalMin": 30,
+      "intervalMax": 50,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "pigge",
+      "amount": 2,
+      "startTime": 80,
+      "intervalMin": 35,
+      "intervalMax": 55,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "jackie-peng",
+      "amount": 2,
+      "startTime": 100,
+      "intervalMin": 40,
+      "intervalMax": 60,
+      "maxAlive": 1,
+      "spawnChance": 1
+    }
+  ]
+}

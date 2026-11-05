@@ -22,7 +22,7 @@ Example:
 
 The level loader reads the files and base health from that level's own folder. The Cat Base is a shared transparent sprite at `sprites/battle/cat-base.svg`; the Worker Cat wallet and Cat Cannon icons are in `sprites/ui/`.
 
-Korea is the first level folder configured with its own backdrop, enemy-base sprite, and base health. Add the equivalent assets and `stats.json` to each additional stage folder as those stages are built.
+All 48 Empire of Cats stages now have their own `stats.json` under `Levels/<Stage Name>/`. The game loads the selected stage's file directly, so edits to its base health, enemy waves, spawn timing, spawn chance, and alive limit take effect without editing `src/main.js`. Stage art remains independently configurable through the `background` and `enemyBase` filenames.
 
 
 ## Enemy data and trigger rules

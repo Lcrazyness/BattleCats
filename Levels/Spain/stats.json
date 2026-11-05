@@ -1,0 +1,86 @@
+{
+  "name": "Spain",
+  "background": "background.png",
+  "enemyBase": "enemybase.png",
+  "enemyBaseHealth": 15000,
+  "catBaseHealth": 1000,
+  "maxEnemies": 20,
+  "initialSpawnDelay": 0,
+  "enemySpawns": [
+    {
+      "enemy": "croco",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 10,
+      "intervalMin": 5.3,
+      "intervalMax": 8,
+      "maxAlive": 4,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "startTime": 30,
+      "intervalMin": 4,
+      "intervalMax": 8,
+      "maxAlive": 5,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "baseHealthPercent": 90,
+      "startTime": 0,
+      "intervalMin": 4,
+      "intervalMax": 10,
+      "maxAlive": 8,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "sir-seal",
+      "amount": 1,
+      "baseHealthPercent": 90,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "baseHealthPercent": 70,
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 8,
+      "maxAlive": 8,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "croco",
+      "amount": "infinite",
+      "baseHealthPercent": 70,
+      "startTime": 0,
+      "intervalMin": 3,
+      "intervalMax": 3,
+      "maxAlive": 8,
+      "spawnChance": 1,
+      "priority": true,
+      "fallbackAfterSeconds": null
+    }
+  ]
+}
