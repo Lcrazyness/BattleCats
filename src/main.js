@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-08";
+const BATTLE_ASSET_VERSION = "20261105-10";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -98,7 +98,7 @@ const BATTLE_UNIT_STATS = {
   "jackie-peng": {health:1000,damage:30,speed:9,spriteChangeSpeed:9,range:145,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:false},
   gory: {health:650,damage:24,speed:8,spriteChangeSpeed:7,range:150,killReward:180,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.1,AreaAttack:1,traits:[]},
   "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
-  "baa-baa": {health:40,damage:10,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
+  "baa-baa": {health:400,damage:20,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
   croco: {health:35,damage:6,speed:14,spriteChangeSpeed:10,walkSpriteChangeSpeed:6,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:0,traits:[]},
   "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:400,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
 };
@@ -1274,7 +1274,7 @@ const EOC1_ENEMY_STAGES = {
   gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47],
   "baa-baa": [19,20,21,22,25,27,30,31,33,34,36],
   "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
-  croco: [26,27,28,29,30,31,33,34,36,38,41,43],
+  croco: [26,27,28,29,30,31,33,34,35,36,38,41,43],
   "le-boin": [29,31,36,40,42,45,47]
 };
 const EOC1_MAX_ENEMIES = {
@@ -1615,7 +1615,8 @@ function defaultBattleLevelConfig(levelName="Korea") {
     enemySpawns=[
       timedEnemySpawn("doge","infinite",0,4,13.3,3),
       timedEnemySpawn("snache","infinite",13.3,4,13.3,3),
-      timedEnemySpawn("those-guys","infinite",60,4,13.3,3)
+      timedEnemySpawn("those-guys","infinite",60,4,13.3,3),
+      timedEnemySpawn("croco","infinite",80,10,20,3)
     ];
   } else if(levelName==="Jamaica") {
     enemySpawns=[
@@ -2496,7 +2497,7 @@ function battleEntitySpriteScale(entity) {
     if(key==="gory") return 1.32;
     if(key==="sir-seal") return 1.20;
     if(key==="le-boin") return 1.48;
-    if(key==="baa-baa") return 0.92;
+    if(key==="baa-baa") return 1.0;
     if(key==="croco") return 1.02;
     if(key==="hippoe") return 1.22;
     if(key==="pigge") return 1.12;
