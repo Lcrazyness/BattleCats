@@ -1,7 +1,7 @@
 {
   "name": "Those Guys",
   "health": 160,
-  "damage": 8,
+  "damage": 10,
   "speed": 5,
   "spriteChangeSpeed": 8,
   "range": 105,
