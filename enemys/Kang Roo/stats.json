@@ -1,0 +1,17 @@
+{
+  "name": "Kang Roo",
+  "health": 4000,
+  "damage": 250,
+  "speed": 20,
+  "range": 160,
+  "spriteChangeSpeed": 8,
+  "walkSpriteChangeSpeed": 6,
+  "killReward": 180,
+  "knockbackCount": 1,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "attackCooldown": 1.2,
+  "AreaAttack": 0,
+  "traits": []
+}\n

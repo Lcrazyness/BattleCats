@@ -1,0 +1,19 @@
+{
+  "name": "Mooth",
+  "health": 5000,
+  "damage": 350,
+  "speed": 20,
+  "range": 340,
+  "spriteChangeSpeed": 7,
+  "walkSpriteChangeSpeed": 5,
+  "killReward": 250,
+  "knockbackCount": 1,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.72,
+  "knockbackDistance": 4.5,
+  "attackCooldown": 2.93,
+  "AreaAttack": 1,
+  "traits": [
+    "Floating"
+  ]
+}\n

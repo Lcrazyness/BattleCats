@@ -1,0 +1,29 @@
+{
+  "name": "The Face",
+  "source": "User-provided Battle Cats enemy sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/The Face",
+  "moving": [
+    "enemys/The Face/moving/frame-001.png"
+  ],
+  "attacks": [
+    "enemys/The Face/attack/frame-001.png",
+    "enemys/The Face/attack/frame-002.png",
+    "enemys/The Face/attack/frame-003.png",
+    "enemys/The Face/attack/frame-004.png"
+  ],
+  "attack": "enemys/The Face/attack/frame-001.png",
+  "attackFrameRate": 2,
+  "damagedFrames": [
+    "enemys/The Face/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/The Face/damaged/frame-001.png"
+  ],
+  "idle": "enemys/The Face/idle.png",
+  "damaged": "enemys/The Face/damaged/frame-001.png",
+  "slot": "enemys/The Face/slot.png",
+  "upgrade": null,
+  "traits": [
+    "Floating"
+  ]
+}\n

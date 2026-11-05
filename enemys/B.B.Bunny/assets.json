@@ -1,0 +1,34 @@
+{
+  "name": "B.B.Bunny",
+  "source": "User-provided Battle Cats enemy sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/B.B.Bunny",
+  "moving": [
+    "enemys/B.B.Bunny/moving/frame-001.png",
+    "enemys/B.B.Bunny/moving/frame-002.png",
+    "enemys/B.B.Bunny/moving/frame-003.png",
+    "enemys/B.B.Bunny/moving/frame-004.png",
+    "enemys/B.B.Bunny/moving/frame-005.png"
+  ],
+  "attacks": [
+    "enemys/B.B.Bunny/attack/frame-001.png",
+    "enemys/B.B.Bunny/attack/frame-002.png",
+    "enemys/B.B.Bunny/attack/frame-003.png",
+    "enemys/B.B.Bunny/attack/frame-004.png",
+    "enemys/B.B.Bunny/attack/frame-005.png"
+  ],
+  "attack": "enemys/B.B.Bunny/attack/frame-001.png",
+  "attackFrameRate": 5,
+  "damagedFrames": [
+    "enemys/B.B.Bunny/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/B.B.Bunny/damaged/frame-001.png"
+  ],
+  "idle": "enemys/B.B.Bunny/idle.png",
+  "damaged": "enemys/B.B.Bunny/damaged/frame-001.png",
+  "slot": "enemys/B.B.Bunny/slot.png",
+  "upgrade": null,
+  "traits": [
+    "Red"
+  ]
+}\n

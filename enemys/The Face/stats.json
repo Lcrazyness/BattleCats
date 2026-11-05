@@ -1,0 +1,19 @@
+{
+  "name": "The Face",
+  "health": 99999,
+  "damage": 2000,
+  "speed": 1,
+  "range": 340,
+  "spriteChangeSpeed": 5,
+  "walkSpriteChangeSpeed": 1,
+  "killReward": 1000,
+  "knockbackCount": 2,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.85,
+  "knockbackDistance": 5,
+  "attackCooldown": 9.1,
+  "AreaAttack": 1,
+  "traits": [
+    "Floating"
+  ]
+}\n

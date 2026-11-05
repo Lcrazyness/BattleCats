@@ -1,0 +1,32 @@
+{
+  "name": "Teacher Bear",
+  "source": "User-provided Battle Cats enemy sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Teacher Bear",
+  "moving": [
+    "enemys/Teacher Bear/moving/frame-001.png",
+    "enemys/Teacher Bear/moving/frame-002.png",
+    "enemys/Teacher Bear/moving/frame-003.png",
+    "enemys/Teacher Bear/moving/frame-004.png",
+    "enemys/Teacher Bear/moving/frame-005.png",
+    "enemys/Teacher Bear/moving/frame-006.png"
+  ],
+  "attacks": [
+    "enemys/Teacher Bear/attack/frame-001.png",
+    "enemys/Teacher Bear/attack/frame-002.png",
+    "enemys/Teacher Bear/attack/frame-003.png",
+    "enemys/Teacher Bear/attack/frame-004.png"
+  ],
+  "attack": "enemys/Teacher Bear/attack/frame-001.png",
+  "attackFrameRate": 8,
+  "damagedFrames": [
+    "enemys/Teacher Bear/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Teacher Bear/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Teacher Bear/idle.png",
+  "damaged": "enemys/Teacher Bear/damaged/frame-001.png",
+  "slot": "enemys/Teacher Bear/slot.png",
+  "upgrade": null,
+  "traits": []
+}\n

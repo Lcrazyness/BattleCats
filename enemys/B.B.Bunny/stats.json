@@ -1,0 +1,19 @@
+{
+  "name": "B.B.Bunny",
+  "health": 500,
+  "damage": 50,
+  "speed": 22,
+  "range": 110,
+  "spriteChangeSpeed": 8,
+  "walkSpriteChangeSpeed": 6,
+  "killReward": 45,
+  "knockbackCount": 3,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "attackCooldown": 1.37,
+  "AreaAttack": 0,
+  "traits": [
+    "Red"
+  ]
+}\n

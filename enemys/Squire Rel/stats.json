@@ -1,0 +1,17 @@
+{
+  "name": "Squire Rel",
+  "health": 80,
+  "damage": 30,
+  "speed": 30,
+  "range": 110,
+  "spriteChangeSpeed": 10,
+  "walkSpriteChangeSpeed": 8,
+  "killReward": 15,
+  "knockbackCount": 3,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.48,
+  "knockbackDistance": 5,
+  "attackCooldown": 0.53,
+  "AreaAttack": 0,
+  "traits": []
+}\n

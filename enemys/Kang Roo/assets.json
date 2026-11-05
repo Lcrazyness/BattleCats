@@ -1,0 +1,29 @@
+{
+  "name": "Kang Roo",
+  "source": "User-provided Battle Cats enemy sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Kang Roo",
+  "moving": [
+    "enemys/Kang Roo/moving/frame-001.png",
+    "enemys/Kang Roo/moving/frame-002.png",
+    "enemys/Kang Roo/moving/frame-003.png",
+    "enemys/Kang Roo/moving/frame-004.png"
+  ],
+  "attacks": [
+    "enemys/Kang Roo/attack/frame-001.png",
+    "enemys/Kang Roo/attack/frame-002.png",
+    "enemys/Kang Roo/attack/frame-003.png"
+  ],
+  "attack": "enemys/Kang Roo/attack/frame-001.png",
+  "attackFrameRate": 6,
+  "damagedFrames": [
+    "enemys/Kang Roo/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Kang Roo/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Kang Roo/idle.png",
+  "damaged": "enemys/Kang Roo/damaged/frame-001.png",
+  "slot": "enemys/Kang Roo/slot.png",
+  "upgrade": null,
+  "traits": []
+}\n

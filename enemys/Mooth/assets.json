@@ -1,0 +1,30 @@
+{
+  "name": "Mooth",
+  "source": "User-provided Battle Cats enemy sprite reference sheet; original game art belongs to its respective rights holders.",
+  "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Mooth",
+  "moving": [
+    "enemys/Mooth/moving/frame-001.png",
+    "enemys/Mooth/moving/frame-002.png",
+    "enemys/Mooth/moving/frame-003.png",
+    "enemys/Mooth/moving/frame-004.png",
+    "enemys/Mooth/moving/frame-005.png"
+  ],
+  "attacks": [
+    "enemys/Mooth/attack/frame-001.png"
+  ],
+  "attack": "enemys/Mooth/attack/frame-001.png",
+  "attackFrameRate": 1,
+  "damagedFrames": [
+    "enemys/Mooth/damaged/frame-001.png"
+  ],
+  "knockbackFrames": [
+    "enemys/Mooth/damaged/frame-001.png"
+  ],
+  "idle": "enemys/Mooth/idle.png",
+  "damaged": "enemys/Mooth/damaged/frame-001.png",
+  "slot": "enemys/Mooth/slot.png",
+  "upgrade": null,
+  "traits": [
+    "Floating"
+  ]
+}\n
