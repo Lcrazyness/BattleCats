@@ -3166,3 +3166,21 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   scale:1.48 !important;
   transform-origin:center bottom !important;
 }
+
+
+/* Axe Cat frames are already normalized to a shared 160x160 canvas.
+   Keep one fixed display box and never rescale individual poses at runtime. */
+.fight-screen .fight-unit-cat[data-unit-type="axe-cat"] {
+  overflow:visible !important;
+}
+.fight-screen .fight-unit-cat[data-unit-type="axe-cat"] .fight-unit-sprite {
+  display:block !important;
+  width:100% !important;
+  height:70% !important;
+  max-width:100% !important;
+  max-height:70% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  scale:1.06 !important;
+  transform-origin:center bottom !important;
+}
