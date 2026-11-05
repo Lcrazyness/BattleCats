@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-14";
+const BATTLE_ASSET_VERSION = "20261105-15";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -98,7 +98,14 @@ const BATTLE_UNIT_STATS = {
   "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
   "baa-baa": {health:400,damage:20,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
   croco: {health:35,damage:6,speed:14,spriteChangeSpeed:10,walkSpriteChangeSpeed:6,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:0,traits:[]},
-  "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:160,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
+  "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:160,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]},
+  "b-b-bunny": {health:500,damage:50,speed:22,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:110,killReward:45,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.37,AreaAttack:0,traits:["Red"]},
+  "kang-roo": {health:4000,damage:250,speed:20,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:160,killReward:180,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:0,traits:[]},
+  "squire-rel": {health:80,damage:30,speed:30,spriteChangeSpeed:10,walkSpriteChangeSpeed:8,range:110,killReward:15,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.48,knockbackDistance:5,attackCooldown:0.53,AreaAttack:0,traits:[]},
+  mooth: {health:5000,damage:350,speed:20,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:340,killReward:250,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:2.93,AreaAttack:1,traits:["Floating"]},
+  "one-horn": {health:15000,damage:500,speed:3,spriteChangeSpeed:7,walkSpriteChangeSpeed:3,range:40,killReward:500,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.53,AreaAttack:1,traits:["Red"]},
+  "teacher-bear": {health:3000,damage:1000,speed:4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:350,killReward:400,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:3.5,attackCooldown:3.57,AreaAttack:1,traits:[]},
+  "the-face": {health:99999,damage:2000,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:9.1,AreaAttack:1,traits:["Floating"]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -113,6 +120,13 @@ function battleEnemyFolder(enemyType) {
   if(key==="baa-baa") return "Baa-Baa";
   if(key==="croco") return "Croco";
   if(key==="le-boin") return "Le-Boin";
+  if(key==="b-b-bunny") return "B.B.Bunny";
+  if(key==="kang-roo") return "Kang Roo";
+  if(key==="squire-rel") return "Squire Rel";
+  if(key==="mooth") return "Mooth";
+  if(key==="one-horn") return "One Horn";
+  if(key==="teacher-bear") return "Teacher Bear";
+  if(key==="the-face") return "The Face";
   return key;
 }
 function battleUnitStats(unitOrKey) {
@@ -135,7 +149,7 @@ function battleUnitStats(unitOrKey) {
   const knockbackCount = Math.max(0,Math.min(10,Math.floor(Number.isFinite(Number(config.knockbackCount))?Number(config.knockbackCount):3)));
   const rawAreaAttack=config.AreaAttack??config.areaAttack??unit.AreaAttack??unit.areaAttack??0;
   const areaAttack=rawAreaAttack===true?1:rawAreaAttack===false?0:Math.max(0,Math.min(2,Math.floor(Number(rawAreaAttack)||0)));
-  const validTraits=["Red","Alien","Dark","Angelic","Metal"];
+  const validTraits=["Red","Alien","Dark","Angelic","Metal","Floating"];
   const validBoosts=["Strong","Massive Damage"];
   const AttackTrait=validTraits.includes(config.AttackTrait)?config.AttackTrait:"";
   const AttackBoost=validBoosts.includes(config.AttackBoost)?config.AttackBoost:"";
@@ -1273,7 +1287,14 @@ const EOC1_ENEMY_STAGES = {
   "baa-baa": [19,20,21,22,25,27,30,31,33,34,36],
   "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
   croco: [26,27,28,29,30,31,33,34,35,36,38,41,43],
-  "le-boin": [29,31,36,40,42,45,47]
+  "le-boin": [29,31,36,40,42,45,47],
+  "b-b-bunny": [33,35,36,37,43,46],
+  "kang-roo": [35,37,40,42,45,47,48],
+  "squire-rel": [38,39,40,41,42,44,46],
+  mooth: [38,45,46],
+  "one-horn": [41,43,47],
+  "teacher-bear": [44,46,47],
+  "the-face": [48]
 };
 const EOC1_MAX_ENEMIES = {
   Korea:3,
@@ -1721,6 +1742,64 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("le-boin","infinite",100,53.3,100,1)
     ];
   }
+  const newEnemyWaves = {
+    Greenland: [timedEnemySpawn("b-b-bunny","infinite",90,35,55,2)],
+    Bermuda: [
+      timedEnemySpawn("b-b-bunny","infinite",45,30,45,2),
+      baseTriggeredEnemySpawn("kang-roo",1,90,1,1,1,1,true)
+    ],
+    Jamaica: [timedEnemySpawn("b-b-bunny","infinite",80,35,50,2)],
+    Colombia: [
+      timedEnemySpawn("b-b-bunny","infinite",45,30,45,2),
+      timedEnemySpawn("kang-roo","infinite",120,100,130,1)
+    ],
+    Brazil: [
+      timedEnemySpawn("squire-rel","infinite",0,15,25,3),
+      baseTriggeredEnemySpawn("mooth",1,90,1,1,1,1,true)
+    ],
+    Argentina: [timedEnemySpawn("squire-rel","infinite",0,15,25,3)],
+    "Machu Picchu": [
+      timedEnemySpawn("squire-rel","infinite",30,20,35,3),
+      timedEnemySpawn("kang-roo","infinite",110,110,140,1)
+    ],
+    "Easter Island": [
+      timedEnemySpawn("squire-rel","infinite",0,15,25,3),
+      baseTriggeredEnemySpawn("one-horn",1,90,1,1,1,1,true)
+    ],
+    Mexico: [
+      timedEnemySpawn("squire-rel","infinite",40,20,35,3),
+      timedEnemySpawn("kang-roo","infinite",120,100,130,1)
+    ],
+    "Las Vegas": [
+      timedEnemySpawn("squire-rel","infinite",0,15,25,3),
+      baseTriggeredEnemySpawn("teacher-bear",1,90,1,1,1,1,true)
+    ],
+    NASA: [
+      timedEnemySpawn("b-b-bunny","infinite",60,35,50,2),
+      timedEnemySpawn("one-horn","infinite",120,120,160,1)
+    ],
+    Alaska: [
+      timedEnemySpawn("b-b-bunny","infinite",100,45,60,2),
+      timedEnemySpawn("squire-rel","infinite",30,20,35,3),
+      timedEnemySpawn("mooth","infinite",140,120,160,1),
+      timedEnemySpawn("teacher-bear","infinite",160,140,180,1)
+    ],
+    Hollywood: [
+      timedEnemySpawn("kang-roo","infinite",130,110,140,1),
+      timedEnemySpawn("mooth","infinite",120,120,160,1)
+    ],
+    Hawaii: [
+      timedEnemySpawn("kang-roo","infinite",130,100,130,1),
+      timedEnemySpawn("one-horn","infinite",140,130,180,1),
+      timedEnemySpawn("teacher-bear","infinite",130,120,160,1)
+    ],
+    Moon: [
+      timedEnemySpawn("kang-roo","infinite",120,120,180,1),
+      baseTriggeredEnemySpawn("the-face",1,90,1,1,1,1,true)
+    ]
+  };
+  enemySpawns.push(...(newEnemyWaves[levelName]||[]));
+
   return {
     name:levelName,
     background:"background.png",
@@ -2433,6 +2512,13 @@ function battleEntitySpriteScale(entity) {
     if(key==="gory") return 1.32;
     if(key==="sir-seal") return 1.20;
     if(key==="le-boin") return 1.48;
+    if(key==="b-b-bunny") return 0.94;
+    if(key==="kang-roo") return 1.12;
+    if(key==="squire-rel") return 0.82;
+    if(key==="mooth") return 1.18;
+    if(key==="one-horn") return 1.24;
+    if(key==="teacher-bear") return 1.30;
+    if(key==="the-face") return 1.75;
     if(key==="baa-baa") return 1.0;
     if(key==="croco") return 1.02;
     if(key==="hippoe") return 1.22;
@@ -2447,7 +2533,11 @@ function battleEntitySpriteScale(entity) {
   return 0.62;
 }
 function battleEntityHitboxHeightScale(entity) {
-  return entity&&entity.kind==="doge"&&battleUnitKey(entity.enemyType||"doge")==="pigge" ? 0.80 : 0.70;
+  if(!entity||entity.kind!=="doge") return 0.70;
+  const key=battleUnitKey(entity.enemyType||"doge");
+  if(key==="pigge"||key==="one-horn"||key==="teacher-bear") return 0.80;
+  if(key==="the-face") return 0.78;
+  return 0.70;
 }
 function battleEntityCollisionSquareSide(entity) {
   const metrics=battleLayoutMetrics();
