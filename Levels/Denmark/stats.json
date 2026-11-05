@@ -29,8 +29,8 @@
       "enemy": "those-guys",
       "amount": "infinite",
       "startTime": 20,
-      "intervalMin": 10,
-      "intervalMax": 10,
+      "intervalMin": 40,
+      "intervalMax": 40,
       "maxAlive": 3,
       "spawnChance": 1
     },
