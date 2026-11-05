@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-19";
+const BATTLE_ASSET_VERSION = "20261105-20";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -1743,59 +1743,76 @@ function defaultBattleLevelConfig(levelName="Korea") {
     ];
   }
   const newEnemyWaves = {
-    Greenland: [timedEnemySpawn("b-b-bunny","infinite",90,35,55,2)],
-    Bermuda: [
-      timedEnemySpawn("b-b-bunny","infinite",45,30,45,2),
-      baseTriggeredEnemySpawn("kang-roo",1,90,1,1,1,1,true)
+    Greenland: [
+      timedEnemySpawn("b-b-bunny","infinite",20,2,10,2),
+      timedEnemySpawn("b-b-bunny","infinite",40,2,10,2),
+      baseTriggeredEnemySpawn("b-b-bunny","infinite",99,2,10,2,1,true)
     ],
-    Jamaica: [timedEnemySpawn("b-b-bunny","infinite",80,35,50,2)],
+    Bermuda: [
+      timedEnemySpawn("b-b-bunny","infinite",100,10,20,3),
+      baseTriggeredEnemySpawn("kang-roo",1,99,1,1,1,1,true)
+    ],
+    Jamaica: [
+      timedEnemySpawn("b-b-bunny","infinite",100,3.3,13.3,3)
+    ],
     Colombia: [
-      timedEnemySpawn("b-b-bunny","infinite",45,30,45,2),
-      timedEnemySpawn("kang-roo","infinite",120,100,130,1)
+      timedEnemySpawn("b-b-bunny","infinite",100,3.3,13.3,3),
+      timedEnemySpawn("kang-roo",1,100,1,1,1),
+      timedEnemySpawn("kang-roo",1,166.7,1,1,1)
     ],
     Brazil: [
-      timedEnemySpawn("squire-rel","infinite",0,15,25,3),
-      baseTriggeredEnemySpawn("mooth",1,90,1,1,1,1,true)
+      timedEnemySpawn("squire-rel","infinite",30,10,30,3),
+      baseTriggeredEnemySpawn("mooth",1,92,1,1,1,1,true)
     ],
-    Argentina: [timedEnemySpawn("squire-rel","infinite",0,15,25,3)],
+    Argentina: [
+      timedEnemySpawn("squire-rel","infinite",80,6,14,3)
+    ],
     "Machu Picchu": [
-      timedEnemySpawn("squire-rel","infinite",30,20,35,3),
-      timedEnemySpawn("kang-roo","infinite",110,110,140,1)
+      timedEnemySpawn("squire-rel","infinite",80,6,14,3),
+      baseTriggeredEnemySpawn("kang-roo",1,80,1,1,1,1,true),
+      baseTriggeredEnemySpawn("kang-roo",1,60,1,1,1,1,true)
     ],
     "Easter Island": [
-      timedEnemySpawn("squire-rel","infinite",0,15,25,3),
-      baseTriggeredEnemySpawn("one-horn",1,90,1,1,1,1,true)
+      timedEnemySpawn("squire-rel","infinite",0,1,16.7,3),
+      timedEnemySpawn("one-horn",1,0,1,1,1)
     ],
     Mexico: [
-      timedEnemySpawn("squire-rel","infinite",40,20,35,3),
-      timedEnemySpawn("kang-roo","infinite",120,100,130,1)
+      timedEnemySpawn("squire-rel","infinite",80,6,14,3),
+      timedEnemySpawn("kang-roo",1,140,1,1,1),
+      baseTriggeredEnemySpawn("kang-roo",1,50,1,1,1,1,true),
+      baseTriggeredEnemySpawn("kang-roo",1,50,1,1,1,1,true)
     ],
     "Las Vegas": [
-      timedEnemySpawn("squire-rel","infinite",0,15,25,3),
-      baseTriggeredEnemySpawn("teacher-bear",1,90,1,1,1,1,true)
+      baseTriggeredEnemySpawn("teacher-bear",1,99,1,1,1,1,true),
+      baseTriggeredEnemySpawn("squire-rel","infinite",99,1,2,4,1,true)
     ],
     NASA: [
-      timedEnemySpawn("b-b-bunny","infinite",60,35,50,2),
-      timedEnemySpawn("one-horn","infinite",120,120,160,1)
+      timedEnemySpawn("b-b-bunny","infinite",20,3,20,3),
+      timedEnemySpawn("one-horn",1,20,1,1,1),
+      timedEnemySpawn("b-b-bunny","infinite",90,30,60,2),
+      baseTriggeredEnemySpawn("one-horn",1,80,1,1,1,1,true),
+      baseTriggeredEnemySpawn("one-horn",1,60,1,1,1,1,true)
     ],
     Alaska: [
-      timedEnemySpawn("b-b-bunny","infinite",100,45,60,2),
-      timedEnemySpawn("squire-rel","infinite",30,20,35,3),
-      timedEnemySpawn("mooth","infinite",140,120,160,1),
-      timedEnemySpawn("teacher-bear","infinite",160,140,180,1)
+      timedEnemySpawn("squire-rel",20,0,0.7,1,10),
+      timedEnemySpawn("teacher-bear",2,100,100,133.3,2),
+      baseTriggeredEnemySpawn("teacher-bear",1,99,1,1,1,1,true),
+      baseTriggeredEnemySpawn("squire-rel","infinite",99,3.3,10,3,1,true),
+      baseTriggeredEnemySpawn("b-b-bunny","infinite",99,20,40,2,1,true),
+      baseTriggeredEnemySpawn("mooth",1,90,1,1,1,1,true)
     ],
     Hollywood: [
-      timedEnemySpawn("kang-roo","infinite",130,110,140,1),
-      timedEnemySpawn("mooth","infinite",120,120,160,1)
+      timedEnemySpawn("kang-roo","infinite",120,43.3,80,1),
+      timedEnemySpawn("mooth",1,140,1,1,1)
     ],
     Hawaii: [
-      timedEnemySpawn("kang-roo","infinite",130,100,130,1),
-      timedEnemySpawn("one-horn","infinite",140,130,180,1),
-      timedEnemySpawn("teacher-bear","infinite",130,120,160,1)
+      timedEnemySpawn("kang-roo","infinite",120,30,50,1),
+      timedEnemySpawn("one-horn","infinite",140,66.7,86.7,1),
+      timedEnemySpawn("teacher-bear","infinite",160,133.3,266.7,1)
     ],
     Moon: [
-      timedEnemySpawn("kang-roo","infinite",120,120,180,1),
-      baseTriggeredEnemySpawn("the-face",1,90,1,1,1,1,true)
+      timedEnemySpawn("kang-roo","infinite",120,30,50,1),
+      timedEnemySpawn("the-face",1,0,1,1,1)
     ]
   };
   enemySpawns.push(...(newEnemyWaves[levelName]||[]));
