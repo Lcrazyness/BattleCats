@@ -60,9 +60,9 @@
       "amount": 20,
       "baseHealthPercent": 90,
       "startTime": 0,
-      "intervalMin": 0.25,
-      "intervalMax": 0.25,
-      "maxAlive": 10,
+      "intervalMin": 0.5,
+      "intervalMax": 0.5,
+      "maxAlive": 5,
       "spawnChance": 1,
       "priority": true,
       "fallbackAfterSeconds": null
