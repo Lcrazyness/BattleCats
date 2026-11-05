@@ -225,7 +225,7 @@ def crop_le_boin():
     write_enemy(
         "Le-Boin", "le-boin", "Le'boin", moving_raw, attack_raw, hurt_raw,
         {
-            "name": "Le'boin", "health": 2400, "damage": 125, "speed": 2.8,
+            "name": "Le'boin", "health": 3000, "damage": 200, "speed": 2.8,
             "range": 400, "spriteChangeSpeed": 4, "walkSpriteChangeSpeed": 2,
             "killReward": 1000, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.72, "knockbackDistance": 4.5,
