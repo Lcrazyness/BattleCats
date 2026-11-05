@@ -99,7 +99,7 @@ const BATTLE_UNIT_STATS = {
   gory: {health:650,damage:24,speed:8,spriteChangeSpeed:7,range:150,killReward:180,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.1,AreaAttack:1,traits:[]},
   "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
   "baa-baa": {health:40,damage:10,speed:3.6,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.2,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
-  croco: {health:35,damage:6,speed:8.5,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.5,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.6,AreaAttack:0,traits:[]},
+  croco: {health:60,damage:6,speed:8.5,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.5,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.6,AreaAttack:0,traits:[]},
   "le-boin": {health:2400,damage:125,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:400,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
