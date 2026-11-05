@@ -164,28 +164,16 @@ ENEMIES = {
 
 
 def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.Image:
-    """Flood-remove neutral sheet colors sampled from all four edges."""
+    """Remove only neutral sheet background connected to the source image edges."""
     image = image.convert("RGBA")
     pixels = image.load()
     width, height = image.size
-    from collections import Counter
-
-    edge_colors = []
-    for x in range(width):
-        edge_colors.append(pixels[x, 0][:3])
-        edge_colors.append(pixels[x, height - 1][:3])
-    for y in range(height):
-        edge_colors.append(pixels[0, y][:3])
-        edge_colors.append(pixels[width - 1, y][:3])
-
-    bins = Counter()
-    for r, g, b in edge_colors:
-        if max(r, g, b) - min(r, g, b) <= 60:
-            bins[((r // 16) * 16 + 8, (g // 16) * 16 + 8, (b // 16) * 16 + 8)] += 1
-    backgrounds = [color for color, _ in bins.most_common(16)]
-    if not backgrounds:
-        backgrounds = [pixels[0, 0][:3], pixels[width - 1, 0][:3],
-                       pixels[0, height - 1][:3], pixels[width - 1, height - 1][:3]]
+    corners = [pixels[0, 0][:3], pixels[width - 1, 0][:3],
+               pixels[0, height - 1][:3], pixels[width - 1, height - 1][:3]]
+    backgrounds = []
+    for color in corners:
+        if color not in backgrounds:
+            backgrounds.append(color)
 
     def is_background(index: int) -> bool:
         x, y = index % width, index // width
@@ -222,13 +210,52 @@ def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.I
     return image
 
 
+def remove_local_checkerboard_background(image: Image.Image) -> Image.Image:
+    """Remove a dark neutral checkerboard panel while preserving black line art and white fills."""
+    image = image.convert("RGBA")
+    pixels = image.load()
+    width, height = image.size
+    seen = bytearray(width * height)
+    queue = deque()
+
+    def is_checker(index: int) -> bool:
+        x, y = index % width, index // width
+        r, g, b, a = pixels[x, y]
+        if a <= 0:
+            return False
+        chroma = max(r, g, b) - min(r, g, b)
+        luminance = (r + g + b) / 3
+        return chroma <= 24 and 28 <= luminance <= 188
+
+    for x in range(width):
+        queue.append(x)
+        queue.append((height - 1) * width + x)
+    for y in range(height):
+        queue.append(y * width)
+        queue.append(y * width + width - 1)
+
+    while queue:
+        index = queue.popleft()
+        if seen[index]:
+            continue
+        seen[index] = 1
+        if not is_checker(index):
+            continue
+        x, y = index % width, index // width
+        pixels[x, y] = (0, 0, 0, 0)
+        if x: queue.append(index - 1)
+        if x + 1 < width: queue.append(index + 1)
+        if y: queue.append(index - width)
+        if y + 1 < height: queue.append(index + width)
+    return image
+
 def crop_pose(sheet: Image.Image, box, rotate=0, local_background=False) -> Image.Image:
     left, top, right, bottom = box
     if not (0 <= left < right <= sheet.width and 0 <= top < bottom <= sheet.height):
         raise ValueError(f"Crop {box} is outside sheet {sheet.size}")
     pose = sheet.crop(box).convert("RGBA")
     if local_background:
-        pose = remove_border_background(pose, tolerance=128)
+        pose = remove_local_checkerboard_background(pose)
     bbox = pose.getchannel("A").point(lambda value: 255 if value > 10 else 0).getbbox()
     if not bbox:
         raise ValueError(f"Empty sprite crop {box}")
