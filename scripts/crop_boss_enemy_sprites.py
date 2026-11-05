@@ -8,7 +8,7 @@ and common visible-art scale so their animation poses do not jump in size.
 """
 from pathlib import Path
 import json
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 ROOT = Path(__file__).resolve().parents[1]
 ENEMIES = {
@@ -240,7 +240,21 @@ def normalize_unit_frames(folder_name: str) -> None:
         path = ROOT / relative
         if not path.is_file():
             continue
-        image = Image.open(path).convert("RGBA")
+        try:
+            image = Image.open(path).convert("RGBA")
+        except (UnidentifiedImageError, OSError):
+            # The checked-in fourth Axe Cat attack PNG is corrupt. Replace only
+            # that unusable file with the preceding valid pose so the animation
+            # remains complete until a clean original frame is supplied.
+            if folder_name == "axe-cat" and path.name == "frame-004attack.png":
+                fallback = path.with_name("frame-003attack.png")
+                if not fallback.is_file():
+                    raise
+                path.write_bytes(fallback.read_bytes())
+                image = Image.open(path).convert("RGBA")
+                print("Cats/axe-cat: repaired corrupt frame-004attack.png using frame-003attack.png")
+            else:
+                raise
         bbox = image.getchannel("A").point(lambda value: 255 if value > 10 else 0).getbbox()
         if not bbox:
             continue
