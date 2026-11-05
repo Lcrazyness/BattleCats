@@ -33,6 +33,24 @@
       "intervalMax": 113.3,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "kang-roo",
+      "amount": "infinite",
+      "startTime": 130,
+      "intervalMin": 110,
+      "intervalMax": 140,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "mooth",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 120,
+      "intervalMax": 160,
+      "maxAlive": 1,
+      "spawnChance": 1
     }
   ]
 }

@@ -60,6 +60,33 @@
       "intervalMax": 100,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "kang-roo",
+      "amount": "infinite",
+      "startTime": 130,
+      "intervalMin": 100,
+      "intervalMax": 130,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "one-horn",
+      "amount": "infinite",
+      "startTime": 140,
+      "intervalMin": 130,
+      "intervalMax": 180,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "teacher-bear",
+      "amount": "infinite",
+      "startTime": 130,
+      "intervalMin": 120,
+      "intervalMax": 160,
+      "maxAlive": 1,
+      "spawnChance": 1
     }
   ]
 }

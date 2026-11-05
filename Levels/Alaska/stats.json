@@ -15,6 +15,42 @@
       "intervalMax": 60,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "b-b-bunny",
+      "amount": "infinite",
+      "startTime": 100,
+      "intervalMin": 45,
+      "intervalMax": 60,
+      "maxAlive": 2,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "squire-rel",
+      "amount": "infinite",
+      "startTime": 30,
+      "intervalMin": 20,
+      "intervalMax": 35,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "mooth",
+      "amount": "infinite",
+      "startTime": 140,
+      "intervalMin": 120,
+      "intervalMax": 160,
+      "maxAlive": 1,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "teacher-bear",
+      "amount": "infinite",
+      "startTime": 160,
+      "intervalMin": 140,
+      "intervalMax": 180,
+      "maxAlive": 1,
+      "spawnChance": 1
     }
   ]
 }

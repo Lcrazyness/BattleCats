@@ -33,6 +33,27 @@
       "intervalMax": 14,
       "maxAlive": 3,
       "spawnChance": 1
+    },
+    {
+      "enemy": "squire-rel",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 15,
+      "intervalMax": 25,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "teacher-bear",
+      "amount": 1,
+      "startTime": 0,
+      "intervalMin": 1,
+      "intervalMax": 1,
+      "maxAlive": 1,
+      "spawnChance": 1,
+      "baseHealthPercent": 90,
+      "priority": true,
+      "fallbackAfterSeconds": null
     }
   ]
 }

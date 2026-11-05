@@ -87,6 +87,15 @@
       "intervalMax": 200,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "b-b-bunny",
+      "amount": "infinite",
+      "startTime": 80,
+      "intervalMin": 35,
+      "intervalMax": 50,
+      "maxAlive": 2,
+      "spawnChance": 1
     }
   ]
 }

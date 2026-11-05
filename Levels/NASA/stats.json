@@ -60,6 +60,24 @@
       "intervalMax": 60,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "b-b-bunny",
+      "amount": "infinite",
+      "startTime": 60,
+      "intervalMin": 35,
+      "intervalMax": 50,
+      "maxAlive": 2,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "one-horn",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 120,
+      "intervalMax": 160,
+      "maxAlive": 1,
+      "spawnChance": 1
     }
   ]
 }

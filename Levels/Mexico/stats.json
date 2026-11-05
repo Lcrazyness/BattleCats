@@ -78,6 +78,24 @@
       "intervalMax": 100,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "squire-rel",
+      "amount": "infinite",
+      "startTime": 40,
+      "intervalMin": 20,
+      "intervalMax": 35,
+      "maxAlive": 3,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "kang-roo",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 100,
+      "intervalMax": 130,
+      "maxAlive": 1,
+      "spawnChance": 1
     }
   ]
 }

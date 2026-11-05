@@ -96,6 +96,15 @@
       "spawnChance": 1,
       "priority": true,
       "fallbackAfterSeconds": null
+    },
+    {
+      "enemy": "squire-rel",
+      "amount": "infinite",
+      "startTime": 0,
+      "intervalMin": 15,
+      "intervalMax": 25,
+      "maxAlive": 3,
+      "spawnChance": 1
     }
   ]
 }

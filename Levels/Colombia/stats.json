@@ -51,6 +51,24 @@
       "intervalMax": 40,
       "maxAlive": 1,
       "spawnChance": 1
+    },
+    {
+      "enemy": "b-b-bunny",
+      "amount": "infinite",
+      "startTime": 45,
+      "intervalMin": 30,
+      "intervalMax": 45,
+      "maxAlive": 2,
+      "spawnChance": 1
+    },
+    {
+      "enemy": "kang-roo",
+      "amount": "infinite",
+      "startTime": 120,
+      "intervalMin": 100,
+      "intervalMax": 130,
+      "maxAlive": 1,
+      "spawnChance": 1
     }
   ]
 }
