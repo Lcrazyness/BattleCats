@@ -3073,3 +3073,39 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   object-position:center bottom !important;
   transform-origin:center bottom !important;
 }
+
+
+/* Keep Gross Cat and Axe Cat at one normalized size across every animation pose. */
+.fight-screen .fight-unit-cat[data-unit-type="gross-cat"] .fight-unit-sprite {
+  width:100% !important;
+  height:70% !important;
+  max-width:100% !important;
+  max-height:70% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  scale:1.18 !important;
+  transform-origin:center bottom !important;
+}
+.fight-screen .fight-unit-cat[data-unit-type="axe-cat"] .fight-unit-sprite {
+  width:100% !important;
+  height:70% !important;
+  max-width:100% !important;
+  max-height:70% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  scale:1.06 !important;
+  transform-origin:center bottom !important;
+}
+
+/* Gory and Sir Seal are only slightly larger than Doge, with the same baseline. */
+.fight-screen .fight-unit[data-unit-type="gory"] .fight-unit-sprite,
+.fight-screen .fight-unit[data-unit-type="sir-seal"] .fight-unit-sprite {
+  width:100% !important;
+  height:70% !important;
+  max-width:100% !important;
+  max-height:70% !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  scale:.86 !important;
+  transform-origin:center bottom !important;
+}
