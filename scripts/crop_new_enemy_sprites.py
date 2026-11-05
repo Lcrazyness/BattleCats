@@ -108,12 +108,10 @@ def normalize_group(poses):
 
 def write_enemy(folder_name, key, name, moving_poses, attack_poses, hurt_pose, stats, attack_rate, source_url):
     folder = ROOT / "enemys" / folder_name
-    moving = normalize_group(moving_poses)
-    attacks = normalize_group(attack_poses)
-    # Match a common display size across all frames, not just within each animation.
-    all_frames = moving + attacks + [trim_alpha(hurt_pose)]
-    common_scale = min(MAX_ART[0] / max(p.width for p in all_frames),
-                       MAX_ART[1] / max(p.height for p in all_frames))
+    # Match a common scale across every moving, attack and damaged pose.
+    all_poses = [trim_alpha(p) for p in moving_poses + attack_poses + [hurt_pose]]
+    common_scale = min(MAX_ART[0] / max(p.width for p in all_poses),
+                       MAX_ART[1] / max(p.height for p in all_poses))
     moving = [fit_canvas(p, common_scale) for p in moving_poses]
     attacks = [fit_canvas(p, common_scale) for p in attack_poses]
     hurt = fit_canvas(trim_alpha(hurt_pose), common_scale)
