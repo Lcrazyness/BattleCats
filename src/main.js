@@ -1274,7 +1274,7 @@ const EOC1_ENEMY_STAGES = {
   gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47],
   "baa-baa": [19,20,21,22,25,27,30,31,33,34,36],
   "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
-  croco: [26,27,28,29,30,31,33,34,36,38,41],
+  croco: [26,27,28,29,30,31,33,34,36,38,41,43],
   "le-boin": [29,31,36,40,42,45,47]
 };
 const EOC1_MAX_ENEMIES = {
@@ -1744,7 +1744,7 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     const infinite=rule.infinite===true||String(rule.amount??rule.count??"").toLowerCase()==="infinite"||String(rule.amount??rule.count??"")==="∞";
     const amount=infinite?0:Math.max(0,Math.floor(Number.isFinite(requestedAmount)?requestedAmount:10));
     const startTime=Math.max(0,Number.isFinite(Number(rule.startTime))?Number(rule.startTime):initialSpawnDelay);
-    const intervalMin=Math.max(0.25,Number.isFinite(Number(rule.intervalMin))?Number(rule.intervalMin):5.5);
+    const intervalMin=Math.max(0.1,Number.isFinite(Number(rule.intervalMin))?Number(rule.intervalMin):5.5);
     const intervalMax=Math.max(intervalMin,Number.isFinite(Number(rule.intervalMax))?Number(rule.intervalMax):intervalMin);
     const rawChance=Number(rule.spawnChance ?? rule.randomRate ?? 1);
     const spawnChance=Math.max(0,Math.min(1,Number.isFinite(rawChance)?rawChance:1));
