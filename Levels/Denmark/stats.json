@@ -22,7 +22,7 @@
       "startTime": 10,
       "intervalMin": 10,
       "intervalMax": 20,
-      "maxAlive": 3,
+      "maxAlive": 2,
       "spawnChance": 1
     },
     {
