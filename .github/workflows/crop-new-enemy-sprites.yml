@@ -1,0 +1,56 @@
+name: Build Baa Baa Croco and Le'boin sprites
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/crop_new_enemy_sprites.py"
+      - ".github/workflows/crop-new-enemy-sprites.yml"
+      - "enemys/Baa-Baa/Screenshot 2026-11-05 100131.png"
+      - "enemys/Croco/Screenshot 2026-11-05 100428.png"
+      - "enemys/Le-Boin/reference-atlas.b64.part*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crop-new-enemy-sprites
+  cancel-in-progress: false
+
+jobs:
+  crop-sprites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install image tools
+        run: python -m pip install pillow
+      - name: Crop and assemble enemy animations
+        run: python scripts/crop_new_enemy_sprites.py
+      - name: Commit standalone PNG frames
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add enemys/Baa-Baa enemys/Croco enemys/Le-Boin
+          if git diff --cached --quiet; then
+            echo "No sprite changes."
+            exit 0
+          fi
+          git commit -m "Add Baa Baa Croco and Le'boin sprite frames"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push raced with another update; rebasing and retrying."
+          done
+          echo "Could not push generated sprite frames after three attempts."
+          exit 1
