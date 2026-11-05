@@ -170,8 +170,8 @@ def crop_sheet_enemy(folder_name, config):
 def crop_le_boin():
     folder = ROOT / "enemys/Le-Boin"
     parts = sorted(folder.glob("reference-atlas.b64.part*"))
-    if len(parts) != 3:
-        raise ValueError(f"Le-Boin atlas must have exactly 3 base64 parts; found {len(parts)}")
+    if len(parts) != 6:
+        raise ValueError(f"Le-Boin atlas must have exactly 6 base64 parts; found {len(parts)}")
     encoded = "".join(p.read_text(encoding="ascii").strip() for p in parts)
     atlas_path = folder / "reference-atlas.png"
     atlas_path.write_bytes(base64.b64decode(encoded, validate=True))
