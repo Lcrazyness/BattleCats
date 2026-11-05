@@ -3,7 +3,7 @@
 from collections import deque
 from pathlib import Path
 import json
-from PIL import Image
+from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 FRAME = (104, 112)
@@ -211,42 +211,24 @@ def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.I
 
 
 def remove_local_checkerboard_background(image: Image.Image) -> Image.Image:
-    """Remove a dark neutral checkerboard panel while preserving black line art and white fills."""
+    """Keep the colored rhino and nearby outlines while clearing its checkerboard tile."""
     image = image.convert("RGBA")
-    pixels = image.load()
     width, height = image.size
-    seen = bytearray(width * height)
-    queue = deque()
-
-    def is_checker(index: int) -> bool:
-        x, y = index % width, index // width
-        r, g, b, a = pixels[x, y]
-        if a <= 0:
-            return False
-        chroma = max(r, g, b) - min(r, g, b)
-        luminance = (r + g + b) / 3
-        return chroma <= 24 and 28 <= luminance <= 188
-
-    for x in range(width):
-        queue.append(x)
-        queue.append((height - 1) * width + x)
+    pixels = image.load()
+    color_mask = Image.new("L", (width, height), 0)
+    mask_pixels = color_mask.load()
     for y in range(height):
-        queue.append(y * width)
-        queue.append(y * width + width - 1)
-
-    while queue:
-        index = queue.popleft()
-        if seen[index]:
-            continue
-        seen[index] = 1
-        if not is_checker(index):
-            continue
-        x, y = index % width, index // width
-        pixels[x, y] = (0, 0, 0, 0)
-        if x: queue.append(index - 1)
-        if x + 1 < width: queue.append(index + 1)
-        if y: queue.append(index - width)
-        if y + 1 < height: queue.append(index + width)
+        for x in range(width):
+            r, g, b, a = pixels[x, y]
+            if a > 0 and max(r, g, b) - min(r, g, b) > 42:
+                mask_pixels[x, y] = 255
+    # Expand the orange silhouette to preserve attached horn, hooves and line art.
+    keep = color_mask.filter(ImageFilter.MaxFilter(31)).load()
+    for y in range(height):
+        for x in range(width):
+            if keep[x, y] == 0:
+                r, g, b, a = pixels[x, y]
+                pixels[x, y] = (r, g, b, 0)
     return image
 
 def crop_pose(sheet: Image.Image, box, rotate=0, local_background=False) -> Image.Image:
