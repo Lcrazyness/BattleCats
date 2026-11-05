@@ -15,8 +15,7 @@
     "enemys/One Horn/moving/frame-010.png"
   ],
   "attacks": [
-    "enemys/One Horn/attack/frame-001.png",
-    "enemys/One Horn/attack/frame-002.png"
+    "enemys/One Horn/attack/frame-001.png"
   ],
   "attack": "enemys/One Horn/attack/frame-001.png",
   "attackFrameRate": 2,
