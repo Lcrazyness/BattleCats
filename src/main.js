@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-03";
+const BATTLE_ASSET_VERSION = "20261105-04";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -2603,7 +2603,17 @@ function tickBattle() {
     const target=findBattleTargetFor(cat);
 
     if(target&&target.mode==="knockback") {
-      cat.mode="idle";
+      // A knocked-back enemy still blocks its square, but should not freeze
+      // cats that are still approaching it. Let each cat walk up to the
+      // player-side edge and wait there until the blocker recovers.
+      const blockerGap=battleTargetGap(cat,target);
+      const blockerStop=Number(target.x)+battleEntityContactGapPercent(cat,target);
+      if(blockerGap>battleEntityContactGapPercent(cat,target)+0.0001) {
+        cat.x=Math.max(blockerStop,Math.min(catHomeCenter,cat.x-(cat.speed*0.45)*dt));
+        cat.mode=cat.x<=blockerStop+0.15?"idle":"moving";
+      } else {
+        cat.mode="idle";
+      }
     } else if(attackActive) {
       cat.mode="attack";
     } else if(target) {
