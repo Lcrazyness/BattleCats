@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-07";
+const BATTLE_ASSET_VERSION = "20261105-08";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -100,7 +100,7 @@ const BATTLE_UNIT_STATS = {
   "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
   "baa-baa": {health:40,damage:10,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
   croco: {health:35,damage:6,speed:14,spriteChangeSpeed:10,walkSpriteChangeSpeed:6,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:0,traits:[]},
-  "le-boin": {health:2400,damage:125,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:400,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
+  "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:400,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -1266,15 +1266,15 @@ function baseTriggeredEnemySpawn(enemy,amount,baseHealthPercent,intervalMin=2,in
   return {enemy,amount,baseHealthPercent,startTime:0,intervalMin,intervalMax,maxAlive,spawnChance,priority:priority===true,fallbackAfterSeconds};
 }
 const EOC1_ENEMY_STAGES = {
-  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,33,34,35,36,37,38,39,40,42],
-  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44],
-  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,40],
-  pigge: [10,12,15,17,18,20,21,23,24,28,30,31,32,33,34,36,37,43,44,46],
-  "jackie-peng": [13,17,18,21,22,24,25,28,30,33,34,39,40,42],
+  snache: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,20,21,22,25,27,28,29,30,33,34,35,36,37,39,40,42,43,44],
+  "those-guys": [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,47],
+  hippoe: [7,11,14,15,17,20,21,24,25,28,30,33,34,36,37,47],
+  pigge: [10,12,15,17,18,20,21,23,24,28,30,31,32,33,34,36,37,43,46],
+  "jackie-peng": [13,17,18,21,22,24,25,28,30,33,34,39,40,42,47],
   gory: [16,19,20,21,22,24,27,28,30,33,34,38,39,40,42,45,47],
-  "baa-baa": [19,20,21,22,25,27,30,31,33,34,36,37],
+  "baa-baa": [19,20,21,22,25,27,30,31,33,34,36],
   "sir-seal": [23,26,27,28,30,32,33,34,39,40,42,43,45,47],
-  croco: [26,27,28,29,30,31,33,34,35,36,37,38,41],
+  croco: [26,27,28,29,30,31,33,34,36,38,41],
   "le-boin": [29,31,36,40,42,45,47]
 };
 const EOC1_MAX_ENEMIES = {
@@ -1313,7 +1313,7 @@ const EOC1_MAX_ENEMIES = {
   "Easter Island":10,
   Mexico:5,
   NASA:10,
-  "Las Vegas":10,
+  "Las Vegas":4,
   Hollywood:2,
   Alaska:10,
   Hawaii:3,
