@@ -130,9 +130,13 @@ def main() -> None:
         if not sheet_path.is_file():
             raise FileNotFoundError(f"Missing source reference sheet: {sheet_path}")
         sheet = Image.open(sheet_path).convert("RGBA")
-        expected = (906, 420) if key == "gory" else (802, 420)
-        if sheet.size != expected:
-            raise ValueError(f"{key} sheet size changed: expected {expected}, got {sheet.size}")
+        expected_width = 906 if key == "gory" else 802
+        required_height = max(box[3] for group in (config["moving"], config["attack"]) for box in group)
+        if sheet.width != expected_width or sheet.height < required_height:
+            raise ValueError(
+                f"{key} sheet dimensions are incompatible with the crop map: "
+                f"expected width {expected_width} and height at least {required_height}, got {sheet.size}"
+            )
 
         folder = ROOT / "enemys" / key
         paths = {"moving": [], "attacks": []}
