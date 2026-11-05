@@ -3109,3 +3109,10 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   scale:.86 !important;
   transform-origin:center bottom !important;
 }
+
+
+/* Sir Seal is slightly larger than Gory and Doge in battle. */
+.fight-screen .fight-unit[data-unit-type="sir-seal"] .fight-unit-sprite {
+  scale:1.08 !important;
+  transform-origin:center bottom !important;
+}

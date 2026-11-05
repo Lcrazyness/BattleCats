@@ -74,7 +74,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-01";
+const BATTLE_ASSET_VERSION = "20261105-02";
 const BATTLE_AXE_SPRITE_SIZE = 160;
 const BATTLE_AXE_SPRITE_CACHE = new Map();
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
@@ -2379,6 +2379,7 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.pendingAttackAt=now+Math.max(0.1,animationDuration*0.62);
   attacker.pendingAttackTargetKey=target ? target.key : "";
   attacker.pendingAttackBase=baseTarget;
+  attacker.pendingAttackRange=target?battleCombatReachPercent(attacker.range,attacker,target):0;
   attacker.pendingAttackDamage=Number(attacker.attackPower)||8;
   attacker.mode="attack";
   return true;
@@ -2452,24 +2453,34 @@ function resolvePendingBattleAttacks(now) {
     if (!strikeAt || now+0.0001<strikeAt) continue;
     const targetKey=attacker.pendingAttackTargetKey;
     const baseTarget=attacker.pendingAttackBase;
+    const attackRangeAtStart=Math.max(0,Number(attacker.pendingAttackRange)||0);
     const damage=Number(attacker.pendingAttackDamage)||Number(attacker.attackPower)||8;
     attacker.pendingAttackAt=0;
     attacker.pendingAttackTargetKey="";
     attacker.pendingAttackBase="";
+    attacker.pendingAttackRange=0;
     if (attacker.mode==="dead" || Number(attacker.hp)<=0) continue;
 
     if(targetKey) {
       const candidates=attacker.kind==="cat"?battleState.enemies:battleState.playerUnits;
+      const lockedTarget=candidates.find(target=>
+        target&&target.key===targetKey&&Number(target.hp)>0&&target.mode!=="dead"
+      )||null;
       let targets=[];
       const areaMode=Math.max(0,Math.min(2,Math.floor(Number(attacker.areaAttack)||0)));
-      const currentTarget=findBattleTargetFor(attacker);
       if(areaMode>0) {
         targets=battleAreaAttackTargets(attacker,candidates);
-      } else if(currentTarget&&currentTarget.mode!=="knockback") {
-        const distance=Math.abs(battleTargetGap(attacker,currentTarget));
-        if(distance<=battleCombatReachPercent(attacker.range,attacker,currentTarget)+0.0001) {
-          targets=[currentTarget];
+        if(lockedTarget&&!targets.includes(lockedTarget)) {
+          const distance=Math.abs(battleTargetGap(attacker,lockedTarget));
+          const liveReach=battleCombatReachPercent(attacker.range,attacker,lockedTarget);
+          const hitGrace=Math.max(0.75,battleEntityContactGapPercent(attacker,lockedTarget)*0.35);
+          if(distance<=Math.max(attackRangeAtStart,liveReach)+hitGrace) targets.unshift(lockedTarget);
         }
+      } else if(lockedTarget) {
+        const distance=Math.abs(battleTargetGap(attacker,lockedTarget));
+        const liveReach=battleCombatReachPercent(attacker.range,attacker,lockedTarget);
+        const hitGrace=Math.max(0.75,battleEntityContactGapPercent(attacker,lockedTarget)*0.35);
+        if(distance<=Math.max(attackRangeAtStart,liveReach)+hitGrace) targets=[lockedTarget];
       }
       for(const target of targets) {
         const targetDamage=battleDamageAgainstTarget(attacker,target,damage);
@@ -2549,7 +2560,7 @@ function tickBattle() {
     } else if(target) {
       const distance=Math.abs(battleTargetGap(cat,target));
       const reach=battleCombatReachPercent(cat.range,cat,target);
-      const targetApproachStop=Math.max(enemyBaseStop,Number(target.x)+reach);
+      const targetApproachStop=Number(target.x)+reach;
 
       if(distance>reach) {
         const targetGap=battleTargetGap(cat,target);
@@ -2579,7 +2590,7 @@ function tickBattle() {
           startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target);
         }
       }
-      cat.x=Math.max(enemyBaseStop,Math.min(catHomeCenter,cat.x));
+      cat.x=Math.max(0.5,Math.min(catHomeCenter,cat.x));
     } else if (state.enemyBaseHp>0) {
       const catBaseAttackStop=enemyBaseStop+battleRangePercent(cat.range)*0.1;
       if (cat.x>catBaseAttackStop) {
