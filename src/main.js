@@ -3593,8 +3593,8 @@ function renderUpgrade() {
     '<img class="upgrade-wood-panel" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-03" alt="" draggable="false">'+
     '<section class="upgrade-bottom-copy" aria-live="polite">'+upgradeDetailMarkup(selected)+'</section>'+
     '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-03" alt="" draggable="false"></button>'+
-    '<button class="upgrade-action-button" type="button" data-go="upgrade-buy" aria-label="Upgrade selected item">'+
-      '<img src="sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-03" alt="" draggable="false"><span class="upgrade-action-label">'+(selected.level>=selected.max?"MAX":"UPGRADE")+'</span>'+
+    '<button class="upgrade-action-button" type="button" data-go="upgrade-buy" aria-label="'+(selected.level>=selected.max?upgradeEscape(selected.name+" is max level"):"Upgrade "+upgradeEscape(selected.name))+'">'+
+      '<img src="sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-03" alt="" draggable="false">'+
     '</button>'+
   '</section>';
 }
