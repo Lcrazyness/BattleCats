@@ -3937,10 +3937,12 @@ function perform(action) {
     if(!item) return;
     if(item.level>=item.max) { playSfx("blocked"); notify(item.name+" is already max level."); return; }
     if(save.xp<item.cost) { playSfx("blocked"); notify("Not enough XP. Need "+money(item.cost)+" XP."); return; }
+    const unit=item.kind==="unit"
+      ? save.units.find(unit=>String(unit.id)===item.unitId)
+      : null;
+    if(item.kind==="unit"&&!unit) return;
     save.xp-=item.cost;
     if(item.kind==="unit") {
-      const unit=save.units.find(unit=>String(unit.id)===item.unitId);
-      if(!unit) return;
       unit.level=Math.min(10,Math.max(1,Math.floor(Number(unit.level)||1))+1);
       playSfx("upgrade");
       persist();
