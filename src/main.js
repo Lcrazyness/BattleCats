@@ -3427,19 +3427,18 @@ function upgradeItemByKey(key) {
 function upgradeCardMarkup(item) {
   const active=item.key===selectedUpgradeKey;
   const category=item.kind==="unit"?"CAT UNIT":"CAT BASE";
-  const art=item.kind==="unit"
-    ? '<img class="upgrade-card-art" src="Cats/'+upgradeEscape(item.folder)+'/UpgradeSlot.png?v=20261106-03" alt="" draggable="false">'
-    : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span></div>';
   const level=currencySpriteMarkup(item.level,"currency-size-upgrade");
-  const cost=item.max>=item.level
-    ? (item.level>=item.max?'<span class="upgrade-card-max">MAX</span>':
-      '<span class="upgrade-card-cost">'+currencySpriteMarkup(item.cost,"currency-size-upgrade")+'<small>XP</small></span>')
-    : "";
+  const cost=item.level>=item.max
+    ? '<span class="upgrade-wedge-max">MAX</span>'
+    : currencySpriteMarkup(item.cost,"currency-size-upgrade-cost");
+  const art=item.kind==="unit"
+    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="Cats/'+upgradeEscape(item.folder)+'/UpgradeSlot.png?v=20261106-05" alt="" draggable="false">'+
+      '<span class="upgrade-wedge-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
+      '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></div>'
+    : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span>'+
+      '<span class="upgrade-base-level">LEVEL '+level+' / '+item.max+'</span></div>';
   return '<button class="upgrade-card'+(active?' is-active':'')+'" type="button" data-go="upgrade-select:'+upgradeEscape(item.key)+'" data-upgrade-key="'+upgradeEscape(item.key)+'" aria-pressed="'+(active?"true":"false")+'">'+
     '<span class="upgrade-card-category">'+category+'</span>'+art+
-    '<span class="upgrade-card-meta"><strong class="upgrade-card-name">'+upgradeEscape(item.name)+'</strong>'+
-    '<span class="upgrade-card-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
-    '<span class="upgrade-card-next">'+(item.level>=item.max?'<small>MAX LEVEL</small>':'<small>NEXT LEVEL</small>'+cost)+'</span></span>'+
     '</button>';
 }
 function upgradeStatSummary(item) {
@@ -3457,36 +3456,20 @@ function upgradeStatSummary(item) {
   return "";
 }
 function upgradeDetailMarkup(item) {
-  const levelMarkup=currencySpriteMarkup(item.level,"currency-size-upgrade-detail");
-  const costMarkup=item.level>=item.max
-    ? '<span class="upgrade-detail-max">MAX LEVEL</span>'
-    : currencySpriteMarkup(item.cost,"currency-size-upgrade-detail");
-  const summary=upgradeEscape(upgradeStatSummary(item));
   return '<div class="upgrade-selected-name">'+upgradeEscape(item.name)+'</div>'+
-    '<p class="upgrade-bio-text" data-upgrade-bio>'+upgradeEscape(item.bio)+'</p>'+
-    '<div class="upgrade-detail-level"><span>LEVEL</span>'+levelMarkup+'<small>/ '+item.max+'</small></div>'+
-    '<div class="upgrade-detail-cost"><span>NEXT</span>'+costMarkup+(item.level>=item.max?'':'<small>XP</small>')+'</div>'+
-    '<div class="upgrade-detail-stats">'+summary+'</div>';
+    '<p class="upgrade-bio-text" data-upgrade-bio>'+upgradeEscape(item.bio)+'</p>';
 }
 function updateUpgradeDetails(item) {
   if(!item) return;
   const name=stage.querySelector(".upgrade-selected-name");
   const bio=stage.querySelector("[data-upgrade-bio]");
-  const level=stage.querySelector(".upgrade-detail-level");
-  const cost=stage.querySelector(".upgrade-detail-cost");
-  const stats=stage.querySelector(".upgrade-detail-stats");
   const action=stage.querySelector(".upgrade-action-button");
   if(name) name.textContent=item.name;
   if(bio) bio.textContent=item.bio;
-  if(level) level.innerHTML='<span>LEVEL</span>'+currencySpriteMarkup(item.level,"currency-size-upgrade-detail")+'<small>/ '+item.max+'</small>';
-  if(cost) cost.innerHTML='<span>NEXT</span>'+(item.level>=item.max?'<strong class="upgrade-detail-max">MAX LEVEL</strong>':currencySpriteMarkup(item.cost,"currency-size-upgrade-detail")+'<small>XP</small>');
-  if(stats) stats.textContent=upgradeStatSummary(item);
   if(action) {
     const isMax=item.level>=item.max;
     action.disabled=isMax;
     action.setAttribute("aria-label",isMax?item.name+" is max level":"Upgrade "+item.name+" for "+item.cost+" XP");
-    const label=action.querySelector(".upgrade-action-label");
-    if(label) label.textContent=isMax?"MAX":"UPGRADE";
   }
 }
 function refreshUpgradeCardSelection(track,activeKey) {
