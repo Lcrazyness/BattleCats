@@ -728,15 +728,15 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/backgrounds/empire-of-cats-map.png?v=20261029-14",bytes:511164},
   {path:"sprites/title-screen.webp",bytes:186052},
   {path:"sprites/ui/title-play.png",bytes:32980},
-  {path:"sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-03",bytes:47194},
-  {path:"sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-03",bytes:13086},
-  {path:"sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-03",bytes:10435},
-  {path:"sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-03",bytes:18672},
-  {path:"sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-03",bytes:78663},
-  {path:"Cats/cat/UpgradeSlot.png?v=20261106-03",bytes:30897},
-  {path:"Cats/tank-cat/UpgradeSlot.png?v=20261106-03",bytes:35110},
-  {path:"Cats/axe-cat/UpgradeSlot.png?v=20261106-03",bytes:50533},
-  {path:"Cats/Gross-Cat/UpgradeSlot.png?v=20261106-03",bytes:38885}
+  {path:"sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-07",bytes:47194},
+  {path:"sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07",bytes:13086},
+  {path:"sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-07",bytes:10435},
+  {path:"sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07",bytes:18672},
+  {path:"sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-07",bytes:78663},
+  {path:"Cats/cat/UpgradeSlot.png?v=20261106-07",bytes:30897},
+  {path:"Cats/tank-cat/UpgradeSlot.png?v=20261106-07",bytes:35110},
+  {path:"Cats/axe-cat/UpgradeSlot.png?v=20261106-07",bytes:50533},
+  {path:"Cats/Gross-Cat/UpgradeSlot.png?v=20261106-07",bytes:38885}
 ];
 const LOADING_AUDIO_ASSETS = [
   {path:"sounds/intro-theme.mp3?v="+AUDIO_VERSION,bytes:2363802},
@@ -3432,9 +3432,9 @@ function upgradeCardMarkup(item) {
     ? '<span class="upgrade-wedge-max">MAX</span>'
     : currencySpriteMarkup(item.cost,"currency-size-upgrade-cost");
   const art=item.kind==="unit"
-    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="Cats/'+upgradeEscape(item.folder)+'/UpgradeSlot.png?v=20261106-05" alt="" draggable="false">'+
-      '<span class="upgrade-wedge-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
-      '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></div>'
+    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="Cats/'+upgradeEscape(item.folder)+'/UpgradeSlot.png?v=20261106-07" alt="" draggable="false">'+
+      '<span class="upgrade-wedge-info"><span class="upgrade-wedge-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
+      '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></span></div>'
     : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span>'+
       '<span class="upgrade-base-level">LEVEL '+level+' / '+item.max+'</span></div>';
   return '<button class="upgrade-card'+(active?' is-active':'')+'" type="button" data-go="upgrade-select:'+upgradeEscape(item.key)+'" data-upgrade-key="'+upgradeEscape(item.key)+'" aria-pressed="'+(active?"true":"false")+'">'+
@@ -3568,16 +3568,17 @@ function renderUpgrade() {
   const cards=items.map(upgradeCardMarkup).join("");
   const xp=currencySpriteMarkup(save.xp,"currency-size-upgrade-header");
   return '<section class="screen upgrade-screen" aria-label="Cat upgrades">'+
-    '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-03" alt="" draggable="false">'+
-    '<img class="upgrade-character-art" src="sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-03" alt="" draggable="false">'+
-    '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-03" alt="" draggable="false">'+
+    '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-07" alt="" draggable="false">'+
+    '<img class="upgrade-character-art" src="sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-07" alt="" draggable="false">'+
+    '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07" alt="" draggable="false">'+
+    '<img class="upgrade-side-wood upgrade-side-wood-left" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
+    '<img class="upgrade-side-wood upgrade-side-wood-right" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
     '<header class="upgrade-header"><strong>UPGRADE</strong><span class="upgrade-xp-readout"><small>XP</small>'+xp+'</span></header>'+
     '<div class="upgrade-carousel" aria-label="Scroll through Cat and Cat Base upgrades">'+cards+'</div>'+
-    '<img class="upgrade-wood-panel" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-03" alt="" draggable="false">'+
     '<section class="upgrade-bottom-copy" aria-live="polite">'+upgradeDetailMarkup(selected)+'</section>'+
-    '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-03" alt="" draggable="false"></button>'+
+    '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-07" alt="" draggable="false"></button>'+
     '<button class="upgrade-action-button" type="button" data-go="upgrade-buy" aria-label="'+(selected.level>=selected.max?upgradeEscape(selected.name+" is max level"):"Upgrade "+upgradeEscape(selected.name))+'">'+
-      '<img src="sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-03" alt="" draggable="false">'+
+      '<img src="sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-07" alt="" draggable="false">'+
     '</button>'+
   '</section>';
 }
