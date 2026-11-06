@@ -65,6 +65,8 @@ if(Number(save.stageClears)>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Nu
 if(Number(save.stageClears)>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
   save.units.push(makeGrossCatUnit());
 }
+save.xp = Math.max(9999999999, Number(save.xp) || 0);
+try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 let scene = "loading";
 let currentRegion = "empire";
 let selectedLevelIndex = 0;
@@ -74,7 +76,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-21";
+const BATTLE_ASSET_VERSION = "20261105-23";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -99,13 +101,13 @@ const BATTLE_UNIT_STATS = {
   "baa-baa": {health:400,damage:20,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
   croco: {health:35,damage:6,speed:14,spriteChangeSpeed:10,walkSpriteChangeSpeed:6,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:0,traits:[]},
   "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:160,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]},
-  "b-b-bunny": {health:500,damage:50,speed:22,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:110,killReward:45,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.37,AreaAttack:0,traits:["Red"]},
-  "kang-roo": {health:4000,damage:250,speed:20,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:160,killReward:180,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:0,traits:[]},
-  "squire-rel": {health:80,damage:30,speed:30,spriteChangeSpeed:10,walkSpriteChangeSpeed:8,range:110,killReward:15,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.48,knockbackDistance:5,attackCooldown:0.53,AreaAttack:0,traits:[]},
-  mooth: {health:5000,damage:350,speed:20,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:340,killReward:250,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:2.93,AreaAttack:1,traits:["Floating"]},
-  "one-horn": {health:15000,damage:500,speed:3,spriteChangeSpeed:7,walkSpriteChangeSpeed:3,range:40,killReward:500,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.53,AreaAttack:1,traits:["Red"]},
-  "teacher-bear": {health:3000,damage:1000,speed:4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:350,killReward:400,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:3.5,attackCooldown:3.57,AreaAttack:1,traits:[]},
-  "the-face": {health:99999,damage:2000,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:9.1,AreaAttack:1,traits:["Floating"]}
+  "b-b-bunny": {health:500,damage:25,speed:12,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:110,killReward:45,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.37,AreaAttack:0,traits:["Red"]},
+  "kang-roo": {health:4000,damage:125,speed:11,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:160,killReward:180,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:0,traits:[]},
+  "squire-rel": {health:80,damage:15,speed:13,spriteChangeSpeed:10,walkSpriteChangeSpeed:8,range:110,killReward:15,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.48,knockbackDistance:5,attackCooldown:0.53,AreaAttack:0,traits:[]},
+  mooth: {health:5000,damage:175,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:340,killReward:250,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:2.93,AreaAttack:1,traits:["Floating"]},
+  "one-horn": {health:15000,damage:250,speed:3,spriteChangeSpeed:7,walkSpriteChangeSpeed:3,range:40,killReward:500,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.53,AreaAttack:1,traits:["Red"]},
+  "teacher-bear": {health:3000,damage:500,speed:4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:350,killReward:400,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:3.5,attackCooldown:3.57,AreaAttack:1,traits:[]},
+  "the-face": {health:99999,damage:1000,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:9.1,AreaAttack:1,traits:["Floating"]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -142,7 +144,7 @@ function battleUnitStats(unitOrKey) {
     return Number.isFinite(number) && number >= min ? number : fallback;
   };
   const unitLevel = isObject && unit.kind !== "doge" ? Math.max(1,Math.floor(Number(unit.level)||1)) : 1;
-  const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.13;
+  const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
   const health = Math.round(positive(config.health,positive(unit.hp,100))*levelMultiplier);
   const damage = Math.round(positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier);
   const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
@@ -3287,7 +3289,7 @@ function renderFight() {
   '</section>';
 }
 function renderUpgrade() {
-  const body = pageCopy("Each Cat level increases its health and attack power by 13%.")+
+  const body = pageCopy("Each Cat level increases its health and attack power by 15%.")+
     '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
     '<div class="menu-list">'+save.units.map((unit,i)=>{
       const level=Math.max(1,Math.floor(Number(unit.level)||1));
@@ -3297,7 +3299,28 @@ function renderUpgrade() {
       const description="Level "+level+" · HP "+current.health+" → "+next.health+" · ATK "+current.damage+" → "+next.damage+" · Next: "+cost+" XP";
       return row(unit.name,description,"unit:"+i,"UPGRADE");
     }).join("")+'</div>';
-  return renderWindow("Upgrade",body,"base");
+
+  const testTools = '<section class="cat-level-test-panel">'+
+    '<div class="cat-level-test-heading">CAT LEVEL TESTING</div>'+
+    '<p>Set any owned Cat to a level for testing. These changes are free and saved to your game.</p>'+
+    '<div class="cat-level-test-all">'+
+      '<label for="test-all-cat-level">Set every Cat to level</label>'+
+      '<input id="test-all-cat-level" data-test-all-level-input type="number" min="1" max="9999" step="1" value="1">'+
+      '<button type="button" class="gold-button small" data-test-all-level>SET ALL</button>'+
+    '</div>'+
+    '<div class="cat-level-test-list">'+save.units.map(unit=>{
+      const id=String(unit.id);
+      const level=Math.max(1,Math.floor(Number(unit.level)||1));
+      const name=String(unit.name||"Cat").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      return '<div class="cat-level-test-row">'+
+        '<span class="cat-level-test-name">'+name+'<small>Current: Lv. '+level+'</small></span>'+
+        '<input type="number" min="1" max="9999" step="1" value="'+level+'" data-test-level-input="'+id+'" aria-label="'+name+' test level">'+
+        '<button type="button" class="gold-button small" data-test-unit-level="'+id+'">SET</button>'+
+      '</div>';
+    }).join("")+'</div>'+
+  '</section>';
+
+  return renderWindow("Upgrade",body+testTools,"base");
 }
 function renderDictionary(equip=false) {
   const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
@@ -3765,6 +3788,33 @@ function perform(action) {
   }
 }
 stage.addEventListener("click", event => {
+  const setAllLevelButton = event.target.closest("[data-test-all-level]");
+  if (setAllLevelButton) {
+    event.preventDefault();
+    const input = stage.querySelector("[data-test-all-level-input]");
+    const level = Math.max(1,Math.min(9999,Math.floor(Number(input && input.value)||1)));
+    for (const unit of save.units) unit.level = level;
+    persist();
+    render();
+    notify("Set all Cats to level "+level+".");
+    return;
+  }
+
+  const setUnitLevelButton = event.target.closest("[data-test-unit-level]");
+  if (setUnitLevelButton) {
+    event.preventDefault();
+    const unitId = setUnitLevelButton.getAttribute("data-test-unit-level");
+    const input = stage.querySelector('[data-test-level-input="'+unitId+'"]');
+    const unit = save.units.find(entry=>String(entry.id)===String(unitId));
+    if (!unit || !input) return;
+    const level = Math.max(1,Math.min(9999,Math.floor(Number(input.value)||1)));
+    unit.level = level;
+    persist();
+    render();
+    notify(unit.name+" set to level "+level+".");
+    return;
+  }
+
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
   const action = button.dataset.go || "";
