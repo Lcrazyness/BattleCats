@@ -665,7 +665,6 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/backgrounds/CatBase/userRank.png?v=20261031-01",bytes:38080},
   {path:"sprites/ui/backboard.png?v=20261026-25",bytes:62313},
   {path:"sprites/ui/startbutton.png?v=20261026-9",bytes:111427},
-  {path:"sprites/ui/upgradebutton.png?v=20261026-9",bytes:137546},
   {path:"sprites/ui/equipbutton.png?v=20261026-9",bytes:117674},
   {path:"sprites/ui/menubutton.png?v=20261026-9",bytes:60432},
   {path:"sprites/ui/gamatotobutton.png?v=20261026-9",bytes:71513},
