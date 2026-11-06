@@ -15,5 +15,6 @@
   "knockbackDistance": 4.5,
   "AreaAttack": false,
   "AttackTrait": "Red",
-  "AttackBoost": "Strong"
+  "AttackBoost": "Strong",
+  "Bio": "A cat carrying a powerful axe. Its attacks are especially effective against Red enemies."
 }
