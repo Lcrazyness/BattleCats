@@ -149,7 +149,7 @@ ENEMIES = {
             (205, 14, 405, 211), (402, 14, 610, 211),
             (608, 14, 812, 212), (18, 240, 230, 408)
         ],
-        "attack_rotate_last": 90,
+        "attack_rotate_last": 270,
         # No separate hurt drawing is present; use the neutral mouth-closed face.
         "hurt": (19, 14, 213, 211),
         "stats": {
@@ -224,7 +224,7 @@ def remove_local_checkerboard_background(image: Image.Image) -> Image.Image:
         chroma = max(r, g, b) - min(r, g, b)
         luminance = (r + g + b) / 3
         # Mid-gray checker tiles and white panel areas are removable; black ink stays opaque.
-        return chroma <= 38 and (luminance >= 48)
+        return chroma <= 38 and (luminance >= 8)
 
     for x in range(width):
         queue.append(x)
