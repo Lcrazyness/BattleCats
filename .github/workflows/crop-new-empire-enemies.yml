@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "scripts/crop_new_empire_enemies.py"
+      - "scripts/patch_game_balance_test_mode.py"
       - ".github/workflows/crop-new-empire-enemies.yml"
       - "enemys/B.B.Bunny/Screenshot 2026-11-05 141657.png"
       - "enemys/Kang Roo/Screenshot 2026-11-05 142240.png"
@@ -38,11 +39,13 @@ jobs:
         run: python -m pip install pillow
       - name: Crop enemy animation frames
         run: python scripts/crop_new_empire_enemies.py
+      - name: Patch game balance and cat level test mode
+        run: python scripts/patch_game_balance_test_mode.py
       - name: Commit transparent PNG assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "enemys/B.B.Bunny" "enemys/Kang Roo" "enemys/Squire Rel" "enemys/Mooth" "enemys/One Horn" "enemys/Teacher Bear" "enemys/The Face"
+          git add "enemys/B.B.Bunny" "enemys/Kang Roo" "enemys/Squire Rel" "enemys/Mooth" "enemys/One Horn" "enemys/Teacher Bear" "enemys/The Face" src/main.js src/style.css index.html scripts/crop_new_empire_enemies.py
           if git diff --cached --quiet; then
             echo "No sprite changes."
             exit 0
