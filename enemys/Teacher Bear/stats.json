@@ -1,7 +1,7 @@
 {
   "name": "Teacher Bear",
-  "health": 3000,
-  "damage": 500,
+  "health": 2400,
+  "damage": 250,
   "speed": 4,
   "range": 350,
   "spriteChangeSpeed": 6,
@@ -11,7 +11,7 @@
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.52,
   "knockbackDistance": 3.5,
-  "attackCooldown": 3.57,
+  "attackCooldown": 4,
   "AreaAttack": 1,
   "traits": []
 }
