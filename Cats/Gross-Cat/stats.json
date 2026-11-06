@@ -15,5 +15,6 @@
   "knockbackDistance": 4.5,
   "AreaAttack": false,
   "AttackTrait": "",
-  "AttackBoost": ""
+  "AttackBoost": "",
+  "Bio": "A lanky cat with an incredible reach. It can strike enemies from far away."
 }
