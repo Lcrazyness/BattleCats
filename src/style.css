@@ -3220,7 +3220,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 .upgrade-background-art {
   position:absolute; inset:0; z-index:0;
-  width:100%; height:100%; object-fit:cover; object-position:center;
+  width:100%; height:100%; object-fit:fill; object-position:center;
   pointer-events:none; user-select:none;
 }
 .upgrade-character-art {
@@ -3248,7 +3248,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .upgrade-carousel {
   position:absolute; z-index:3; top:12%; left:0; right:0; height:55%;
   display:flex; align-items:center; gap:clamp(2px,1vw,16px);
-  padding:0 34%;
+  padding:0 max(0px,calc((100% - clamp(205px,27vw,365px))/2));
   overflow-x:auto; overflow-y:hidden;
   scroll-snap-type:x mandatory; scroll-behavior:smooth;
   overscroll-behavior-x:contain; scrollbar-width:none;
@@ -3371,15 +3371,15 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   filter:drop-shadow(0 2px 2px #24160d88);
 }
 .upgrade-back-button img { display:block; width:100%; height:100%; object-fit:contain; }
-.currency-size-upgrade { --currency-scale:.19; }
-.currency-size-upgrade-detail { --currency-scale:.16; }
-.currency-size-upgrade-header { --currency-scale:.21; }
+.currency-size-upgrade { --currency-scale:.27; }
+.currency-size-upgrade-detail { --currency-scale:.23; }
+.currency-size-upgrade-header { --currency-scale:.28; }
 .upgrade-card .currency-sprite-run { filter:drop-shadow(1px 1px #261509); }
 .upgrade-bottom-copy .currency-sprite-run { filter:drop-shadow(1px 1px #261509); }
 @media(max-width:700px) {
   .upgrade-header { top:1.4%; font-size:clamp(17px,4.5vw,25px); }
   .upgrade-xp-readout { right:1%; gap:3px; }
-  .upgrade-carousel { top:12%; height:53%; padding:0 24%; gap:0; }
+  .upgrade-carousel { top:12%; height:53%; padding:0 max(0px,calc((100% - clamp(190px,54vw,270px))/2)); gap:0; }
   .upgrade-card { flex-basis:clamp(190px,54vw,270px); padding:7px 5px; }
   .upgrade-card:not(.is-active) { transform:scale(.72); opacity:.56; }
   .upgrade-card-meta { min-height:57px; gap:2px; }
@@ -3395,9 +3395,9 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .upgrade-action-button { right:3%; bottom:6%; width:19%; height:16%; }
   .upgrade-action-label { font-size:clamp(10px,2.5vw,14px); }
   .upgrade-back-button { left:.5%; bottom:1%; width:clamp(49px,13vw,68px); height:clamp(49px,13vw,68px); }
-  .currency-size-upgrade { --currency-scale:.15; }
-  .currency-size-upgrade-detail { --currency-scale:.13; }
-  .currency-size-upgrade-header { --currency-scale:.16; }
+  .currency-size-upgrade { --currency-scale:.22; }
+  .currency-size-upgrade-detail { --currency-scale:.18; }
+  .currency-size-upgrade-header { --currency-scale:.22; }
 }
 @media(max-height:520px) and (min-width:701px) {
   .upgrade-carousel { top:11%; height:56%; }
