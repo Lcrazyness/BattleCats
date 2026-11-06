@@ -214,7 +214,7 @@ main = replace_once(
     'const BATTLE_ASSET_VERSION = "20261105-23";',
     "battle asset version"
 )
-html = "\\n".join(line for line in html.splitlines() if "src/enemy-speed-balance.js" not in line)
+html = chr(10).join(line for line in html.splitlines() if "src/enemy-speed-balance.js" not in line)
 html = re.sub("20261105-[0-9]+", "20261105-23", html)
 if 'src/enemy-speed-balance.js' in html:
     raise RuntimeError("Obsolete speed helper is still referenced in index.html")
