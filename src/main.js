@@ -94,7 +94,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261106-03";
+const BATTLE_ASSET_VERSION = "20261106-07";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -3573,6 +3573,7 @@ function renderUpgrade() {
     '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07" alt="" draggable="false">'+
     '<img class="upgrade-side-wood upgrade-side-wood-left" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
     '<img class="upgrade-side-wood upgrade-side-wood-right" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
+    '<div class="upgrade-footer"><span>Cat Food</span><img src="sprites/ui/Cat_Food.png?v=20261106-07" alt="" draggable="false"><strong>'+money(save.catFood)+'</strong></div>'+
     '<header class="upgrade-header"><strong>UPGRADE</strong><span class="upgrade-xp-readout"><small>XP</small>'+xp+'</span></header>'+
     '<div class="upgrade-carousel" aria-label="Scroll through Cat and Cat Base upgrades">'+cards+'</div>'+
     '<section class="upgrade-bottom-copy" aria-live="polite">'+upgradeDetailMarkup(selected)+'</section>'+
