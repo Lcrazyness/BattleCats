@@ -532,7 +532,7 @@ function catUpgradeCost(unit) {
 const totalCatLevels = () => save.units.reduce((total,unit) =>
   total + Math.max(1,Math.floor(Number(unit.level)||1)),0) +
   Object.values(save.baseUpgrades||{}).reduce((total,level)=>total+Math.max(0,Math.floor(Number(level)||1)-1),0);
-const AUDIO_VERSION = "20261106-03";
+const AUDIO_VERSION = "20261106-04";
 const SOUND_FILES = {
   upgrade: "sounds/upgrade.mp3",
   button: "sounds/button-click.mp3",
@@ -762,7 +762,7 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/endofrecharge.mp3?v="+AUDIO_VERSION,bytes:18549},
   {path:"sounds/upgrade.mp3?v="+AUDIO_VERSION,bytes:16941},
 ];
-const LOADING_TOTAL_BYTES = LOADING_IMAGE_ASSETS.reduce((sum,asset)=>sum+asset.bytes,0);
+const LOADING_TOTAL_BYTES = LOADING_IMAGE_ASSETS.reduce((sum,asset)=>sum+asset.bytes,0)+LOADING_AUDIO_ASSETS.reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
 let loadingBytesFinished = 0;
 const preloadedImageCache = new Map();
@@ -835,41 +835,45 @@ function loadImageAssetSequentially(asset) {
 }
 
 async function loadAudioAssetSequentially(asset, statusText) {
-  for (let attempt=0; attempt<2; attempt++) {
+  const urls=[
+    new URL(asset.path,AUDIO_BASE_URL).href,
+    new URL(asset.path,APP_BASE_URL).href
+  ];
+  for(let hostIndex=0;hostIndex<urls.length;hostIndex++) {
     try {
-      const response = await fetch(new URL(asset.path,APP_BASE_URL).href,{cache:"force-cache"});
-      if (!response.ok) throw new Error("HTTP "+response.status+" for "+asset.path);
-      const contentLength = Number(response.headers.get("content-length")) || asset.bytes;
-      if (response.body && typeof response.body.getReader === "function") {
-        const reader = response.body.getReader();
-        let received = 0;
-        while (true) {
-          const chunk = await reader.read();
-          if (chunk.done) break;
-          received += chunk.value.byteLength;
-          const weightedBytes = Math.min(asset.bytes,received*(asset.bytes/contentLength));
-          updateLoadingProgress(statusText,weightedBytes);
+      const response=await fetch(urls[hostIndex],{cache:"force-cache"});
+      if(!response.ok) throw new Error("HTTP "+response.status+" for "+urls[hostIndex]);
+      const contentLength=Number(response.headers.get("content-length"))||asset.bytes;
+      if(response.body&&typeof response.body.getReader==="function") {
+        const reader=response.body.getReader();
+        let received=0;
+        while(true) {
+          const chunk=await reader.read();
+          if(chunk.done) break;
+          received+=chunk.value.byteLength;
+          updateLoadingProgress(statusText,Math.min(asset.bytes,received*(asset.bytes/contentLength)));
         }
       } else {
-        await response.arrayBuffer();
-        updateLoadingProgress(statusText,asset.bytes);
+        const data=await response.arrayBuffer();
+        updateLoadingProgress(statusText,Math.min(asset.bytes,data.byteLength));
       }
       return true;
-    } catch (error) {
+    } catch(error) {
       updateLoadingProgress(statusText,0);
-      if (attempt === 1) console.warn("Battle Cats loader skipped an audio asset after retry:",asset.path,error);
+      if(hostIndex===urls.length-1) {
+        console.warn("Battle Cats loader skipped an audio asset after both hosts failed:",asset.path,error);
+      }
     }
   }
   return false;
 }
 
 async function startGameAssetLoading() {
-  if (loadingAssetsStarted || scene !== "loading") return;
-  loadingAssetsStarted = true;
-  let failedAssets = 0;
-  const failedAssetPaths = [];
-  const imageCount = LOADING_IMAGE_ASSETS.length;
-
+  if(loadingAssetsStarted||scene!=="loading") return;
+  loadingAssetsStarted=true;
+  let failedAssets=0;
+  const failedAssetPaths=[];
+  const imageCount=LOADING_IMAGE_ASSETS.length;
   let completedImages=0;
   const imageBatchSize=8;
   for(let batchStart=0;batchStart<imageCount;batchStart+=imageBatchSize) {
@@ -889,20 +893,45 @@ async function startGameAssetLoading() {
     }));
   }
 
+  const audioCount=LOADING_AUDIO_ASSETS.length;
+  let completedAudio=0;
+  const audioBatchSize=4;
+  for(let batchStart=0;batchStart<audioCount;batchStart+=audioBatchSize) {
+    const batch=LOADING_AUDIO_ASSETS.slice(batchStart,batchStart+audioBatchSize);
+    await Promise.all(batch.map(async asset=>{
+      const name=asset.path.split("/").pop().split("?")[0];
+      updateLoadingProgress("Loading audio "+(completedAudio+1)+"/"+audioCount+" — "+name);
+      const loaded=await loadAudioAssetSequentially(asset,"Loading audio — "+name);
+      if(!loaded) {
+        failedAssets++;
+        failedAssetPaths.push(asset.path);
+      }
+      loadingBytesFinished+=asset.bytes;
+      completedAudio++;
+      updateLoadingProgress("Loaded audio "+completedAudio+"/"+audioCount+" — "+name);
+    }));
+  }
+
   preloadGameAudioAssets();
-  if(failedAssetPaths.length) console.warn("Battle Cats image assets that failed to load:",failedAssetPaths);
-  updateLoadingProgress(failedAssets ? "Images ready — "+failedAssets+" image(s) could not be loaded. Audio is loading separately." : "Images ready. Audio is loading in the background.");
-  setTimeout(() => {
-    if (scene !== "loading") return;
-    const loadingScreen = stage.querySelector(".loading-screen");
-    if (!loadingScreen) {
-      introFadeFromBlack = true;
-      scene = "intro";
+  if(failedAssetPaths.length) {
+    console.warn("Battle Cats assets that failed to load:",failedAssetPaths);
+  }
+  updateLoadingProgress(
+    failedAssets
+      ? "Assets ready — "+failedAssets+" file(s) could not be loaded."
+      : "Images and audio ready."
+  );
+  setTimeout(()=>{
+    if(scene!=="loading") return;
+    const loadingScreen=stage.querySelector(".loading-screen");
+    if(!loadingScreen) {
+      introFadeFromBlack=true;
+      scene="intro";
       render();
       return;
     }
     loadingScreen.classList.add("loading-fading-out");
-    loadingScreen.style.pointerEvents = "none";
+    loadingScreen.style.pointerEvents="none";
   },650);
 }
 
@@ -911,9 +940,10 @@ function createAudioPlayer(path) {
   const player = new Audio();
   player.preload = "auto";
   const sourcePath = String(path || "").trim();
-  const extensionMatch = sourcePath.match(/\\.(mp3|ogg)$/i);
+  const cleanPath = sourcePath.split("?")[0];
+  const extensionMatch = cleanPath.match(/\.(mp3|ogg)$/i);
   const extension = extensionMatch ? extensionMatch[1].toLowerCase() : "mp3";
-  const basePath = extensionMatch ? sourcePath.slice(0, -extensionMatch[0].length) : sourcePath;
+  const basePath = extensionMatch ? cleanPath.slice(0, -extensionMatch[0].length) : cleanPath;
   const sourceBases = [AUDIO_BASE_URL, APP_BASE_URL];
   const sourceUrls = [...new Set(sourceBases.map(base =>
     new URL(`${basePath}.${extension}?v=${AUDIO_VERSION}`, base).href
