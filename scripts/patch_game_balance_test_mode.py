@@ -205,7 +205,7 @@ if test_css_marker not in css:
 }
 '''
 else:
-    raise RuntimeError("Test panel CSS already exists; inspect patch before rerunning.")
+    pass
 
 # Remove the obsolete speed helper (the game is wrapped in an IIFE) and refresh assets.
 main = replace_once(
