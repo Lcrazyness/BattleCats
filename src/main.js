@@ -3581,6 +3581,48 @@ function setupUpgradeCarousel() {
       track.scrollLeft+=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
     }
   },{passive:false});
+  let mousePointerId=null;
+  let mouseStartX=0;
+  let mouseStartScroll=0;
+  let mouseDragged=false;
+  track.addEventListener("pointerdown",event=>{
+    if(event.pointerType!=="mouse"||event.button!==0) return;
+    mousePointerId=event.pointerId;
+    mouseStartX=event.clientX;
+    mouseStartScroll=track.scrollLeft;
+    mouseDragged=false;
+  });
+  track.addEventListener("pointermove",event=>{
+    if(mousePointerId!==event.pointerId) return;
+    const delta=event.clientX-mouseStartX;
+    if(!mouseDragged&&Math.abs(delta)>6) {
+      mouseDragged=true;
+      track.classList.add("is-dragging");
+      track.setPointerCapture(event.pointerId);
+    }
+    if(mouseDragged) {
+      event.preventDefault();
+      track.scrollLeft=mouseStartScroll-delta;
+    }
+  });
+  const finishMouseDrag=event=>{
+    if(mousePointerId!==event.pointerId) return;
+    if(mouseDragged) {
+      track.dataset.suppressCardClick="true";
+      track.classList.remove("is-dragging");
+    }
+    mousePointerId=null;
+    mouseDragged=false;
+  };
+  track.addEventListener("pointerup",finishMouseDrag);
+  track.addEventListener("pointercancel",finishMouseDrag);
+  track.addEventListener("lostpointercapture",finishMouseDrag);
+  track.addEventListener("click",event=>{
+    if(track.dataset.suppressCardClick!=="true") return;
+    delete track.dataset.suppressCardClick;
+    event.preventDefault();
+    event.stopPropagation();
+  });
   track.addEventListener("keydown",event=>{
     if(event.key!=="ArrowLeft"&&event.key!=="ArrowRight") return;
     event.preventDefault();
