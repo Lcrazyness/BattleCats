@@ -37,6 +37,7 @@ function makeGrossCatUnit() {
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, exp:0, stageClears:0,
+  baseUpgrades:{workerCatWallet:1,workerCatEfficiency:1,research:1,catBaseHealth:1},
   units:[
     {id:1,name:"Cat",level:1,deployCost:1,hp:100,attack:6,range:140,speed:5,recharge:0.1}
   ],
@@ -65,8 +66,20 @@ if(Number(save.stageClears)>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Nu
 if(Number(save.stageClears)>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
   save.units.push(makeGrossCatUnit());
 }
-save.xp = Number(save.xp)>=9999999999 ? 0 : Math.max(0,Math.floor(Number(save.xp)||0));
-save.units.forEach(unit=>{unit.level=1;delete unit.upgradeCost;});
+const XP_RESET_VERSION = "20261106-02";
+if(save.xpResetVersion!==XP_RESET_VERSION) {
+  save.xp=1000;
+  save.xpResetVersion=XP_RESET_VERSION;
+}
+save.xp=Math.max(0,Math.floor(Number(save.xp)||0));
+save.baseUpgrades={...defaults.baseUpgrades,...(save.baseUpgrades||{})};
+for(const key of Object.keys(defaults.baseUpgrades)) {
+  save.baseUpgrades[key]=Math.max(1,Math.min(20,Math.floor(Number(save.baseUpgrades[key])||1)));
+}
+save.units.forEach(unit=>{
+  unit.level=Math.max(1,Math.min(10,Math.floor(Number(unit.level)||1)));
+  delete unit.upgradeCost;
+});
 try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 let scene = "loading";
 let currentRegion = "empire";
@@ -77,7 +90,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261106-01";
+const BATTLE_ASSET_VERSION = "20261106-02";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -167,7 +180,8 @@ function battleUnitStats(unitOrKey) {
     spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,key==="doge"?5:6)),
     walkSpriteChangeSpeed:positive(config.walkSpriteChangeSpeed,positive(unit.walkSpriteChangeSpeed,2.5)),
     range:positive(config.range,positive(unit.range,55)),
-    recharge:positive(config.recharge,positive(unit.recharge,2.5)),
+    recharge:Math.max(0.1,positive(config.recharge,positive(unit.recharge,2.5))-
+      (isObject&&unit.kind!=="doge"?Math.max(0,baseUpgradeLevel("research")-1)*0.2:0)),
     attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
     areaAttack,
     AttackTrait,
@@ -490,9 +504,30 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
+const BASE_UPGRADE_MAX_LEVEL = 20;
+const BASE_UPGRADE_COSTS = [400,700,1100,1600,2200,2900,3700,4600,5600,8000,10500,13500,17000,21000,25500,30500,36000,42000,48500];
+const CAT_UPGRADE_COSTS = {
+  cat:[400,700,1100,1600,2200,2900,3700,4600,5600],
+  "axe-cat":[900,1800,3000,4500,6300,8400,10800,13500,16500],
+  "gross-cat":[1300,2200,3400,4900,6700,8800,11200,13900,16900]
+};
+function baseUpgradeLevel(key) {
+  return Math.max(1,Math.min(BASE_UPGRADE_MAX_LEVEL,Math.floor(Number(save.baseUpgrades&&save.baseUpgrades[key])||1)));
+}
+function baseUpgradeCost(level) {
+  const index=Math.max(1,Math.floor(Number(level)||1))-1;
+  return BASE_UPGRADE_COSTS[index]||Math.round(BASE_UPGRADE_COSTS[BASE_UPGRADE_COSTS.length-1]*Math.pow(1.25,index-BASE_UPGRADE_COSTS.length+1));
+}
+function catUpgradeCost(unit) {
+  const level=Math.max(1,Math.floor(Number(unit&&unit.level)||1));
+  const key=String(unit&&(unit.assetFolder||unit.spriteFolder||unit.name)||"cat").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const costs=CAT_UPGRADE_COSTS[key]||CAT_UPGRADE_COSTS.cat;
+  return costs[level-1]||Math.round(costs[costs.length-1]*Math.pow(1.5,level-costs.length));
+}
 const totalCatLevels = () => save.units.reduce((total,unit) =>
-  total + Math.max(1,Math.floor(Number(unit.level)||1)),0);
-const AUDIO_VERSION = "20261106-01";
+  total + Math.max(1,Math.floor(Number(unit.level)||1)),0) +
+  Object.values(save.baseUpgrades||{}).reduce((total,level)=>total+Math.max(0,Math.floor(Number(level)||1)-1),0);
+const AUDIO_VERSION = "20261106-02";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
@@ -665,6 +700,7 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/backgrounds/CatBase/userRank.png?v=20261031-01",bytes:38080},
   {path:"sprites/ui/backboard.png?v=20261026-25",bytes:62313},
   {path:"sprites/ui/startbutton.png?v=20261026-9",bytes:111427},
+  {path:"sprites/ui/upgradebutton.png?v=20261026-9",bytes:137546},
   {path:"sprites/ui/equipbutton.png?v=20261026-9",bytes:117674},
   {path:"sprites/ui/menubutton.png?v=20261026-9",bytes:60432},
   {path:"sprites/ui/gamatotobutton.png?v=20261026-9",bytes:71513},
@@ -1173,6 +1209,7 @@ function renderBase() {
       '<strong class="base-user-rank-value" aria-label="User Rank '+totalCatLevels()+'">'+money(totalCatLevels())+'</strong>'+
       '<strong class="base-xp-count" aria-label="Experience points '+money(save.xp)+'">'+currencySpriteMarkup(save.xp,"currency-size-base")+'</strong>'+
       '<button class="base-sprite-button base-start" data-go="stage:empire" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
+      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261026-9" alt="" draggable="false"></button>'+
@@ -1877,7 +1914,7 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     background:safeAssetFile(data.background||data.backgroundFile,defaults.background),
     enemyBase:safeAssetFile(data.enemyBase||data.enemyBaseFile,defaults.enemyBase),
     enemyBaseHealth:positive(data.enemyBaseHealth,defaults.enemyBaseHealth),
-    catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth),
+    catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth)+(baseUpgradeLevel("catBaseHealth")-1)*1000,
     maxEnemies:Math.max(1,Math.floor(positive(data.maxEnemies,defaults.maxEnemies||6))),
     maxTotalSpawns:Math.max(1,Math.floor(positive(data.maxTotalSpawns,defaults.maxTotalSpawns||18))),
     initialSpawnDelay,enemySpawns
@@ -1931,8 +1968,12 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
 function createBattleState() {
   const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
   const defaults=defaultBattleLevelConfig(selected.name);
+  const walletLevel=baseUpgradeLevel("workerCatWallet");
+  const efficiencyLevel=baseUpgradeLevel("workerCatEfficiency");
   return {
-    elapsed:0,money:50,maxMoney:150,playerUnits:[],enemies:[],speedMultiplier:1,
+    elapsed:0,money:50,maxMoney:150+(walletLevel-1)*100,
+    baseIncomePerSecond:2.6+(efficiencyLevel-1)*3,
+    playerUnits:[],enemies:[],speedMultiplier:1,
     nextEnemySpawn:defaults.initialSpawnDelay,
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
@@ -2992,7 +3033,8 @@ function tickBattle() {
   advanceBattleKnockback(dt);
   updateBattleDeathSouls(dt);
   if(state.ended) return;
-  state.money=Math.min(state.maxMoney,state.money+(2.6+Math.max(0,(Number(state.workerLevel)||1)-1)*0.25)*dt);
+  state.money=Math.min(state.maxMoney,state.money+
+    (Math.max(0,Number(state.baseIncomePerSecond)||2.6)+Math.max(0,(Number(state.workerLevel)||1)-1)*0.25)*dt);
   Object.keys(state.cooldowns).forEach(key=>state.cooldowns[key]=Math.max(0,state.cooldowns[key]-dt));
 
   attemptBattleEnemySpawn(state);
@@ -3302,15 +3344,58 @@ function renderFight() {
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
   '</section>';
 }
+function renderUpgrade() {
+  const abilityRows=[
+    {key:"workerCatWallet",name:"Worker Cat Wallet",description:level=>"Raises the wallet maximum by 100 per level. Current bonus: +"+((level-1)*100)+"¢"},
+    {key:"workerCatEfficiency",name:"Worker Cat Efficiency",description:level=>"Raises passive income by 3¢ per second per level. Current bonus: +"+((level-1)*3)+"¢/sec"},
+    {key:"research",name:"Research",description:level=>"Reduces Cat production cooldown by 0.2 seconds per level after Level 1. Current reduction: "+((level-1)*0.2).toFixed(1)+" sec"},
+    {key:"catBaseHealth",name:"Cat Base Health",description:level=>"Adds 1,000 HP to your Cat Base per level. Current bonus: +"+((level-1)*1000).toLocaleString()+" HP"}
+  ];
+  const abilityMarkup=abilityRows.map(item=>{
+    const level=baseUpgradeLevel(item.key);
+    const atMax=level>=BASE_UPGRADE_MAX_LEVEL;
+    const cost=baseUpgradeCost(level);
+    return '<div class="game-row"><div class="game-row-label">'+item.name+
+      '<small>Level '+level+' / '+BASE_UPGRADE_MAX_LEVEL+' · '+item.description(level)+
+      (atMax?" · MAX LEVEL":" · Next: "+money(cost)+" XP")+'</small></div>'+
+      (atMax?'<button class="gold-button small" type="button" disabled>MAX</button>':gold("UPGRADE","baseupgrade:"+item.key,true))+
+      '</div>';
+  }).join("");
+
+  const catMarkup=save.units.map((unit,index)=>{
+    const level=Math.max(1,Math.floor(Number(unit.level)||1));
+    const current=battleUnitStats(unit);
+    const atMax=level>=10;
+    const next=atMax?null:battleUnitStats({...unit,level:level+1});
+    const cost=catUpgradeCost(unit);
+    const safeName=String(unit.name||"Cat").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const description="Level "+level+" / 10 · HP "+current.health+
+      (next?" → "+next.health:"")+" · ATK "+current.damage+
+      (next?" → "+next.damage:"")+
+      (atMax?" · MAX LEVEL":" · Next: "+money(cost)+" XP");
+    return '<div class="game-row"><div class="game-row-label">'+safeName+
+      '<small>'+description+'</small></div>'+
+      (atMax?'<button class="gold-button small" type="button" disabled>MAX</button>':gold("UPGRADE","unit:"+index,true))+
+      '</div>';
+  }).join("");
+
+  const body=pageCopy("Spend XP to strengthen your Cats and permanent battle abilities.")+
+    '<h3 class="upgrade-section-heading">CAT BASE UPGRADES</h3>'+
+    '<div class="menu-list">'+abilityMarkup+'</div>'+
+    '<h3 class="upgrade-section-heading">CAT UNITS</h3>'+
+    '<div class="menu-list">'+catMarkup+'</div>';
+  return renderWindow("Upgrade",body,"base");
+}
 function renderDictionary(equip=false) {
   const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
     '<div class="cat-grid">'+save.units.map((unit,i)=>{
       const isEquipped = save.equipped.includes(unit.id);
       const stats=battleUnitStats(unit);
+      const level=Math.max(1,Math.floor(Number(unit.level)||1));
       const unitArt=unit.assetFolder==="axe-cat"
         ? '<img class="cat-head-sprite axe-cat-card-sprite" src="'+battleAssetUrl("Cats/axe-cat/moving/frame-001.png")+'" alt="" draggable="false">'
         : catHead();
-      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+unitArt+'</div><strong>'+unit.name+'</strong><small>HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
+      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+unitArt+'</div><strong>'+unit.name+'</strong><small>Level '+level+' · HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
     }).join("")+'</div>';
   if (equip) return renderWindow("Equip Cats",body,"base");
   return renderWindow("Cat Dictionary",body,"base");
@@ -3415,6 +3500,7 @@ function render() {
     case "battle": html=renderBattle(); break;
     case "stage": html=renderStage(); break;
     case "fight": html=renderFight(); break;
+    case "upgrade": html=renderUpgrade(); break;
     case "equip": html=renderDictionary(true); break;
     case "dictionary": html=renderDictionary(false); break;
     case "treasure": html=renderTreasure(); break;
@@ -3632,7 +3718,6 @@ function perform(action) {
   if (action === "chapter-back") return leaveChapterSelect("title");
   if (action.startsWith("go:")) {
     const target = action.slice(3);
-    if (target === "upgrade") return navigate("base");
     if (scene === "title" && target === "base") return beginChapterSelection();
     return navigate(target);
   }
@@ -3666,13 +3751,50 @@ function perform(action) {
     const maxLevel=8;
     const currentLevel=Math.max(1,Number(battleState.workerLevel)||1);
     if (currentLevel>=maxLevel) return notify("Your wallet is already max level.");
-    const cost=50*currentLevel;
+    const efficiencyLevel=baseUpgradeLevel("workerCatEfficiency");
+    const cost=(50+(efficiencyLevel-1)*20)*currentLevel;
     if (battleState.money<cost) return notify("Not enough money to upgrade your wallet. Need "+cost+"¢.");
     battleState.money-=cost;
     battleState.workerLevel=currentLevel+1;
     battleState.maxMoney+=50;
     updateFightUI();
     notify("Wallet upgraded to level "+battleState.workerLevel+"! Maximum money increased.");
+    return;
+  }
+  if (action.startsWith("baseupgrade:")) {
+    const key=action.slice("baseupgrade:".length);
+    if(!Object.prototype.hasOwnProperty.call(defaults.baseUpgrades,key)) return;
+    const currentLevel=baseUpgradeLevel(key);
+    if(currentLevel>=BASE_UPGRADE_MAX_LEVEL) return notify("That ability is already max level.");
+    const cost=baseUpgradeCost(currentLevel);
+    if(save.xp<cost) return notify("Not enough XP. Need "+money(cost)+" XP.");
+    save.xp-=cost;
+    save.baseUpgrades[key]=currentLevel+1;
+    playSfx("upgrade");
+    persist();
+    render();
+    notify("Upgrade complete: "+({
+      workerCatWallet:"Worker Cat Wallet",
+      workerCatEfficiency:"Worker Cat Efficiency",
+      research:"Research",
+      catBaseHealth:"Cat Base Health"
+    }[key])+" Lv. "+(currentLevel+1)+".");
+    return;
+  }
+  if (action.startsWith("unit:")) {
+    const unit=save.units[Number(action.split(":")[1])];
+    if(!unit) return;
+    const currentLevel=Math.max(1,Math.floor(Number(unit.level)||1));
+    if(currentLevel>=10) return notify(unit.name+" is already Level 10.");
+    const cost=catUpgradeCost(unit);
+    if(save.xp<cost) return notify("Not enough XP. Need "+money(cost)+" XP.");
+    save.xp-=cost;
+    unit.level=currentLevel+1;
+    playSfx("upgrade");
+    persist();
+    render();
+    const stats=battleUnitStats(unit);
+    notify(unit.name+" reached Level "+unit.level+"! HP "+stats.health+" · ATK "+stats.damage);
     return;
   }
   if (action.startsWith("unitinfo:")) {
@@ -3741,7 +3863,7 @@ function perform(action) {
     case "save": persist(); notify("Game saved on this device."); break;
     case "reset":
       if (confirm("Reset all local demo progress? This cannot be undone.")) {
-        save = {...defaults,units:defaults.units.map(unit=>({...unit})),equipped:[1]};
+        save = {...defaults,units:defaults.units.map(unit=>({...unit})),equipped:[1],xpResetVersion:XP_RESET_VERSION};
         persist(); navigate("title"); notify("Progress reset.");
       }
       break;
