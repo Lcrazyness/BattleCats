@@ -362,8 +362,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .base-sprite-button:hover{filter:brightness(1.06);transform:scale(1.025)}
 .base-sprite-button:active{filter:brightness(.92);transform:scale(.99)}
 .base-start{left:4.2%;top:32%;width:28%;height:8.5%}
-.base-upgrade{left:4.2%;top:41.2%;width:28%;height:8.5%}
-.base-equip{left:4.2%;top:50.4%;width:28%;height:8.5%}
+.base-equip{left:4.2%;top:41.2%;width:28%;height:8.5%}
 .base-menu{left:2%;top:61.5%;width:10.2%;height:15.6%}
 .base-gamatoto{left:11.2%;top:61%;width:11.9%;height:16.1%}
 .base-missions{left:21.5%;top:61%;width:10.7%;height:16.1%}
@@ -379,8 +378,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
  .real-title-frame .title-sprite-button.title-mailbox{left:87.5%;top:81.4%;width:11.7%;height:16.6%}
  .base-sprite-frame{width:min(100vw,166.087dvh);height:min(100dvh,60.21vw)}
  .base-start{left:4.2%;top:32%;width:28%;height:8.5%}
- .base-upgrade{left:4.2%;top:41.2%;width:28%;height:8.5%}
- .base-equip{left:4.2%;top:50.4%;width:28%;height:8.5%}
+  .base-equip{left:4.2%;top:41.2%;width:28%;height:8.5%}
  .base-menu{left:2%;top:61.5%;width:10.2%;height:15.6%}
  .base-gamatoto{left:11.2%;top:61%;width:11.9%;height:16.1%}
  .base-missions{left:21.5%;top:61%;width:10.7%;height:16.1%}
@@ -3198,68 +3196,6 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .fight-unit[data-unit-type="the-face"] { bottom:clamp(38px,7vh,82px) !important; }
 
 
-/* Test level controls inside the Cat Upgrade screen. */
-.cat-level-test-panel {
-  margin: 16px 0 8px;
-  padding: 12px;
-  border: 1px solid rgba(92,55,28,.42);
-  border-radius: 10px;
-  background: rgba(255,241,202,.92);
-  color: #4c2b19;
-}
-.cat-level-test-heading {
-  text-align: center;
-  font-weight: 900;
-  letter-spacing: .08em;
-  margin-bottom: 5px;
-}
-.cat-level-test-panel > p {
-  margin: 0 0 10px;
-  text-align: center;
-  font-size: 12px;
-}
-.cat-level-test-all,
-.cat-level-test-row {
-  display: grid;
-  grid-template-columns: minmax(0,1fr) 76px 62px;
-  align-items: center;
-  gap: 7px;
-  margin: 7px 0;
-}
-.cat-level-test-all label,
-.cat-level-test-name {
-  font-size: 12px;
-  font-weight: 800;
-}
-.cat-level-test-name small {
-  display: block;
-  margin-top: 2px;
-  font-size: 10px;
-  font-weight: 600;
-  opacity: .75;
-}
-.cat-level-test-panel input {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 7px 5px;
-  border: 1px solid #9a7145;
-  border-radius: 6px;
-  background: #fffaf0;
-  color: #3c2113;
-  font: inherit;
-  text-align: center;
-}
-.cat-level-test-panel .gold-button {
-  min-width: 0;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-.cat-level-test-list {
-  margin-top: 10px;
-  border-top: 1px solid rgba(92,55,28,.25);
-  padding-top: 7px;
-}
 .fight-screen .fight-unit[data-unit-type="the-face"] {
   bottom: 8px !important;
 }
