@@ -62,7 +62,7 @@ main = replace_once(main, xp_marker, xp_block, "initial XP grant")
 
 # Replace the upgrade screen with working per-cat and all-cat level testing controls.
 upgrade_start = main.index("function renderUpgrade() {")
-upgrade_end = main.index("\\nfunction renderDictionary", upgrade_start)
+upgrade_end = main.index(chr(10) + "function renderDictionary", upgrade_start)
 new_upgrade = r'''function renderUpgrade() {
   const body = pageCopy("Each Cat level increases its health and attack power by 15%.")+
     '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
@@ -134,8 +134,8 @@ click_handler = '''stage.addEventListener("click", event => {
 main = replace_once(main, click_marker, click_handler, "stage test-level click handler")
 
 # New enemy sprite sizes should be grounded; The Face sits only a few pixels above the baseline.
-float_marker = "/* New Empire of Cats enemies: stable sizes and proper floating height. */"
-if float_marker not in css:
+test_css_marker = "/* Test level controls inside the Cat Upgrade screen. */"
+if test_css_marker not in css:
     css += '''
 
 /* Test level controls inside the Cat Upgrade screen. */
@@ -214,8 +214,8 @@ main = replace_once(
     'const BATTLE_ASSET_VERSION = "20261105-23";',
     "battle asset version"
 )
-html = re.sub(r'^\\s*<script src="src/enemy-speed-balance\\.js[^"]*"></script>\\s*\\n', '', html, flags=re.M)
-html = re.sub(r'20261105-\\d+', '20261105-23', html)
+html = "\\n".join(line for line in html.splitlines() if "src/enemy-speed-balance.js" not in line)
+html = re.sub("20261105-[0-9]+", "20261105-23", html)
 if 'src/enemy-speed-balance.js' in html:
     raise RuntimeError("Obsolete speed helper is still referenced in index.html")
 
