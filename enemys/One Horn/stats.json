@@ -1,7 +1,7 @@
 {
   "name": "One Horn",
-  "health": 15000,
-  "damage": 250,
+  "health": 9000,
+  "damage": 125,
   "speed": 3,
   "range": 40,
   "spriteChangeSpeed": 7,
@@ -11,7 +11,7 @@
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
-  "attackCooldown": 0.53,
+  "attackCooldown": 0.9,
   "AreaAttack": 1,
   "traits": [
     "Red"
