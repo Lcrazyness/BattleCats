@@ -76,7 +76,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-23";
+const BATTLE_ASSET_VERSION = "20261105-24";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -100,14 +100,14 @@ const BATTLE_UNIT_STATS = {
   "sir-seal": {health:1150,damage:30,speed:5.5,spriteChangeSpeed:5.5,range:170,killReward:220,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:1,traits:["Red"]},
   "baa-baa": {health:400,damage:20,speed:5.5,spriteChangeSpeed:7,walkSpriteChangeSpeed:3.8,range:110,killReward:40,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.77,AreaAttack:0,traits:[]},
   croco: {health:35,damage:6,speed:14,spriteChangeSpeed:10,walkSpriteChangeSpeed:6,range:110,killReward:20,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:0,traits:[]},
-  "le-boin": {health:3000,damage:200,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:160,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]},
-  "b-b-bunny": {health:500,damage:25,speed:12,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:110,killReward:45,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.37,AreaAttack:0,traits:["Red"]},
-  "kang-roo": {health:4000,damage:125,speed:11,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:160,killReward:180,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.2,AreaAttack:0,traits:[]},
-  "squire-rel": {health:80,damage:15,speed:13,spriteChangeSpeed:10,walkSpriteChangeSpeed:8,range:110,killReward:15,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.48,knockbackDistance:5,attackCooldown:0.53,AreaAttack:0,traits:[]},
-  mooth: {health:5000,damage:175,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:340,killReward:250,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:2.93,AreaAttack:1,traits:["Floating"]},
-  "one-horn": {health:15000,damage:250,speed:3,spriteChangeSpeed:7,walkSpriteChangeSpeed:3,range:40,killReward:500,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.53,AreaAttack:1,traits:["Red"]},
-  "teacher-bear": {health:3000,damage:500,speed:4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:350,killReward:400,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:3.5,attackCooldown:3.57,AreaAttack:1,traits:[]},
-  "the-face": {health:99999,damage:1000,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:9.1,AreaAttack:1,traits:["Floating"]}
+  "le-boin": {health:2400,damage:100,speed:2.8,spriteChangeSpeed:4,walkSpriteChangeSpeed:2,range:160,killReward:1000,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:6.23,AreaAttack:1,traits:[]},
+  "b-b-bunny": {health:400,damage:12,speed:12,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:110,killReward:45,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.37,AreaAttack:0,traits:["Red"]},
+  "kang-roo": {health:2800,damage:63,speed:11,spriteChangeSpeed:8,walkSpriteChangeSpeed:6,range:160,killReward:180,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:0,traits:[]},
+  "squire-rel": {health:70,damage:8,speed:13,spriteChangeSpeed:10,walkSpriteChangeSpeed:8,range:110,killReward:15,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.48,knockbackDistance:5,attackCooldown:0.7,AreaAttack:0,traits:[]},
+  mooth: {health:3500,damage:88,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:340,killReward:250,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:3.4,AreaAttack:1,traits:["Floating"]},
+  "one-horn": {health:9000,damage:125,speed:3,spriteChangeSpeed:7,walkSpriteChangeSpeed:3,range:40,killReward:500,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:1,traits:["Red"]},
+  "teacher-bear": {health:2400,damage:250,speed:4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:350,killReward:400,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:3.5,attackCooldown:4,AreaAttack:1,traits:[]},
+  "the-face": {health:40000,damage:500,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:10,AreaAttack:1,traits:["Floating"]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
@@ -1826,6 +1826,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
     enemyBaseHealth,
     catBaseHealth:1000,
     maxEnemies:EOC1_MAX_ENEMIES[levelName]||6,
+    maxTotalSpawns:stageIndex<=0?18:Math.min(28,18+Math.floor(stageIndex/5)),
     initialSpawnDelay:stageIndex<=0?2:0,
     enemySpawns
   };
@@ -1838,14 +1839,18 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
   const enemySpawns=sourceRules.filter(rule=>rule&&typeof rule==="object").map((rule,index)=>{
     const enemy=battleUnitKey(rule.enemy||rule.type||"doge")||"doge";
     const requestedAmount=Number(rule.amount ?? rule.count);
-    const infinite=rule.infinite===true||String(rule.amount??rule.count??"").toLowerCase()==="infinite"||String(rule.amount??rule.count??"")==="∞";
-    const amount=infinite?0:Math.max(0,Math.floor(Number.isFinite(requestedAmount)?requestedAmount:10));
+    const requestedInfinite=rule.infinite===true||String(rule.amount??rule.count??"").toLowerCase()==="infinite"||String(rule.amount??rule.count??"")==="∞";
     const startTime=Math.max(0,Number.isFinite(Number(rule.startTime))?Number(rule.startTime):initialSpawnDelay);
     const intervalMin=Math.max(0.1,Number.isFinite(Number(rule.intervalMin))?Number(rule.intervalMin):5.5);
     const intervalMax=Math.max(intervalMin,Number.isFinite(Number(rule.intervalMax))?Number(rule.intervalMax):intervalMin);
     const rawChance=Number(rule.spawnChance ?? rule.randomRate ?? 1);
     const spawnChance=Math.max(0,Math.min(1,Number.isFinite(rawChance)?rawChance:1));
     const maxAlive=Math.max(1,Math.floor(Number.isFinite(Number(rule.maxAlive))?Number(rule.maxAlive):3));
+    // Convert every endless rule into two manageable batches, with a hard per-stage budget below.
+    const infinite=false;
+    const amount=requestedInfinite
+      ? Math.max(maxAlive,Math.min(8,maxAlive*2))
+      : Math.max(0,Math.floor(Number.isFinite(requestedAmount)?requestedAmount:10));
     const rawBasePercent=rule.baseHealthPercent;
     const baseHealthPercent=rawBasePercent===undefined||rawBasePercent===null
       ? null
@@ -1872,6 +1877,7 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     enemyBaseHealth:positive(data.enemyBaseHealth,defaults.enemyBaseHealth),
     catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth),
     maxEnemies:Math.max(1,Math.floor(positive(data.maxEnemies,defaults.maxEnemies||6))),
+    maxTotalSpawns:Math.max(1,Math.floor(positive(data.maxTotalSpawns,defaults.maxTotalSpawns||18))),
     initialSpawnDelay,enemySpawns
   };
 }
@@ -2600,12 +2606,16 @@ function attemptBattleEnemySpawn(state) {
   if(!state||!state.levelReady||state.enemyBaseHp<=0) return;
   const configuredLimit=Number(state.levelConfig&&state.levelConfig.maxEnemies);
   const totalLimit=Math.max(1,Math.floor(Number.isFinite(configuredLimit)&&configuredLimit>0?configuredLimit:6));
+  const totalSpawnBudget=Math.max(1,Math.floor(Number(state.levelConfig&&state.levelConfig.maxTotalSpawns)||24));
   const rules=state.spawnRules||[];
+  let totalSpawned=rules.reduce((sum,rule)=>sum+Math.max(0,Math.floor(Number(rule&&rule.spawned)||0)),0);
   const prioritySpawnPending=rules.some(rule=>
     rule&&rule.priority===true&&!rule.triggered&&(rule.infinite===true||rule.spawned<rule.amount)
   );
   const normalSpawnLimit=prioritySpawnPending?Math.max(1,totalLimit-1):totalLimit;
+  const normalSpawnBudget=prioritySpawnPending?Math.max(1,totalSpawnBudget-5):totalSpawnBudget;
   for(const rule of rules) {
+    if(totalSpawned>=totalSpawnBudget) break;
     if(!rule||!rule.enemy) continue;
     const hasBaseTrigger=rule.baseHealthPercent!==null&&rule.baseHealthPercent!==undefined;
     if(hasBaseTrigger&&!rule.triggered) {
@@ -2621,6 +2631,7 @@ function attemptBattleEnemySpawn(state) {
     }
     if(hasBaseTrigger&&!rule.triggered) continue;
     if(!rule.infinite&&rule.spawned>=rule.amount) continue;
+    if(rule.priority!==true&&totalSpawned>=normalSpawnBudget) continue;
     if(state.elapsed+0.0001<Number(rule.nextAttemptAt)) continue;
     const aliveOfType=state.enemies.filter(enemy=>enemy.enemyType===rule.enemy&&enemy.hp>0&&enemy.mode!=="dead").length;
     const totalAlive=state.enemies.filter(enemy=>enemy.hp>0&&enemy.mode!=="dead").length;
@@ -2629,6 +2640,7 @@ function attemptBattleEnemySpawn(state) {
       const key=rule.enemy+"-"+state.nextEnemyKey++;
       state.enemies.push(createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey));
       rule.spawned++;
+      totalSpawned++;
     }
     rule.nextAttemptAt=state.elapsed+rule.intervalMin+Math.random()*(rule.intervalMax-rule.intervalMin);
   }
