@@ -26,7 +26,7 @@ ENEMIES = {
         ],
         "hurt": (80, 411, 158, 485),
         "stats": {
-            "name": "B.B.Bunny", "health": 500, "damage": 50, "speed": 12,
+            "name": "B.B.Bunny", "health": 500, "damage": 25, "speed": 12,
             "range": 110, "spriteChangeSpeed": 8, "walkSpriteChangeSpeed": 6,
             "killReward": 45, "knockbackCount": 3, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
@@ -48,7 +48,7 @@ ENEMIES = {
         # This sheet has no separate, clearly isolated hurt drawing; use its clean resting pose.
         "hurt": (8, 18, 151, 220),
         "stats": {
-            "name": "Kang Roo", "health": 4000, "damage": 250, "speed": 11,
+            "name": "Kang Roo", "health": 4000, "damage": 125, "speed": 11,
             "range": 160, "spriteChangeSpeed": 8, "walkSpriteChangeSpeed": 6,
             "killReward": 180, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
@@ -68,7 +68,7 @@ ENEMIES = {
         # The flattened crouch at the lower-right is the only distinct reaction pose.
         "hurt": (390, 108, 528, 235),
         "stats": {
-            "name": "Squire Rel", "health": 80, "damage": 30, "speed": 13,
+            "name": "Squire Rel", "health": 80, "damage": 15, "speed": 13,
             "range": 110, "spriteChangeSpeed": 10, "walkSpriteChangeSpeed": 8,
             "killReward": 15, "knockbackCount": 3, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.48, "knockbackDistance": 5,
@@ -87,7 +87,7 @@ ENEMIES = {
         "attack": [(546, 12, 788, 224)],
         "hurt": (157, 244, 334, 400),
         "stats": {
-            "name": "Mooth", "health": 5000, "damage": 350, "speed": 10,
+            "name": "Mooth", "health": 5000, "damage": 175, "speed": 10,
             "range": 340, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 5,
             "killReward": 250, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.72, "knockbackDistance": 4.5,
@@ -111,7 +111,7 @@ ENEMIES = {
         "attack_local_bg_indices": [0],
         "hurt": (339, 285, 500, 431),
         "stats": {
-            "name": "One Horn", "health": 15000, "damage": 500, "speed": 3,
+            "name": "One Horn", "health": 15000, "damage": 250, "speed": 3,
             "range": 40, "spriteChangeSpeed": 7, "walkSpriteChangeSpeed": 3,
             "killReward": 500, "knockbackCount": 1, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.64, "knockbackDistance": 4.5,
@@ -133,7 +133,7 @@ ENEMIES = {
         ],
         "hurt": (0, 620, 190, 839),
         "stats": {
-            "name": "Teacher Bear", "health": 3000, "damage": 1000, "speed": 4,
+            "name": "Teacher Bear", "health": 3000, "damage": 500, "speed": 4,
             "range": 350, "spriteChangeSpeed": 6, "walkSpriteChangeSpeed": 3,
             "killReward": 400, "knockbackCount": 10, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.52, "knockbackDistance": 3.5,
@@ -142,18 +142,18 @@ ENEMIES = {
     },
     "The Face": {
         "sheet": "enemys/The Face/Screenshot 2026-11-05 144239.png",
-        "size": (828, 416), "floating": True, "attack_rate": 2,
+        "size": (828, 416), "floating": False, "attack_rate": 2,
         "idle": (19, 14, 213, 211),
         "moving": [(19, 14, 213, 211)],
         "attack": [
             (205, 14, 405, 211), (402, 14, 610, 211),
             (608, 14, 812, 212), (18, 240, 230, 408)
         ],
-        "attack_rotate_last": 180,
+        "attack_rotate_last": 90,
         # No separate hurt drawing is present; use the neutral mouth-closed face.
         "hurt": (19, 14, 213, 211),
         "stats": {
-            "name": "The Face", "health": 99999, "damage": 2000, "speed": 1,
+            "name": "The Face", "health": 99999, "damage": 1000, "speed": 1,
             "range": 340, "spriteChangeSpeed": 5, "walkSpriteChangeSpeed": 1,
             "killReward": 1000, "knockbackCount": 2, "knockbackThresholdPercent": 25,
             "knockbackDuration": 0.85, "knockbackDistance": 5,
@@ -164,16 +164,15 @@ ENEMIES = {
 
 
 def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.Image:
-    """Remove only neutral sheet background connected to the source image edges."""
+    """Remove the dominant sheet background only; never treat an isolated corner panel as a key color."""
     image = image.convert("RGBA")
     pixels = image.load()
     width, height = image.size
     corners = [pixels[0, 0][:3], pixels[width - 1, 0][:3],
                pixels[0, height - 1][:3], pixels[width - 1, height - 1][:3]]
-    backgrounds = []
-    for color in corners:
-        if color not in backgrounds:
-            backgrounds.append(color)
+    # Median corner color ignores a single dark packing panel, preserving black sprite outlines.
+    background = tuple(sorted(color[channel] for color in corners)[len(corners) // 2]
+                       for channel in range(3))
 
     def is_background(index: int) -> bool:
         x, y = index % width, index // width
@@ -183,7 +182,7 @@ def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.I
         chroma = max(r, g, b) - min(r, g, b)
         if chroma > 60:
             return False
-        return min(max(abs(r-c[0]), abs(g-c[1]), abs(b-c[2])) for c in backgrounds) <= tolerance
+        return max(abs(r-background[0]), abs(g-background[1]), abs(b-background[2])) <= tolerance
 
     seen = bytearray(width * height)
     queue = deque()
@@ -209,26 +208,44 @@ def remove_border_background(image: Image.Image, tolerance: int = 38) -> Image.I
         if y + 1 < height: queue.append(index + width)
     return image
 
-
 def remove_local_checkerboard_background(image: Image.Image) -> Image.Image:
-    """Keep the colored rhino and nearby outlines while clearing its checkerboard tile."""
+    """Flood-remove edge-connected neutral checkerboard while retaining dark outlines and enclosed white horn."""
     image = image.convert("RGBA")
     width, height = image.size
     pixels = image.load()
-    color_mask = Image.new("L", (width, height), 0)
-    mask_pixels = color_mask.load()
+    seen = bytearray(width * height)
+    queue = deque()
+
+    def is_checker_background(index: int) -> bool:
+        x, y = index % width, index // width
+        r, g, b, a = pixels[x, y]
+        if a <= 0:
+            return False
+        chroma = max(r, g, b) - min(r, g, b)
+        luminance = (r + g + b) / 3
+        # Mid-gray checker tiles and white panel areas are removable; black ink stays opaque.
+        return chroma <= 38 and (luminance >= 48)
+
+    for x in range(width):
+        queue.append(x)
+        queue.append((height - 1) * width + x)
     for y in range(height):
-        for x in range(width):
-            r, g, b, a = pixels[x, y]
-            if a > 0 and max(r, g, b) - min(r, g, b) > 42:
-                mask_pixels[x, y] = 255
-    # Expand the orange silhouette to preserve attached horn, hooves and line art.
-    keep = color_mask.filter(ImageFilter.MaxFilter(31)).load()
-    for y in range(height):
-        for x in range(width):
-            if keep[x, y] == 0:
-                r, g, b, a = pixels[x, y]
-                pixels[x, y] = (r, g, b, 0)
+        queue.append(y * width)
+        queue.append(y * width + width - 1)
+
+    while queue:
+        index = queue.popleft()
+        if seen[index]:
+            continue
+        seen[index] = 1
+        if not is_checker_background(index):
+            continue
+        x, y = index % width, index // width
+        pixels[x, y] = (0, 0, 0, 0)
+        if x: queue.append(index - 1)
+        if x + 1 < width: queue.append(index + 1)
+        if y: queue.append(index - width)
+        if y + 1 < height: queue.append(index + width)
     return image
 
 def crop_pose(sheet: Image.Image, box, rotate=0, local_background=False) -> Image.Image:
@@ -256,7 +273,7 @@ def fit_frame(pose: Image.Image, scale: float, floating: bool) -> Image.Image:
     pose = pose.resize((draw_width, draw_height), Image.Resampling.LANCZOS)
     frame = Image.new("RGBA", FRAME, (0, 0, 0, 0))
     x = (FRAME[0] - draw_width) // 2
-    y = (FRAME[1] - draw_height) // 2 if floating else FRAME[1] - draw_height - 2
+    y = (FRAME[1] - draw_height) // 2 if floating else FRAME[1] - draw_height
     frame.alpha_composite(pose, (x, y))
     return frame
 
