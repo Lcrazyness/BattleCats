@@ -1,7 +1,7 @@
 {
   "name": "Mooth",
   "health": 5000,
-  "damage": 350,
+  "damage": 175,
   "speed": 10,
   "range": 340,
   "spriteChangeSpeed": 7,

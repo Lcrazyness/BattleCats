@@ -1,7 +1,7 @@
 {
   "name": "One Horn",
   "health": 15000,
-  "damage": 500,
+  "damage": 250,
   "speed": 3,
   "range": 40,
   "spriteChangeSpeed": 7,

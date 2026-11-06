@@ -1,7 +1,7 @@
 {
   "name": "Squire Rel",
   "health": 80,
-  "damage": 30,
+  "damage": 15,
   "speed": 13,
   "range": 110,
   "spriteChangeSpeed": 10,

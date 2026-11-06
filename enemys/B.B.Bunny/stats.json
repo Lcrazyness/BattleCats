@@ -1,7 +1,7 @@
 {
   "name": "B.B.Bunny",
   "health": 500,
-  "damage": 50,
+  "damage": 25,
   "speed": 12,
   "range": 110,
   "spriteChangeSpeed": 8,
