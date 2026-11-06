@@ -3320,7 +3320,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   filter:drop-shadow(0 -2px 3px #24170d55);
 }
 .upgrade-bottom-copy {
-  position:absolute; z-index:6; left:18%; right:25%; bottom:6.2%;
+  position:absolute; z-index:6; left:27%; right:9%; bottom:6.2%;
   height:17.5%; display:flex; flex-direction:column; justify-content:center;
   overflow:hidden; pointer-events:none; color:#fff;
 }
@@ -3349,19 +3349,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 .upgrade-detail-max { color:#fff; font:1000 11px/1 Arial,sans-serif; }
 .upgrade-action-button {
-  position:absolute; z-index:8; right:4.4%; bottom:7%;
-  width:17%; height:17%; padding:0; border:0; border-radius:0;
+  position:absolute; z-index:8; left:6%; bottom:25.5%;
+  width:25%; height:12.5%; padding:0; border:0; border-radius:0;
   background:transparent; box-shadow:none; display:grid; place-items:center;
   filter:drop-shadow(0 2px 2px #24160d7a);
 }
 .upgrade-action-button img {
   display:block; width:100%; height:100%; object-fit:contain; pointer-events:none;
-}
-.upgrade-action-label {
-  position:absolute; inset:0; display:grid; place-items:center;
-  padding:5px; color:#fff9cf; font:1000 clamp(11px,1.5vw,18px)/1 Arial,sans-serif;
-  -webkit-text-stroke:.55px #48260f; text-shadow:1px 2px #40200d;
-  pointer-events:none;
 }
 .upgrade-action-button:disabled { opacity:.62; filter:grayscale(.55); cursor:default; }
 .upgrade-back-button {
@@ -3386,14 +3380,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .upgrade-card-name { font-size:clamp(12px,3.4vw,16px); }
   .upgrade-card-category { font-size:10px; }
   .upgrade-wood-panel { left:6%; right:3%; bottom:3%; width:91%; height:22%; }
-  .upgrade-bottom-copy { left:19%; right:26%; bottom:5.7%; height:17%; }
+  .upgrade-bottom-copy { left:32%; right:5%; bottom:5.7%; height:17%; }
   .upgrade-selected-name { font-size:clamp(11px,3vw,15px); margin-bottom:2px; }
   .upgrade-bio-text { font-size:clamp(10px,2.45vw,13px); line-height:1.18; }
   .upgrade-detail-level,.upgrade-detail-cost { font-size:10px; min-height:14px; gap:3px; }
   .upgrade-detail-level>span,.upgrade-detail-cost>span { min-width:34px; font-size:9px; }
   .upgrade-detail-stats { margin-top:1px; font-size:9px; }
-  .upgrade-action-button { right:3%; bottom:6%; width:19%; height:16%; }
-  .upgrade-action-label { font-size:clamp(10px,2.5vw,14px); }
+  .upgrade-action-button { left:5%; bottom:25%; width:28%; height:11.5%; }
   .upgrade-back-button { left:.5%; bottom:1%; width:clamp(49px,13vw,68px); height:clamp(49px,13vw,68px); }
   .currency-size-upgrade { --currency-scale:.22; }
   .currency-size-upgrade-detail { --currency-scale:.18; }
