@@ -24,13 +24,13 @@ function walletLevelSpriteMarkup(level) {
 }
 function makeAxeCatUnit() {
   return {
-    id:3,name:"Axe Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:12,range:65,speed:7,recharge:0.1,
+    id:3,name:"Axe Cat",level:1,deployCost:1,hp:100,attack:12,range:65,speed:7,recharge:0.1,
     assetFolder:"axe-cat",spriteSlot:"Cats/axe-cat/slot.png",statsPath:"Cats/axe-cat/stats.json",assetsPath:"Cats/axe-cat/assets.json"
   };
 }
 function makeGrossCatUnit() {
   return {
-    id:4,name:"Gross Cat",level:1,deployCost:2,upgradeCost:500,hp:130,attack:22,range:180,speed:5.2,recharge:3.2,
+    id:4,name:"Gross Cat",level:1,deployCost:2,hp:130,attack:22,range:180,speed:5.2,recharge:3.2,
     assetFolder:"Gross-Cat",spriteSlot:"Cats/Gross-Cat/slot.png",statsPath:"Cats/Gross-Cat/stats.json",assetsPath:"Cats/Gross-Cat/assets.json"
   };
 }
@@ -38,7 +38,7 @@ const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
   energy:100, maxEnergy:100, exp:0, stageClears:0,
   units:[
-    {id:1,name:"Cat",level:1,deployCost:1,upgradeCost:400,hp:100,attack:6,range:140,speed:5,recharge:0.1}
+    {id:1,name:"Cat",level:1,deployCost:1,hp:100,attack:6,range:140,speed:5,recharge:0.1}
   ],
   equipped:[1], mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
 };
@@ -65,7 +65,8 @@ if(Number(save.stageClears)>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Nu
 if(Number(save.stageClears)>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
   save.units.push(makeGrossCatUnit());
 }
-save.xp = Math.max(9999999999, Number(save.xp) || 0);
+save.xp = Number(save.xp)>=9999999999 ? 0 : Math.max(0,Math.floor(Number(save.xp)||0));
+save.units.forEach(unit=>{unit.level=1;delete unit.upgradeCost;});
 try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 let scene = "loading";
 let currentRegion = "empire";
@@ -76,11 +77,11 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261105-25";
+const BATTLE_ASSET_VERSION = "20261106-01";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
-  cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png",upgrade:"Cats/cat/upgrade.png"},
+  cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
   "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
@@ -491,7 +492,7 @@ const persist = () => {
 };
 const totalCatLevels = () => save.units.reduce((total,unit) =>
   total + Math.max(1,Math.floor(Number(unit.level)||1)),0);
-const AUDIO_VERSION = "20261104-16";
+const AUDIO_VERSION = "20261106-01";
 const SOUND_FILES = {
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
@@ -500,7 +501,6 @@ const SOUND_FILES = {
   door: "sounds/cat-base-door.mp3",
   enterBattle: "sounds/enter-battle.mp3",
   stageSelect: "sounds/enter-battle.mp3",
-  upgrade: "sounds/upgrade.mp3",
   victory: "sounds/victory.mp3",
   defeat: "sounds/defeat.mp3",
   reward: "sounds/reward.mp3",
@@ -534,6 +534,7 @@ if (!githubAssetBase) {
 }
 githubAssetBase.href = GITHUB_ASSET_BASE_URL;
 const APP_BASE_URL = new URL(GITHUB_ASSET_BASE_URL);
+const AUDIO_BASE_URL = new URL("https://lcrazyness.github.io/BattleCats/");
 
 const LOADING_IMAGE_ASSETS = [
   {path:"Levels/Korea/background.png?v=20261029-34",bytes:188403},
@@ -553,7 +554,6 @@ const LOADING_IMAGE_ASSETS = [
   {path:"Cats/cat/attack/frame-004attack.png?v=20261029-31",bytes:13433},
   {path:"Cats/cat/damaged/frame-001damaged.png?v=20261029-31",bytes:17381},
   {path:"Cats/cat/slot.png?v=20261029-31",bytes:9000},
-  {path:"Cats/cat/upgrade.png?v=20261029-31",bytes:9000},
   {path:"Cats/axe-cat/moving/frame-001.png?v=20261101-08",bytes:2720},
   {path:"Cats/axe-cat/moving/frame-002.png?v=20261101-08",bytes:2716},
   {path:"Cats/axe-cat/moving/frame-003.png?v=20261101-08",bytes:2749},
@@ -702,7 +702,6 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/capsule-draw.mp3?v="+AUDIO_VERSION,bytes:63025},
   {path:"sounds/login-reward.mp3?v="+AUDIO_VERSION,bytes:11626},
   {path:"sounds/reward.mp3?v="+AUDIO_VERSION,bytes:78497},
-  {path:"sounds/upgrade.mp3?v="+AUDIO_VERSION,bytes:16941},
   {path:"sounds/victory.mp3?v="+AUDIO_VERSION,bytes:116845},
   {path:"sounds/defeat.mp3?v="+AUDIO_VERSION,bytes:107818},
   {path:"sounds/attack1.mp3?v="+AUDIO_VERSION,bytes:11772},
@@ -856,34 +855,35 @@ async function startGameAssetLoading() {
   },650);
 }
 
-// Use MP3-only playback; all bundled audio assets are MP3.
+// Load MP3 audio from GitHub Pages first, with raw GitHub as a fallback.
 function createAudioPlayer(path) {
   const player = new Audio();
   player.preload = "auto";
-  const sourcePath = String(path||"");
-  const extensionMatch = sourcePath.match(/\.(mp3|ogg)$/i);
+  const sourcePath = String(path || "").trim();
+  const extensionMatch = sourcePath.match(/\\.(mp3|ogg)$/i);
   const extension = extensionMatch ? extensionMatch[1].toLowerCase() : "mp3";
-  const basePath = extensionMatch ? sourcePath.slice(0,-extensionMatch[0].length) : sourcePath;
-  const formats = [extension];
-  let formatIndex = 0;
+  const basePath = extensionMatch ? sourcePath.slice(0, -extensionMatch[0].length) : sourcePath;
+  const sourceBases = [AUDIO_BASE_URL, APP_BASE_URL];
+  const sourceUrls = [...new Set(sourceBases.map(base =>
+    new URL(`${basePath}.${extension}?v=${AUDIO_VERSION}`, base).href
+  ))];
+  let sourceIndex = 0;
   let wantsPlayback = false;
 
-  const loadCurrentFormat = () => {
-    const format = formats[formatIndex];
-    player.src = new URL(`${basePath}.${format}?v=${AUDIO_VERSION}`, APP_BASE_URL).href;
+  const loadCurrentSource = () => {
+    player.src = sourceUrls[sourceIndex];
     player.load();
   };
 
-  const switchFormat = retryPlayback => {
-    if (formatIndex >= formats.length - 1) return false;
-    formatIndex++;
-    player.audioFallbackUsed = true;
-    loadCurrentFormat();
+  const switchSource = retryPlayback => {
+    if (sourceIndex >= sourceUrls.length - 1) return false;
+    sourceIndex += 1;
+    loadCurrentSource();
     if (retryPlayback && wantsPlayback) {
       const retry = player.play();
       if (retry && typeof retry.catch === "function") {
         retry.catch(error => {
-          console.warn("Battle Cats audio retry failed:", player.currentSrc, error);
+          console.warn("Battle Cats audio host fallback failed:", player.currentSrc, error);
         });
       }
     }
@@ -897,14 +897,13 @@ function createAudioPlayer(path) {
     try {
       promise = player.play();
     } catch (error) {
-      if (error.name !== "NotAllowedError" && switchFormat(false)) return player.play();
+      if (error.name !== "NotAllowedError" && switchSource(false)) return player.play();
       throw error;
     }
     if (promise && typeof promise.catch === "function") {
       return promise.catch(error => {
-        // The media error event may already have switched to the alternate format.
         if (player.src !== attemptedSource) return;
-        if (error.name !== "NotAllowedError" && switchFormat(false)) return player.play();
+        if (error.name !== "NotAllowedError" && switchSource(false)) return player.play();
         throw error;
       });
     }
@@ -917,15 +916,15 @@ function createAudioPlayer(path) {
   };
 
   player.addEventListener("error", () => {
-    if (switchFormat(true)) return;
+    if (switchSource(true)) return;
     if (typeof player.onAudioFailure === "function") {
       player.onAudioFailure();
     } else {
-      console.error("Battle Cats audio failed in both formats:", player.currentSrc, player.error);
+      console.error("Battle Cats audio failed on both hosts:", player.currentSrc, player.error);
     }
   });
 
-  loadCurrentFormat();
+  loadCurrentSource();
   return player;
 }
 
@@ -951,7 +950,11 @@ function playSfx(key) {
   if (!save.sound || !SOUND_FILES[key] || typeof Audio === "undefined") return;
   let player;
   try {
-    player = createAudioPlayer(SOUND_FILES[key]);
+    player = preloadedAudioPlayers.get(key) || createAudioPlayer(SOUND_FILES[key]);
+    preloadedAudioPlayers.set(key,player);
+    player.pauseCompat();
+    try { player.currentTime = 0; } catch {}
+    player.loop = false;
     player.preload = "auto";
     player.volume = key === "door" || key === "enterBattle" || key === "stageSelect" ? 0.62 : 0.48;
     activeSfxPlayers.add(player);
@@ -966,7 +969,8 @@ function playSfx(key) {
     player.addEventListener("ended", cleanup, {once:true});
     player.onAudioFailure = () => {
       cleanup();
-      console.warn("Battle Cats sound asset unavailable; continuing without it:",key,player.currentSrc,player.error);
+      if(preloadedAudioPlayers.get(key)===player) preloadedAudioPlayers.delete(key);
+      console.warn("Battle Cats sound asset unavailable on both hosts; continuing without it:",key,player.currentSrc,player.error);
     };
     const promise = player.playCompat();
     if (promise && typeof promise.catch === "function") {
@@ -1170,7 +1174,6 @@ function renderBase() {
       '<strong class="base-user-rank-value" aria-label="User Rank '+totalCatLevels()+'">'+money(totalCatLevels())+'</strong>'+
       '<strong class="base-xp-count" aria-label="Experience points '+money(save.xp)+'">'+currencySpriteMarkup(save.xp,"currency-size-base")+'</strong>'+
       '<button class="base-sprite-button base-start" data-go="stage:empire" aria-label="Start battle"><img src="sprites/ui/startbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
-      '<button class="base-sprite-button base-upgrade" data-go="go:upgrade" aria-label="Upgrade"><img src="sprites/ui/upgradebutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-equip" data-go="go:equip" aria-label="Equip cats"><img src="sprites/ui/equipbutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-menu" data-go="go:menu" aria-label="Menu"><img src="sprites/ui/menubutton.png?v=20261026-9" alt="" draggable="false"></button>'+
       '<button class="base-sprite-button base-gamatoto" data-go="go:gamatoto" aria-label="Gamatoto"><img src="sprites/ui/gamatotobutton.png?v=20261026-9" alt="" draggable="false"></button>'+
@@ -3300,50 +3303,15 @@ function renderFight() {
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
   '</section>';
 }
-function renderUpgrade() {
-  const body = pageCopy("Each Cat level increases its health and attack power by 15%.")+
-    '<h3 style="margin:9px 0 0;text-align:center">CAT UPGRADES</h3>'+
-    '<div class="menu-list">'+save.units.map((unit,i)=>{
-      const level=Math.max(1,Math.floor(Number(unit.level)||1));
-      const current=battleUnitStats(unit);
-      const next=battleUnitStats({...unit,level:level+1});
-      const cost=(Number(unit.upgradeCost)||100)*level;
-      const description="Level "+level+" · HP "+current.health+" → "+next.health+" · ATK "+current.damage+" → "+next.damage+" · Next: "+cost+" XP";
-      return row(unit.name,description,"unit:"+i,"UPGRADE");
-    }).join("")+'</div>';
-
-  const testTools = '<section class="cat-level-test-panel">'+
-    '<div class="cat-level-test-heading">CAT LEVEL TESTING</div>'+
-    '<p>Set any owned Cat to a level for testing. These changes are free and saved to your game.</p>'+
-    '<div class="cat-level-test-all">'+
-      '<label for="test-all-cat-level">Set every Cat to level</label>'+
-      '<input id="test-all-cat-level" data-test-all-level-input type="number" min="1" max="9999" step="1" value="1">'+
-      '<button type="button" class="gold-button small" data-test-all-level>SET ALL</button>'+
-    '</div>'+
-    '<div class="cat-level-test-list">'+save.units.map(unit=>{
-      const id=String(unit.id);
-      const level=Math.max(1,Math.floor(Number(unit.level)||1));
-      const name=String(unit.name||"Cat").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      return '<div class="cat-level-test-row">'+
-        '<span class="cat-level-test-name">'+name+'<small>Current: Lv. '+level+'</small></span>'+
-        '<input type="number" min="1" max="9999" step="1" value="'+level+'" data-test-level-input="'+id+'" aria-label="'+name+' test level">'+
-        '<button type="button" class="gold-button small" data-test-unit-level="'+id+'">SET</button>'+
-      '</div>';
-    }).join("")+'</div>'+
-  '</section>';
-
-  return renderWindow("Upgrade",body+testTools,"base");
-}
 function renderDictionary(equip=false) {
   const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
     '<div class="cat-grid">'+save.units.map((unit,i)=>{
       const isEquipped = save.equipped.includes(unit.id);
       const stats=battleUnitStats(unit);
-      const level=Math.max(1,Math.floor(Number(unit.level)||1));
       const unitArt=unit.assetFolder==="axe-cat"
         ? '<img class="cat-head-sprite axe-cat-card-sprite" src="'+battleAssetUrl("Cats/axe-cat/moving/frame-001.png")+'" alt="" draggable="false">'
         : catHead();
-      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+unitArt+'</div><strong>'+unit.name+'</strong><small>Level '+level+' · HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
+      return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+unitArt+'</div><strong>'+unit.name+'</strong><small>HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
     }).join("")+'</div>';
   if (equip) return renderWindow("Equip Cats",body,"base");
   return renderWindow("Cat Dictionary",body,"base");
@@ -3448,7 +3416,6 @@ function render() {
     case "battle": html=renderBattle(); break;
     case "stage": html=renderStage(); break;
     case "fight": html=renderFight(); break;
-    case "upgrade": html=renderUpgrade(); break;
     case "equip": html=renderDictionary(true); break;
     case "dictionary": html=renderDictionary(false); break;
     case "treasure": html=renderTreasure(); break;
@@ -3666,6 +3633,7 @@ function perform(action) {
   if (action === "chapter-back") return leaveChapterSelect("title");
   if (action.startsWith("go:")) {
     const target = action.slice(3);
+    if (target === "upgrade") return navigate("base");
     if (scene === "title" && target === "base") return beginChapterSelection();
     return navigate(target);
   }
@@ -3708,23 +3676,9 @@ function perform(action) {
     notify("Wallet upgraded to level "+battleState.workerLevel+"! Maximum money increased.");
     return;
   }
-  if (action.startsWith("unit:")) {
-    const unit = save.units[Number(action.split(":")[1])];
-    if (!unit) return;
-    const currentLevel=Math.max(1,Math.floor(Number(unit.level)||1));
-    const cost=(Number(unit.upgradeCost)||100)*currentLevel;
-    if (save.xp < cost) return notify("Not enough XP!");
-    save.xp-=cost;
-    unit.level=currentLevel+1;
-    playSfx("upgrade");
-    render();
-    const stats=battleUnitStats(unit);
-    notify(unit.name+" reached Level "+unit.level+"! HP "+stats.health+" · ATK "+stats.damage);
-    return;
-  }
   if (action.startsWith("unitinfo:")) {
     const unit = save.units[Number(action.split(":")[1])];
-    if (unit) notify(unit.name+" · Level "+unit.level);
+    if (unit) { const stats=battleUnitStats(unit); notify(unit.name+" · HP "+stats.health+" · ATK "+stats.damage); }
     return;
   }
   if (action.startsWith("equipunit:")) {
@@ -3752,7 +3706,7 @@ function perform(action) {
 
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
-        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,upgradeCost:400,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json"});
+        save.units.push({id:2,name:"Tank Cat",level:1,deployCost:1,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json"});
         reward = "Victory! +250 XP · Tank Cat unlocked";
       }
       if(save.stageClears>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Number(unit.id)===3)) {
@@ -3799,34 +3753,6 @@ function perform(action) {
     default: notify("Coming soon!");
   }
 }
-stage.addEventListener("click", event => {
-  const setAllLevelButton = event.target.closest("[data-test-all-level]");
-  if (setAllLevelButton) {
-    event.preventDefault();
-    const input = stage.querySelector("[data-test-all-level-input]");
-    const level = Math.max(1,Math.min(9999,Math.floor(Number(input && input.value)||1)));
-    for (const unit of save.units) unit.level = level;
-    persist();
-    render();
-    notify("Set all Cats to level "+level+".");
-    return;
-  }
-
-  const setUnitLevelButton = event.target.closest("[data-test-unit-level]");
-  if (setUnitLevelButton) {
-    event.preventDefault();
-    const unitId = setUnitLevelButton.getAttribute("data-test-unit-level");
-    const input = stage.querySelector('[data-test-level-input="'+unitId+'"]');
-    const unit = save.units.find(entry=>String(entry.id)===String(unitId));
-    if (!unit || !input) return;
-    const level = Math.max(1,Math.min(9999,Math.floor(Number(input.value)||1)));
-    unit.level = level;
-    persist();
-    render();
-    notify(unit.name+" set to level "+level+".");
-    return;
-  }
-
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
   const action = button.dataset.go || "";
