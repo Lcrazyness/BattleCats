@@ -84,13 +84,17 @@ try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 let scene = "loading";
 let currentRegion = "empire";
 let selectedLevelIndex = 0;
+let selectedUpgradeKey = "";
+let upgradeCarouselFrame = 0;
+const upgradeBioCache = new Map();
+const upgradeBioRequests = new Map();
 let battleState = null;
 let battleTimer = null;
 let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261106-02";
+const BATTLE_ASSET_VERSION = "20261106-03";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
@@ -508,6 +512,7 @@ const BASE_UPGRADE_MAX_LEVEL = 20;
 const BASE_UPGRADE_COSTS = [400,700,1100,1600,2200,2900,3700,4600,5600,8000,10500,13500,17000,21000,25500,30500,36000,42000,48500];
 const CAT_UPGRADE_COSTS = {
   cat:[400,700,1100,1600,2200,2900,3700,4600,5600],
+  "tank-cat":[400,700,1100,1600,2200,2900,3700,4600,5600],
   "axe-cat":[900,1800,3000,4500,6300,8400,10800,13500,16500],
   "gross-cat":[1300,2200,3400,4900,6700,8800,11200,13900,16900]
 };
@@ -527,8 +532,9 @@ function catUpgradeCost(unit) {
 const totalCatLevels = () => save.units.reduce((total,unit) =>
   total + Math.max(1,Math.floor(Number(unit.level)||1)),0) +
   Object.values(save.baseUpgrades||{}).reduce((total,level)=>total+Math.max(0,Math.floor(Number(level)||1)-1),0);
-const AUDIO_VERSION = "20261106-02";
+const AUDIO_VERSION = "20261106-03";
 const SOUND_FILES = {
+  upgrade: "sounds/upgrade.mp3",
   button: "sounds/button-click.mp3",
   select: "sounds/menu-select.mp3",
   back: "sounds/back-cancel.mp3",
@@ -721,7 +727,16 @@ const LOADING_IMAGE_ASSETS = [
   {path:"sprites/cat-base-reference.jpg",bytes:85938},
   {path:"sprites/backgrounds/empire-of-cats-map.png?v=20261029-14",bytes:511164},
   {path:"sprites/title-screen.webp",bytes:186052},
-  {path:"sprites/ui/title-play.png",bytes:32980}
+  {path:"sprites/ui/title-play.png",bytes:32980},
+  {path:"sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-03",bytes:47194},
+  {path:"sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-03",bytes:13086},
+  {path:"sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-03",bytes:10435},
+  {path:"sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-03",bytes:18672},
+  {path:"sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-03",bytes:78663},
+  {path:"Cats/cat/UpgradeSlot.png?v=20261106-03",bytes:30897},
+  {path:"Cats/tank-cat/UpgradeSlot.png?v=20261106-03",bytes:35110},
+  {path:"Cats/axe-cat/UpgradeSlot.png?v=20261106-03",bytes:50533},
+  {path:"Cats/Gross-Cat/UpgradeSlot.png?v=20261106-03",bytes:38885}
 ];
 const LOADING_AUDIO_ASSETS = [
   {path:"sounds/intro-theme.mp3?v="+AUDIO_VERSION,bytes:2363802},
@@ -745,6 +760,7 @@ const LOADING_AUDIO_ASSETS = [
   {path:"sounds/deadunit.mp3?v="+AUDIO_VERSION,bytes:44044},
   {path:"sounds/deploy.mp3?v="+AUDIO_VERSION,bytes:31991},
   {path:"sounds/endofrecharge.mp3?v="+AUDIO_VERSION,bytes:18549},
+  {path:"sounds/upgrade.mp3?v="+AUDIO_VERSION,bytes:16941},
 ];
 const LOADING_TOTAL_BYTES = LOADING_IMAGE_ASSETS.reduce((sum,asset)=>sum+asset.bytes,0);
 let loadingAssetsStarted = false;
@@ -3344,48 +3360,245 @@ function renderFight() {
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
   '</section>';
 }
-function renderUpgrade() {
-  const abilityRows=[
-    {key:"workerCatWallet",name:"Worker Cat Wallet",description:level=>"Raises the wallet maximum by 100 per level. Current bonus: +"+((level-1)*100)+"¢"},
-    {key:"workerCatEfficiency",name:"Worker Cat Efficiency",description:level=>"Raises passive income by 3¢ per second per level. Current bonus: +"+((level-1)*3)+"¢/sec"},
-    {key:"research",name:"Research",description:level=>"Reduces Cat production cooldown by 0.2 seconds per level after Level 1. Current reduction: "+((level-1)*0.2).toFixed(1)+" sec"},
-    {key:"catBaseHealth",name:"Cat Base Health",description:level=>"Adds 1,000 HP to your Cat Base per level. Current bonus: +"+((level-1)*1000).toLocaleString()+" HP"}
-  ];
-  const abilityMarkup=abilityRows.map(item=>{
-    const level=baseUpgradeLevel(item.key);
-    const atMax=level>=BASE_UPGRADE_MAX_LEVEL;
-    const cost=baseUpgradeCost(level);
-    return '<div class="game-row"><div class="game-row-label">'+item.name+
-      '<small>Level '+level+' / '+BASE_UPGRADE_MAX_LEVEL+' · '+item.description(level)+
-      (atMax?" · MAX LEVEL":" · Next: "+money(cost)+" XP")+'</small></div>'+
-      (atMax?'<button class="gold-button small" type="button" disabled>MAX</button>':gold("UPGRADE","baseupgrade:"+item.key,true))+
-      '</div>';
-  }).join("");
-
-  const catMarkup=save.units.map((unit,index)=>{
-    const level=Math.max(1,Math.floor(Number(unit.level)||1));
-    const current=battleUnitStats(unit);
-    const atMax=level>=10;
-    const next=atMax?null:battleUnitStats({...unit,level:level+1});
-    const cost=catUpgradeCost(unit);
-    const safeName=String(unit.name||"Cat").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const description="Level "+level+" / 10 · HP "+current.health+
-      (next?" → "+next.health:"")+" · ATK "+current.damage+
-      (next?" → "+next.damage:"")+
-      (atMax?" · MAX LEVEL":" · Next: "+money(cost)+" XP");
-    return '<div class="game-row"><div class="game-row-label">'+safeName+
-      '<small>'+description+'</small></div>'+
-      (atMax?'<button class="gold-button small" type="button" disabled>MAX</button>':gold("UPGRADE","unit:"+index,true))+
-      '</div>';
-  }).join("");
-
-  const body=pageCopy("Spend XP to strengthen your Cats and permanent battle abilities.")+
-    '<h3 class="upgrade-section-heading">CAT BASE UPGRADES</h3>'+
-    '<div class="menu-list">'+abilityMarkup+'</div>'+
-    '<h3 class="upgrade-section-heading">CAT UNITS</h3>'+
-    '<div class="menu-list">'+catMarkup+'</div>';
-  return renderWindow("Upgrade",body,"base");
+const UPGRADE_CAT_FOLDERS = {
+  cat:"cat",
+  "tank-cat":"tank-cat",
+  "axe-cat":"axe-cat",
+  "gross-cat":"Gross-Cat"
+};
+const UPGRADE_CAT_BIOS = {
+  cat:"An ordinary cat who dreams of ruling the world. Simple, dependable, and always ready to fight.",
+  "tank-cat":"A sturdy cat with a tough body. Its high health makes it a reliable frontline defender.",
+  "axe-cat":"A cat carrying a powerful axe. Its attacks are especially effective against Red enemies.",
+  "gross-cat":"A lanky cat with an incredible reach. It can strike enemies from far away."
+};
+const UPGRADE_BASE_ROWS = [
+  {key:"workerCatWallet",name:"Worker Cat Wallet",icon:"¢",bio:"Increases the maximum amount of money you can hold during battle."},
+  {key:"workerCatEfficiency",name:"Worker Cat Efficiency",icon:"+¢",bio:"Increases the money you earn automatically while fighting."},
+  {key:"research",name:"Research",icon:"⌛",bio:"Reduces the time needed before your Cats can be deployed again."},
+  {key:"catBaseHealth",name:"Cat Base Health",icon:"♥",bio:"Adds more health to your Cat Base so it can take more damage."}
+];
+function upgradeUnitKey(unit) {
+  return String(unit&&(unit.assetFolder||unit.spriteFolder||unit.name)||"cat")
+    .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
+function upgradeEscape(value) {
+  return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function upgradeStatsForItem(item) {
+  if(!item||item.kind!=="unit") return null;
+  const current=battleUnitStats(item.unit);
+  const next=item.level<10?battleUnitStats({...item.unit,level:item.level+1}):null;
+  return {current,next};
+}
+function buildUpgradeCatalog() {
+  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3};
+  const orderedUnits=save.units.slice().sort((a,b)=>{
+    const first=rank[upgradeUnitKey(a)]??100;
+    const second=rank[upgradeUnitKey(b)]??100;
+    return first-second;
+  });
+  const cats=orderedUnits.map(unit=>{
+    const unitKey=upgradeUnitKey(unit);
+    const folder=UPGRADE_CAT_FOLDERS[unitKey]||unit.assetFolder||"cat";
+    const level=Math.max(1,Math.min(10,Math.floor(Number(unit.level)||1)));
+    const stats=upgradeStatsForItem({kind:"unit",unit,level});
+    const bio=upgradeBioCache.get(unitKey)||UPGRADE_CAT_BIOS[unitKey]||"A cat ready to join the battle.";
+    return {
+      key:"unit:"+String(unit.id),kind:"unit",unit,unitId:String(unit.id),name:String(unit.name||"Cat"),
+      folder,statsPath:unit.statsPath||"Cats/"+folder+"/stats.json",level,max:10,
+      cost:level>=10?0:catUpgradeCost(unit),bio,stats
+    };
+  });
+  const abilities=UPGRADE_BASE_ROWS.map(row=>{
+    const level=baseUpgradeLevel(row.key);
+    return {
+      key:"base:"+row.key,kind:"base",baseKey:row.key,name:row.name,icon:row.icon,
+      level,max:BASE_UPGRADE_MAX_LEVEL,cost:level>=BASE_UPGRADE_MAX_LEVEL?0:baseUpgradeCost(level),
+      bio:row.bio
+    };
+  });
+  return [...cats,...abilities];
+}
+function upgradeItemByKey(key) {
+  return buildUpgradeCatalog().find(item=>item.key===key)||null;
+}
+function upgradeCardMarkup(item) {
+  const active=item.key===selectedUpgradeKey;
+  const category=item.kind==="unit"?"CAT UNIT":"CAT BASE";
+  const art=item.kind==="unit"
+    ? '<img class="upgrade-card-art" src="Cats/'+upgradeEscape(item.folder)+'/UpgradeSlot.png?v=20261106-03" alt="" draggable="false">'
+    : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span></div>';
+  const level=currencySpriteMarkup(item.level,"currency-size-upgrade");
+  const cost=item.max>=item.level
+    ? (item.level>=item.max?'<span class="upgrade-card-max">MAX</span>':
+      '<span class="upgrade-card-cost">'+currencySpriteMarkup(item.cost,"currency-size-upgrade")+'<small>XP</small></span>')
+    : "";
+  return '<button class="upgrade-card'+(active?' is-active':'')+'" type="button" data-go="upgrade-select:'+upgradeEscape(item.key)+'" data-upgrade-key="'+upgradeEscape(item.key)+'" aria-pressed="'+(active?"true":"false")+'">'+
+    '<span class="upgrade-card-category">'+category+'</span>'+art+
+    '<span class="upgrade-card-meta"><strong class="upgrade-card-name">'+upgradeEscape(item.name)+'</strong>'+
+    '<span class="upgrade-card-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
+    '<span class="upgrade-card-next">'+(item.level>=item.max?'<small>MAX LEVEL</small>':'<small>NEXT LEVEL</small>'+cost)+'</span></span>'+
+    '</button>';
+}
+function upgradeStatSummary(item) {
+  if(item.kind==="unit"&&item.stats) {
+    const now=item.stats.current;
+    const next=item.stats.next;
+    return next
+      ? "HP "+now.health+" → "+next.health+"     ATK "+now.damage+" → "+next.damage
+      : "HP "+now.health+"     ATK "+now.damage+"     MAX LEVEL";
+  }
+  if(item.baseKey==="workerCatWallet") return "WALLET MAXIMUM  +"+((item.level-1)*100)+"¢";
+  if(item.baseKey==="workerCatEfficiency") return "PASSIVE INCOME  +"+((item.level-1)*3)+"¢ / SEC";
+  if(item.baseKey==="research") return "COOLDOWN REDUCTION  "+((item.level-1)*0.2).toFixed(1)+" SEC";
+  if(item.baseKey==="catBaseHealth") return "CAT BASE HEALTH  +"+((item.level-1)*1000).toLocaleString()+" HP";
+  return "";
+}
+function upgradeDetailMarkup(item) {
+  const levelMarkup=currencySpriteMarkup(item.level,"currency-size-upgrade-detail");
+  const costMarkup=item.level>=item.max
+    ? '<span class="upgrade-detail-max">MAX LEVEL</span>'
+    : currencySpriteMarkup(item.cost,"currency-size-upgrade-detail");
+  const summary=upgradeEscape(upgradeStatSummary(item));
+  return '<div class="upgrade-selected-name">'+upgradeEscape(item.name)+'</div>'+
+    '<p class="upgrade-bio-text" data-upgrade-bio>'+upgradeEscape(item.bio)+'</p>'+
+    '<div class="upgrade-detail-level"><span>LEVEL</span>'+levelMarkup+'<small>/ '+item.max+'</small></div>'+
+    '<div class="upgrade-detail-cost"><span>NEXT</span>'+costMarkup+(item.level>=item.max?'':'<small>XP</small>')+'</div>'+
+    '<div class="upgrade-detail-stats">'+summary+'</div>';
+}
+function updateUpgradeDetails(item) {
+  if(!item) return;
+  const name=stage.querySelector(".upgrade-selected-name");
+  const bio=stage.querySelector("[data-upgrade-bio]");
+  const level=stage.querySelector(".upgrade-detail-level");
+  const cost=stage.querySelector(".upgrade-detail-cost");
+  const stats=stage.querySelector(".upgrade-detail-stats");
+  const action=stage.querySelector(".upgrade-action-button");
+  if(name) name.textContent=item.name;
+  if(bio) bio.textContent=item.bio;
+  if(level) level.innerHTML='<span>LEVEL</span>'+currencySpriteMarkup(item.level,"currency-size-upgrade-detail")+'<small>/ '+item.max+'</small>';
+  if(cost) cost.innerHTML='<span>NEXT</span>'+(item.level>=item.max?'<strong class="upgrade-detail-max">MAX LEVEL</strong>':currencySpriteMarkup(item.cost,"currency-size-upgrade-detail")+'<small>XP</small>');
+  if(stats) stats.textContent=upgradeStatSummary(item);
+  if(action) {
+    const isMax=item.level>=item.max;
+    action.disabled=isMax;
+    action.setAttribute("aria-label",isMax?item.name+" is max level":"Upgrade "+item.name+" for "+item.cost+" XP");
+    const label=action.querySelector(".upgrade-action-label");
+    if(label) label.textContent=isMax?"MAX":"UPGRADE";
+  }
+}
+function refreshUpgradeCardSelection(track,activeKey) {
+  track.querySelectorAll(".upgrade-card").forEach(card=>{
+    const active=card.dataset.upgradeKey===activeKey;
+    card.classList.toggle("is-active",active);
+    card.setAttribute("aria-pressed",active?"true":"false");
+  });
+  const item=upgradeItemByKey(activeKey);
+  if(item) updateUpgradeDetails(item);
+}
+function syncUpgradeCarouselSelection(track) {
+  if(!track) return;
+  const cards=Array.from(track.querySelectorAll(".upgrade-card"));
+  if(!cards.length) return;
+  const center=track.scrollLeft+track.clientWidth/2;
+  let nearest=cards[0],nearestDistance=Infinity;
+  for(const card of cards) {
+    const cardCenter=card.offsetLeft+card.offsetWidth/2;
+    const distance=Math.abs(cardCenter-center);
+    if(distance<nearestDistance) { nearest=card; nearestDistance=distance; }
+  }
+  if(nearest.dataset.upgradeKey!==selectedUpgradeKey) {
+    selectedUpgradeKey=nearest.dataset.upgradeKey;
+    refreshUpgradeCardSelection(track,selectedUpgradeKey);
+  }
+}
+function selectUpgradeCard(key) {
+  const track=stage.querySelector(".upgrade-carousel");
+  if(!track) return;
+  const card=Array.from(track.querySelectorAll(".upgrade-card")).find(item=>item.dataset.upgradeKey===key);
+  if(!card) return;
+  selectedUpgradeKey=key;
+  refreshUpgradeCardSelection(track,key);
+  const targetLeft=card.offsetLeft-(track.clientWidth-card.offsetWidth)/2;
+  track.scrollTo({left:Math.max(0,targetLeft),behavior:"smooth"});
+}
+function loadUpgradeBios() {
+  const tasks=save.units.map(unit=>{
+    const key=upgradeUnitKey(unit);
+    if(upgradeBioCache.has(key)) return Promise.resolve();
+    if(upgradeBioRequests.has(key)) return upgradeBioRequests.get(key);
+    const folder=UPGRADE_CAT_FOLDERS[key]||unit.assetFolder||"cat";
+    const path=unit.statsPath||"Cats/"+folder+"/stats.json";
+    const request=fetch(new URL(path,APP_BASE_URL).href,{cache:"force-cache"})
+      .then(response=>{if(!response.ok) throw new Error("HTTP "+response.status);return response.json();})
+      .then(stats=>{if(stats&&typeof stats.Bio==="string"&&stats.Bio.trim()) upgradeBioCache.set(key,stats.Bio.trim());})
+      .catch(error=>{console.warn("Could not load Cat Bio for upgrade menu:",key,error);})
+      .finally(()=>upgradeBioRequests.delete(key));
+    upgradeBioRequests.set(key,request);
+    return request;
+  });
+  Promise.all(tasks).then(()=>{
+    if(scene!=="upgrade") return;
+    const item=upgradeItemByKey(selectedUpgradeKey);
+    if(item) updateUpgradeDetails(item);
+  });
+}
+function setupUpgradeCarousel() {
+  const track=stage.querySelector(".upgrade-carousel");
+  if(!track) return;
+  const initial=Array.from(track.querySelectorAll(".upgrade-card")).find(card=>card.dataset.upgradeKey===selectedUpgradeKey)||
+    track.querySelector(".upgrade-card");
+  if(initial) {
+    selectedUpgradeKey=initial.dataset.upgradeKey;
+    track.scrollLeft=Math.max(0,initial.offsetLeft-(track.clientWidth-initial.offsetWidth)/2);
+    refreshUpgradeCardSelection(track,selectedUpgradeKey);
+  }
+  track.addEventListener("scroll",()=>{
+    if(upgradeCarouselFrame) cancelAnimationFrame(upgradeCarouselFrame);
+    upgradeCarouselFrame=requestAnimationFrame(()=>{
+      upgradeCarouselFrame=0;
+      syncUpgradeCarouselSelection(track);
+    });
+  },{passive:true});
+  track.addEventListener("wheel",event=>{
+    if(track.scrollWidth>track.clientWidth+2) {
+      event.preventDefault();
+      track.scrollLeft+=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+    }
+  },{passive:false});
+  track.addEventListener("keydown",event=>{
+    if(event.key!=="ArrowLeft"&&event.key!=="ArrowRight") return;
+    event.preventDefault();
+    const cards=Array.from(track.querySelectorAll(".upgrade-card"));
+    const current=cards.findIndex(card=>card.dataset.upgradeKey===selectedUpgradeKey);
+    const next=cards[Math.max(0,Math.min(cards.length-1,current+(event.key==="ArrowRight"?1:-1)))];
+    if(next) selectUpgradeCard(next.dataset.upgradeKey);
+  });
+  loadUpgradeBios();
+}
+function renderUpgrade() {
+  const items=buildUpgradeCatalog();
+  if(!items.some(item=>item.key===selectedUpgradeKey)) selectedUpgradeKey=items[0]?.key||"";
+  const selected=items.find(item=>item.key===selectedUpgradeKey)||items[0];
+  const cards=items.map(upgradeCardMarkup).join("");
+  const xp=currencySpriteMarkup(save.xp,"currency-size-upgrade-header");
+  return '<section class="screen upgrade-screen" aria-label="Cat upgrades">'+
+    '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-03" alt="" draggable="false">'+
+    '<img class="upgrade-character-art" src="sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-03" alt="" draggable="false">'+
+    '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-03" alt="" draggable="false">'+
+    '<header class="upgrade-header"><strong>UPGRADE</strong><span class="upgrade-xp-readout"><small>XP</small>'+xp+'</span></header>'+
+    '<div class="upgrade-carousel" aria-label="Scroll through Cat and Cat Base upgrades">'+cards+'</div>'+
+    '<img class="upgrade-wood-panel" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-03" alt="" draggable="false">'+
+    '<section class="upgrade-bottom-copy" aria-live="polite">'+upgradeDetailMarkup(selected)+'</section>'+
+    '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-03" alt="" draggable="false"></button>'+
+    '<button class="upgrade-action-button" type="button" data-go="upgrade-buy" aria-label="Upgrade selected item">'+
+      '<img src="sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-03" alt="" draggable="false"><span class="upgrade-action-label">'+(selected.level>=selected.max?"MAX":"UPGRADE")+'</span>'+
+    '</button>'+
+  '</section>';
+}
+
 function renderDictionary(equip=false) {
   const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
     '<div class="cat-grid">'+save.units.map((unit,i)=>{
@@ -3507,6 +3720,7 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
+  if(scene==="upgrade") setupUpgradeCarousel();
   if (scene==="stage") {
     const list=stage.querySelector(".world-country-list");
     const selectedRow=stage.querySelector(".world-country-row.is-selected");
@@ -3713,6 +3927,35 @@ function leaveIntro() {
 
 function perform(action) {
   if (!action) return;
+  if(action.startsWith("upgrade-select:")) {
+    selectUpgradeCard(action.slice("upgrade-select:".length));
+    return;
+  }
+  if(action==="upgrade-back") { navigate("base"); return; }
+  if(action==="upgrade-buy") {
+    const item=upgradeItemByKey(selectedUpgradeKey);
+    if(!item) return;
+    if(item.level>=item.max) { playSfx("blocked"); notify(item.name+" is already max level."); return; }
+    if(save.xp<item.cost) { playSfx("blocked"); notify("Not enough XP. Need "+money(item.cost)+" XP."); return; }
+    save.xp-=item.cost;
+    if(item.kind==="unit") {
+      const unit=save.units.find(unit=>String(unit.id)===item.unitId);
+      if(!unit) return;
+      unit.level=Math.min(10,Math.max(1,Math.floor(Number(unit.level)||1))+1);
+      playSfx("upgrade");
+      persist();
+      render();
+      const stats=battleUnitStats(unit);
+      notify(unit.name+" reached Level "+unit.level+"! HP "+stats.health+" · ATK "+stats.damage);
+    } else {
+      save.baseUpgrades[item.baseKey]=Math.min(BASE_UPGRADE_MAX_LEVEL,item.level+1);
+      playSfx("upgrade");
+      persist();
+      render();
+      notify(item.name+" upgraded to Level "+save.baseUpgrades[item.baseKey]+".");
+    }
+    return;
+  }
   if (action === "intro-back" || action === "intro-skip") return leaveIntro();
   if (action === "chapter-enter") return leaveChapterSelect("base");
   if (action === "chapter-back") return leaveChapterSelect("title");
@@ -3887,7 +4130,16 @@ stage.addEventListener("click", event => {
     return;
   }
 
-  playSfx(action==="wallet-upgrade" || action.startsWith("deploy:") ? "deploy" : action === "intro-back" ? "back" : isStageChoice ? "enterBattle" : "button");
+  if(action.startsWith("upgrade-select:")) {
+    playSfx("select");
+    perform(action);
+    return;
+  }
+  if(action==="upgrade-buy") {
+    perform(action);
+    return;
+  }
+  playSfx(action==="wallet-upgrade" || action.startsWith("deploy:") ? "deploy" : (action==="intro-back"||action==="upgrade-back") ? "back" : isStageChoice ? "enterBattle" : "button");
   if (action) perform(action);
 });
 document.addEventListener("keydown", event=>{
