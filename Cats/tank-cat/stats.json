@@ -15,5 +15,6 @@
   "knockbackDistance": 4.5,
   "AreaAttack": true,
   "AttackTrait": "",
-  "AttackBoost": ""
+  "AttackBoost": "",
+  "Bio": "A sturdy cat with a tough body. Its high health makes it a reliable frontline defender."
 }
