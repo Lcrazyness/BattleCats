@@ -3753,6 +3753,7 @@ function perform(action) {
     default: notify("Coming soon!");
   }
 }
+stage.addEventListener("click", event => {
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
   const action = button.dataset.go || "";
