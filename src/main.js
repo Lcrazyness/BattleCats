@@ -121,7 +121,7 @@ const BATTLE_UNIT_STATS = {
   mooth: {health:3500,damage:88,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:340,killReward:250,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.72,knockbackDistance:4.5,attackCooldown:3.4,AreaAttack:1,traits:["Floating"]},
   "one-horn": {health:9000,damage:125,speed:3,spriteChangeSpeed:7,walkSpriteChangeSpeed:3,range:40,killReward:500,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:0.9,AreaAttack:1,traits:["Red"]},
   "teacher-bear": {health:2400,damage:250,speed:4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:350,killReward:400,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:3.5,attackCooldown:4,AreaAttack:1,traits:[]},
-  "the-face": {health:40000,damage:500,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:10,AreaAttack:1,traits:["Floating"]}
+  "the-face": {health:99999,damage:500,speed:1,spriteChangeSpeed:5,walkSpriteChangeSpeed:1,range:340,killReward:1000,knockbackCount:2,knockbackThresholdPercent:25,knockbackDuration:0.85,knockbackDistance:5,attackCooldown:10,AreaAttack:1,traits:["Floating"]}
 };
 const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
