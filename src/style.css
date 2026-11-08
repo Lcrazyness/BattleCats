@@ -3385,20 +3385,6 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   transform:scale(var(--battle-world-zoom,1.22));
   transform-origin:center center; pointer-events:none;
 }
-.fight-screen .fight-zoom-controls {
-  position:absolute; z-index:42; top:12px; right:12px;
-  display:flex; align-items:center; gap:4px; padding:3px 5px;
-  border:2px solid #f5dda0; border-radius:7px;
-  background:linear-gradient(#553c28,#291a11); color:#fff;
-  box-shadow:0 2px 0 #19100a; font:900 11px/1 Arial,sans-serif;
-}
-.fight-screen .fight-zoom-controls button {
-  width:26px; height:25px; padding:0; border:1px solid #7e6743;
-  border-radius:4px; background:linear-gradient(#f2d27e,#ae742a);
-  color:#2e1d0e; font:1000 18px/1 Arial,sans-serif;
-}
-.fight-screen .fight-zoom-controls button:disabled { opacity:.42; cursor:default; }
-.fight-screen .fight-zoom-value { min-width:37px; text-align:center; }
 .fight-screen.is-speed-three .fight-unit[data-unit-type="gross-cat"].is-idle .fight-unit-sprite,
 .fight-screen.is-speed-three .fight-unit[data-unit-type="jackie-peng"].is-idle .fight-unit-sprite,
 .fight-screen.is-speed-three .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite {
@@ -3414,9 +3400,6 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   50% { transform:translateY(-2px); }
 }
 @media(max-width:650px) {
-  .fight-screen .fight-zoom-controls { top:52px; right:8px; gap:2px; padding:2px 3px; }
-  .fight-screen .fight-zoom-controls button { width:23px; height:22px; font-size:16px; }
-  .fight-screen .fight-zoom-value { min-width:32px; font-size:9px; }
 }
 
 
