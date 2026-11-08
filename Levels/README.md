@@ -41,3 +41,14 @@ Example base-triggered spawn:
 ```json
 {"enemy":"hippoe","amount":1,"baseHealthPercent":90,"intervalMin":1,"intervalMax":1,"maxAlive":1}
 ```
+
+
+## Per-level battlefield zoom
+
+Each stage can optionally set its own camera range in `Levels/<Stage Name>/stats.json`:
+
+- `cameraZoomMin` — lowest permitted zoom (for example, `0.9`).
+- `cameraZoomMax` — highest permitted zoom (for example, `1.7`).
+- `cameraZoomStart` — zoom when the stage opens (for example, `1.24`).
+
+Use the mouse wheel over the battlefield or the on-screen +/− buttons to adjust zoom. When these fields are omitted, the game chooses a range from the stage's enemy roster, allowing large-boss stages to keep a wider view.
