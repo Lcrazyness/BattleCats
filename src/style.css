@@ -1762,8 +1762,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   background-image: none !important;
   box-shadow: none !important;
 }
-.fight-unit,
-.fight-unit-sprite {
+.fight-unit {
   animation: none !important;
   filter: none !important;
 }
@@ -1777,7 +1776,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .enemy-castle { left:1.5% !important; }
 .fight-screen .player-castle { right:1.5% !important; width:clamp(85px,12vw,170px) !important; height:clamp(125px,32vh,255px) !important; }
 .fight-screen .fight-unit { animation:none !important; filter:none !important; transform:translateX(-50%) !important; }
-.fight-screen .fight-unit-sprite { animation:none !important; filter:none !important; width:100% !important; height:70% !important; max-width:100% !important; object-fit:contain !important; transform-origin:center bottom !important; }
+.fight-screen .fight-unit-sprite { filter:none !important; width:100% !important; height:70% !important; max-width:100% !important; object-fit:contain !important; transform-origin:center bottom !important; }
 .fight-screen .fight-unit-health { display:none !important; }
 .fight-screen .fight-unit.is-knockback .fight-unit-sprite { animation:battle-cats-knockback 320ms ease-out both !important; }
 .fight-screen .fight-unit.is-dead .fight-unit-sprite { animation:battle-cats-death 680ms ease-in both !important; pointer-events:none !important; }
@@ -3285,7 +3284,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .upgrade-card:focus-visible { outline:2px solid #fff4a2; outline-offset:-2px; }
 .upgrade-card-category {
   flex:0 0 auto; margin:0 0 2px; color:#fff6d8;
-  font:900 clamp(11px,1vw,13px)/1 Arial,sans-serif;
+  font:1000 clamp(14px,1.25vw,17px)/1 Arial,sans-serif;
   letter-spacing:.08em; text-shadow:1px 1px #382014;
 }
 .upgrade-card-art-wrap {
@@ -3304,15 +3303,15 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .upgrade-wedge-level,.upgrade-wedge-cost {
   display:flex; align-items:center; justify-content:center; gap:2px;
   width:100%; min-height:13px; color:#fff7d9;
-  font:1000 clamp(10px,.82vw,12px)/1 Arial,sans-serif;
+  font:1000 clamp(13px,1vw,15px)/1 Arial,sans-serif;
   text-shadow:1px 1px #1b1209; white-space:nowrap;
 }
 .upgrade-wedge-level small,.upgrade-wedge-cost small {
-  color:#fff; font:900 clamp(8px,.68vw,10px)/1 Arial,sans-serif;
+  color:#fff; font:1000 clamp(10px,.8vw,12px)/1 Arial,sans-serif;
 }
-.upgrade-wedge-max { color:#fff; font:1000 clamp(10px,.82vw,12px)/1 Arial,sans-serif; }
-.currency-size-upgrade { --currency-scale:.17; }
-.currency-size-upgrade-cost { --currency-scale:.14; }
+.upgrade-wedge-max { color:#fff; font:1000 clamp(13px,1vw,15px)/1 Arial,sans-serif; }
+.currency-size-upgrade { --currency-scale:.205; }
+.currency-size-upgrade-cost { --currency-scale:.17; }
 .upgrade-card-ability-art {
   position:relative; width:100%; height:calc(100% - 14px);
   display:grid; place-items:center; border:2px solid #4a2b18;
@@ -3357,12 +3356,12 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .upgrade-carousel { top:18%; height:40%; padding:0 max(0px,calc((100% - 60vw)/2)); gap:0; }
   .upgrade-card { flex-basis:60vw; }
   .upgrade-card:not(.is-active) { transform:scale(.72); opacity:.56; }
-   .upgrade-card-category { font-size:10px; }
+   .upgrade-card-category { font-size:13px; }
   .upgrade-wedge-info { left:61%; right:4%; top:53%; height:31%; gap:2px; }
-  .upgrade-wedge-level,.upgrade-wedge-cost { min-height:12px; font-size:9px; }
-  .upgrade-wedge-level small,.upgrade-wedge-cost small { font-size:8px; }
-  .currency-size-upgrade { --currency-scale:.145; }
-  .currency-size-upgrade-cost { --currency-scale:.12; }
+  .upgrade-wedge-level,.upgrade-wedge-cost { min-height:14px; font-size:11px; }
+  .upgrade-wedge-level small,.upgrade-wedge-cost small { font-size:10px; }
+  .currency-size-upgrade { --currency-scale:.17; }
+  .currency-size-upgrade-cost { --currency-scale:.145; }
   .upgrade-action-button { left:11.5%; top:62.8%; width:18.8%; height:6.4%; }
   .upgrade-bottom-copy { left:13.5%; top:73.5%; width:73%; height:13%; padding:1.5% 2%; }
   .upgrade-selected-name { font-size:11px; margin-bottom:2px; }
@@ -3377,4 +3376,45 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(prefers-reduced-motion:reduce) {
   .upgrade-card { transition:none; }
   .upgrade-carousel { scroll-behavior:auto; }
+}
+
+
+/* Battlefield camera: magnify the field and its units while keeping HUD controls fixed. */
+.fight-screen .fight-world-zoom {
+  position:absolute; z-index:1; inset:0; width:100%; height:100%;
+  transform:scale(var(--battle-world-zoom,1.22));
+  transform-origin:center center; pointer-events:none;
+}
+.fight-screen .fight-zoom-controls {
+  position:absolute; z-index:42; top:12px; right:12px;
+  display:flex; align-items:center; gap:4px; padding:3px 5px;
+  border:2px solid #f5dda0; border-radius:7px;
+  background:linear-gradient(#553c28,#291a11); color:#fff;
+  box-shadow:0 2px 0 #19100a; font:900 11px/1 Arial,sans-serif;
+}
+.fight-screen .fight-zoom-controls button {
+  width:26px; height:25px; padding:0; border:1px solid #7e6743;
+  border-radius:4px; background:linear-gradient(#f2d27e,#ae742a);
+  color:#2e1d0e; font:1000 18px/1 Arial,sans-serif;
+}
+.fight-screen .fight-zoom-controls button:disabled { opacity:.42; cursor:default; }
+.fight-screen .fight-zoom-value { min-width:37px; text-align:center; }
+.fight-screen.is-speed-three .fight-unit[data-unit-type="gross-cat"].is-idle .fight-unit-sprite,
+.fight-screen.is-speed-three .fight-unit[data-unit-type="jackie-peng"].is-idle .fight-unit-sprite,
+.fight-screen.is-speed-three .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite {
+  animation-duration:.38s !important;
+}
+
+/* A slow, subtle float keeps The Face from looking frozen between attacks. */
+.fight-screen .fight-unit[data-unit-type="the-face"]:not(.is-attacking):not(.is-knockback):not(.is-dead):not(.is-damaged) .fight-unit-sprite {
+  animation:the-face-gentle-float 4.8s ease-in-out infinite !important;
+}
+@keyframes the-face-gentle-float {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-2px); }
+}
+@media(max-width:650px) {
+  .fight-screen .fight-zoom-controls { top:52px; right:8px; gap:2px; padding:2px 3px; }
+  .fight-screen .fight-zoom-controls button { width:23px; height:22px; font-size:16px; }
+  .fight-screen .fight-zoom-value { min-width:32px; font-size:9px; }
 }
