@@ -3475,11 +3475,6 @@ function renderFight() {
     '</div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
     '<button class="fight-speed-toggle" data-go="toggle-speed" aria-pressed="false" aria-label="Cycle battle speed">1× SPEED</button>'+
-    '<div class="fight-zoom-controls" aria-label="Battle zoom controls">'+
-      '<button type="button" data-go="zoom-out" aria-label="Zoom out">−</button>'+
-      '<span class="fight-zoom-value">'+Math.round((Number(battleState.cameraZoom)||1.22)*100)+'%</span>'+
-      '<button type="button" data-go="zoom-in" aria-label="Zoom in">+</button>'+
-    '</div>'+
     '<div class="fight-money"><strong class="fight-money-value" aria-label="Money '+Math.floor(battleState.money)+' of '+battleState.maxMoney+'">'+currencyRatioSpriteMarkup(Math.floor(battleState.money),battleState.maxMoney)+'</strong></div>'+
     '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
       '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
