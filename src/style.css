@@ -3418,3 +3418,33 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .fight-screen .fight-zoom-controls button { width:23px; height:22px; font-size:16px; }
   .fight-screen .fight-zoom-value { min-width:32px; font-size:9px; }
 }
+
+
+/* Horizontal battle camera: the whole battlefield moves together, while HUD controls stay fixed. */
+.fight-screen .fight-world-zoom {
+  will-change:transform;
+  transform:translate3d(var(--battle-camera-x,0px),0,0) scale(var(--battle-world-zoom,1.22));
+}
+
+/* Base health readouts belong to their castles, so they travel with the world camera. */
+.fight-screen .fight-base-hud {
+  top:auto !important;
+  width:clamp(110px,14vw,190px) !important;
+  max-width:calc(100% - 16px) !important;
+  padding:6px 8px !important;
+}
+.fight-screen .fight-enemy-hud {
+  left:1.5% !important;
+  right:auto !important;
+  bottom:calc(19% + clamp(100px,29vh,230px) + 8px) !important;
+  text-align:left !important;
+}
+.fight-screen .fight-player-hud {
+  left:auto !important;
+  right:1.5% !important;
+  bottom:calc(19% + clamp(125px,32vh,255px) + 8px) !important;
+  text-align:right !important;
+}
+@media(prefers-reduced-motion:reduce) {
+  .fight-screen .fight-world-zoom { will-change:auto; }
+}
