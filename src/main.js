@@ -94,8 +94,9 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261106-07";
+const BATTLE_ASSET_VERSION = "20261107-01";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
+const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
 const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
@@ -248,9 +249,10 @@ function battleDamageAgainstTarget(attacker,target,baseDamage) {
     const multiplier=boost==="Strong"?1.25:(boost==="Massive Damage"?3:1);
     damage*=multiplier;
   }
-  const isStrongAgainstRed=targetStats.AttackTrait==="Red"&&targetStats.AttackBoost==="Strong";
+  const defenderTrait=String(targetStats.AttackTrait||"");
   const incomingTraits=Array.isArray(attackStats.traits)?attackStats.traits:[];
-  if(isStrongAgainstRed&&incomingTraits.includes("Red")) damage*=0.8;
+  const defenderIsStrong=targetStats.AttackBoost==="Strong"&&defenderTrait.length>0;
+  if(defenderIsStrong&&incomingTraits.includes(defenderTrait)) damage*=0.7;
   return Math.max(0,Math.round(damage));
 }
 
@@ -1963,6 +1965,9 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
     catBaseHealth:positive(data.catBaseHealth,defaults.catBaseHealth)+(baseUpgradeLevel("catBaseHealth")-1)*1000,
     maxEnemies:Math.max(1,Math.floor(positive(data.maxEnemies,defaults.maxEnemies||6))),
     maxTotalSpawns:Math.max(1,Math.floor(positive(data.maxTotalSpawns,defaults.maxTotalSpawns||18))),
+    cameraZoomMin:Math.max(0.8,Math.min(1.4,positive(data.cameraZoomMin,enemySpawns.some(rule=>["the-face","teacher-bear","mooth","one-horn","le-boin","kang-roo"].includes(rule.enemy))?0.9:0.95))),
+    cameraZoomMax:Math.max(1.05,Math.min(2,positive(data.cameraZoomMax,enemySpawns.some(rule=>["the-face","teacher-bear","mooth","one-horn","le-boin","kang-roo"].includes(rule.enemy))?1.48:1.7))),
+    cameraZoomStart:Math.max(0.8,Math.min(2,positive(data.cameraZoomStart,enemySpawns.some(rule=>["the-face","teacher-bear","mooth","one-horn","le-boin","kang-roo"].includes(rule.enemy))?1.16:1.24))),
     initialSpawnDelay,enemySpawns
   };
 }
@@ -1983,6 +1988,9 @@ async function loadBattleLevelConfig() {
     if(battleState) {
       battleState.levelName=battleLevelName;
       battleState.levelConfig=battleLevelConfig;
+      battleState.cameraZoomMin=battleLevelConfig.cameraZoomMin;
+      battleState.cameraZoomMax=Math.max(battleLevelConfig.cameraZoomMin+0.05,battleLevelConfig.cameraZoomMax);
+      battleState.cameraZoom=Math.max(battleState.cameraZoomMin,Math.min(battleState.cameraZoomMax,battleLevelConfig.cameraZoomStart));
       battleState.spawnRules=battleLevelConfig.enemySpawns.map(rule=>({...rule,spawned:0,triggered:rule.baseHealthPercent===null,nextAttemptAt:rule.baseHealthPercent===null?rule.startTime:Infinity}));
       battleState.enemyBaseHp=battleLevelConfig.enemyBaseHealth;
       battleState.enemyBaseMaxHp=battleLevelConfig.enemyBaseHealth;
@@ -2019,7 +2027,7 @@ function createBattleState() {
   return {
     elapsed:0,money:50,maxMoney:150+(walletLevel-1)*100,
     baseIncomePerSecond:2.6+(efficiencyLevel-1)*3,
-    playerUnits:[],enemies:[],speedMultiplier:1,
+    playerUnits:[],enemies:[],speedMultiplier:1,cameraZoom:1.22,cameraZoomMin:0.95,cameraZoomMax:1.7,
     nextEnemySpawn:defaults.initialSpawnDelay,
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
@@ -2124,6 +2132,7 @@ function loadBattleAssetManifests() {
         updateBattleEntityView(entity);
       }
     }
+    preloadBattleManifestSprites();
     if(scene==="fight") {
       stage.querySelectorAll("[data-battle-slot]").forEach(button=>{
         const unit=save.units.find(item=>String(item.id)===button.dataset.battleSlot);
@@ -2137,6 +2146,24 @@ function loadBattleAssetManifests() {
     if(battleState) battleState.levelReady=true;
   });
   return battleAssetsPromise;
+}
+function preloadBattleManifestSprites() {
+  const paths=new Set();
+  const activeKeys=new Set(save.units.map(unit=>battleUnitKey(unit)));
+  for(const rule of battleLevelConfig?.enemySpawns||[]) activeKeys.add(rule.enemy);
+  for(const key of activeKeys) {
+    const assets=BATTLE_ASSETS[key]; if(!assets) continue;
+    for(const field of ["moving","attacks","damagedFrames","knockbackFrames"]) {
+      for(const path of Array.isArray(assets[field])?assets[field]:[]) if(typeof path==="string"&&path) paths.add(path);
+    }
+    for(const field of ["idle","attack","attackSprite","damaged"]) if(typeof assets[field]==="string"&&assets[field]) paths.add(assets[field]);
+  }
+  for(const path of paths) {
+    const url=battleAssetUrl(path); if(!url||BATTLE_SPRITE_PRELOAD_CACHE.has(url)) continue;
+    const image=new Image(); image.decoding="async";
+    image.onerror=()=>{BATTLE_SPRITE_PRELOAD_CACHE.delete(url);console.warn("Battle sprite preload failed:",url);};
+    BATTLE_SPRITE_PRELOAD_CACHE.set(url,image); image.src=url;
+  }
 }
 function battleAssetUrl(path) {
   if (!path) return "";
@@ -2156,6 +2183,17 @@ function battleSlotImage(unit) {
     ? "Cats/tank-cat/slot.png"
     : unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp";
   return battleAssetUrl(source);
+}
+function battleSpeedMultiplier() {
+  return Math.max(1,Math.min(3,Math.floor(Number(battleState&&battleState.speedMultiplier)||1)));
+}
+function setBattleZoom(delta) {
+  if(!battleState||battleState.ended) return;
+  const min=Math.max(0.8,Number(battleState.cameraZoomMin)||0.95);
+  const max=Math.max(min+0.05,Number(battleState.cameraZoomMax)||1.7);
+  const current=Number(battleState.cameraZoom)||1.22;
+  battleState.cameraZoom=Math.max(min,Math.min(max,Math.round((current+delta)*100)/100));
+  updateFightUI();
 }
 function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
   const mode=String(entity&&entity.mode||"idle");
@@ -2487,14 +2525,14 @@ function updateBattleEntityView(entity) {
   if (!sprite) return;
   if (animationMode==="attack") {
     const duration=Math.max(0.1,Number(entity.animUntil)-Number(entity.attackStartedAt));
-    const visualSpeed=Number(battleState&&battleState.speedMultiplier)===2?2:1;
+    const visualSpeed=battleSpeedMultiplier();
     sprite.style.setProperty("--battle-attack-duration",(duration/visualSpeed)+"s");
   } else {
     sprite.style.removeProperty("--battle-attack-duration");
   }
   if (animationMode==="knockback") {
     const duration = Math.max(0.2,Number(entity.knockbackDuration)||Number(entity.knockbackDurationSetting)||0.64);
-    const visualSpeed=Number(battleState&&battleState.speedMultiplier)===2?2:1;
+    const visualSpeed=battleSpeedMultiplier();
     sprite.style.setProperty("--battle-knockback-duration",(duration/visualSpeed*1000)+"ms");
   } else {
     sprite.style.removeProperty("--battle-knockback-duration");
@@ -3072,8 +3110,8 @@ function tickBattle() {
   const tickAt=performance.now();
   const previousTickAt=Number(state.lastTickAt)||tickAt;
   const realDt=Math.max(0.001,Math.min(0.12,(tickAt-previousTickAt)/1000));
-  const speedMultiplier=Number(state.speedMultiplier)===2?2:1;
-  const dt=Math.min(0.12,realDt*speedMultiplier);
+  const speedMultiplier=battleSpeedMultiplier();
+  const dt=Math.min(0.18,realDt*speedMultiplier);
   state.lastTickAt=tickAt;
   state.elapsed+=dt;
   advanceBattleKnockback(dt);
@@ -3096,6 +3134,7 @@ function tickBattle() {
   for (const cat of state.playerUnits) {
     if (cat.mode==="dead" || cat.mode==="knockback") { updateBattleEntityView(cat); continue; }
     if (cat.hp<=0) continue;
+    const frameStartX=Number(cat.x)||0;
     cat.attackTimer=Math.max(0,cat.attackTimer-dt);
     const attackActive=Number(cat.attackEndsAt)>now+0.0001;
     if (attackActive) cat.mode="attack";
@@ -3166,12 +3205,16 @@ function tickBattle() {
         cat.mode="idle";
       }
     }
+    if(cat.mode!=="attack"&&cat.mode!=="knockback"&&cat.mode!=="dead") {
+      cat.mode=Math.abs((Number(cat.x)||0)-frameStartX)>0.015?"moving":(cat.hitUntil>now?"damaged":"idle");
+    }
     updateBattleEntityView(cat);
   }
 
   state.enemies=state.enemies.filter(enemy=>enemy.hp>0 || enemy.mode==="dead" || enemy.mode==="knockback");
   for (const enemy of state.enemies) {
     if (enemy.mode==="dead" || enemy.mode==="knockback") { updateBattleEntityView(enemy); continue; }
+    const frameStartX=Number(enemy.x)||0;
     enemy.attackTimer=Math.max(0,enemy.attackTimer-dt);
     const attackActive=Number(enemy.attackEndsAt)>now+0.0001;
     if (attackActive) enemy.mode="attack";
@@ -3230,6 +3273,9 @@ function tickBattle() {
         }
       }
     }
+    if(enemy.mode!=="attack"&&enemy.mode!=="knockback"&&enemy.mode!=="dead") {
+      enemy.mode=Math.abs((Number(enemy.x)||0)-frameStartX)>0.015?"moving":(enemy.hitUntil>now?"damaged":"idle");
+    }
     updateBattleEntityView(enemy);
   }
 
@@ -3275,13 +3321,27 @@ function updateFightUI() {
   const workerLevelIndicator=stage.querySelector(".fight-wallet-level-indicator");
   const workerBar=stage.querySelector(".fight-worker-bar span");
   const speedButton=stage.querySelector(".fight-speed-toggle");
-  const speedMultiplier=Number(state.speedMultiplier)===2?2:1;
+  const speedMultiplier=battleSpeedMultiplier();
   if(speedButton) {
-    speedButton.textContent=speedMultiplier===2?"2× SPEED":"1× SPEED";
-    speedButton.setAttribute("aria-pressed",speedMultiplier===2?"true":"false");
+    speedButton.textContent=speedMultiplier+"× SPEED";
+    speedButton.setAttribute("aria-pressed",speedMultiplier>1?"true":"false");
     speedButton.disabled=Boolean(state.ended);
-    stage.querySelector(".fight-screen")?.classList.toggle("is-speed-up",speedMultiplier===2);
+    const fightScreen=stage.querySelector(".fight-screen");
+    fightScreen?.classList.toggle("is-speed-up",speedMultiplier>=2);
+    fightScreen?.classList.toggle("is-speed-three",speedMultiplier>=3);
   }
+  const cameraLayer=stage.querySelector(".fight-world-zoom");
+  const zoomValue=Math.round((Number(state.cameraZoom)||1.22)*100);
+  if(cameraLayer&&cameraLayer.dataset.zoom!==String(zoomValue)) {
+    cameraLayer.dataset.zoom=String(zoomValue);
+    cameraLayer.style.setProperty("--battle-world-zoom",(zoomValue/100).toFixed(2));
+  }
+  const zoomLabel=stage.querySelector(".fight-zoom-value");
+  if(zoomLabel) zoomLabel.textContent=zoomValue+"%";
+  const zoomOut=stage.querySelector('[data-go="zoom-out"]');
+  const zoomIn=stage.querySelector('[data-go="zoom-in"]');
+  if(zoomOut) zoomOut.disabled=zoomValue<=Math.round(state.cameraZoomMin*100);
+  if(zoomIn) zoomIn.disabled=zoomValue>=Math.round(state.cameraZoomMax*100);
   if (moneyText) {
     const displayedMoney=Math.floor(state.money);
     moneyText.innerHTML=currencyRatioSpriteMarkup(displayedMoney,state.maxMoney);
@@ -3368,21 +3428,26 @@ function renderFight() {
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
   const deathSouls=(battleState.deathSouls||[]).map(battleDeathSoulMarkup).join("");
   return '<section class="screen fight-screen" aria-label="' + selectedLevel.name + ' battle">'+
-    '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
-    '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
+    '<div class="fight-world-zoom" style="--battle-world-zoom:'+((Number(battleState.cameraZoom)||1.22).toFixed(2))+'">'+
+      '<img class="fight-background-art" src="' + levelBackgroundUrl + '" alt="" draggable="false">'+
+      '<div class="fight-sky-wash"></div><div class="fight-ground"></div>'+
+      '<img class="fight-base enemy-castle" src="' + enemyBaseUrl + '" alt="" draggable="false">'+
+      '<img class="fight-base player-castle" src="' + catBaseUrl + '" alt="" draggable="false">'+
+      '<div class="fight-unit-layer">'+entities+deathSouls+'</div>'+
+    '</div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
-    '<button class="fight-speed-toggle" data-go="toggle-speed" aria-pressed="false" aria-label="Toggle 2x battle speed">1× SPEED</button>'+
+    '<button class="fight-speed-toggle" data-go="toggle-speed" aria-pressed="false" aria-label="Cycle battle speed">1× SPEED</button>'+
+    '<div class="fight-zoom-controls" aria-label="Battle zoom controls">'+
+      '<button type="button" data-go="zoom-out" aria-label="Zoom out">−</button>'+
+      '<span class="fight-zoom-value">'+Math.round((Number(battleState.cameraZoom)||1.22)*100)+'%</span>'+
+      '<button type="button" data-go="zoom-in" aria-label="Zoom in">+</button>'+
+    '</div>'+
     '<div class="fight-money"><strong class="fight-money-value" aria-label="Money '+Math.floor(battleState.money)+' of '+battleState.maxMoney+'">'+currencyRatioSpriteMarkup(Math.floor(battleState.money),battleState.maxMoney)+'</strong></div>'+
     '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
       '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
       '<span class="fight-wallet-level-indicator" data-level="'+walletLevel+'" aria-label="Wallet level '+walletLevel+'">'+walletLevelSpriteMarkup(walletLevel)+'</span></button>'+
     '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
     '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
-    '<img class="fight-base enemy-castle" src="' + enemyBaseUrl + '" alt="" draggable="false">'+
-    
-    
-    '<img class="fight-base player-castle" src="' + catBaseUrl + '" alt="" draggable="false">'+
-    '<div class="fight-unit-layer">'+entities+deathSouls+'</div>'+
     '<footer class="fight-bottom">'+
       '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
@@ -3795,6 +3860,12 @@ function render() {
     },{passive:false});
   }
   if(scene==="fight") {
+    const fightScreen=stage.querySelector(".fight-screen");
+    if(fightScreen) fightScreen.addEventListener("wheel",event=>{
+      if(event.target.closest(".fight-bottom")||Math.abs(event.deltaY)<1) return;
+      event.preventDefault();
+      setBattleZoom(event.deltaY<0?0.05:-0.05);
+    },{passive:false});
     const fightBackground=stage.querySelector(".fight-background-art");
     if(fightBackground) fightBackground.addEventListener("error",()=>{
       if(!fightBackground.dataset.fallback) {
@@ -4042,9 +4113,13 @@ function perform(action) {
     if (unit) spawnPlayerCat(unit);
     return;
   }
+  if(action==="zoom-in") { setBattleZoom(0.05); return; }
+  if(action==="zoom-out") { setBattleZoom(-0.05); return; }
   if(action==="toggle-speed") {
     if(scene!=="fight"||!battleState||battleState.ended) return;
-    battleState.speedMultiplier=Number(battleState.speedMultiplier)===2?1:2;
+    const current=battleSpeedMultiplier();
+    battleState.speedMultiplier=current>=3?1:current+1;
+    battleState.lastTickAt=performance.now();
     updateFightUI();
     return;
   }
