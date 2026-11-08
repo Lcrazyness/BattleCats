@@ -2027,7 +2027,7 @@ function createBattleState() {
   return {
     elapsed:0,money:50,maxMoney:150+(walletLevel-1)*100,
     baseIncomePerSecond:2.6+(efficiencyLevel-1)*3,
-    playerUnits:[],enemies:[],speedMultiplier:1,cameraZoom:1.22,cameraZoomMin:0.95,cameraZoomMax:1.7,
+    playerUnits:[],enemies:[],speedMultiplier:1,cameraZoom:1.22,cameraZoomMin:0.95,cameraZoomMax:1.7,cameraPanX:0,cameraEdgeDirection:0,
     nextEnemySpawn:defaults.initialSpawnDelay,
     enemyBaseHp:defaults.enemyBaseHealth,enemyBaseMaxHp:defaults.enemyBaseHealth,
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
@@ -2193,6 +2193,25 @@ function setBattleZoom(delta) {
   const max=Math.max(min+0.05,Number(battleState.cameraZoomMax)||1.7);
   const current=Number(battleState.cameraZoom)||1.22;
   battleState.cameraZoom=Math.max(min,Math.min(max,Math.round((current+delta)*100)/100));
+  clampBattleCameraPan();
+  updateFightUI();
+}
+function battleCameraPanLimit() {
+  const screen=stage.querySelector(".fight-screen");
+  const width=Math.max(1,(screen&&screen.clientWidth)||window.innerWidth||1000);
+  const zoom=Math.max(0.8,Math.min(2,Number(battleState&&battleState.cameraZoom)||1));
+  return Math.max(0,width*(zoom-1)*0.5);
+}
+function clampBattleCameraPan() {
+  if(!battleState) return 0;
+  const limit=battleCameraPanLimit();
+  battleState.cameraPanX=Math.max(-limit,Math.min(limit,Number(battleState.cameraPanX)||0));
+  return battleState.cameraPanX;
+}
+function panBattleCamera(deltaPixels) {
+  if(!battleState||battleState.ended) return;
+  battleState.cameraPanX=(Number(battleState.cameraPanX)||0)+(Number(deltaPixels)||0);
+  clampBattleCameraPan();
   updateFightUI();
 }
 function battleAnimationMode(entity,elapsed=battleState?battleState.elapsed:0) {
@@ -2604,7 +2623,8 @@ function calculateBattleLayoutMetrics() {
   const screenRect=screen&&screen.getBoundingClientRect();
   const width=(screenRect&&screenRect.width)||window.innerWidth||1000;
   const zoom=Math.max(0.8,Math.min(2,Number(battleState&&battleState.cameraZoom)||1));
-  const unscalePercent=value=>(value-50)/zoom+50;
+  const panPercent=(Number(battleState&&battleState.cameraPanX)||0)/Math.max(1,width)*100;
+  const unscalePercent=value=>(value-50-panPercent)/zoom+50;
   const geometryFor=(side)=>{
     const base=screen&&screen.querySelector(side==="cat"?".player-castle":".enemy-castle");
     const rect=base&&base.getBoundingClientRect();
@@ -3113,6 +3133,12 @@ function tickBattle() {
   const tickAt=performance.now();
   const previousTickAt=Number(state.lastTickAt)||tickAt;
   const realDt=Math.max(0.001,Math.min(0.12,(tickAt-previousTickAt)/1000));
+  if(!state.ended&&Number(state.cameraEdgeDirection)) {
+    const screenWidth=Math.max(1,(stage.querySelector(".fight-screen")?.clientWidth)||window.innerWidth||900);
+    const panSpeed=Math.max(420,screenWidth*0.62);
+    state.cameraPanX=(Number(state.cameraPanX)||0)-Math.sign(state.cameraEdgeDirection)*panSpeed*realDt;
+    clampBattleCameraPan();
+  }
   const speedMultiplier=battleSpeedMultiplier();
   const dt=Math.min(0.18,realDt*speedMultiplier);
   state.lastTickAt=tickAt;
@@ -3335,9 +3361,16 @@ function updateFightUI() {
   }
   const cameraLayer=stage.querySelector(".fight-world-zoom");
   const zoomValue=Math.round((Number(state.cameraZoom)||1.22)*100);
-  if(cameraLayer&&cameraLayer.dataset.zoom!==String(zoomValue)) {
-    cameraLayer.dataset.zoom=String(zoomValue);
-    cameraLayer.style.setProperty("--battle-world-zoom",(zoomValue/100).toFixed(2));
+  const panValue=Math.round(clampBattleCameraPan());
+  if(cameraLayer) {
+    if(cameraLayer.dataset.zoom!==String(zoomValue)) {
+      cameraLayer.dataset.zoom=String(zoomValue);
+      cameraLayer.style.setProperty("--battle-world-zoom",(zoomValue/100).toFixed(2));
+    }
+    if(cameraLayer.dataset.pan!==String(panValue)) {
+      cameraLayer.dataset.pan=String(panValue);
+      cameraLayer.style.setProperty("--battle-camera-x",panValue+"px");
+    }
   }
   const zoomLabel=stage.querySelector(".fight-zoom-value");
   if(zoomLabel) zoomLabel.textContent=zoomValue+"%";
@@ -3437,6 +3470,8 @@ function renderFight() {
       '<img class="fight-base enemy-castle" src="' + enemyBaseUrl + '" alt="" draggable="false">'+
       '<img class="fight-base player-castle" src="' + catBaseUrl + '" alt="" draggable="false">'+
       '<div class="fight-unit-layer">'+entities+deathSouls+'</div>'+
+      '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
+      '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
     '</div>'+
     '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
     '<button class="fight-speed-toggle" data-go="toggle-speed" aria-pressed="false" aria-label="Cycle battle speed">1× SPEED</button>'+
@@ -3449,8 +3484,6 @@ function renderFight() {
     '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
       '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
       '<span class="fight-wallet-level-indicator" data-level="'+walletLevel+'" aria-label="Wallet level '+walletLevel+'">'+walletLevelSpriteMarkup(walletLevel)+'</span></button>'+
-    '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
-    '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
     '<footer class="fight-bottom">'+
       '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
@@ -3864,11 +3897,37 @@ function render() {
   }
   if(scene==="fight") {
     const fightScreen=stage.querySelector(".fight-screen");
-    if(fightScreen) fightScreen.addEventListener("wheel",event=>{
-      if(event.target.closest(".fight-bottom")||Math.abs(event.deltaY)<1) return;
-      event.preventDefault();
-      setBattleZoom(event.deltaY<0?0.05:-0.05);
-    },{passive:false});
+    if(fightScreen) {
+      fightScreen.addEventListener("wheel",event=>{
+        if(event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result")) return;
+        const horizontalDelta=Math.abs(event.deltaX)>0.5?event.deltaX:(event.shiftKey?event.deltaY:0);
+        if(Math.abs(horizontalDelta)>0.5) {
+          event.preventDefault();
+          panBattleCamera(-horizontalDelta);
+          return;
+        }
+        if(Math.abs(event.deltaY)<1) return;
+        event.preventDefault();
+        setBattleZoom(event.deltaY<0?0.05:-0.05);
+      },{passive:false});
+      fightScreen.addEventListener("pointermove",event=>{
+        if(!battleState) return;
+        const blocked=event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result");
+        const rect=fightScreen.getBoundingClientRect();
+        const edgeZone=Math.max(44,Math.min(112,rect.width*0.1));
+        const topLimit=rect.top+Math.max(42,rect.height*0.08);
+        const bottomLimit=rect.bottom-Math.max(106,rect.height*0.19);
+        if(blocked||event.clientY<topLimit||event.clientY>bottomLimit) {
+          battleState.cameraEdgeDirection=0;
+          return;
+        }
+        battleState.cameraEdgeDirection=event.clientX<rect.left+edgeZone?-1:
+          (event.clientX>rect.right-edgeZone?1:0);
+      });
+      fightScreen.addEventListener("pointerleave",()=>{
+        if(battleState) battleState.cameraEdgeDirection=0;
+      });
+    }
     const fightBackground=stage.querySelector(".fight-background-art");
     if(fightBackground) fightBackground.addEventListener("error",()=>{
       if(!fightBackground.dataset.fallback) {
