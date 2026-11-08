@@ -2603,11 +2603,14 @@ function calculateBattleLayoutMetrics() {
   const screen=stage.querySelector(".fight-screen");
   const screenRect=screen&&screen.getBoundingClientRect();
   const width=(screenRect&&screenRect.width)||window.innerWidth||1000;
+  const zoom=Math.max(0.8,Math.min(2,Number(battleState&&battleState.cameraZoom)||1));
+  const unscalePercent=value=>(value-50)/zoom+50;
   const geometryFor=(side)=>{
     const base=screen&&screen.querySelector(side==="cat"?".player-castle":".enemy-castle");
     const rect=base&&base.getBoundingClientRect();
     if(screenRect&&screenRect.width>0&&rect&&rect.width>0) {
-      return {center:(rect.left+rect.width/2-screenRect.left)/screenRect.width*100,halfWidth:rect.width/2/screenRect.width*100};
+      const displayedCenter=(rect.left+rect.width/2-screenRect.left)/screenRect.width*100;
+      return {center:unscalePercent(displayedCenter),halfWidth:rect.width/2/screenRect.width*100/zoom};
     }
     return side==="cat"?{center:94.5,halfWidth:3.5}:{center:6,halfWidth:3.5};
   };
@@ -2616,11 +2619,11 @@ function calculateBattleLayoutMetrics() {
   const fallbackUnitWidth=width<=650
     ? Math.max(42,Math.min(68,width*0.11))
     : Math.max(54,Math.min(96,width*0.073));
-  const unitWidth=sampleRect&&sampleRect.width>0?sampleRect.width:fallbackUnitWidth;
+  const unitWidth=sampleRect&&sampleRect.width>0?sampleRect.width/zoom:fallbackUnitWidth;
   const fallbackUnitHeight=width<=650
     ? Math.max(67,Math.min(96,(window.innerHeight||600)*0.15))
     : Math.max(78,Math.min(145,(window.innerHeight||900)*0.18));
-  const unitHeight=sampleRect&&sampleRect.height>0?sampleRect.height:fallbackUnitHeight;
+  const unitHeight=sampleRect&&sampleRect.height>0?sampleRect.height/zoom:fallbackUnitHeight;
   const baseSquareSide=unitHeight*0.70;
   return {
     width,
