@@ -1,0 +1,20 @@
+{
+  "name": "Bird Cat",
+  "health": 95,
+  "damage": 70,
+  "price": 3,
+  "speed": 5,
+  "spriteChangeSpeed": 6,
+  "walkSpriteChangeSpeed": 3,
+  "range": 170,
+  "recharge": 4.8,
+  "attackCooldown": 1.75,
+  "AreaAttack": 1,
+  "knockbackCount": 4,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "AttackTrait": "",
+  "AttackBoost": "",
+  "Bio": "A fragile area attacker that hits groups of enemies from the back line."
+}
