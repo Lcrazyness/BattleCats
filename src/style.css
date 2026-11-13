@@ -3431,3 +3431,77 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(prefers-reduced-motion:reduce) {
   .fight-screen .fight-world-zoom { will-change:auto; }
 }
+
+
+/* Two selectable Empire of Cats chapter cards. */
+.chapter-banner-one {
+  left:29% !important;
+  top:52% !important;
+  width:min(44vw,620px) !important;
+  max-height:52vh !important;
+  animation:chapter-banner-arrive 1050ms cubic-bezier(.17,.8,.22,1) both !important;
+}
+.chapter-banner-two {
+  left:71% !important;
+  top:52% !important;
+  width:min(44vw,620px) !important;
+  max-height:52vh !important;
+  animation:chapter-banner-arrive 1050ms cubic-bezier(.17,.8,.22,1) 140ms both !important;
+}
+.chapter-banner-label {
+  position:absolute;
+  left:5%;
+  right:5%;
+  bottom:11%;
+  display:block;
+  padding:5px 7px;
+  border:2px solid #f3d58a;
+  border-radius:5px;
+  background:linear-gradient(#55361fef,#26170ff2);
+  color:#fff0b7;
+  font:1000 clamp(11px,1.5vw,19px)/1.05 Impact,Haettenschweiler,sans-serif;
+  letter-spacing:.04em;
+  text-align:center;
+  text-shadow:1px 2px #261307;
+  pointer-events:none;
+}
+.chapter-banner-lock {
+  position:absolute;
+  left:5%;
+  right:5%;
+  top:8%;
+  padding:5px 7px;
+  border:1px solid #f0d18d;
+  border-radius:4px;
+  background:#21140ee8;
+  color:#ffe6aa;
+  font:900 clamp(8px,.9vw,11px)/1 Arial,sans-serif;
+  text-align:center;
+  text-shadow:1px 1px #000;
+  pointer-events:none;
+}
+.chapter-banner:disabled {
+  cursor:not-allowed;
+  filter:grayscale(.85) brightness(.62);
+}
+.fight-screen .fight-unit[data-unit-type="dark-emperor-nyandam"] {
+  width:clamp(112px,13vw,172px);
+  height:clamp(118px,24vh,196px);
+  filter:drop-shadow(2px 4px 0 #231b168c);
+}
+@media(max-width:680px) {
+  .chapter-banner-one {
+    left:50% !important;
+    top:37% !important;
+    width:min(78vw,520px) !important;
+    max-height:35vh !important;
+  }
+  .chapter-banner-two {
+    left:50% !important;
+    top:70% !important;
+    width:min(78vw,520px) !important;
+    max-height:35vh !important;
+  }
+  .chapter-banner-label {font-size:clamp(10px,3vw,16px);bottom:8%;}
+  .chapter-banner-lock {font-size:8px;top:5%;}
+}
