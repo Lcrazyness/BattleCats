@@ -105,7 +105,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261112-01";
+const BATTLE_ASSET_VERSION = "20261112-02";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -125,7 +125,7 @@ const BATTLE_UNIT_STATS = {
   "gross-cat": {health:130,damage:22,price:2,speed:5.2,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.2,range:180,recharge:3.2,attackCooldown:2.3,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "cow-cat": {health:180,damage:20,price:1,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:55,recharge:1.15,attackCooldown:0.82,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
   "bird-cat": {health:170,damage:75,price:3,speed:4.4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:260,recharge:5.2,attackCooldown:3.5,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "dark-emperor-nyandam": {health:10000,damage:80,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:450,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
+  "dark-emperor-nyandam": {health:99999,damage:1800,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
   "those-guys": {health:160,damage:8,speed:5,spriteChangeSpeed:8,range:105,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:false},
@@ -184,8 +184,11 @@ function battleUnitStats(unitOrKey) {
   const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat"].includes(key);
   const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
   const chapterEnemyMultiplier=currentChapter===2&&!isCatUnit?1.5:1;
-  const health = Math.round(positive(config.health,positive(unit.hp,100))*levelMultiplier*chapterEnemyMultiplier);
-  const damage = Math.round(positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier*chapterEnemyMultiplier);
+  const rawHealth=positive(config.health,positive(unit.hp,100))*levelMultiplier*chapterEnemyMultiplier;
+  const rawDamage=positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier*chapterEnemyMultiplier;
+  const health=chapterEnemyMultiplier>1?Math.floor(rawHealth):Math.round(rawHealth);
+  const damage=chapterEnemyMultiplier>1?Math.floor(rawDamage):Math.round(rawDamage);
+  const chapterCatCostMultiplier=currentChapter===2&&isCatUnit?1.5:1;
   const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
   const knockbackCount = Math.max(0,Math.min(10,Math.floor(Number.isFinite(Number(config.knockbackCount))?Number(config.knockbackCount):3)));
   const rawAreaAttack=config.AreaAttack??config.areaAttack??unit.AreaAttack??unit.areaAttack??0;
@@ -200,7 +203,7 @@ function battleUnitStats(unitOrKey) {
     levelMultiplier,
     health,
     damage,
-    price:positive(config.price,positive(unit.deployCost,50)),
+    price:Math.ceil(positive(config.price,positive(unit.deployCost,50))*chapterCatCostMultiplier),
     speed:positive(config.speed,positive(unit.speed,key==="doge"?2.8:10)),
     spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,key==="doge"?5:6)),
     walkSpriteChangeSpeed:positive(config.walkSpriteChangeSpeed,positive(unit.walkSpriteChangeSpeed,2.5)),
@@ -1472,7 +1475,9 @@ function defaultBattleLevelConfig(levelName="Korea") {
   const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
   const stageNumber=stageIndex+1;
   const appearsAt=(enemy)=>Array.isArray(EOC1_ENEMY_STAGES[enemy])&&EOC1_ENEMY_STAGES[enemy].includes(stageNumber);
-  const enemyBaseHealth=(EOC1_ENEMY_BASE_HEALTH[stageIndex]||500)*(currentChapter===2?2:1);
+  const enemyBaseHealth=currentChapter===2&&levelName==="Moon"
+    ? 200000
+    : (EOC1_ENEMY_BASE_HEALTH[stageIndex]||500)*(currentChapter===2?2:1);
   let enemySpawns=[];
   if(stageIndex<=0) {
     enemySpawns=[timedEnemySpawn("doge",18,2,5.5,9,3,0.82)];
@@ -1950,19 +1955,30 @@ function defaultBattleLevelConfig(levelName="Korea") {
   if(currentChapter===2) {
     enemySpawns=enemySpawns.map(rule=>({
       ...rule,
-      intervalMin:Math.max(1,Number(rule.intervalMin||5)*0.92),
-      intervalMax:Math.max(1,Number(rule.intervalMax||7)*0.96),
+      intervalMin:Math.max(1,Number(rule.intervalMin||5)*0.94),
+      intervalMax:Math.max(1,Number(rule.intervalMax||7)*0.98),
       maxAlive:Math.min(5,Math.max(1,Number(rule.maxAlive)||1))
     }));
+    if(levelName==="Easter Island") {
+      enemySpawns=[
+        timedEnemySpawn("those-guys",8,0,1,10,3),
+        timedEnemySpawn("squire-rel",8,0,1,16.67,3),
+        timedEnemySpawn("one-horn",1,0,1,1,1),
+        timedEnemySpawn("croco",5,20,10,30,2),
+        baseTriggeredEnemySpawn("one-horn",1,80,1,1,1,1,true)
+      ];
+    }
     if(levelName==="Moon") {
       enemySpawns=[
         timedEnemySpawn("dark-emperor-nyandam",1,0,1,1,1),
-        timedEnemySpawn("those-guys",8,0,5,9,3),
-        timedEnemySpawn("croco",8,0,8,18,3),
-        timedEnemySpawn("squire-rel",10,0,8,18,3),
-        timedEnemySpawn("jackie-peng",2,0,45,65,1),
-        timedEnemySpawn("hippoe",2,40,55,75,1),
-        timedEnemySpawn("one-horn",1,80,90,110,1)
+        timedEnemySpawn("those-guys",8,0,0.1,1,4),
+        timedEnemySpawn("croco",8,0,6,33.33,3),
+        timedEnemySpawn("squire-rel",8,0,6,66.67,3),
+        timedEnemySpawn("jackie-peng",3,0,13.33,60,2),
+        timedEnemySpawn("hippoe",3,0,10,40,2),
+        timedEnemySpawn("one-horn",2,40,66.67,100,1),
+        timedEnemySpawn("croco",5,80,0.3,1.33,2),
+        timedEnemySpawn("squire-rel",5,120,0.3,1.33,2)
       ];
     }
   }
@@ -1973,8 +1989,12 @@ function defaultBattleLevelConfig(levelName="Korea") {
     enemyBase:"enemybase.png",
     enemyBaseHealth,
     catBaseHealth:1000,
-    maxEnemies:currentChapter===2?Math.min(12,Math.max(7,EOC1_MAX_ENEMIES[levelName]||6)):(EOC1_MAX_ENEMIES[levelName]||6),
-    maxTotalSpawns:currentChapter===2?Math.min(36,24+Math.floor(Math.max(0,stageIndex)/3)):(stageIndex<=0?18:Math.min(28,18+Math.floor(stageIndex/5))),
+    maxEnemies:currentChapter===2
+      ? (levelName==="Moon"?12:Math.min(10,Math.max(6,(EOC1_MAX_ENEMIES[levelName]||6)+1)))
+      : (EOC1_MAX_ENEMIES[levelName]||6),
+    maxTotalSpawns:currentChapter===2
+      ? (levelName==="Moon"?36:Math.min(30,20+Math.floor(Math.max(0,stageIndex)/4)))
+      : (stageIndex<=0?18:Math.min(28,18+Math.floor(stageIndex/5))),
     initialSpawnDelay:stageIndex<=0?2:0,
     enemySpawns
   };
@@ -3045,7 +3065,8 @@ function battleAreaBaseTarget(attacker) {
   const contact=battleBaseContactPercent(side);
   const gap=attacker.kind==="cat"?Number(attacker.x)-contact:contact-Number(attacker.x);
   const reach=battleCombatReachPercent(attacker.range,attacker,null);
-  return gap>=-0.0001&&gap<=reach+0.0001?side:"";
+  const baseContactTolerance=Math.max(1.4,battleEntityContactGapPercent(attacker,null)*0.9);
+  return Math.abs(gap)<=baseContactTolerance?side:"";
 }
 function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,baseTarget="") {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" ||
@@ -3086,7 +3107,7 @@ function battleAreaAttackTargets(attacker,candidates) {
   if(mode===0) return [frontline.target];
   const frontlineBand=Math.max(0.65,battleEntityContactGapPercent(attacker,frontline.target)*0.6);
   const splashBand=mode===1
-    ? frontlineBand
+    ? Math.max(frontlineBand,battleEntityContactGapPercent(attacker,frontline.target)*1.65)
     : Math.max(frontlineBand,Math.min(10,battleRangePercent(attacker.range)*0.65));
   return reachable
     .filter(item=>item.distance<=frontline.distance+splashBand+0.0001)
@@ -4375,8 +4396,9 @@ function perform(action) {
     case "lose": playSfx("defeat"); navigate("battle"); break;
     case "win": {
       if (!battleState || battleState.ended!=="win") playSfx("victory");
-      save.xp += 250; save.missions = (save.missions||0)+1; save.stageClears = (save.stageClears||0)+1;
-      selectedLevelIndex = Math.min(Math.max(0,save.stageClears),47);
+      save.xp += 250; save.missions = (save.missions||0)+1;
+      setChapterClearCount(currentChapter,chapterClearCount()+1);
+      selectedLevelIndex=Math.min(47,chapterClearCount());
 
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
@@ -4390,6 +4412,14 @@ function perform(action) {
       if(save.stageClears>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
         save.units.push(makeGrossCatUnit());
         reward += " · Gross Cat unlocked";
+      }
+      if(currentChapter===1&&save.stageClears>=12&&!save.units.some(unit=>unit.name==="Cow Cat"||Number(unit.id)===5)) {
+        save.units.push(makeCowCatUnit());
+        reward += " · Cow Cat unlocked";
+      }
+      if(currentChapter===1&&save.stageClears>=24&&!save.units.some(unit=>unit.name==="Bird Cat"||Number(unit.id)===6)) {
+        save.units.push(makeBirdCatUnit());
+        reward += " · Bird Cat unlocked";
       }
       navigate("battle"); notify(reward);
       break;
