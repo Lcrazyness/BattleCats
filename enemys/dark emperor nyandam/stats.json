@@ -1,0 +1,22 @@
+{
+  "name": "Dark Emperor Nyandam",
+  "health": 99999,
+  "damage": 1800,
+  "gameScale": 0.055,
+  "speed": 2,
+  "spriteChangeSpeed": 4,
+  "walkSpriteChangeSpeed": 1.5,
+  "range": 500,
+  "killReward": 1000,
+  "knockbackCount": 3,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.9,
+  "knockbackDistance": 2.5,
+  "attackCooldown": 15.43,
+  "attackWindup": 3.47,
+  "AreaAttack": 1,
+  "traits": [
+    "Red"
+  ],
+  "Bio": "The final boss of Empire of Cats Chapter 2. A Red enemy with enormous reach and a slow, devastating area attack."
+}
