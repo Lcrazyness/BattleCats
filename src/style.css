@@ -3505,3 +3505,27 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .chapter-banner-label {font-size:clamp(10px,3vw,16px);bottom:8%;}
   .chapter-banner-lock {font-size:8px;top:5%;}
 }
+
+
+/* The existing banner artwork is Chapter 1 art; cover its printed chapter badge on the second card. */
+.chapter-banner-two::before {
+  content:"CHAPTER 2";
+  position:absolute;
+  z-index:4;
+  top:3.5%;
+  left:3.5%;
+  display:block;
+  padding:4px 12px;
+  border:2px solid #f5d88c;
+  border-radius:4px;
+  background:linear-gradient(#51341e,#25160e);
+  box-shadow:0 2px 4px #0009;
+  color:#fff0ba;
+  font:1000 clamp(10px,1.45vw,17px)/1 Impact,Haettenschweiler,sans-serif;
+  text-shadow:1px 2px #1b1009;
+  pointer-events:none;
+}
+.chapter-banner-two:disabled::before { filter:grayscale(1); }
+@media(max-width:680px) {
+  .chapter-banner-two::before { font-size:clamp(9px,2.5vw,13px); padding:3px 8px; }
+}
