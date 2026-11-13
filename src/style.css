@@ -3529,3 +3529,55 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(max-width:680px) {
   .chapter-banner-two::before { font-size:clamp(9px,2.5vw,13px); padding:3px 8px; }
 }
+
+
+/* Smaller chapter cards: keep their natural artwork ratio and make the pair
+   fit comfortably inside the chapter-selection frame. */
+.chapter-banner-one,
+.chapter-banner-two {
+  top:52% !important;
+  width:min(30vw,390px) !important;
+  height:auto !important;
+  max-height:none !important;
+  aspect-ratio:576 / 455;
+}
+.chapter-banner-one { left:30% !important; }
+.chapter-banner-two { left:70% !important; }
+.chapter-banner-one img,
+.chapter-banner-two img {
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  object-fit:contain !important;
+}
+@media(max-width:680px) {
+  .chapter-banner-one,
+  .chapter-banner-two {
+    top:52% !important;
+    width:min(40vw,170px) !important;
+    height:auto !important;
+    max-height:none !important;
+  }
+  .chapter-banner-one { left:27% !important; }
+  .chapter-banner-two { left:73% !important; }
+  .chapter-banner-label {
+    bottom:8%;
+    left:4%;
+    right:4%;
+    padding:3px 4px;
+    font-size:clamp(8px,2.1vw,12px);
+  }
+  .chapter-banner-lock {
+    left:4%;
+    right:4%;
+    top:5%;
+    padding:3px 4px;
+    font-size:clamp(6px,1.45vw,8px);
+  }
+  .chapter-banner-two::before {
+    top:3%;
+    left:3%;
+    padding:2px 5px;
+    font-size:clamp(7px,1.8vw,10px);
+  }
+}
