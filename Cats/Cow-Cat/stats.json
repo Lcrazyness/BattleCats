@@ -1,0 +1,20 @@
+{
+  "name": "Cow Cat",
+  "health": 125,
+  "damage": 8,
+  "price": 2,
+  "speed": 12,
+  "spriteChangeSpeed": 9,
+  "walkSpriteChangeSpeed": 5.2,
+  "range": 140,
+  "recharge": 1.6,
+  "attackCooldown": 0.55,
+  "AreaAttack": false,
+  "knockbackCount": 5,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.58,
+  "knockbackDistance": 5,
+  "AttackTrait": "",
+  "AttackBoost": "",
+  "Bio": "A speedy single-target attacker that rushes into the enemy line and strikes rapidly."
+}
