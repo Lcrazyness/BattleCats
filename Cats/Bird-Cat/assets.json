@@ -1,0 +1,28 @@
+{
+  "name": "Bird Cat",
+  "moving": [
+    "Cats/Bird-Cat/sprite-atlas.png#frame=0,0,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=128,0,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=256,0,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=384,0,128,128"
+  ],
+  "attackFrames": [
+    "Cats/Bird-Cat/sprite-atlas.png#frame=0,128,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=128,128,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=256,128,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=384,128,128,128",
+    "Cats/Bird-Cat/sprite-atlas.png#frame=0,256,128,128"
+  ],
+  "attackFrameRate": 2.85,
+  "attackDuration": 1.75,
+  "damagedFrames": [
+    "Cats/Bird-Cat/sprite-atlas.png#frame=128,256,128,128"
+  ],
+  "knockbackFrames": [
+    "Cats/Bird-Cat/sprite-atlas.png#frame=128,256,128,128"
+  ],
+  "idle": "Cats/Bird-Cat/sprite-atlas.png#frame=0,0,128,128",
+  "damaged": "Cats/Bird-Cat/sprite-atlas.png#frame=128,256,128,128",
+  "slot": "Cats/Bird-Cat/slot.png",
+  "upgrade": "Cats/Bird-Cat/upgrade.png"
+}
