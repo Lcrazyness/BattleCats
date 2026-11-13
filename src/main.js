@@ -184,7 +184,8 @@ function battleUnitStats(unitOrKey) {
   const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat"].includes(key);
   const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
   const chapterEnemyMultiplier=currentChapter===2&&!isCatUnit?1.5:1;
-  const gameScale=isCatUnit?1:positive(config.gameScale,1);
+  const configuredGameScale=Number(config.gameScale);
+  const gameScale=isCatUnit?1:(Number.isFinite(configuredGameScale)&&configuredGameScale>0?configuredGameScale:1);
   const rawHealth=positive(config.health,positive(unit.hp,100))*levelMultiplier*chapterEnemyMultiplier*gameScale;
   const rawDamage=positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier*chapterEnemyMultiplier*gameScale;
   const health=chapterEnemyMultiplier>1?Math.floor(rawHealth):Math.round(rawHealth);
