@@ -1972,14 +1972,14 @@ function defaultBattleLevelConfig(levelName="Korea") {
     if(levelName==="Moon") {
       enemySpawns=[
         timedEnemySpawn("dark-emperor-nyandam",1,0,1,1,1),
-        timedEnemySpawn("those-guys",8,0,0.1,1,4),
-        timedEnemySpawn("croco",8,0,6,33.33,3),
-        timedEnemySpawn("squire-rel",8,0,6,66.67,3),
-        timedEnemySpawn("jackie-peng",3,0,13.33,60,2),
-        timedEnemySpawn("hippoe",3,0,10,40,2),
-        timedEnemySpawn("one-horn",2,40,66.67,100,1),
-        timedEnemySpawn("croco",5,80,0.3,1.33,2),
-        timedEnemySpawn("squire-rel",5,120,0.3,1.33,2)
+        timedEnemySpawn("those-guys",8,0,4.5,8.5,3),
+        timedEnemySpawn("croco",8,5,8,18,2),
+        timedEnemySpawn("squire-rel",8,5,8,20,2),
+        timedEnemySpawn("jackie-peng",3,25,24,45,2),
+        timedEnemySpawn("hippoe",2,50,35,50,1),
+        timedEnemySpawn("one-horn",1,90,90,110,1),
+        timedEnemySpawn("croco",5,100,6,10,2),
+        timedEnemySpawn("squire-rel",5,130,8,14,2)
       ];
     }
   }
