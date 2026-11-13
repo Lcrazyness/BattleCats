@@ -538,7 +538,9 @@ const CAT_UPGRADE_COSTS = {
   cat:[400,700,1100,1600,2200,2900,3700,4600,5600],
   "tank-cat":[400,700,1100,1600,2200,2900,3700,4600,5600],
   "axe-cat":[900,1800,3000,4500,6300,8400,10800,13500,16500],
-  "gross-cat":[1300,2200,3400,4900,6700,8800,11200,13900,16900]
+  "gross-cat":[1300,2200,3400,4900,6700,8800,11200,13900,16900],
+  "cow-cat":[800,1300,2000,2900,4000,5300,6800,8500,10400],
+  "bird-cat":[1100,1900,3000,4400,6100,8100,10400,13000,15900]
 };
 function baseUpgradeLevel(key) {
   return Math.max(1,Math.min(BASE_UPGRADE_MAX_LEVEL,Math.floor(Number(save.baseUpgrades&&save.baseUpgrades[key])||1)));
@@ -1251,11 +1253,18 @@ function renderTitle() {
   '</section>';
 }
 function renderChapterSelect() {
+  const chapterTwoUnlocked=chapterClearCount(1)>=48;
   return '<section class="screen chapter-select-screen" aria-label="Chapter selection">'+
     '<div class="chapter-select-frame">'+
       '<img class="chapter-select-background" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-9" alt="" draggable="false">'+
-      '<button class="chapter-banner" data-go="chapter-enter" aria-label="Empire of Cats">'+
-        '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="Empire of Cats" draggable="false">'+
+      '<button class="chapter-banner chapter-banner-one" data-go="chapter-enter:1" aria-label="Empire of Cats Chapter 1">'+
+        '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="" draggable="false">'+
+        '<span class="chapter-banner-label">EMPIRE OF CATS<br>CHAPTER 1</span>'+
+      '</button>'+
+      '<button class="chapter-banner chapter-banner-two" data-go="chapter-enter:2" aria-label="Empire of Cats Chapter 2" '+(chapterTwoUnlocked?"":"disabled")+'>'+
+        '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="" draggable="false">'+
+        '<span class="chapter-banner-label">EMPIRE OF CATS<br>CHAPTER 2</span>'+
+        (chapterTwoUnlocked?"":'<span class="chapter-banner-lock">CLEAR CHAPTER 1 TO UNLOCK</span>')+
       '</button>'+
       '<button class="chapter-back" data-go="chapter-back" aria-label="Back to title">'+
         '<img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false">'+
@@ -1306,7 +1315,7 @@ const row = (label, detail, action, actionLabel="OPEN") =>
 const pageCopy = text => '<p class="menu-copy">'+text+'</p>';
 function renderBattle() {
   currentRegion = "empire";
-  selectedLevelIndex = Math.min(Math.max(0,Number(save.stageClears)||0),47);
+  selectedLevelIndex = Math.min(47,chapterClearCount());
   return renderStage();
 }
 function renderStage() {
@@ -1318,13 +1327,14 @@ function renderStage() {
     return renderWindow("Choose a Stage",body,"battle");
   }
 
-  const completed=Math.max(0,Math.min(48,Number(save.stageClears)||0));
+  const chapterLevels=currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+  const completed=chapterClearCount();
   const highestAvailable=Math.min(47,completed);
   if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=highestAvailable;
   selectedLevelIndex=Math.min(selectedLevelIndex,highestAvailable);
-  const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex];
+  const selected=chapterLevels[selectedLevelIndex];
   const available=selectedLevelIndex<=completed;
-  const visibleLevels=EMPIRE_CHAPTER_ONE.slice(0,Math.min(48,completed+1));
+  const visibleLevels=chapterLevels.slice(0,Math.min(48,completed+1));
   const countryRows=visibleLevels.map((level,index)=>{
     const cleared=index<completed;
     const current=index===completed;
@@ -1338,10 +1348,10 @@ function renderStage() {
   const energyCost=5;
   const clearCount=selectedLevelIndex<completed?1:0;
   const stageStatus=clearCount?"CLEARED":"NEXT STAGE";
-  return '<section class="screen world-stage-screen" aria-label="Empire of Cats Chapter 1 stage select">'+
+  return '<section class="screen world-stage-screen" aria-label="Empire of Cats Chapter '+currentChapter+' stage select">'+
     '<div class="world-stage-frame">'+
       '<header class="world-stage-header">'+
-        '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER 1</span></div>'+
+        '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER '+currentChapter+'</span></div>'+
         '<div class="world-stage-xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
       '</header>'+
       '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">'+
@@ -2064,7 +2074,7 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
   return {
     key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
     statsSnapshot:{...stats},baseSpeed:stats.speed,range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,walkSpriteChangeSpeed:stats.walkSpriteChangeSpeed,
-    attackCooldown:stats.attackCooldown,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",areaAttack:Number(stats.areaAttack)||0,
+    attackCooldown:stats.attackCooldown,attackWindup:stats.attackWindup,attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",areaAttack:Number(stats.areaAttack)||0,
     mode:"moving",attackTimer:0,animUntil:0,attackEndsAt:0,hitUntil:0,frameAt,killReward:stats.killReward,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
     knockbackDurationSetting:stats.knockbackDuration,knockbackDistanceSetting:stats.knockbackDistance,
@@ -2074,7 +2084,8 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
   };
 }
 function createBattleState() {
-  const selected=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
+  const selected=(currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
+    (currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
   const defaults=defaultBattleLevelConfig(selected.name);
   const walletLevel=baseUpgradeLevel("workerCatWallet");
   const efficiencyLevel=baseUpgradeLevel("workerCatEfficiency");
@@ -2111,6 +2122,25 @@ function loadBattleAssetManifests() {
       if(!response.ok) return;
       const data=await response.json();
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
+      if(Array.isArray(data.atlasParts)&&Array.isArray(data.frameCells)) {
+        try {
+          const encodedParts=await Promise.all(data.atlasParts.map(async partPath=>{
+            const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+            if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
+            return (await atlasResponse.text()).trim();
+          }));
+          const atlasSource="data:image/png;base64,"+encodedParts.join("");
+          const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
+          if(Array.isArray(data.walkFrames)) current.moving=data.walkFrames.map(framePath);
+          if(Array.isArray(data.attackFrames)) current.attacks=data.attackFrames.map(framePath);
+          if(Number.isInteger(data.hurtFrame)) {
+            current.damagedFrames=[framePath(data.hurtFrame)];
+            current.knockbackFrames=[framePath(data.hurtFrame)];
+            current.damaged=current.damagedFrames[0];
+          }
+          current.idle=current.moving[0]||current.idle;
+        } catch(error) { console.warn("Cat sprite atlas could not be assembled:",path,error); }
+      }
       if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
       if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
       else if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
@@ -2748,6 +2778,7 @@ function battleEntitySpriteScale(entity) {
     if(key==="one-horn") return 1.24;
     if(key==="teacher-bear") return 1.30;
     if(key==="the-face") return 1.75;
+    if(key==="dark-emperor-nyandam") return 1.62;
     if(key==="baa-baa") return 1.0;
     if(key==="croco") return 1.02;
     if(key==="hippoe") return 1.22;
@@ -2757,6 +2788,8 @@ function battleEntitySpriteScale(entity) {
   }
   const key=battleUnitKey(entity.name||entity.assetFolder||entity.spriteFolder||"cat");
   if(key==="gross-cat") return 1.18;
+  if(key==="cow-cat") return 0.98;
+  if(key==="bird-cat") return 0.84;
   if(key==="axe-cat") return 1.06;
   if(key==="tank-cat") return 0.76;
   return 0.62;
@@ -2865,7 +2898,7 @@ function spawnPlayerCat(unit) {
     x:battleBaseCenterPercent("cat"),walkSpeedModifier,statsSnapshot:{...stats},baseSpeed:stats.speed,
     hp:stats.health,maxHp:stats.health,attackPower:stats.damage,areaAttack:Number(stats.areaAttack)||0,
     AttackTrait:stats.AttackTrait,AttackBoost:stats.AttackBoost,traits:stats.traits,
-    speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,
+    speed:Math.max(1,stats.speed+walkSpeedModifier),range:stats.range,spriteChangeSpeed:stats.spriteChangeSpeed,attackCooldown:stats.attackCooldown,attackWindup:stats.attackWindup,
     attackIntervalScale:0.9+Math.random()*0.2,hasEnteredCombatRange:false,nextAttackAt:0,currentTargetKey:"",enemyBaseHoldX:undefined,recharge:stats.recharge,mode:"moving",
     animUntil:0,attackEndsAt:0,hitUntil:0,frameAt:0,walkStartedAt:battleState.elapsed,attackStartedAt:0,
     knockbackThresholdPercent:stats.knockbackThresholdPercent,
@@ -3004,6 +3037,16 @@ function battleAttackAnimationDuration(attacker,fallbackDuration=0.6) {
   const frameRate=Math.max(1,Math.min(30,Number(assets.attackFrameRate)||BATTLE_ATTACK_FRAME_RATE));
   return frames.length ? frames.length/frameRate : Math.max(0.1,Number(assets.attackDuration)||fallbackDuration);
 }
+function battleAreaBaseTarget(attacker) {
+  if(!battleState||!attacker||Number(attacker.areaAttack)<=0) return "";
+  const side=attacker.kind==="cat"?"enemy":"cat";
+  const baseHp=side==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
+  if(Number(baseHp)<=0) return "";
+  const contact=battleBaseContactPercent(side);
+  const gap=attacker.kind==="cat"?Number(attacker.x)-contact:contact-Number(attacker.x);
+  const reach=battleCombatReachPercent(attacker.range,attacker,null);
+  return gap>=-0.0001&&gap<=reach+0.0001?side:"";
+}
 function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,baseTarget="") {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" ||
       Number(attacker.nextAttackAt)>now+0.0001 ||
@@ -3019,7 +3062,7 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.attackEndsAt=attacker.animUntil;
   attacker.attackSoundPending=true;
   attacker.attackHitLanded=false;
-  attacker.pendingAttackAt=now+Math.max(0.1,animationDuration*0.62);
+  attacker.pendingAttackAt=now+Math.max(0.1,Number(attacker.attackWindup)||animationDuration*0.62);
   attacker.pendingAttackTargetKey=target ? target.key : "";
   attacker.pendingAttackBase=baseTarget;
   attacker.pendingAttackDamage=Number(attacker.attackPower)||8;
@@ -3048,6 +3091,17 @@ function battleAreaAttackTargets(attacker,candidates) {
   return reachable
     .filter(item=>item.distance<=frontline.distance+splashBand+0.0001)
     .map(item=>item.target);
+}
+function resolveBattleBaseAttackOnce(attacker,side,damage) {
+  if(!attacker||!side||!Number(attacker.attackCycleId)||attacker.lastResolvedBaseAttackCycle===attacker.attackCycleId) return false;
+  const baseHp=side==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
+  if(baseHp<=0) return false;
+  attacker.lastResolvedBaseAttackCycle=attacker.attackCycleId;
+  if(side==="enemy") battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-damage);
+  else battleState.catBaseHp=Math.max(0,battleState.catBaseHp-damage);
+  playSfx("baseAttack");
+  shakeBattleBase(side);
+  return true;
 }
 function resolveBattleAttackOnce(attacker,target,damage,now) {
   if (!attacker || !target || !Number(attacker.attackCycleId)) return false;
@@ -3121,15 +3175,9 @@ function resolvePendingBattleAttacks(now) {
         const targetDamage=battleDamageAgainstTarget(attacker,target,damage);
         if(resolveBattleAttackOnce(attacker,target,targetDamage,now)) attacker.attackHitLanded=true;
       }
-    } else if(baseTarget&&attacker.lastResolvedAttackCycle!==attacker.attackCycleId) {
-      const baseHp=baseTarget==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
-      if(baseHp>0) {
-        attacker.lastResolvedAttackCycle=attacker.attackCycleId;
-        if(baseTarget==="enemy") battleState.enemyBaseHp=Math.max(0,battleState.enemyBaseHp-damage);
-        else battleState.catBaseHp=Math.max(0,battleState.catBaseHp-damage);
-        playSfx("baseAttack");
-        shakeBattleBase(baseTarget);
-      }
+      if(baseTarget&&Number(attacker.areaAttack)>0&&resolveBattleBaseAttackOnce(attacker,baseTarget,damage)) attacker.attackHitLanded=true;
+    } else if(baseTarget) {
+      if(resolveBattleBaseAttackOnce(attacker,baseTarget,damage)) attacker.attackHitLanded=true;
     }
   }
 }
@@ -3258,7 +3306,7 @@ function tickBattle() {
             const catStats=battleStatsForEntity(cat);
             const attackDuration=battleAttackAnimationDuration(cat,0.62);
             if(now+0.0001>=Number(cat.nextAttackAt||0)) {
-              startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target);
+              startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target,battleAreaBaseTarget(cat));
             }
           } else {
             cat.mode=cat.x<=targetApproachStop+0.15?"idle":"moving";
@@ -3272,7 +3320,7 @@ function tickBattle() {
         const catStats=battleStatsForEntity(cat);
         const attackDuration=battleAttackAnimationDuration(cat,0.62);
         if(now+0.0001>=Number(cat.nextAttackAt||0)) {
-          startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target);
+          startBattleAttack(cat,now,cat.attackCooldown||catStats.attackCooldown,attackDuration,target,battleAreaBaseTarget(cat));
         }
       }
       const squareStopGap=battleEntityContactGapPercent(cat,target);
@@ -3318,7 +3366,7 @@ function tickBattle() {
       const enemyStats=battleStatsForEntity(enemy);
       const attackDuration=battleAttackAnimationDuration(enemy,0.55);
       if(now+0.0001>=Number(enemy.nextAttackAt||0)) {
-        startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target);
+        startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target,battleAreaBaseTarget(enemy));
       }
     } else if(target&&enemyDistance>enemyReach) {
       const targetGap=battleTargetGap(enemy,target);
@@ -3332,7 +3380,7 @@ function tickBattle() {
           const enemyStats=battleStatsForEntity(enemy);
           const attackDuration=battleAttackAnimationDuration(enemy,0.55);
           if(now+0.0001>=Number(enemy.nextAttackAt||0)) {
-            startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target);
+            startBattleAttack(enemy,now,enemy.attackCooldown||enemyStats.attackCooldown,attackDuration,target,battleAreaBaseTarget(enemy));
           }
         } else {
           enemy.mode=enemy.x>=desiredStop-0.15?"idle":"moving";
@@ -3495,7 +3543,8 @@ function updateFightUI() {
 
 function renderFight() {
   if (!battleState) battleState=createBattleState();
-  const selectedLevel=EMPIRE_CHAPTER_ONE[selectedLevelIndex]||EMPIRE_CHAPTER_ONE[0];
+  const selectedLevel=(currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
+    (currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
   const levelFolder="Levels/"+selectedLevel.name;
   const levelConfig=battleState.levelConfig||defaultBattleLevelConfig(selectedLevel.name);
   const levelBackgroundUrl=battleAssetUrl(levelFolder+"/"+levelConfig.background);
@@ -3544,13 +3593,17 @@ const UPGRADE_CAT_FOLDERS = {
   cat:"cat",
   "tank-cat":"tank-cat",
   "axe-cat":"axe-cat",
-  "gross-cat":"Gross-Cat"
+  "gross-cat":"Gross-Cat",
+  "cow-cat":"Cow-Cat",
+  "bird-cat":"Bird-Cat"
 };
 const UPGRADE_CAT_BIOS = {
   cat:"An ordinary cat who dreams of ruling the world. Simple, dependable, and always ready to fight.",
   "tank-cat":"A sturdy cat with a tough body. Its high health makes it a reliable frontline defender.",
   "axe-cat":"A cat carrying a powerful axe. Its attacks are especially effective against Red enemies.",
-  "gross-cat":"A lanky cat with an incredible reach. It can strike enemies from far away."
+  "gross-cat":"A lanky cat with an incredible reach. It can strike enemies from far away.",
+  "cow-cat":"A fast-moving melee Cat that rushes into the enemy line and attacks rapidly.",
+  "bird-cat":"A fragile long-range attacker that delivers powerful strikes from behind the frontline."
 };
 const UPGRADE_BASE_ROWS = [
   {key:"workerCatWallet",name:"Worker Cat Wallet",icon:"¢",bio:"Increases the maximum amount of money you can hold during battle."},
@@ -3573,7 +3626,7 @@ function upgradeStatsForItem(item) {
   return {current,next};
 }
 function buildUpgradeCatalog() {
-  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3};
+  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3,"cow-cat":4,"bird-cat":5};
   const orderedUnits=save.units.slice().sort((a,b)=>{
     const first=rank[upgradeUnitKey(a)]??100;
     const second=rank[upgradeUnitKey(b)]??100;
@@ -4198,23 +4251,35 @@ function perform(action) {
     return;
   }
   if (action === "intro-back" || action === "intro-skip") return leaveIntro();
-  if (action === "chapter-enter") return leaveChapterSelect("base");
+  if(action.startsWith("chapter-enter")) {
+    const requested=Number(action.split(":")[1]||1);
+    if(requested===2&&chapterClearCount(1)<48) return notify("Clear all 48 Empire of Cats Chapter 1 stages to unlock Chapter 2.");
+    currentChapter=requested===2?2:1;
+    selectedLevelIndex=Math.min(47,chapterClearCount());
+    return leaveChapterSelect("base");
+  }
   if (action === "chapter-back") return leaveChapterSelect("title");
   if (action.startsWith("go:")) {
     const target = action.slice(3);
     if (scene === "title" && target === "base") return beginChapterSelection();
     return navigate(target);
   }
-  if (action.startsWith("stage:")) { currentRegion = action.slice(6); selectedLevelIndex = Math.min(Math.max(0,Number(save.stageClears)||0),47); return navigate("stage"); }
+  if (action.startsWith("stage:")) {
+    currentRegion=action.slice(6);
+    if(currentRegion!=="empire") currentChapter=1;
+    selectedLevelIndex=Math.min(47,chapterClearCount());
+    return navigate("stage");
+  }
   if (action.startsWith("level:")) {
-    const index = Number(action.slice(6));
-    if (!Number.isInteger(index) || index<0 || index>=EMPIRE_CHAPTER_ONE.length) return;
-    if (index > Math.min(47,Number(save.stageClears)||0)) return notify("Clear "+EMPIRE_CHAPTER_ONE[index-1].name+" to unlock this stage.");
-    selectedLevelIndex = index;
+    const index=Number(action.slice(6));
+    const chapterLevels=currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+    if(!Number.isInteger(index)||index<0||index>=chapterLevels.length) return;
+    if(index>Math.min(47,chapterClearCount())) return notify("Clear "+chapterLevels[index-1].name+" to unlock this stage.");
+    selectedLevelIndex=index;
     return render();
   }
   if (action === "stage-battle") {
-    if (selectedLevelIndex > Math.min(47,Number(save.stageClears)||0)) return notify("Clear previous stages to unlock this one.");
+    if (selectedLevelIndex > Math.min(47,chapterClearCount())) return notify("Clear previous stages to unlock this one.");
     
     battleState=createBattleState();
     return navigate("fight");
