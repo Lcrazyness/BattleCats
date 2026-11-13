@@ -35,10 +35,10 @@ function makeGrossCatUnit() {
   };
 }
 function makeCowCatUnit() {
-  return {id:5,name:"Cow Cat",level:1,deployCost:1,hp:180,attack:20,range:55,speed:12,recharge:1.15,assetFolder:"Cow-Cat",spriteSlot:"Cats/Cow-Cat/slot.png",statsPath:"Cats/Cow-Cat/stats.json",assetsPath:"Cats/Cow-Cat/assets.json"};
+  return {id:5,name:"Cow Cat",level:1,deployCost:2,hp:125,attack:8,range:140,speed:12,recharge:1.6,assetFolder:"Cow-Cat",spriteSlot:"Cats/Cow-Cat/slot.png",statsPath:"Cats/Cow-Cat/stats.json",assetsPath:"Cats/Cow-Cat/assets.json"};
 }
 function makeBirdCatUnit() {
-  return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:170,attack:75,range:260,speed:4.4,recharge:5.2,assetFolder:"Bird-Cat",spriteSlot:"Cats/Bird-Cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
+  return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:95,attack:70,range:170,speed:5,recharge:4.8,assetFolder:"Bird-Cat",spriteSlot:"Cats/Bird-Cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
 }
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
@@ -114,8 +114,8 @@ const BATTLE_ASSETS = {
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
   "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
   "cow-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Cow-Cat/slot.png"},
-  "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Bird-Cat/slot.png"},
-  "dark-emperor-nyandam": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.3,attackDuration:3.47,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
+  "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.85,attackDuration:1.75,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Bird-Cat/slot.png"},
+  "dark-emperor-nyandam": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:1.73,attackDuration:3.47,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
 const BATTLE_UNIT_STATS = {
@@ -123,9 +123,9 @@ const BATTLE_UNIT_STATS = {
   "axe-cat": {health:100,damage:12,price:1,speed:7,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:65,recharge:0.1,attackCooldown:1.4,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "tank-cat": {health:300,damage:8,price:1,speed:3,spriteChangeSpeed:5,walkSpriteChangeSpeed:2.5,range:25,recharge:0.1,attackCooldown:1.8,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "gross-cat": {health:130,damage:22,price:2,speed:5.2,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.2,range:180,recharge:3.2,attackCooldown:2.3,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "cow-cat": {health:180,damage:20,price:1,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:55,recharge:1.15,attackCooldown:0.82,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
-  "bird-cat": {health:170,damage:75,price:3,speed:4.4,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:260,recharge:5.2,attackCooldown:3.5,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "dark-emperor-nyandam": {health:99999,damage:1800,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
+  "cow-cat": {health:125,damage:8,price:2,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:140,recharge:1.6,attackCooldown:0.55,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:5,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
+  "bird-cat": {health:95,damage:70,price:3,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:170,recharge:4.8,attackCooldown:1.75,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:4,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:0.055,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
   "those-guys": {health:160,damage:8,speed:5,spriteChangeSpeed:8,range:105,killReward:75,knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.3,AreaAttack:false},
@@ -184,8 +184,9 @@ function battleUnitStats(unitOrKey) {
   const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat"].includes(key);
   const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
   const chapterEnemyMultiplier=currentChapter===2&&!isCatUnit?1.5:1;
-  const rawHealth=positive(config.health,positive(unit.hp,100))*levelMultiplier*chapterEnemyMultiplier;
-  const rawDamage=positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier*chapterEnemyMultiplier;
+  const gameScale=isCatUnit?1:positive(config.gameScale,1);
+  const rawHealth=positive(config.health,positive(unit.hp,100))*levelMultiplier*chapterEnemyMultiplier*gameScale;
+  const rawDamage=positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier*chapterEnemyMultiplier*gameScale;
   const health=chapterEnemyMultiplier>1?Math.floor(rawHealth):Math.round(rawHealth);
   const damage=chapterEnemyMultiplier>1?Math.floor(rawDamage):Math.round(rawDamage);
   const chapterCatCostMultiplier=currentChapter===2&&isCatUnit?1.5:1;
@@ -3063,10 +3064,9 @@ function battleAreaBaseTarget(attacker) {
   const baseHp=side==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
   if(Number(baseHp)<=0) return "";
   const contact=battleBaseContactPercent(side);
-  const gap=attacker.kind==="cat"?Number(attacker.x)-contact:contact-Number(attacker.x);
+  const distance=Math.abs(Number(attacker.x)-contact);
   const reach=battleCombatReachPercent(attacker.range,attacker,null);
-  const baseContactTolerance=Math.max(1.4,battleEntityContactGapPercent(attacker,null)*0.9);
-  return Math.abs(gap)<=baseContactTolerance?side:"";
+  return distance<=reach+0.25?side:"";
 }
 function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,baseTarget="") {
   if (!attacker || attacker.mode==="dead" || attacker.mode==="knockback" ||
@@ -3090,7 +3090,7 @@ function startBattleAttack(attacker,now,cooldown,animationDuration,target=null,b
   attacker.mode="attack";
   return true;
 }
-function battleAreaAttackTargets(attacker,candidates) {
+function battleAreaAttackTargets(attacker,candidates,includeBehind=false) {
   const mode=Math.max(0,Math.min(2,Math.floor(Number(attacker&&attacker.areaAttack)||0)));
   const reachable=(candidates||[])
     .filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead"&&target.mode!=="knockback")
@@ -3100,7 +3100,7 @@ function battleAreaAttackTargets(attacker,candidates) {
       distance:Math.abs(battleTargetGap(attacker,target)),
       reach:battleCombatReachPercent(attacker.range,attacker,target)
     }))
-    .filter(item=>item.gap>=-0.0001&&item.distance<=item.reach+0.0001)
+    .filter(item=>(includeBehind||item.gap>=-0.0001)&&item.distance<=item.reach+0.0001)
     .sort((first,second)=>first.distance-second.distance);
   if(!reachable.length) return [];
   const frontline=reachable[0];
@@ -3184,7 +3184,7 @@ function resolvePendingBattleAttacks(now) {
       let targets=[];
       const areaMode=Math.max(0,Math.min(2,Math.floor(Number(attacker.areaAttack)||0)));
       if(areaMode>0) {
-        targets=battleAreaAttackTargets(attacker,candidates);
+        targets=battleAreaAttackTargets(attacker,candidates,Boolean(baseTarget));
         if(lockedTarget&&!targets.includes(lockedTarget)) targets.unshift(lockedTarget);
       } else if(lockedTarget) {
         // The target was selected while in range when the swing began.
@@ -3217,7 +3217,14 @@ function attackBattleBase(attacker,now) {
   if(attacker.kind==="cat"?attacker.x>contact+reach+0.25:attacker.x<contact-reach-0.25) return false;
   const stats=battleStatsForEntity(attacker);
   const duration=battleAttackAnimationDuration(attacker,attacker.kind==="cat"?0.62:0.55);
-  return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,null,baseTarget);
+  const candidates=attacker.kind==="cat"?battleState.enemies:battleState.playerUnits;
+  const splashTarget=Number(attacker.areaAttack)>0
+    ? candidates.filter(target=>target&&Number(target.hp)>0&&target.mode!=="dead")
+      .map(target=>({target,distance:Math.abs(battleTargetGap(attacker,target)),reach:battleCombatReachPercent(attacker.range,attacker,target)}))
+      .filter(item=>item.distance<=item.reach+0.0001)
+      .sort((first,second)=>first.distance-second.distance)[0]?.target||null
+    : null;
+  return startBattleAttack(attacker,now,attacker.attackCooldown||stats.attackCooldown,duration,splashTarget,baseTarget);
 }
 function clampBattleSquareBoundaries() {
   if(!battleState) return;
@@ -3623,8 +3630,8 @@ const UPGRADE_CAT_BIOS = {
   "tank-cat":"A sturdy cat with a tough body. Its high health makes it a reliable frontline defender.",
   "axe-cat":"A cat carrying a powerful axe. Its attacks are especially effective against Red enemies.",
   "gross-cat":"A lanky cat with an incredible reach. It can strike enemies from far away.",
-  "cow-cat":"A fast-moving melee Cat that rushes into the enemy line and attacks rapidly.",
-  "bird-cat":"A fragile long-range attacker that delivers powerful strikes from behind the frontline."
+  "cow-cat":"A speedy single-target attacker that rushes into the enemy line and strikes rapidly.",
+  "bird-cat":"A fragile area attacker that hits groups of enemies from the back line."
 };
 const UPGRADE_BASE_ROWS = [
   {key:"workerCatWallet",name:"Worker Cat Wallet",icon:"¢",bio:"Increases the maximum amount of money you can hold during battle."},
