@@ -95,6 +95,10 @@ let scene = "loading";
 let currentRegion = "empire";
 let currentChapter = 1;
 let selectedLevelIndex = 0;
+let adminPanelOpen = false;
+let adminCodeKeyBuffer = [];
+const ADMIN_ACCESS_CODE = "abraham20192014";
+const ADMIN_ENEMY_ASSET_REQUESTS = new Map();
 let selectedUpgradeKey = "";
 let upgradeCarouselFrame = 0;
 const upgradeBioCache = new Map();
@@ -2120,6 +2124,7 @@ function createBattleState() {
     catBaseHp:defaults.catBaseHealth,catBaseMaxHp:defaults.catBaseHealth,
     cooldowns:{},cooldownWasActive:{},nextUnitKey:1,nextEnemyKey:1,ended:"",workerLevel:1,
     walletAvailabilityInitialized:false,walletWasAvailable:false,
+    adminInfiniteMoney:false,adminInstantRecharge:false,adminGodMode:false,adminMoneyOriginal:null,
     deathSouls:[],nextDeathSoulKey:1,
     levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
@@ -2498,6 +2503,9 @@ function stopBattleRuntime() {
   battleLevelConfigPromise=null;
   battleLevelConfig=null;
   battleLevelName="Korea";
+  adminPanelOpen=false;
+  adminCodeKeyBuffer=[];
+  ADMIN_ENEMY_ASSET_REQUESTS.clear();
 }
 function ensureBattleEntityNode(entity) {
   let element = stage.querySelector('[data-battle-entity="'+entity.key+'"]');
@@ -2908,12 +2916,12 @@ function spawnPlayerCat(unit) {
   if (!battleState || battleState.ended) return;
   const stats = battleUnitStats(unit);
   const cost = stats.price;
-  const cooldown = Number(battleState.cooldowns[unit.id]||0);
+  const cooldown = battleState.adminInstantRecharge?0:Number(battleState.cooldowns[unit.id]||0);
   if (battleState.money < cost) return notify("Not enough money to deploy "+unit.name+".");
   if (cooldown > 0.05) return notify(unit.name+" is recharging.");
   battleState.money -= cost;
-  battleState.cooldowns[unit.id] = stats.recharge;
-  battleState.cooldownWasActive[String(unit.id)] = stats.recharge > 0.05;
+  battleState.cooldowns[unit.id] = battleState.adminInstantRecharge?0:stats.recharge;
+  battleState.cooldownWasActive[String(unit.id)] = !battleState.adminInstantRecharge&&stats.recharge > 0.05;
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
@@ -3001,6 +3009,7 @@ function advanceBattleKnockback(deltaSeconds) {
 }
 function damageBattleEntity(target,amount,now){
   if(!target||target.mode==="dead"||!battleState)return;
+  if(battleState.adminGodMode&&target.kind==="cat") return;
   const damage=Math.max(0,Number(amount)||0);if(!damage)return;
   const maxHp=Math.max(1,Number(target.maxHp)||1);
   target.hp=Math.max(0,(Number(target.hp)||0)-damage);
@@ -3116,6 +3125,7 @@ function battleAreaAttackTargets(attacker,candidates,includeBehind=false) {
 }
 function resolveBattleBaseAttackOnce(attacker,side,damage) {
   if(!attacker||!side||!Number(attacker.attackCycleId)||attacker.lastResolvedBaseAttackCycle===attacker.attackCycleId) return false;
+  if(battleState&&battleState.adminGodMode&&side==="cat") return false;
   const baseHp=side==="enemy"?battleState.enemyBaseHp:battleState.catBaseHp;
   if(baseHp<=0) return false;
   attacker.lastResolvedBaseAttackCycle=attacker.attackCycleId;
@@ -3277,9 +3287,15 @@ function tickBattle() {
   advanceBattleKnockback(dt);
   updateBattleDeathSouls(dt);
   if(state.ended) return;
-  state.money=Math.min(state.maxMoney,state.money+
-    (Math.max(0,Number(state.baseIncomePerSecond)||2.6)+Math.max(0,(Number(state.workerLevel)||1)-1)*0.25)*dt);
-  Object.keys(state.cooldowns).forEach(key=>state.cooldowns[key]=Math.max(0,state.cooldowns[key]-dt));
+  if(state.adminInfiniteMoney) {
+    state.money=state.maxMoney;
+  } else {
+    state.money=Math.min(state.maxMoney,state.money+
+      (Math.max(0,Number(state.baseIncomePerSecond)||2.6)+Math.max(0,(Number(state.workerLevel)||1)-1)*0.25)*dt);
+  }
+  Object.keys(state.cooldowns).forEach(key=>{
+    state.cooldowns[key]=state.adminInstantRecharge?0:Math.max(0,state.cooldowns[key]-dt);
+  });
 
   attemptBattleEnemySpawn(state);
 
@@ -3570,6 +3586,309 @@ function updateFightUI() {
   });
 }
 
+
+function adminEnemyTypes() {
+  const catTypes=new Set(["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat"]);
+  return Object.keys(BATTLE_UNIT_STATS).filter(type=>!catTypes.has(type)).sort();
+}
+function adminEnemyLabel(type) {
+  const labels={"b-b-bunny":"B.B. Bunny","le-boin":"Le Boin","sir-seal":"Sir Seal","squire-rel":"Squire Rel","one-horn":"One Horn","the-face":"The Face","dark-emperor-nyandam":"Dark Emperor Nyandam"};
+  return labels[type]||type.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");
+}
+function renderBattleAdminPanel() {
+  const enemyOptions=adminEnemyTypes().map(type=>'<option value="'+type+'">'+adminEnemyLabel(type)+'</option>').join("");
+  return '<aside class="battle-admin-panel" aria-label="Battle testing admin panel" '+(adminPanelOpen?"":"hidden")+'>'+
+    '<header class="battle-admin-header"><div><strong>DEVELOPER TEST PANEL</strong><small>LOCAL BATTLE TESTING TOOLS</small></div><button type="button" data-admin="close" aria-label="Close admin panel">×</button></header>'+
+    '<div class="battle-admin-content">'+
+      '<p class="battle-admin-status" data-admin-status>Battle testing tools ready.</p>'+
+      '<section class="battle-admin-section"><h3>UPGRADES & ECONOMY</h3>'+
+        '<button class="battle-admin-primary" type="button" data-admin="max-upgrades">UNLOCK ALL CATS · MAX ALL UPGRADES · 999M XP</button>'+
+        '<div class="battle-admin-grid">'+
+          '<button type="button" data-admin="toggle-money">INFINITE MONEY: OFF</button>'+
+          '<button type="button" data-admin="toggle-recharge">INSTANT RECHARGE: OFF</button>'+
+          '<button type="button" data-admin="toggle-god">GOD MODE: OFF</button>'+
+          '<button type="button" data-admin="max-speed">SET 3× SPEED</button>'+
+        '</div>'+
+      '</section>'+
+      '<section class="battle-admin-section"><h3>ENEMY SPAWNER</h3>'+
+        '<label class="battle-admin-label" for="admin-enemy-select">Enemy type</label>'+
+        '<select id="admin-enemy-select" class="battle-admin-select">'+enemyOptions+'</select>'+
+        '<div class="battle-admin-spawn-row"><label class="battle-admin-label" for="admin-enemy-count">Amount</label><input id="admin-enemy-count" type="number" min="1" max="50" value="1"><button type="button" data-admin="spawn-selected">SPAWN</button></div>'+
+        '<button class="battle-admin-primary" type="button" data-admin="spawn-all">SPAWN EVERY ENEMY (ONE EACH)</button>'+
+      '</section>'+
+      '<section class="battle-admin-section"><h3>STAGE CONTROLS</h3>'+
+        '<div class="battle-admin-grid">'+
+          '<button type="button" data-admin="clear-enemies">CLEAR ALL ENEMIES</button>'+
+          '<button type="button" data-admin="heal">HEAL BASES & CATS</button>'+
+          '<button type="button" data-admin="restart">RESTART THIS STAGE</button>'+
+          '<button type="button" data-admin="win">INSTANT STAGE WIN</button>'+
+        '</div>'+
+      '</section>'+
+      '<small class="battle-admin-footnote">Secret toggle: type the access phrase again to close this panel. Changes to upgrades and XP are saved.</small>'+
+    '</div>'+
+  '</aside>';
+}
+function refreshBattleAdminPanel() {
+  if(scene!=="fight"||!battleState) return;
+  const panel=stage.querySelector(".battle-admin-panel");
+  if(!panel) return;
+  const state=battleState;
+  const setLabel=(action,label,active)=>{
+    const button=panel.querySelector('[data-admin="'+action+'"]');
+    if(!button) return;
+    button.textContent=label;
+    button.classList.toggle("is-active",Boolean(active));
+    button.setAttribute("aria-pressed",active?"true":"false");
+  };
+  setLabel("toggle-money","INFINITE MONEY: "+(state.adminInfiniteMoney?"ON":"OFF"),state.adminInfiniteMoney);
+  setLabel("toggle-recharge","INSTANT RECHARGE: "+(state.adminInstantRecharge?"ON":"OFF"),state.adminInstantRecharge);
+  setLabel("toggle-god","GOD MODE: "+(state.adminGodMode?"ON":"OFF"),state.adminGodMode);
+  const status=panel.querySelector("[data-admin-status]");
+  if(status) {
+    const alive=(state.enemies||[]).filter(enemy=>Number(enemy.hp)>0&&enemy.mode!=="dead").length;
+    status.textContent="Enemies alive: "+alive+"  ·  Cats deployed: "+(state.playerUnits||[]).filter(cat=>Number(cat.hp)>0).length+
+      "  ·  Stage: "+(state.levelName||"Test");
+  }
+}
+function setAdminInfiniteMoney(enabled) {
+  if(!battleState) return;
+  const state=battleState;
+  if(enabled&&!state.adminInfiniteMoney) {
+    state.adminMoneyOriginal={maxMoney:state.maxMoney,baseIncomePerSecond:state.baseIncomePerSecond};
+    state.adminInfiniteMoney=true;
+    state.maxMoney=999999999;
+    state.money=state.maxMoney;
+    state.baseIncomePerSecond=999999999;
+  } else if(!enabled&&state.adminInfiniteMoney) {
+    const original=state.adminMoneyOriginal||{};
+    state.maxMoney=Math.max(1,Number(original.maxMoney)||150);
+    state.money=Math.min(state.maxMoney,Number(state.money)||0);
+    state.baseIncomePerSecond=Math.max(0,Number(original.baseIncomePerSecond)||2.6);
+    state.adminMoneyOriginal=null;
+    state.adminInfiniteMoney=false;
+  }
+}
+function ensureAllAdminTestCats() {
+  const candidates=[
+    {id:2,name:"Tank Cat",level:1,deployCost:1,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json",assetsPath:"Cats/tank-cat/assets.json"},
+    makeAxeCatUnit(),makeGrossCatUnit(),makeCowCatUnit(),makeBirdCatUnit()
+  ];
+  for(const unit of candidates) {
+    if(!save.units.some(existing=>String(existing.id)===String(unit.id))) save.units.push({...unit});
+  }
+  save.units.forEach(unit=>unit.level=10);
+  save.equipped=save.units.map(unit=>unit.id);
+}
+function applyAdminMaxUpgrades() {
+  if(!battleState) return;
+  ensureAllAdminTestCats();
+  Object.keys(save.baseUpgrades||{}).forEach(key=>save.baseUpgrades[key]=BASE_UPGRADE_MAX_LEVEL);
+  save.xp=999999999;
+  save.units.forEach(unit=>unit.level=10);
+  const state=battleState;
+  state.workerLevel=8;
+  state.maxMoney=150+(baseUpgradeLevel("workerCatWallet")-1)*100;
+  state.money=state.maxMoney;
+  state.baseIncomePerSecond=2.6+(baseUpgradeLevel("workerCatEfficiency")-1)*3;
+  state.cooldowns={};
+  state.cooldownWasActive={};
+  state.adminInstantRecharge=true;
+  state.adminInfiniteMoney=false;
+  state.adminMoneyOriginal=null;
+  setAdminInfiniteMoney(true);
+  persist();
+  battleAssetsPromise=null;
+  render();
+  notify("All Cats unlocked and level 10. Base upgrades maxed. 999M XP added.");
+  refreshBattleAdminPanel();
+}
+async function loadAdminEnemyAssets(enemyType) {
+  const type=battleUnitKey(enemyType);
+  if(ADMIN_ENEMY_ASSET_REQUESTS.has(type)) return ADMIN_ENEMY_ASSET_REQUESTS.get(type);
+  const request=(async()=>{
+    const folder=battleEnemyFolder(type);
+    const current=BATTLE_ASSETS[type]||(BATTLE_ASSETS[type]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/"+folder+"/slot.png"});
+    const [assetResult,statResult]=await Promise.allSettled([
+      fetch(new URL("enemys/"+encodeURIComponent(folder)+"/assets.json",APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"}),
+      fetch(new URL("enemys/"+encodeURIComponent(folder)+"/stats.json",APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"})
+    ]);
+    if(assetResult.status==="fulfilled"&&assetResult.value.ok) {
+      try {
+        const data=await assetResult.value.json();
+        if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
+        if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
+        else if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
+        if(Array.isArray(data.damagedFrames)) current.damagedFrames=data.damagedFrames;
+        if(Array.isArray(data.knockbackFrames)) current.knockbackFrames=data.knockbackFrames;
+        if(typeof data.attackFrameRate==="number") current.attackFrameRate=data.attackFrameRate;
+        if(typeof data.attackDuration==="number") current.attackDuration=data.attackDuration;
+        if(data.idle) current.idle=data.idle;
+        if(data.attack) current.attack=data.attack;
+        if(data.attackSprite) current.attackSprite=data.attackSprite;
+        if(data.damaged) current.damaged=data.damaged;
+        if(data.slot) current.slot=data.slot;
+      } catch(error) { console.warn("Admin enemy asset manifest failed:",type,error); }
+    }
+    if(statResult.status==="fulfilled"&&statResult.value.ok) {
+      try {
+        const data=await statResult.value.json();
+        if(data&&typeof data==="object") BATTLE_UNIT_STATS[type]={...(BATTLE_UNIT_STATS[type]||{}),...data};
+      } catch(error) { console.warn("Admin enemy stat manifest failed:",type,error); }
+    }
+    if(!current.moving.length&&!current.idle&&BATTLE_ASSETS.doge) {
+      current.moving=BATTLE_ASSETS.doge.moving||[];
+      current.attacks=BATTLE_ASSETS.doge.attacks||[];
+      current.idle=BATTLE_ASSETS.doge.idle||"";
+      current.attack=BATTLE_ASSETS.doge.attack||"";
+      current.damaged=BATTLE_ASSETS.doge.damaged||"";
+    }
+    return current;
+  })();
+  ADMIN_ENEMY_ASSET_REQUESTS.set(type,request);
+  return request;
+}
+function spawnAdminEnemyAt(enemyType,x) {
+  if(!battleState||battleState.ended) return null;
+  const type=battleUnitKey(enemyType);
+  const key=type+"-admin-"+battleState.nextEnemyKey++;
+  const enemy=createBattleEnemy(type,key,x,Math.floor(Math.random()*1000));
+  battleState.enemies.push(enemy);
+  ensureBattleEntityNode(enemy);
+  updateBattleEntityView(enemy);
+  return enemy;
+}
+async function spawnAdminEnemyTypes(types) {
+  if(!battleState||battleState.ended||scene!=="fight") return;
+  const unique=[...new Set((types||[]).map(battleUnitKey).filter(type=>BATTLE_UNIT_STATS[type]))];
+  if(!unique.length) return notify("No valid enemy types selected.");
+  const state=battleState;
+  const status=stage.querySelector("[data-admin-status]");
+  if(status) status.textContent="Loading "+unique.length+" enemy type"+(unique.length===1?"":"s")+"…";
+  const spawnButton=stage.querySelector('[data-admin="spawn-all"]');
+  if(spawnButton) spawnButton.disabled=true;
+  try {
+    await Promise.all(unique.map(loadAdminEnemyAssets));
+    if(battleState!==state||scene!=="fight") return;
+    const enemyBase=battleBaseCenterPercent("enemy");
+    const catBase=battleBaseCenterPercent("cat");
+    const lane=catBase-enemyBase;
+    unique.forEach((type,index)=>{
+      const ratio=unique.length===1?0.12:0.06+0.68*(index/(unique.length-1));
+      spawnAdminEnemyAt(type,enemyBase+lane*ratio);
+    });
+    updateFightUI();
+    refreshBattleAdminPanel();
+    notify("Spawned "+unique.length+" enemy type"+(unique.length===1?"":"s")+".");
+  } finally {
+    if(spawnButton&&spawnButton.isConnected) spawnButton.disabled=false;
+  }
+}
+function toggleBattleAdminPanel() {
+  if(scene!=="fight"||!battleState) return;
+  adminPanelOpen=!adminPanelOpen;
+  const panel=stage.querySelector(".battle-admin-panel");
+  if(panel) panel.hidden=!adminPanelOpen;
+  if(adminPanelOpen) refreshBattleAdminPanel();
+}
+async function handleBattleAdminAction(action) {
+  if(!battleState||scene!=="fight") return;
+  const state=battleState;
+  if(action==="close") {
+    adminPanelOpen=false;
+    const panel=stage.querySelector(".battle-admin-panel");
+    if(panel) panel.hidden=true;
+    return;
+  }
+  if(action==="max-upgrades") {
+    if(state.ended) return notify("Restart the stage before changing test upgrades.");
+    applyAdminMaxUpgrades();
+    return;
+  }
+  if(action==="toggle-money") {
+    if(state.ended) return;
+    setAdminInfiniteMoney(!state.adminInfiniteMoney);
+    updateFightUI();refreshBattleAdminPanel();return;
+  }
+  if(action==="toggle-recharge") {
+    if(state.ended) return;
+    state.adminInstantRecharge=!state.adminInstantRecharge;
+    if(state.adminInstantRecharge) Object.keys(state.cooldowns).forEach(key=>state.cooldowns[key]=0);
+    updateFightUI();refreshBattleAdminPanel();return;
+  }
+  if(action==="toggle-god") {
+    if(state.ended) return;
+    state.adminGodMode=!state.adminGodMode;
+    updateFightUI();refreshBattleAdminPanel();return;
+  }
+  if(action==="max-speed") {
+    if(state.ended) return;
+    state.speedMultiplier=3;state.lastTickAt=performance.now();
+    updateFightUI();return;
+  }
+  if(action==="spawn-selected") {
+    if(state.ended) return;
+    const select=stage.querySelector("#admin-enemy-select");
+    const countInput=stage.querySelector("#admin-enemy-count");
+    const type=select?select.value:"doge";
+    const amount=Math.max(1,Math.min(50,Math.floor(Number(countInput&&countInput.value)||1)));
+    await spawnAdminEnemyTypes(Array(amount).fill(type));
+    return;
+  }
+  if(action==="spawn-all") {
+    if(state.ended) return;
+    await spawnAdminEnemyTypes(adminEnemyTypes());
+    return;
+  }
+  if(action==="clear-enemies") {
+    state.enemies.forEach(enemy=>{
+      const node=stage.querySelector('[data-battle-entity="'+enemy.key+'"]');
+      if(node) node.remove();
+    });
+    state.enemies=[];updateFightUI();refreshBattleAdminPanel();notify("All enemies cleared.");return;
+  }
+  if(action==="heal") {
+    state.catBaseHp=state.catBaseMaxHp;
+    state.enemyBaseHp=state.enemyBaseMaxHp;
+    state.playerUnits.forEach(cat=>{
+      cat.hp=cat.maxHp;cat.mode="idle";cat.hitUntil=0;cat.attackEndsAt=0;cat.pendingAttackAt=0;
+      updateBattleEntityView(cat);
+    });
+    updateFightUI();notify("Both bases and all Cats healed.");return;
+  }
+  if(action==="restart") {
+    adminPanelOpen=true;
+    battleState=createBattleState();
+    render();
+    notify("Stage restarted.");
+    return;
+  }
+  if(action==="win") {
+    finishBattle("win");
+    refreshBattleAdminPanel();
+  }
+}
+function handleAdminAccessCodeKey(event) {
+  if(scene!=="fight"||!battleState||event.repeat||event.ctrlKey||event.altKey||event.metaKey) return false;
+  const target=event.target;
+  const tag=String(target&&target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||tag==="select"||(target&&target.isContentEditable)) {
+    adminCodeKeyBuffer=[];
+    return false;
+  }
+  if(typeof event.key!=="string"||event.key.length!==1||!/^[a-z0-9]$/i.test(event.key)) return false;
+  const now=performance.now();
+  adminCodeKeyBuffer=adminCodeKeyBuffer.filter(item=>now-item.at<=5000);
+  adminCodeKeyBuffer.push({key:event.key.toLowerCase(),at:now});
+  if(adminCodeKeyBuffer.length>ADMIN_ACCESS_CODE.length) adminCodeKeyBuffer.shift();
+  if(adminCodeKeyBuffer.length===ADMIN_ACCESS_CODE.length&&adminCodeKeyBuffer.map(item=>item.key).join("")===ADMIN_ACCESS_CODE) {
+    adminCodeKeyBuffer=[];
+    toggleBattleAdminPanel();
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return true;
+  }
+  return false;
+}
 function renderFight() {
   if (!battleState) battleState=createBattleState();
   const selectedLevel=(currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
@@ -3616,6 +3935,7 @@ function renderFight() {
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
     '</footer>'+
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
+    renderBattleAdminPanel()+
   '</section>';
 }
 const UPGRADE_CAT_FOLDERS = {
@@ -4030,7 +4350,7 @@ function render() {
     const fightScreen=stage.querySelector(".fight-screen");
     if(fightScreen) {
       fightScreen.addEventListener("wheel",event=>{
-        if(event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result")) return;
+        if(event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result,.battle-admin-panel")) return;
         const horizontalDelta=Math.abs(event.deltaX)>0.5?event.deltaX:(event.shiftKey?event.deltaY:0);
         if(Math.abs(horizontalDelta)>0.5) {
           event.preventDefault();
@@ -4043,7 +4363,7 @@ function render() {
       },{passive:false});
       fightScreen.addEventListener("pointermove",event=>{
         if(!battleState) return;
-        const blocked=event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result");
+        const blocked=event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result,.battle-admin-panel");
         const rect=fightScreen.getBoundingClientRect();
         const edgeZone=Math.max(44,Math.min(112,rect.width*0.1));
         const topLimit=rect.top+Math.max(42,rect.height*0.08);
@@ -4468,6 +4788,12 @@ function perform(action) {
 stage.addEventListener("click", event => {
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
+  if(button.dataset.admin) {
+    event.preventDefault();
+    prepareAudioForAction();
+    handleBattleAdminAction(button.dataset.admin);
+    return;
+  }
   const action = button.dataset.go || "";
   const isStageChoice = scene === "stage" && Boolean(button.closest(".game-row"));
   prepareAudioForAction();
@@ -4492,6 +4818,12 @@ stage.addEventListener("click", event => {
 });
 document.addEventListener("keydown", event=>{
   if (scene === "loading") return;
+  if(handleAdminAccessCodeKey(event)) return;
+  if(event.key==="Escape"&&scene==="fight"&&adminPanelOpen) {
+    toggleBattleAdminPanel();
+    event.preventDefault();
+    return;
+  }
   if (event.key==="Escape") {
     if (scene==="intro") { leaveIntro(); return; }
     if (scene==="chapters") { leaveChapterSelect("title"); return; }
