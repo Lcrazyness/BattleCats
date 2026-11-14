@@ -3759,26 +3759,27 @@ function spawnAdminEnemyAt(enemyType,x) {
 }
 async function spawnAdminEnemyTypes(types) {
   if(!battleState||battleState.ended||scene!=="fight") return;
-  const unique=[...new Set((types||[]).map(battleUnitKey).filter(type=>BATTLE_UNIT_STATS[type]))];
-  if(!unique.length) return notify("No valid enemy types selected.");
+  const requested=(types||[]).map(battleUnitKey).filter(type=>BATTLE_UNIT_STATS[type]);
+  const assetsToLoad=[...new Set(requested)];
+  if(!requested.length) return notify("No valid enemy types selected.");
   const state=battleState;
   const status=stage.querySelector("[data-admin-status]");
-  if(status) status.textContent="Loading "+unique.length+" enemy type"+(unique.length===1?"":"s")+"…";
+  if(status) status.textContent="Loading "+assetsToLoad.length+" enemy type"+(assetsToLoad.length===1?"":"s")+"…";
   const spawnButton=stage.querySelector('[data-admin="spawn-all"]');
   if(spawnButton) spawnButton.disabled=true;
   try {
-    await Promise.all(unique.map(loadAdminEnemyAssets));
+    await Promise.all(assetsToLoad.map(loadAdminEnemyAssets));
     if(battleState!==state||scene!=="fight") return;
     const enemyBase=battleBaseCenterPercent("enemy");
     const catBase=battleBaseCenterPercent("cat");
     const lane=catBase-enemyBase;
-    unique.forEach((type,index)=>{
-      const ratio=unique.length===1?0.12:0.06+0.68*(index/(unique.length-1));
+    requested.forEach((type,index)=>{
+      const ratio=requested.length===1?0.12:0.06+0.68*(index/(requested.length-1));
       spawnAdminEnemyAt(type,enemyBase+lane*ratio);
     });
     updateFightUI();
     refreshBattleAdminPanel();
-    notify("Spawned "+unique.length+" enemy type"+(unique.length===1?"":"s")+".");
+    notify("Spawned "+requested.length+" enemy"+(requested.length===1?"":"s")+".");
   } finally {
     if(spawnButton&&spawnButton.isConnected) spawnButton.disabled=false;
   }
