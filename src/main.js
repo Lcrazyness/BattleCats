@@ -3788,7 +3788,13 @@ function toggleBattleAdminPanel() {
   if(scene!=="fight"||!battleState) return;
   adminPanelOpen=!adminPanelOpen;
   const panel=stage.querySelector(".battle-admin-panel");
-  if(panel) panel.hidden=!adminPanelOpen;
+  if(panel) {
+    panel.hidden=!adminPanelOpen;
+    if(adminPanelOpen) {
+      const closeButton=panel.querySelector('[data-admin="close"]');
+      if(closeButton) closeButton.focus();
+    }
+  }
   if(adminPanelOpen) refreshBattleAdminPanel();
 }
 async function handleBattleAdminAction(action) {
@@ -3876,7 +3882,10 @@ function handleAdminAccessCodeKey(event) {
     adminCodeKeyBuffer=[];
     return false;
   }
-  if(typeof event.key!=="string"||event.key.length!==1||!/^[a-z0-9]$/i.test(event.key)) return false;
+  if(typeof event.key!=="string"||event.key.length!==1||!/^[a-z0-9]$/i.test(event.key)) {
+    if(!["Shift","Control","Alt","Meta","CapsLock"].includes(event.key)) adminCodeKeyBuffer=[];
+    return false;
+  }
   const now=performance.now();
   adminCodeKeyBuffer=adminCodeKeyBuffer.filter(item=>now-item.at<=5000);
   adminCodeKeyBuffer.push({key:event.key.toLowerCase(),at:now});
