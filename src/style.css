@@ -3581,3 +3581,180 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     font-size:clamp(7px,1.8vw,10px);
   }
 }
+
+
+/* Hidden in-level developer tools, opened only by the timed keyboard sequence. */
+.fight-screen .battle-admin-panel {
+  position:absolute;
+  z-index:140;
+  top:56px;
+  right:14px;
+  display:flex;
+  flex-direction:column;
+  width:min(430px,calc(100% - 28px));
+  max-height:min(82vh,760px);
+  overflow:hidden;
+  border:2px solid #e9c77e;
+  border-radius:10px;
+  background:linear-gradient(155deg,#4b3528f5,#20160ff7 70%);
+  color:#fff2d2;
+  box-shadow:0 12px 36px #000b, inset 0 0 0 1px #fff2;
+  text-shadow:1px 1px 1px #1a100a;
+  font-family:Arial,sans-serif;
+  pointer-events:auto;
+}
+.fight-screen .battle-admin-panel[hidden] { display:none !important; }
+.battle-admin-header {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border-bottom:1px solid #c9a45d;
+  background:linear-gradient(#725236,#3b281b);
+}
+.battle-admin-header strong {
+  display:block;
+  color:#ffe6a1;
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:.07em;
+}
+.battle-admin-header small {
+  display:block;
+  margin-top:3px;
+  color:#ddc59b;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.12em;
+}
+.battle-admin-header button {
+  flex:0 0 auto;
+  width:30px;
+  height:30px;
+  border:1px solid #e4c27e;
+  border-radius:5px;
+  background:#28190f;
+  color:#fff0c5;
+  font-size:22px;
+  line-height:1;
+}
+.battle-admin-content {
+  overflow-y:auto;
+  min-height:0;
+  padding:10px;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+}
+.battle-admin-status {
+  margin:0 0 9px;
+  padding:7px 8px;
+  border:1px solid #8b7048;
+  border-radius:5px;
+  background:#1e160fe8;
+  color:#f7e0a9;
+  font-size:11px;
+  font-weight:800;
+}
+.battle-admin-section {
+  margin:0 0 10px;
+  padding:8px;
+  border:1px solid #80613b;
+  border-radius:7px;
+  background:#100d0bd9;
+}
+.battle-admin-section h3 {
+  margin:0 0 7px;
+  color:#f2d18c;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.14em;
+}
+.battle-admin-panel button,
+.battle-admin-panel select,
+.battle-admin-panel input {
+  min-height:32px;
+  border:1px solid #9d7b4b;
+  border-radius:5px;
+  background:linear-gradient(#705137,#3c291d);
+  color:#fff2d5;
+  font:900 10px/1.15 Arial,sans-serif;
+  text-align:center;
+}
+.battle-admin-panel button {
+  padding:6px 7px;
+  cursor:pointer;
+  box-shadow:0 2px 0 #160d08;
+}
+.battle-admin-panel button:hover { filter:brightness(1.2); }
+.battle-admin-panel button:active { transform:translateY(1px); box-shadow:0 1px 0 #160d08; }
+.battle-admin-panel button.is-active {
+  border-color:#9fcb7b;
+  background:linear-gradient(#547a39,#315020);
+  color:#f0ffdb;
+}
+.battle-admin-panel button:disabled { opacity:.5; cursor:wait; }
+.battle-admin-primary {
+  width:100%;
+  margin-bottom:7px;
+  border-color:#d0ad67 !important;
+  background:linear-gradient(#a66e34,#65401f) !important;
+  color:#fff0c6 !important;
+}
+.battle-admin-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.battle-admin-label {
+  display:block;
+  margin:0 0 5px;
+  color:#e3cca4;
+  font-size:10px;
+  font-weight:800;
+}
+.battle-admin-select {
+  width:100%;
+  margin-bottom:7px;
+  padding:5px 8px;
+  text-align:left !important;
+}
+.battle-admin-spawn-row {
+  display:grid;
+  grid-template-columns:1fr 66px 92px;
+  align-items:end;
+  gap:6px;
+}
+.battle-admin-spawn-row .battle-admin-label { align-self:center; margin:0; }
+.battle-admin-spawn-row input {
+  width:100%;
+  padding:4px;
+  background:#17100b;
+}
+.battle-admin-spawn-row button {
+  background:linear-gradient(#7d663a,#4e3b1e);
+}
+.battle-admin-footnote {
+  display:block;
+  padding:0 3px 3px;
+  color:#bba986;
+  font-size:9px;
+  line-height:1.4;
+}
+@media(max-width:680px) {
+  .fight-screen .battle-admin-panel {
+    top:8px;
+    right:8px;
+    left:8px;
+    width:auto;
+    max-height:84dvh;
+    border-radius:8px;
+  }
+  .battle-admin-header { padding:8px 10px; }
+  .battle-admin-content { padding:8px; }
+  .battle-admin-section { padding:7px; }
+  .battle-admin-panel button,
+  .battle-admin-panel select,
+  .battle-admin-panel input { min-height:34px; font-size:9px; }
+}
