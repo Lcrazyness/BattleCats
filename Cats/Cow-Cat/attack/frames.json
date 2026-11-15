@@ -1,8 +1,8 @@
 {
   "frames": [
-    "Cats/Cow-Cat/sprite-atlas.png#frame=0,128,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=128,128,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=256,128,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=384,128,128,128"
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=0,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=128,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=256,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=384,128,128,128"
   ]
 }
