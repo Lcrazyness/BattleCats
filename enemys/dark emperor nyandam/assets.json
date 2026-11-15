@@ -3,7 +3,7 @@
   "moving": [
     "enemys/dark emperor nyandam/moving/spritesheet.png#frame=450,0,170,145",
     "enemys/dark emperor nyandam/moving/spritesheet.png#frame=625,0,170,145",
-    "enemys/dark emperor nyandam/moving/spritesheet.png#frame=830,0,170,145"
+    "enemys/dark emperor nyandam/moving/spritesheet.png#frame=830,0,180,145"
   ],
   "attacks": [
     "enemys/dark emperor nyandam/attack/spritesheet.png#frame=10,325,155,130",
@@ -12,8 +12,8 @@
     "enemys/dark emperor nyandam/attack/spritesheet.png#frame=490,325,155,130",
     "enemys/dark emperor nyandam/attack/spritesheet.png#frame=650,325,155,130",
     "enemys/dark emperor nyandam/attack/spritesheet.png#frame=810,325,155,130",
-    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=10,460,165,130",
-    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=180,460,170,130"
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=18,466,145,72",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=180,466,145,72"
   ],
   "attack": "enemys/dark emperor nyandam/attack/spritesheet.png#frame=10,325,155,130",
   "attackFrameRate": 2.3,
