@@ -1,22 +1,28 @@
 {
   "name": "Dark Emperor Nyandam",
   "moving": [
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=450,0,180,160",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=615,0,180,160",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=800,0,180,160"
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=450,0,170,145",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=625,0,170,145",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=830,0,170,145"
   ],
-  "attackFrames": [
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=0,320,160,135",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=160,320,160,135",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=320,320,160,135",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=480,320,160,135",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=640,320,160,135",
-    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=800,320,160,135"
+  "attacks": [
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=10,325,155,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=175,325,155,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=335,325,155,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=490,325,155,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=650,325,155,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=810,325,155,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=10,460,165,130",
+    "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=180,460,170,130"
   ],
+  "attack": "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=10,325,155,130",
   "attackFrameRate": 1.73,
   "attackDuration": 3.47,
   "damagedFrames": [],
   "knockbackFrames": [],
-  "idle": "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=450,0,180,160",
-  "damaged": "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=450,0,180,160"
+  "idle": "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=450,0,170,145",
+  "damaged": "enemys/dark%20emperor%20nyandam/Screenshot%202026-11-07%20194107.png#frame=450,0,170,145",
+  "traits": [
+    "Red"
+  ]
 }
