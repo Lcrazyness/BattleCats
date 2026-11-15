@@ -1,25 +1,27 @@
 {
   "name": "Mooth",
   "moving": [
-    "enemys/Mooth/moving/spritesheet.png#frame=158,15,174,205",
-    "enemys/Mooth/moving/spritesheet.png#frame=330,15,195,205"
+    "enemys/Mooth/moving/spritesheet.png#frame=0,0,160,210",
+    "enemys/Mooth/moving/spritesheet.png#frame=160,0,175,210",
+    "enemys/Mooth/moving/spritesheet.png#frame=340,0,180,210"
   ],
   "attacks": [
     "enemys/Mooth/attack/spritesheet.png#frame=555,0,233,282",
-    "enemys/Mooth/attack/spritesheet.png#frame=176,265,175,153",
-    "enemys/Mooth/attack/spritesheet.png#frame=354,210,214,155"
+    "enemys/Mooth/attack/spritesheet.png#frame=0,210,190,210",
+    "enemys/Mooth/attack/spritesheet.png#frame=180,210,200,205",
+    "enemys/Mooth/attack/spritesheet.png#frame=370,205,210,180"
   ],
   "attack": "enemys/Mooth/attack/spritesheet.png#frame=555,0,233,282",
   "attackFrameRate": 3.5,
   "attackDuration": 0.85,
   "damagedFrames": [
-    "enemys/Mooth/damaged/spritesheet.png#frame=330,15,195,205"
+    "enemys/Mooth/damaged/spritesheet.png#frame=370,205,210,180"
   ],
   "knockbackFrames": [
-    "enemys/Mooth/damaged/spritesheet.png#frame=330,15,195,205"
+    "enemys/Mooth/damaged/spritesheet.png#frame=370,205,210,180"
   ],
-  "idle": "enemys/Mooth/moving/spritesheet.png#frame=158,15,174,205",
-  "damaged": "enemys/Mooth/damaged/spritesheet.png#frame=330,15,195,205",
+  "idle": "enemys/Mooth/moving/spritesheet.png#frame=0,0,160,210",
+  "damaged": "enemys/Mooth/damaged/spritesheet.png#frame=370,205,210,180",
   "slot": "enemys/Mooth/slot.png",
   "traits": [
     "Floating"
