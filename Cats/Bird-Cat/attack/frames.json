@@ -1,9 +1,9 @@
 {
   "frames": [
-    "Cats/Bird-Cat/sprite-atlas.png#frame=0,128,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=128,128,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=256,128,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=384,128,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=512,128,128,128"
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=0,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=128,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=256,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=384,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=512,128,128,128"
   ]
 }
