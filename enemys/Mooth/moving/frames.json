@@ -1,7 +1,7 @@
 {
   "frames": [
-    "enemys/Mooth/moving/spritesheet.png#frame=0,15,160,205",
     "enemys/Mooth/moving/spritesheet.png#frame=158,15,174,205",
-    "enemys/Mooth/moving/spritesheet.png#frame=330,15,195,205"
+    "enemys/Mooth/moving/spritesheet.png#frame=330,15,195,205",
+    "enemys/Mooth/moving/spritesheet.png#frame=158,15,174,205"
   ]
 }
