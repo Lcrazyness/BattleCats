@@ -1,12 +1,12 @@
 {
   "frames": [
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=0,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=128,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=256,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=384,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=512,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=640,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=768,0,128,128",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=896,0,128,128"
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=15,71,139,105",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=158,70,138,106",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=299,70,137,106",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=439,70,137,106",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=580,70,138,106",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=723,70,139,106",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=865,72,139,104",
+    "Cats/Fish-Cat/moving/spritesheet.png#frame=1008,71,139,105"
   ]
 }
