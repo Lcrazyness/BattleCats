@@ -38,7 +38,10 @@ function makeCowCatUnit() {
   return {id:5,name:"Cow Cat",level:1,deployCost:2,hp:125,attack:8,range:140,speed:12,recharge:1.6,assetFolder:"Cow-Cat",spriteSlot:"Cats/Cow-Cat/slot.png",statsPath:"Cats/Cow-Cat/stats.json",assetsPath:"Cats/Cow-Cat/assets.json"};
 }
 function makeBirdCatUnit() {
-  return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:95,attack:70,range:170,speed:5,recharge:4.8,assetFolder:"Bird-Cat",spriteSlot:"Cats/Bird-Cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
+  return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:95,attack:70,range:170,speed:5,recharge:4.8,assetFolder:"Bird-Cat",spriteSlot:"Cats/cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
+}
+function makeFishCatUnit() {
+  return {id:7,name:"Fish Cat",level:1,deployCost:3,hp:140,attack:45,range:150,speed:8,recharge:4.2,assetFolder:"Fish-Cat",spriteSlot:"Cats/cat/slot.png",statsPath:"Cats/Fish-Cat/stats.json",assetsPath:"Cats/Fish-Cat/assets.json"};
 }
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
@@ -47,7 +50,8 @@ const defaults = {
   units:[
     {id:1,name:"Cat",level:1,deployCost:1,hp:100,attack:6,range:140,speed:5,recharge:0.1}
   ],
-  equipped:[1], mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
+  equipped:[1], battleSlotLayout:"two-row", battleSlotPage:0,
+  mail:0, missions:0, sound:true, music:true, soundSettingsVersion:1, menuVersion:4
 };
 const SAVE_KEY = "battleCatsSave_v4";
 let save;
@@ -58,6 +62,9 @@ try {
   save = old && old.menuVersion === 4 ? {...defaults, ...old} : {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
   if (!Array.isArray(save.units) || !save.units.length) save.units = defaults.units.map(unit => ({...unit}));
   if (!Array.isArray(save.equipped)) save.equipped = save.units.slice(0,1).map(unit => unit.id);
+  save.equipped=save.equipped.slice(0,10);
+  save.battleSlotLayout=save.battleSlotLayout==="pages"?"pages":"two-row";
+  save.battleSlotPage=Math.max(0,Math.floor(Number(save.battleSlotPage)||0));
   delete save.level;
 } catch {
   save = {...defaults, units:defaults.units.map(unit => ({...unit})), equipped:[1]};
@@ -74,6 +81,7 @@ if(Number(save.stageClears)>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||
 }
 if(Number(save.stageClears)>=12&&!save.units.some(unit=>unit.name==="Cow Cat"||Number(unit.id)===5)) save.units.push(makeCowCatUnit());
 if(Number(save.stageClears)>=24&&!save.units.some(unit=>unit.name==="Bird Cat"||Number(unit.id)===6)) save.units.push(makeBirdCatUnit());
+if(Number(save.stageClears)>=16&&!save.units.some(unit=>unit.name==="Fish Cat"||Number(unit.id)===7)) save.units.push(makeFishCatUnit());
 save.chapterClears={...defaults.chapterClears,...(save.chapterClears||{})};
 save.chapterClears["2"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["2"])||0)));
 const XP_RESET_VERSION = "20261106-02";
@@ -109,7 +117,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261112-03";
+const BATTLE_ASSET_VERSION = "20261115-01";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -117,8 +125,9 @@ const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
   "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
-  "cow-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Cow-Cat/slot.png"},
-  "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.85,attackDuration:1.75,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Bird-Cat/slot.png"},
+  "cow-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
+  "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.85,attackDuration:1.75,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
+  "fish-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:5.6,attackDuration:1.25,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
   "dark-emperor-nyandam": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:1.73,attackDuration:3.47,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
@@ -129,6 +138,7 @@ const BATTLE_UNIT_STATS = {
   "gross-cat": {health:130,damage:22,price:2,speed:5.2,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.2,range:180,recharge:3.2,attackCooldown:2.3,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "cow-cat": {health:125,damage:8,price:2,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:140,recharge:1.6,attackCooldown:0.55,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:5,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
   "bird-cat": {health:95,damage:70,price:3,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:170,recharge:4.8,attackCooldown:1.75,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:4,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "fish-cat": {health:140,damage:45,price:3,speed:8,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:4.2,attackCooldown:1.77,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:0.055,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
@@ -185,7 +195,7 @@ function battleUnitStats(unitOrKey) {
     return Number.isFinite(number) && number >= min ? number : fallback;
   };
   const unitLevel = isObject && unit.kind !== "doge" ? Math.max(1,Math.floor(Number(unit.level)||1)) : 1;
-  const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat"].includes(key);
+  const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat","fish-cat"].includes(key);
   const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
   const chapterEnemyMultiplier=currentChapter===2&&!isCatUnit?1.5:1;
   const configuredGameScale=Number(config.gameScale);
@@ -277,13 +287,13 @@ function battleDamageAgainstTarget(attacker,target,baseDamage) {
   const trait=String(attackStats.AttackTrait||"");
   const boost=String(attackStats.AttackBoost||"");
   if(trait&&boost&&Array.isArray(targetStats.traits)&&targetStats.traits.includes(trait)) {
-    const multiplier=boost==="Strong"?1.25:(boost==="Massive Damage"?3:1);
+    const multiplier=boost==="Strong"?1.5:(boost==="Massive Damage"?3:1);
     damage*=multiplier;
   }
   const defenderTrait=String(targetStats.AttackTrait||"");
   const incomingTraits=Array.isArray(attackStats.traits)?attackStats.traits:[];
   const defenderIsStrong=targetStats.AttackBoost==="Strong"&&defenderTrait.length>0;
-  if(defenderIsStrong&&incomingTraits.includes(defenderTrait)) damage*=0.7;
+  if(defenderIsStrong&&incomingTraits.includes(defenderTrait)) damage*=0.5;
   return Math.max(0,Math.round(damage));
 }
 
@@ -2126,7 +2136,7 @@ function createBattleState() {
     walletAvailabilityInitialized:false,walletWasAvailable:false,
     adminInfiniteMoney:false,adminInstantRecharge:false,adminGodMode:false,adminMoneyOriginal:null,
     deathSouls:[],nextDeathSoulKey:1,
-    levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
+    paused:false,levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
 }
 function loadBattleAssetManifests() {
@@ -2820,6 +2830,7 @@ function battleEntitySpriteScale(entity) {
   if(key==="gross-cat") return 1.18;
   if(key==="cow-cat") return 0.98;
   if(key==="bird-cat") return 0.84;
+  if(key==="fish-cat") return 1.02;
   if(key==="axe-cat") return 1.06;
   if(key==="tank-cat") return 0.76;
   return 0.62;
@@ -3272,6 +3283,7 @@ function tickBattle() {
   const state=battleState;
   refreshBattleLayoutMetrics();
   const tickAt=performance.now();
+  if(state.paused) { state.lastTickAt=tickAt; return; }
   const previousTickAt=Number(state.lastTickAt)||tickAt;
   const realDt=Math.max(0.001,Math.min(0.12,(tickAt-previousTickAt)/1000));
   if(!state.ended&&Number(state.cameraEdgeDirection)) {
@@ -3497,6 +3509,15 @@ function updateFightUI() {
   const workerLevelIndicator=stage.querySelector(".fight-wallet-level-indicator");
   const workerBar=stage.querySelector(".fight-worker-bar span");
   const speedButton=stage.querySelector(".fight-speed-toggle");
+  const pauseButton=stage.querySelector(".fight-pause-toggle");
+  const pauseOverlay=stage.querySelector(".fight-pause-overlay");
+  if(pauseButton) {
+    pauseButton.textContent=state.paused?"▶":"Ⅱ";
+    pauseButton.setAttribute("aria-label",state.paused?"Resume battle":"Pause battle");
+    pauseButton.setAttribute("aria-pressed",state.paused?"true":"false");
+    pauseButton.disabled=Boolean(state.ended);
+  }
+  if(pauseOverlay) pauseOverlay.hidden=!state.paused;
   const speedMultiplier=battleSpeedMultiplier();
   if(speedButton) {
     speedButton.textContent=speedMultiplier+"× SPEED";
@@ -3898,6 +3919,29 @@ function handleAdminAccessCodeKey(event) {
     return true;
   }
   return false;
+}
+
+function setBattlePaused(paused) {
+  if(scene!=="fight"||!battleState||battleState.ended) return;
+  const state=battleState;
+  state.paused=Boolean(paused);
+  state.lastTickAt=performance.now();
+  const overlay=stage.querySelector(".fight-pause-overlay");
+  if(overlay) overlay.hidden=!state.paused;
+  const button=stage.querySelector(".fight-pause-toggle");
+  if(button) {
+    button.textContent=state.paused?"▶":"Ⅱ";
+    button.setAttribute("aria-label",state.paused?"Resume battle":"Pause battle");
+    button.setAttribute("aria-pressed",state.paused?"true":"false");
+  }
+  if(typeof musicPlayer!=="undefined"&&musicPlayer) {
+    if(state.paused&&typeof musicPlayer.pauseCompat==="function") musicPlayer.pauseCompat();
+    else if(!state.paused&&typeof musicPlayer.playCompat==="function") musicPlayer.playCompat();
+  }
+}
+function toggleBattlePause() {
+  if(!battleState) return;
+  setBattlePaused(!battleState.paused);
 }
 function renderFight() {
   if (!battleState) battleState=createBattleState();
