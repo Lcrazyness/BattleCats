@@ -1,7 +1,7 @@
 {
   "frames": [
-    "enemys/dark emperor nyandam/sprite-atlas.png#frame=0,0,144,144",
-    "enemys/dark emperor nyandam/sprite-atlas.png#frame=144,0,144,144",
-    "enemys/dark emperor nyandam/sprite-atlas.png#frame=288,0,144,144"
+    "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=450,0,170,145",
+    "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=625,0,170,145",
+    "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=830,0,170,145"
   ]
 }
