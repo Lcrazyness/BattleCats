@@ -4897,6 +4897,20 @@ function perform(action) {
     default: notify("Coming soon!");
   }
 }
+stage.addEventListener("wheel",event=>{
+  if(scene!=="fight"||!battleState||save.battleSlotLayout!=="pages") return;
+  const slotTrack=event.target.closest('.fight-unit-slots[data-layout="pages"]');
+  if(!slotTrack) return;
+  const equippedCount=save.units.filter(unit=>save.equipped.includes(unit.id)).length;
+  const pageCount=Math.max(1,Math.ceil(equippedCount/5));
+  if(pageCount<=1) return;
+  const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+  if(Math.abs(delta)<2) return;
+  event.preventDefault();
+  save.battleSlotPage=(Math.max(0,Math.floor(Number(save.battleSlotPage)||0))+(delta>0?1:-1)+pageCount)%pageCount;
+  persist();
+  render();
+},{passive:false});
 stage.addEventListener("click", event => {
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
