@@ -41,7 +41,7 @@ function makeBirdCatUnit() {
   return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:95,attack:70,range:170,speed:5,recharge:4.8,assetFolder:"Bird-Cat",spriteSlot:"Cats/Bird-Cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
 }
 function makeFishCatUnit() {
-  return {id:7,name:"Fish Cat",level:1,deployCost:3,hp:140,attack:45,range:150,speed:8,recharge:4.2,assetFolder:"Fish-Cat",spriteSlot:"Cats/Fish-Cat/slot.png",statsPath:"Cats/Fish-Cat/stats.json",assetsPath:"Cats/Fish-Cat/assets.json"};
+  return {id:7,name:"Fish Cat",level:1,deployCost:3,hp:700,attack:180,range:150,speed:10,recharge:13,assetFolder:"Fish-Cat",spriteSlot:"Cats/Fish-Cat/slot.png",statsPath:"Cats/Fish-Cat/stats.json",assetsPath:"Cats/Fish-Cat/assets.json"};
 }
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
@@ -117,7 +117,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261115-03";
+const BATTLE_ASSET_VERSION = "20261115-04";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -138,7 +138,7 @@ const BATTLE_UNIT_STATS = {
   "gross-cat": {health:130,damage:22,price:2,speed:5.2,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.2,range:180,recharge:3.2,attackCooldown:2.3,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "cow-cat": {health:125,damage:8,price:2,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:140,recharge:1.6,attackCooldown:0.55,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:5,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
   "bird-cat": {health:95,damage:70,price:3,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:170,recharge:4.8,attackCooldown:1.75,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:4,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "fish-cat": {health:140,damage:45,price:3,speed:8,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:4.2,attackCooldown:1.77,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "fish-cat": {health:700,damage:180,price:3,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:13,attackCooldown:1.77,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:0.055,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
