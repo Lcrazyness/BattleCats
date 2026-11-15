@@ -1708,7 +1708,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-unit-layer{position:absolute;z-index:5;inset:16% 0 19%;pointer-events:none}
 .fight-unit{position:absolute;bottom:0;width:clamp(54px,7.3vw,96px);height:clamp(78px,18vh,145px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transition:left .08s linear;filter:drop-shadow(2px 3px 0 #231b168c)}
 .fight-unit[data-unit-type="hippoe"]{overflow:visible}
-.fight-unit-sprite{display:block;width:100%;height:calc(100% - 9px);object-fit:contain;image-rendering:auto;animation:fight-unit-idle .7s ease-in-out infinite alternate;transform-origin:bottom center}
+.fight-unit-sprite{display:block;width:100%;height:calc(100% - 9px);object-fit:contain;image-rendering:auto;animation:none;transform-origin:bottom center}
 .fight-unit.is-attacking .fight-unit-sprite{animation:fight-unit-attack .28s ease-in-out 2 alternate}
 .fight-unit.is-damaged .fight-unit-sprite{animation:fight-unit-hit .14s linear 2;filter:brightness(1.5) sepia(.7) saturate(2)}
 .fight-unit-sprite.sprite-load-failed{visibility:hidden}
@@ -1738,7 +1738,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-result-title{display:block;font:1000 clamp(32px,7vw,64px)/.95 Impact,Haettenschweiler,sans-serif;color:#ef9723;-webkit-text-stroke:1px #432513;text-shadow:2px 3px #fff1b7}
 .fight-result-copy{margin:13px 0 19px;font:800 clamp(13px,2vw,18px)/1.35 Arial,sans-serif}
 .fight-result-button{min-width:150px;padding:12px 22px;border:3px solid #7e4b14;border-radius:8px;background:linear-gradient(#fff24d,#ffb30b);box-shadow:inset 0 2px #fff9b5,0 3px 0 #3a2110;color:#fff;font:1000 clamp(18px,3vw,25px)/1 Impact,Haettenschweiler,sans-serif;-webkit-text-stroke:.6px #492a11;text-shadow:1px 2px #432710}
-@keyframes fight-unit-idle{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+
 @keyframes fight-unit-attack{from{transform:translateX(0)}to{transform:translateX(-7px)}}
 @keyframes fight-unit-hit{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
 @media(max-width:650px){
