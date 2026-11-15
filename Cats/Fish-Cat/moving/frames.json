@@ -1,0 +1,12 @@
+{
+  "frames": [
+    "Cats/Fish-Cat/sprite-atlas.png#frame=0,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=128,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=256,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=384,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=512,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=640,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=768,0,128,128",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=896,0,128,128"
+  ]
+}
