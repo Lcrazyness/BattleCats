@@ -38,10 +38,10 @@ function makeCowCatUnit() {
   return {id:5,name:"Cow Cat",level:1,deployCost:2,hp:125,attack:8,range:140,speed:12,recharge:1.6,assetFolder:"Cow-Cat",spriteSlot:"Cats/Cow-Cat/slot.png",statsPath:"Cats/Cow-Cat/stats.json",assetsPath:"Cats/Cow-Cat/assets.json"};
 }
 function makeBirdCatUnit() {
-  return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:95,attack:70,range:170,speed:5,recharge:4.8,assetFolder:"Bird-Cat",spriteSlot:"Cats/cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
+  return {id:6,name:"Bird Cat",level:1,deployCost:3,hp:95,attack:70,range:170,speed:5,recharge:4.8,assetFolder:"Bird-Cat",spriteSlot:"Cats/Bird-Cat/slot.png",statsPath:"Cats/Bird-Cat/stats.json",assetsPath:"Cats/Bird-Cat/assets.json"};
 }
 function makeFishCatUnit() {
-  return {id:7,name:"Fish Cat",level:1,deployCost:3,hp:140,attack:45,range:150,speed:8,recharge:4.2,assetFolder:"Fish-Cat",spriteSlot:"Cats/cat/slot.png",statsPath:"Cats/Fish-Cat/stats.json",assetsPath:"Cats/Fish-Cat/assets.json"};
+  return {id:7,name:"Fish Cat",level:1,deployCost:5,hp:700,attack:180,range:150,speed:10,recharge:13,assetFolder:"Fish-Cat",spriteSlot:"Cats/Fish-Cat/slot.png",statsPath:"Cats/Fish-Cat/stats.json",assetsPath:"Cats/Fish-Cat/assets.json"};
 }
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
@@ -125,9 +125,9 @@ const BATTLE_ASSETS = {
   cat: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
   doge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/doge/slot.png"},
   "axe-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/axe-cat/slot.png"},
-  "cow-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
-  "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.85,attackDuration:1.75,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
-  "fish-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:5.6,attackDuration:1.25,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/cat/slot.png"},
+  "cow-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:7.3,attackDuration:0.55,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Cow-Cat/slot.png"},
+  "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.85,attackDuration:1.75,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Bird-Cat/slot.png"},
+  "fish-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:5.66,attackDuration:1.77,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Fish-Cat/slot.png"},
   "dark-emperor-nyandam": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:1.73,attackDuration:3.47,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
@@ -138,7 +138,7 @@ const BATTLE_UNIT_STATS = {
   "gross-cat": {health:130,damage:22,price:2,speed:5.2,spriteChangeSpeed:10,walkSpriteChangeSpeed:4.2,range:180,recharge:3.2,attackCooldown:2.3,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "cow-cat": {health:125,damage:8,price:2,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:140,recharge:1.6,attackCooldown:0.55,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:5,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
   "bird-cat": {health:95,damage:70,price:3,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:170,recharge:4.8,attackCooldown:1.75,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:4,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "fish-cat": {health:140,damage:45,price:3,speed:8,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:4.2,attackCooldown:1.77,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "fish-cat": {health:700,damage:180,price:5,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:5,range:150,recharge:13,attackCooldown:1.77,AreaAttack:false,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:0.055,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
@@ -559,7 +559,8 @@ const CAT_UPGRADE_COSTS = {
   "axe-cat":[900,1800,3000,4500,6300,8400,10800,13500,16500],
   "gross-cat":[1300,2200,3400,4900,6700,8800,11200,13900,16900],
   "cow-cat":[800,1300,2000,2900,4000,5300,6800,8500,10400],
-  "bird-cat":[1100,1900,3000,4400,6100,8100,10400,13000,15900]
+  "bird-cat":[1100,1900,3000,4400,6100,8100,10400,13000,15900],
+  "fish-cat":[1200,2000,3200,4700,6500,8600,11000,13700,16800]
 };
 function baseUpgradeLevel(key) {
   return Math.max(1,Math.min(BASE_UPGRADE_MAX_LEVEL,Math.floor(Number(save.baseUpgrades&&save.baseUpgrades[key])||1)));
@@ -3609,7 +3610,7 @@ function updateFightUI() {
 
 
 function adminEnemyTypes() {
-  const catTypes=new Set(["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat"]);
+  const catTypes=new Set(["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat","fish-cat"]);
   return Object.keys(BATTLE_UNIT_STATS).filter(type=>!catTypes.has(type)).sort();
 }
 function adminEnemyLabel(type) {
@@ -3692,7 +3693,7 @@ function setAdminInfiniteMoney(enabled) {
 function ensureAllAdminTestCats() {
   const candidates=[
     {id:2,name:"Tank Cat",level:1,deployCost:1,hp:300,attack:8,range:25,speed:5,recharge:0.1,assetFolder:"tank-cat",spriteSlot:"Cats/tank-cat/slot.png",statsPath:"Cats/tank-cat/stats.json",assetsPath:"Cats/tank-cat/assets.json"},
-    makeAxeCatUnit(),makeGrossCatUnit(),makeCowCatUnit(),makeBirdCatUnit()
+    makeAxeCatUnit(),makeGrossCatUnit(),makeCowCatUnit(),makeBirdCatUnit(),makeFishCatUnit()
   ];
   for(const unit of candidates) {
     if(!save.units.some(existing=>String(existing.id)===String(unit.id))) save.units.push({...unit});
@@ -3998,7 +3999,8 @@ const UPGRADE_CAT_FOLDERS = {
   "axe-cat":"axe-cat",
   "gross-cat":"Gross-Cat",
   "cow-cat":"Cow-Cat",
-  "bird-cat":"Bird-Cat"
+  "bird-cat":"Bird-Cat",
+  "fish-cat":"Fish-Cat"
 };
 const UPGRADE_CAT_BIOS = {
   cat:"An ordinary cat who dreams of ruling the world. Simple, dependable, and always ready to fight.",
@@ -4006,7 +4008,8 @@ const UPGRADE_CAT_BIOS = {
   "axe-cat":"A cat carrying a powerful axe. Its attacks are especially effective against Red enemies.",
   "gross-cat":"A lanky cat with an incredible reach. It can strike enemies from far away.",
   "cow-cat":"A speedy single-target attacker that rushes into the enemy line and strikes rapidly.",
-  "bird-cat":"A fragile area attacker that hits groups of enemies from the back line."
+  "bird-cat":"A fragile area attacker that hits groups of enemies from the back line.",
+  "fish-cat":"A tough, short-range fighter with heavy damage and strength against Red enemies."
 };
 const UPGRADE_BASE_ROWS = [
   {key:"workerCatWallet",name:"Worker Cat Wallet",icon:"¢",bio:"Increases the maximum amount of money you can hold during battle."},
@@ -4029,7 +4032,7 @@ function upgradeStatsForItem(item) {
   return {current,next};
 }
 function buildUpgradeCatalog() {
-  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3,"cow-cat":4,"bird-cat":5};
+  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3,"cow-cat":4,"bird-cat":5,"fish-cat":6};
   const orderedUnits=save.units.slice().sort((a,b)=>{
     const first=rank[upgradeUnitKey(a)]??100;
     const second=rank[upgradeUnitKey(b)]??100;
@@ -4268,9 +4271,11 @@ function renderDictionary(equip=false) {
       const isEquipped = save.equipped.includes(unit.id);
       const stats=battleUnitStats(unit);
       const level=Math.max(1,Math.floor(Number(unit.level)||1));
-      const unitArt=unit.assetFolder==="axe-cat"
-        ? '<img class="cat-head-sprite axe-cat-card-sprite" src="'+battleAssetUrl("Cats/axe-cat/moving/frame-001.png")+'" alt="" draggable="false">'
-        : catHead();
+      const unitArt=unit.spriteSlot
+        ? '<img class="cat-head-sprite" src="'+battleAssetUrl(unit.spriteSlot)+'" alt="" draggable="false">'
+        : (unit.assetFolder==="axe-cat"
+          ? '<img class="cat-head-sprite axe-cat-card-sprite" src="'+battleAssetUrl("Cats/axe-cat/moving/frame-001.png")+'" alt="" draggable="false">'
+          : catHead());
       return '<button class="cat-tile" data-go="'+(equip?"equipunit:":"unitinfo:")+i+'"><div class="cat-tile-art">'+unitArt+'</div><strong>'+unit.name+'</strong><small>Level '+level+' · HP '+stats.health+' · ATK '+stats.damage+(equip?(isEquipped?" · Equipped":" · Not equipped"):"")+'</small></button>';
     }).join("")+'</div>';
   if (equip) return renderWindow("Equip Cats",body,"base");
@@ -4764,8 +4769,8 @@ function perform(action) {
     if (save.equipped.includes(unit.id)) {
       save.equipped = save.equipped.filter(id=>id!==unit.id);
       notify(unit.name+" removed from lineup.");
-    } else if (save.equipped.length >= 5) {
-      notify("Your lineup can hold up to five cats.");
+    } else if (save.equipped.length >= 10) {
+      notify("Your battle lineup can hold up to ten Cats.");
     } else {
       save.equipped.push(unit.id);
       notify(unit.name+" added to lineup.");
