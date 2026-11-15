@@ -4112,3 +4112,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .fight-slot-pagination { flex-basis:27px; min-width:25px; }
   .fight-slot-pagination button { width:23px; height:23px; }
 }
+
+
+/* Fish Cat has no dedicated UpgradeSlot artwork yet; show its own Cat icon,
+   never the copied Cow Cat upgrade card. */
+.upgrade-card-art.fish-cat-upgrade-art {
+  object-fit:contain !important;
+  object-position:center !important;
+  padding:12% !important;
+  background:linear-gradient(145deg,#e7e5d8,#aaa99e) !important;
+}
