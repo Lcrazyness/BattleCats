@@ -1,8 +1,8 @@
 {
   "frames": [
-    "Cats/Fish-Cat/sprite-atlas.png#frame=1280,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=1440,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=1600,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=1760,0,160,160"
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=1280,0,160,160",
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=1440,0,160,160",
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=1600,0,160,160",
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=1760,0,160,160"
   ]
 }
