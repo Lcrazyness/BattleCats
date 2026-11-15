@@ -4422,6 +4422,19 @@ function render() {
     const fightScreen=stage.querySelector(".fight-screen");
     if(fightScreen) {
       fightScreen.addEventListener("wheel",event=>{
+        if(event.target.closest(".fight-unit-slots")&&save.battleSlotLayout==="pages") {
+          const pageCount=Math.ceil(save.equipped.length/5);
+          if(pageCount>1) {
+            const direction=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+            if(Math.abs(direction)>0.5) {
+              event.preventDefault();
+              save.battleSlotPage=(Math.max(0,Math.floor(Number(save.battleSlotPage)||0))+(direction>0?1:-1)+pageCount)%pageCount;
+              persist();
+              render();
+            }
+          }
+          return;
+        }
         if(event.target.closest(".fight-bottom,.fight-zoom-controls,.fight-back,.fight-money,.fight-worker-cat,.fight-result,.battle-admin-panel")) return;
         const horizontalDelta=Math.abs(event.deltaX)>0.5?event.deltaX:(event.shiftKey?event.deltaY:0);
         if(Math.abs(horizontalDelta)>0.5) {
@@ -4712,6 +4725,11 @@ function perform(action) {
   }
   if(action==="zoom-in") { setBattleZoom(0.05); return; }
   if(action==="zoom-out") { setBattleZoom(-0.05); return; }
+  if(action==="toggle-pause") {
+    if(scene!=="fight"||!battleState||battleState.ended) return;
+    toggleBattlePause();
+    return;
+  }
   if(action==="toggle-speed") {
     if(scene!=="fight"||!battleState||battleState.ended) return;
     const current=battleSpeedMultiplier();
