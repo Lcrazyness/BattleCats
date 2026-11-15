@@ -1,0 +1,12 @@
+{
+  "frames": [
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=0,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=144,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=288,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=432,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=576,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=720,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=864,144,144,144",
+    "enemys/dark emperor nyandam/sprite-atlas.png#frame=1008,144,144,144"
+  ]
+}
