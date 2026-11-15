@@ -1,8 +1,8 @@
 {
   "frames": [
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=0,128,128,128",
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=128,128,128,128",
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=256,128,128,128",
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=384,128,128,128"
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=15,200,144,143",
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=163,196,142,147",
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=308,208,145,134",
+    "Cats/Fish-Cat/attack/spritesheet.png#frame=456,242,141,100"
   ]
 }
