@@ -1,8 +1,8 @@
 {
   "frames": [
-    "Cats/Cow-Cat/attack/spritesheet.png#frame=34,208,114,117",
-    "Cats/Cow-Cat/attack/spritesheet.png#frame=152,237,140,88",
-    "Cats/Cow-Cat/attack/spritesheet.png#frame=297,242,139,83",
-    "Cats/Cow-Cat/attack/spritesheet.png#frame=441,196,166,129"
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=0,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=128,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=256,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=384,128,128,128"
   ]
 }
