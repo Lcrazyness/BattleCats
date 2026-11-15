@@ -3957,8 +3957,13 @@ function renderFight() {
   const walletAffordable=walletLevel<8 && battleState.money>=50*walletLevel && !battleState.ended;
   const walletImageUrl=battleAssetUrl(walletAffordable?"sprites/battle/walletup.png":"sprites/battle/walletdown.png");
   const cannonImageUrl=battleAssetUrl("sprites/original_sheets/cat-base-accessory-icon.webp");
-  const slots=save.units.filter(unit=>save.equipped.includes(unit.id)).map(unit=>{
-    const cost=battleUnitStats(unit).price
+  const equippedUnits=save.units.filter(unit=>save.equipped.includes(unit.id)).slice(0,10);
+  const slotLayout=save.battleSlotLayout==="pages"?"pages":"two-row";
+  const slotPageCount=Math.max(1,Math.ceil(equippedUnits.length/5));
+  save.battleSlotPage=Math.max(0,Math.min(slotPageCount-1,Math.floor(Number(save.battleSlotPage)||0)));
+  const visibleUnits=slotLayout==="pages"?equippedUnits.slice(save.battleSlotPage*5,save.battleSlotPage*5+5):equippedUnits;
+  const slots=visibleUnits.map(unit=>{
+    const cost=battleUnitStats(unit).price;
     const cooldown=Number(battleState.cooldowns[unit.id]||0);
     const disabled=battleState.money<cost||cooldown>0.05||Boolean(battleState.ended);
     return '<button class="fight-unit-slot'+(cooldown>0.05?" is-recharging":"")+'" data-go="deploy:'+unit.id+'" data-battle-slot="'+unit.id+'" aria-label="Deploy '+unit.name+'" '+(disabled?"disabled":"")+'>'+
@@ -3967,6 +3972,9 @@ function renderFight() {
       '<span class="fight-slot-cooldown">'+(cooldown>0.05?Math.ceil(cooldown):cost+"¢")+'</span>'+
     '</button>';
   }).join("");
+  const slotPager=slotLayout==="pages"&&slotPageCount>1
+    ? '<div class="fight-slot-pagination"><button type="button" data-go="slot-page-prev" aria-label="Previous five Cats">‹</button><span class="fight-slot-page-label">'+(save.battleSlotPage+1)+' / '+slotPageCount+'</span><button type="button" data-go="slot-page-next" aria-label="Next five Cats">›</button></div>'
+    : "";
   const entities=[...battleState.playerUnits,...battleState.enemies].map(battleEntityMarkup).join("");
   const deathSouls=(battleState.deathSouls||[]).map(battleDeathSoulMarkup).join("");
   return '<section class="screen fight-screen" aria-label="' + selectedLevel.name + ' battle">'+
@@ -3979,17 +3987,18 @@ function renderFight() {
       '<div class="fight-base-hud fight-enemy-hud"><strong class="fight-enemy-hp">500 / 500</strong></div>'+
       '<div class="fight-base-hud fight-player-hud"><strong class="fight-cat-hp">1000 / 1000</strong></div>'+
     '</div>'+
-    '<button class="fight-back" data-go="go:battle" aria-label="Leave battle">×</button>'+
+    '<button class="fight-pause-toggle" data-go="toggle-pause" aria-pressed="false" aria-label="Pause battle">Ⅱ</button>'+
     '<button class="fight-speed-toggle" data-go="toggle-speed" aria-pressed="false" aria-label="Cycle battle speed">1× SPEED</button>'+
     '<div class="fight-money"><strong class="fight-money-value" aria-label="Money '+Math.floor(battleState.money)+' of '+battleState.maxMoney+'">'+currencyRatioSpriteMarkup(Math.floor(battleState.money),battleState.maxMoney)+'</strong></div>'+
     '<button class="fight-worker-cat" data-go="wallet-upgrade" aria-label="Upgrade wallet">'+
       '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
       '<span class="fight-wallet-level-indicator" data-level="'+walletLevel+'" aria-label="Wallet level '+walletLevel+'">'+walletLevelSpriteMarkup(walletLevel)+'</span></button>'+
     '<footer class="fight-bottom">'+
-      '<div class="fight-unit-slots">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+
+      '<div class="fight-unit-slots" data-layout="'+slotLayout+'">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+slotPager+
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
     '</footer>'+
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
+    '<div class="fight-pause-overlay" hidden><div class="fight-pause-card"><strong>BATTLE PAUSED</strong><button type="button" data-go="toggle-pause">RESUME</button></div></div>'+
     renderBattleAdminPanel()+
   '</section>';
 }
@@ -4266,7 +4275,11 @@ function renderUpgrade() {
 }
 
 function renderDictionary(equip=false) {
-  const body = pageCopy(equip?"Tap a cat to add or remove it from your battle lineup.":"Cats you have discovered are shown here.")+
+  const layoutControls=equip
+    ? '<div class="equip-lineup-settings"><strong>10-CAT BATTLE LINEUP</strong><span>Choose how your deployed Cat slots are arranged.</span><div><button type="button" data-go="slot-layout:two-row" class="'+(save.battleSlotLayout==="two-row"?"is-selected":"")+'">5 TOP + 5 BOTTOM</button><button type="button" data-go="slot-layout:pages" class="'+(save.battleSlotLayout==="pages"?"is-selected":"")+'">5 AT A TIME · SCROLL TO SWITCH</button></div><small>'+save.equipped.length+' / 10 Cats equipped</small></div>'
+    : "";
+  const body = pageCopy(equip?"Tap a Cat to add or remove it from your battle lineup. You can equip up to ten Cats.":"Cats you have discovered are shown here.")+
+    layoutControls+
     '<div class="cat-grid">'+save.units.map((unit,i)=>{
       const isEquipped = save.equipped.includes(unit.id);
       const stats=battleUnitStats(unit);
@@ -4761,6 +4774,24 @@ function perform(action) {
   if (action.startsWith("unitinfo:")) {
     const unit = save.units[Number(action.split(":")[1])];
     if (unit) { const stats=battleUnitStats(unit); notify(unit.name+" · HP "+stats.health+" · ATK "+stats.damage); }
+    return;
+  }
+  if(action.startsWith("slot-layout:")) {
+    const layout=action.slice("slot-layout:".length);
+    if(layout!=="two-row"&&layout!=="pages") return;
+    save.battleSlotLayout=layout;
+    save.battleSlotPage=0;
+    persist();
+    render();
+    return;
+  }
+  if(action==="slot-page-prev"||action==="slot-page-next") {
+    const count=Math.ceil(save.equipped.length/5);
+    if(count>1) {
+      save.battleSlotPage=(Math.max(0,Math.floor(Number(save.battleSlotPage)||0))+(action==="slot-page-next"?1:-1)+count)%count;
+      persist();
+      render();
+    }
     return;
   }
   if (action.startsWith("equipunit:")) {
