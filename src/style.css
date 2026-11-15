@@ -3758,3 +3758,203 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .battle-admin-panel select,
   .battle-admin-panel input { min-height:34px; font-size:9px; }
 }
+
+
+/* Ten-unit lineup: two rows of five, or a five-Cat page that scrolls between sets. */
+.fight-screen .fight-unit-slots[data-layout="two-row"] {
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  align-items:center !important;
+  justify-items:center !important;
+  align-content:stretch !important;
+  justify-content:stretch !important;
+  gap:3px 5px !important;
+  overflow:hidden !important;
+}
+.fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+  flex:none !important;
+  width:clamp(30px,4.6vw,61px) !important;
+  height:92% !important;
+  max-height:64px !important;
+  min-height:0 !important;
+  aspect-ratio:1 / 1 !important;
+  align-self:center !important;
+}
+.fight-screen .fight-unit-slots[data-layout="pages"] {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:clamp(5px,.8vw,12px) !important;
+  overflow:hidden !important;
+}
+.fight-screen .fight-unit-slots[data-layout="pages"] .fight-unit-slot {
+  flex:0 1 clamp(35px,5vw,64px) !important;
+  width:clamp(35px,5vw,64px) !important;
+  height:70% !important;
+  min-width:0 !important;
+  max-height:64px !important;
+}
+.fight-screen .fight-bottom { position:absolute !important; }
+.fight-screen .fight-slot-pagination {
+  position:absolute;
+  z-index:18;
+  top:-27px;
+  right:clamp(72px,9vw,112px);
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:3px 6px;
+  border:1px solid #e4c17c;
+  border-radius:6px;
+  background:#24170fe8;
+  color:#ffe7a5;
+  font:900 10px/1 Arial,sans-serif;
+  box-shadow:0 2px 5px #0008;
+}
+.fight-slot-pagination button {
+  width:21px;
+  height:20px;
+  border:1px solid #a57c48;
+  border-radius:4px;
+  background:linear-gradient(#87603a,#4b2d1a);
+  color:#fff0c3;
+  font:900 18px/16px Arial,sans-serif;
+}
+.fight-slot-page-label { min-width:25px; text-align:center; }
+@media(max-width:650px) {
+  .fight-screen .fight-unit-slots[data-layout="two-row"] {
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+    gap:2px !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+    width:clamp(26px,8.7vw,44px) !important;
+    height:92% !important;
+    max-height:46px !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="pages"] .fight-unit-slot {
+    flex:0 1 clamp(31px,9vw,48px) !important;
+    width:clamp(31px,9vw,48px) !important;
+    height:70% !important;
+  }
+  .fight-screen .fight-slot-pagination {
+    top:-24px;
+    right:54px;
+    padding:2px 4px;
+    gap:3px;
+    font-size:9px;
+  }
+  .fight-slot-pagination button { width:19px; height:18px; font-size:16px; line-height:14px; }
+}
+
+/* Pause replaces the old leave-battle X and stays pinned to the upper-left HUD. */
+.fight-screen .fight-pause-toggle {
+  position:absolute !important;
+  z-index:42 !important;
+  top:10px !important;
+  left:10px !important;
+  display:grid !important;
+  place-items:center !important;
+  width:38px !important;
+  height:38px !important;
+  border:2px solid #fff0c3 !important;
+  border-radius:50% !important;
+  background:linear-gradient(#c85d3f,#8e2e1d) !important;
+  box-shadow:0 2px 0 #482316 !important;
+  color:#fff4d1 !important;
+  font:1000 20px/1 Arial,sans-serif !important;
+  cursor:pointer !important;
+}
+.fight-screen .fight-pause-toggle[aria-pressed="true"] {
+  background:linear-gradient(#568e45,#2e632c) !important;
+}
+.fight-screen .fight-pause-overlay {
+  position:absolute;
+  z-index:110;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:#100b07b5;
+  backdrop-filter:blur(3px);
+}
+.fight-screen .fight-pause-overlay[hidden] { display:none !important; }
+.fight-pause-card {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:15px;
+  min-width:220px;
+  padding:24px 30px;
+  border:3px solid #e9c77e;
+  border-radius:10px;
+  background:linear-gradient(#5b3b27,#23170f);
+  color:#ffe4a0;
+  box-shadow:0 8px 28px #000a;
+}
+.fight-pause-card strong {
+  font:1000 clamp(22px,4vw,32px)/1 Impact,Haettenschweiler,sans-serif;
+  letter-spacing:.07em;
+}
+.fight-pause-card button {
+  padding:10px 24px;
+  border:2px solid #f8e2a5;
+  border-radius:6px;
+  background:linear-gradient(#f0c64a,#b87b23);
+  color:#311b0c;
+  font:1000 14px/1 Arial,sans-serif;
+}
+
+/* Only The Face floats at rest; remove idle bobbing from every other unit. */
+.fight-screen .fight-unit.is-idle:not([data-unit-type="the-face"]) .fight-unit-sprite {
+  animation:none !important;
+}
+
+/* Bird Cat is an airborne unit rather than a ground-walking Cat. */
+.fight-screen .fight-unit-cat[data-unit-type="bird-cat"] {
+  bottom:clamp(25px,6vh,68px) !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-unit-cat[data-unit-type="bird-cat"] {
+    bottom:clamp(18px,5vh,42px) !important;
+  }
+}
+
+/* Lineup arrangement controls in the Equip Cats menu. */
+.equip-lineup-settings {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin:0 0 13px;
+  padding:10px 12px;
+  border:2px solid #825b34;
+  border-radius:7px;
+  background:linear-gradient(#f0d7a4,#d2ae72);
+  color:#422512;
+}
+.equip-lineup-settings strong {
+  font:1000 13px/1 Impact,Haettenschweiler,sans-serif;
+  letter-spacing:.07em;
+}
+.equip-lineup-settings span,
+.equip-lineup-settings small {
+  font:700 10px/1.3 Arial,sans-serif;
+}
+.equip-lineup-settings > div {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.equip-lineup-settings button {
+  padding:7px 10px;
+  border:2px solid #6c4524;
+  border-radius:5px;
+  background:linear-gradient(#fff0c2,#c99c5c);
+  color:#462713;
+  font:900 10px/1 Arial,sans-serif;
+}
+.equip-lineup-settings button.is-selected {
+  border-color:#365b28;
+  background:linear-gradient(#bad48a,#70944b);
+  color:#1b3015;
+}
