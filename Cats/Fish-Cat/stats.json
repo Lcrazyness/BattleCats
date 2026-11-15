@@ -2,19 +2,19 @@
   "name": "Fish Cat",
   "health": 700,
   "damage": 180,
-  "price": 3,
+  "price": 5,
   "speed": 10,
   "spriteChangeSpeed": 7,
   "walkSpriteChangeSpeed": 4,
   "range": 150,
   "recharge": 13,
   "attackCooldown": 1.77,
-  "AreaAttack": false,
+  "AreaAttack": 1,
   "knockbackCount": 3,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
   "AttackTrait": "Red",
   "AttackBoost": "Strong",
-  "Bio": "A sturdy close-range attacker with high damage and strength against Red enemies."
+  "Bio": "A sturdy close-range area attacker with high damage and strength against Red enemies."
 }
