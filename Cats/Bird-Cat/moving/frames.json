@@ -1,8 +1,8 @@
 {
   "frames": [
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=31,70,146,68",
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=180,61,139,76",
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=323,69,135,69",
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=461,70,128,68"
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=0,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=128,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=256,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=384,0,128,128"
   ]
 }
