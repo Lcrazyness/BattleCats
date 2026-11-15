@@ -1,28 +1,28 @@
 {
   "name": "Cow Cat",
   "moving": [
-    "Cats/Cow-Cat/sprite-atlas.png#frame=0,0,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=128,0,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=256,0,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=384,0,128,128"
+    "Cats/Cow-Cat/moving/spritesheet.png#frame=0,0,128,128",
+    "Cats/Cow-Cat/moving/spritesheet.png#frame=128,0,128,128",
+    "Cats/Cow-Cat/moving/spritesheet.png#frame=256,0,128,128",
+    "Cats/Cow-Cat/moving/spritesheet.png#frame=384,0,128,128"
   ],
   "attacks": [
-    "Cats/Cow-Cat/sprite-atlas.png#frame=0,128,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=128,128,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=256,128,128,128",
-    "Cats/Cow-Cat/sprite-atlas.png#frame=384,128,128,128"
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=0,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=128,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=256,128,128,128",
+    "Cats/Cow-Cat/attack/spritesheet.png#frame=384,128,128,128"
   ],
-  "attack": "Cats/Cow-Cat/sprite-atlas.png#frame=0,128,128,128",
+  "attack": "Cats/Cow-Cat/attack/spritesheet.png#frame=0,128,128,128",
   "attackFrameRate": 7.3,
   "attackDuration": 0.55,
   "damagedFrames": [
-    "Cats/Cow-Cat/sprite-atlas.png#frame=0,256,128,128"
+    "Cats/Cow-Cat/damaged/spritesheet.png#frame=0,256,128,128"
   ],
   "knockbackFrames": [
-    "Cats/Cow-Cat/sprite-atlas.png#frame=0,256,128,128"
+    "Cats/Cow-Cat/damaged/spritesheet.png#frame=0,256,128,128"
   ],
-  "idle": "Cats/Cow-Cat/sprite-atlas.png#frame=0,0,128,128",
-  "damaged": "Cats/Cow-Cat/sprite-atlas.png#frame=0,256,128,128",
+  "idle": "Cats/Cow-Cat/moving/spritesheet.png#frame=0,0,128,128",
+  "damaged": "Cats/Cow-Cat/damaged/spritesheet.png#frame=0,256,128,128",
   "slot": "Cats/Cow-Cat/slot.png",
   "upgrade": "Cats/Cow-Cat/UpgradeSlot.png"
 }
