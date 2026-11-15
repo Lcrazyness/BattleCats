@@ -3958,3 +3958,32 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   background:linear-gradient(#bad48a,#70944b);
   color:#1b3015;
 }
+
+
+/* Compact 10-Cat lineup: five columns by two rows. */
+.fight-screen .fight-bottom { height:22% !important; min-height:140px !important; }
+.fight-screen .fight-unit-slots[data-layout="two-row"] {
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  align-content:center; align-items:stretch; justify-content:stretch !important;
+  overflow:hidden !important; gap:5px !important; padding:1px 2px !important;
+}
+.fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+  width:100% !important; height:100% !important; min-width:0 !important;
+  min-height:0 !important; max-height:100% !important;
+  aspect-ratio:unset !important; flex:none !important; padding:2px !important;
+}
+.fight-screen .fight-unit-slots[data-layout="pages"] {
+  display:flex !important; flex-wrap:nowrap !important;
+  overflow-x:auto !important; overflow-y:hidden !important;
+}
+/* Override per-unit idle animations too: only The Face should float. */
+.fight-screen .fight-unit.is-idle:not([data-unit-type="the-face"]) .fight-unit-sprite {
+  animation:none !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-bottom { height:28% !important; min-height:142px !important; gap:5px !important; padding:5px 1% 6px !important; }
+  .fight-screen .fight-unit-slots[data-layout="two-row"] { gap:3px !important; }
+  .fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot { border-width:2px !important; }
+}
