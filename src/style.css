@@ -3994,3 +3994,121 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .fight-unit[data-unit-type="those-guys"].is-idle .fight-unit-sprite {
   animation:none !important;
 }
+
+
+/* Remove the default idle bounce from every unit. Only The Face keeps its
+   intentional floating animation, defined separately below. */
+.fight-screen .fight-unit-sprite {
+  animation:none !important;
+}
+.fight-screen .fight-unit.is-attacking .fight-unit-sprite {
+  animation:fight-unit-attack .28s ease-in-out 2 alternate !important;
+}
+.fight-screen .fight-unit.is-damaged .fight-unit-sprite {
+  animation:fight-unit-hit .14s linear 2 !important;
+}
+
+/* Bird Cat hovers above the ground instead of standing on the floor. */
+.fight-screen .fight-unit[data-unit-type="bird-cat"] {
+  bottom:clamp(28px,5.5vh,62px) !important;
+}
+.fight-screen .fight-unit[data-unit-type="bird-cat"] .fight-unit-sprite {
+  transform-origin:center center !important;
+}
+
+/* The ten-Cat battle bar can show a 5-by-2 grid, or five paged slots. */
+.fight-screen .fight-unit-slots[data-layout="two-row"] {
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  align-content:stretch !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+  gap:4px !important;
+  overflow:hidden !important;
+  padding:1px 2px !important;
+}
+.fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  min-width:0 !important;
+  flex:none !important;
+  aspect-ratio:auto !important;
+  padding:2px !important;
+}
+.fight-screen .fight-unit-slots[data-layout="pages"] {
+  display:flex !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+}
+.fight-slot-pagination {
+  display:flex;
+  flex:0 0 34px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-width:30px;
+  color:#fff1c6;
+  font:900 9px/1 Arial,sans-serif;
+}
+.fight-slot-pagination button {
+  width:27px;
+  height:25px;
+  border:1px solid #d2b16f;
+  border-radius:4px;
+  background:linear-gradient(#8a5a32,#51331e);
+  color:#fff0c5;
+  font:1000 18px/1 Arial,sans-serif;
+}
+.fight-slot-page-label { white-space:nowrap; }
+
+/* Keep the equip-menu layout selector visually consistent with the game. */
+.equip-lineup-settings {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin:0 0 12px;
+  padding:10px;
+  border:2px solid #76502e;
+  border-radius:7px;
+  background:linear-gradient(#f5e3b6,#d8b67a);
+  color:#4d2d18;
+}
+.equip-lineup-settings strong {
+  font:1000 15px/1 Impact,Haettenschweiler,sans-serif;
+}
+.equip-lineup-settings span,
+.equip-lineup-settings small {
+  font:700 11px/1.3 Arial,sans-serif;
+}
+.equip-lineup-settings > div {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.equip-lineup-settings button {
+  padding:7px 9px;
+  border:2px solid #704421;
+  border-radius:5px;
+  background:linear-gradient(#fff1c9,#d8ad6b);
+  color:#4b2c16;
+  font:900 10px/1.2 Arial,sans-serif;
+}
+.equip-lineup-settings button.is-selected {
+  border-color:#315d25;
+  background:linear-gradient(#a7d477,#54823d);
+  color:#fff;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-unit-slots[data-layout="two-row"] {
+    gap:3px !important;
+    padding:1px !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+    border-width:2px !important;
+  }
+  .fight-slot-pagination { flex-basis:27px; min-width:25px; }
+  .fight-slot-pagination button { width:23px; height:23px; }
+}
