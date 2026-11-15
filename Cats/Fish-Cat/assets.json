@@ -1,32 +1,32 @@
 {
   "name": "Fish Cat",
   "moving": [
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=15,71,139,105",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=158,70,138,106",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=299,70,137,106",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=439,70,137,106",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=580,70,138,106",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=723,70,139,106",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=865,72,139,104",
-    "Cats/Fish-Cat/moving/spritesheet.png#frame=1008,71,139,105"
+    "Cats/Fish-Cat/sprite-atlas.png#frame=0,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=160,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=320,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=480,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=640,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=800,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=960,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1120,0,160,160"
   ],
   "attacks": [
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=15,200,144,143",
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=163,196,142,147",
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=308,208,145,134",
-    "Cats/Fish-Cat/attack/spritesheet.png#frame=456,242,141,100"
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1280,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1440,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1600,0,160,160",
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1760,0,160,160"
   ],
-  "attack": "Cats/Fish-Cat/attack/spritesheet.png#frame=15,200,144,143",
+  "attack": "Cats/Fish-Cat/sprite-atlas.png#frame=1280,0,160,160",
   "attackFrameRate": 2.26,
   "attackDuration": 1.77,
   "damagedFrames": [
-    "Cats/Fish-Cat/damaged/spritesheet.png#frame=15,362,144,143"
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1920,0,160,160"
   ],
   "knockbackFrames": [
-    "Cats/Fish-Cat/damaged/spritesheet.png#frame=15,362,144,143"
+    "Cats/Fish-Cat/sprite-atlas.png#frame=1920,0,160,160"
   ],
-  "idle": "Cats/Fish-Cat/moving/spritesheet.png#frame=15,71,139,105",
-  "damaged": "Cats/Fish-Cat/damaged/spritesheet.png#frame=15,362,144,143",
+  "idle": "Cats/Fish-Cat/sprite-atlas.png#frame=0,0,160,160",
+  "damaged": "Cats/Fish-Cat/sprite-atlas.png#frame=1920,0,160,160",
   "slot": "Cats/Fish-Cat/slot.png",
   "upgrade": "Cats/Fish-Cat/UpgradeSlot.png"
 }
