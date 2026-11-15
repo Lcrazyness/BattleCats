@@ -117,7 +117,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261115-05";
+const BATTLE_ASSET_VERSION = "20261115-06";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -4080,7 +4080,7 @@ function upgradeCardMarkup(item) {
     ? '<span class="upgrade-wedge-max">MAX</span>'
     : currencySpriteMarkup(item.cost,"currency-size-upgrade-cost");
   const art=item.kind==="unit"
-    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="Cats/'+upgradeEscape(item.folder)+'/UpgradeSlot.png?v=20261106-07" alt="" draggable="false">'+
+    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art'+(item.folder==="Fish-Cat"?" fish-cat-upgrade-art":"")+'" src="'+(item.folder==="Fish-Cat"?"Cats/Fish-Cat/slot.png":"Cats/"+upgradeEscape(item.folder)+"/UpgradeSlot.png")+'?v=20261115-06" alt="" draggable="false">'+
       '<span class="upgrade-wedge-info"><span class="upgrade-wedge-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
       '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></span></div>'
     : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span>'+
