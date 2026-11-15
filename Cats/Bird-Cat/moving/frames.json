@@ -1,8 +1,8 @@
 {
   "frames": [
-    "Cats/Bird-Cat/sprite-atlas.png#frame=0,0,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=128,0,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=256,0,128,128",
-    "Cats/Bird-Cat/sprite-atlas.png#frame=384,0,128,128"
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=0,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=128,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=256,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=384,0,128,128"
   ]
 }
