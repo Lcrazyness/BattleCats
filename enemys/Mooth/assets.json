@@ -3,25 +3,27 @@
   "source": "User-provided Battle Cats enemy sprite reference sheet; original game art belongs to its respective rights holders.",
   "sourceUrl": "https://github.com/Lcrazyness/BattleCats/tree/main/enemys/Mooth",
   "moving": [
-    "enemys/Mooth/moving/frame-001.png",
-    "enemys/Mooth/moving/frame-002.png",
-    "enemys/Mooth/moving/frame-003.png",
-    "enemys/Mooth/moving/frame-004.png",
-    "enemys/Mooth/moving/frame-005.png"
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=0,15,160,205",
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=158,15,174,205",
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=330,15,195,205"
   ],
   "attacks": [
-    "enemys/Mooth/attack/frame-001.png"
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=555,0,233,282",
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=0,265,175,170",
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=176,265,175,170",
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=354,210,214,155"
   ],
-  "attack": "enemys/Mooth/attack/frame-001.png",
+  "attack": "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=555,0,233,282",
   "attackFrameRate": 1,
+  "attackDuration": 0.85,
   "damagedFrames": [
-    "enemys/Mooth/damaged/frame-001.png"
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=0,265,175,170"
   ],
   "knockbackFrames": [
-    "enemys/Mooth/damaged/frame-001.png"
+    "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=0,265,175,170"
   ],
-  "idle": "enemys/Mooth/idle.png",
-  "damaged": "enemys/Mooth/damaged/frame-001.png",
+  "idle": "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=0,15,160,205",
+  "damaged": "enemys/Mooth/Screenshot%202026-11-05%20142612.png#frame=0,265,175,170",
   "slot": "enemys/Mooth/slot.png",
   "upgrade": null,
   "traits": [
