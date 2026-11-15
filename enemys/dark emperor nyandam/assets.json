@@ -1,28 +1,26 @@
 {
   "name": "Dark Emperor Nyandam",
   "moving": [
-    "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=450,0,170,145",
-    "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=625,0,170,145",
-    "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=830,0,170,145"
+    "enemys/dark emperor nyandam/moving/spritesheet.png#frame=450,0,170,145",
+    "enemys/dark emperor nyandam/moving/spritesheet.png#frame=625,0,170,145",
+    "enemys/dark emperor nyandam/moving/spritesheet.png#frame=830,0,170,145"
   ],
   "attacks": [
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=10,325,155,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=175,325,155,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=335,325,155,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=490,325,155,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=650,325,155,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=810,325,155,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=10,460,165,130",
-    "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=180,460,170,130"
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=10,325,155,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=175,325,155,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=335,325,155,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=490,325,155,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=650,325,155,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=810,325,155,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=10,460,165,130",
+    "enemys/dark emperor nyandam/attack/spritesheet.png#frame=180,460,170,130"
   ],
-  "attack": "enemys/dark%20emperor%20nyandam/attack/spritesheet.png#frame=10,325,155,130",
-  "attackFrameRate": 1.73,
+  "attack": "enemys/dark emperor nyandam/attack/spritesheet.png#frame=10,325,155,130",
+  "attackFrameRate": 2.3,
   "attackDuration": 3.47,
   "damagedFrames": [],
   "knockbackFrames": [],
-  "idle": "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=450,0,170,145",
-  "damaged": "enemys/dark%20emperor%20nyandam/moving/spritesheet.png#frame=450,0,170,145",
-  "traits": [
-    "Red"
-  ]
+  "idle": "enemys/dark emperor nyandam/moving/spritesheet.png#frame=450,0,170,145",
+  "damaged": "enemys/dark emperor nyandam/moving/spritesheet.png#frame=450,0,170,145",
+  "slot": ""
 }
