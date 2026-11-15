@@ -1,29 +1,29 @@
 {
   "name": "Bird Cat",
   "moving": [
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=31,70,146,68",
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=180,61,139,76",
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=323,69,135,69",
-    "Cats/Bird-Cat/moving/spritesheet.png#frame=461,70,128,68"
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=0,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=128,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=256,0,128,128",
+    "Cats/Bird-Cat/moving/spritesheet.png#frame=384,0,128,128"
   ],
   "attacks": [
-    "Cats/Bird-Cat/attack/spritesheet.png#frame=33,235,109,71",
-    "Cats/Bird-Cat/attack/spritesheet.png#frame=145,237,87,69",
-    "Cats/Bird-Cat/attack/spritesheet.png#frame=235,234,110,71",
-    "Cats/Bird-Cat/attack/spritesheet.png#frame=349,235,76,70",
-    "Cats/Bird-Cat/attack/spritesheet.png#frame=436,161,130,144"
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=0,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=128,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=256,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=384,128,128,128",
+    "Cats/Bird-Cat/attack/spritesheet.png#frame=0,256,128,128"
   ],
-  "attack": "Cats/Bird-Cat/attack/spritesheet.png#frame=33,235,109,71",
+  "attack": "Cats/Bird-Cat/attack/spritesheet.png#frame=0,128,128,128",
   "attackFrameRate": 2.85,
   "attackDuration": 1.75,
   "damagedFrames": [
-    "Cats/Bird-Cat/damaged/spritesheet.png#frame=31,326,110,71"
+    "Cats/Bird-Cat/damaged/spritesheet.png#frame=128,256,128,128"
   ],
   "knockbackFrames": [
-    "Cats/Bird-Cat/damaged/spritesheet.png#frame=31,326,110,71"
+    "Cats/Bird-Cat/damaged/spritesheet.png#frame=128,256,128,128"
   ],
-  "idle": "Cats/Bird-Cat/moving/spritesheet.png#frame=31,70,146,68",
-  "damaged": "Cats/Bird-Cat/damaged/spritesheet.png#frame=31,326,110,71",
+  "idle": "Cats/Bird-Cat/moving/spritesheet.png#frame=0,0,128,128",
+  "damaged": "Cats/Bird-Cat/damaged/spritesheet.png#frame=128,256,128,128",
   "slot": "Cats/Bird-Cat/slot.png",
   "upgrade": "Cats/Bird-Cat/UpgradeSlot.png"
 }
