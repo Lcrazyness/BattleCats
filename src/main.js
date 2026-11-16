@@ -2168,7 +2168,7 @@ async function expandBattleAtlasFrameAssets(data) {
     const extractFrame=path=>{
       if(typeof path!=="string"||!path.includes("#frame=")) return path;
       if(frames.has(path)) return frames.get(path);
-      const match=path.match(/#frame=(\\d+),(\\d+),(\\d+),(\\d+)$/);
+      const match=path.match(/#frame=(\d+),(\d+),(\d+),(\d+)$/);
       if(!match) return path;
       const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
       if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>atlas.naturalWidth||sy+sh>atlas.naturalHeight) {
