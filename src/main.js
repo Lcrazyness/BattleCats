@@ -2140,6 +2140,68 @@ function createBattleState() {
     paused:false,levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
 }
+async function expandBattleAtlasFrameAssets(data) {
+  if(!data||typeof data!=="object") return data;
+  const pathLists=[
+    data.moving,
+    data.attacks,
+    data.attackFrames,
+    data.damagedFrames,
+    data.knockbackFrames
+  ];
+  const singlePaths=[data.idle,data.attack,data.attackSprite,data.damaged];
+  const allPaths=[...pathLists.flatMap(list=>Array.isArray(list)?list:[]),...singlePaths]
+    .filter(path=>typeof path==="string"&&path.includes("#frame="));
+  if(!allPaths.length) return data;
+  const atlasPath=allPaths[0].split("#frame=")[0];
+  if(allPaths.some(path=>path.split("#frame=")[0]!==atlasPath)) return data;
+  try {
+    const atlas=await new Promise((resolve,reject)=>{
+      const image=new Image();
+      image.crossOrigin="anonymous";
+      image.decoding="async";
+      image.onload=()=>resolve(image);
+      image.onerror=()=>reject(new Error("Could not load Fish Cat sprite atlas"));
+      image.src=battleAssetUrl(atlasPath);
+    });
+    const frames=new Map();
+    const extractFrame=path=>{
+      if(typeof path!=="string"||!path.includes("#frame=")) return path;
+      if(frames.has(path)) return frames.get(path);
+      const match=path.match(/#frame=(\\d+),(\\d+),(\\d+),(\\d+)$/);
+      if(!match) return path;
+      const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
+      if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>atlas.naturalWidth||sy+sh>atlas.naturalHeight) {
+        throw new Error("Fish Cat atlas frame is outside the image: "+path);
+      }
+      const canvas=document.createElement("canvas");
+      canvas.width=sw;
+      canvas.height=sh;
+      const context=canvas.getContext("2d");
+      if(!context) throw new Error("Could not create Fish Cat frame canvas");
+      context.imageSmoothingEnabled=true;
+      context.drawImage(atlas,sx,sy,sw,sh,0,0,sw,sh);
+      const frameUrl=canvas.toDataURL("image/png");
+      frames.set(path,frameUrl);
+      return frameUrl;
+    };
+    return {
+      ...data,
+      moving:Array.isArray(data.moving)?data.moving.map(extractFrame):data.moving,
+      attacks:Array.isArray(data.attacks)?data.attacks.map(extractFrame):data.attacks,
+      attackFrames:Array.isArray(data.attackFrames)?data.attackFrames.map(extractFrame):data.attackFrames,
+      damagedFrames:Array.isArray(data.damagedFrames)?data.damagedFrames.map(extractFrame):data.damagedFrames,
+      knockbackFrames:Array.isArray(data.knockbackFrames)?data.knockbackFrames.map(extractFrame):data.knockbackFrames,
+      idle:extractFrame(data.idle),
+      attack:extractFrame(data.attack),
+      attackSprite:extractFrame(data.attackSprite),
+      damaged:extractFrame(data.damaged)
+    };
+  } catch(error) {
+    console.warn("Fish Cat atlas frame extraction failed; keeping manifest frame paths:",error);
+    return data;
+  }
+}
 function loadBattleAssetManifests() {
   if(battleAssetsPromise) return battleAssetsPromise;
   BATTLE_UNIT_STATS_BY_ID.clear();
@@ -2158,7 +2220,8 @@ function loadBattleAssetManifests() {
     try {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if(!response.ok) return;
-      const data=await response.json();
+      let data=await response.json();
+      if(kind==="fish-cat") data=await expandBattleAtlasFrameAssets(data);
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
       if(Array.isArray(data.atlasParts)&&Array.isArray(data.frameCells)) {
         try {
