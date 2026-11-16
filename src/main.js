@@ -2812,6 +2812,7 @@ function battleEntitySpriteScale(entity) {
     if(key==="gory") return 1.32;
     if(key==="sir-seal") return 1.20;
     if(key==="le-boin") return 1.48;
+    if(key==="dark-emperor-nyandam") return 1.85;
     if(key==="b-b-bunny") return 0.94;
     if(key==="kang-roo") return 1.12;
     if(key==="squire-rel") return 0.82;
@@ -2829,9 +2830,9 @@ function battleEntitySpriteScale(entity) {
   }
   const key=battleUnitKey(entity.name||entity.assetFolder||entity.spriteFolder||"cat");
   if(key==="gross-cat") return 1.18;
-  if(key==="cow-cat") return 0.98;
-  if(key==="bird-cat") return 0.84;
-  if(key==="fish-cat") return 1.02;
+  if(key==="cow-cat") return 1.22;
+  if(key==="bird-cat") return 1.30;
+  if(key==="fish-cat") return 1.18;
   if(key==="axe-cat") return 1.06;
   if(key==="tank-cat") return 0.76;
   return 0.62;
@@ -3998,7 +3999,7 @@ function renderFight() {
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
     '</footer>'+
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
-    '<div class="fight-pause-overlay" hidden><div class="fight-pause-card"><strong>BATTLE PAUSED</strong><button type="button" data-go="toggle-pause">RESUME</button></div></div>'+
+    '<div class="fight-pause-overlay" hidden><div class="fight-pause-card"><strong>BATTLE PAUSED</strong><button type="button" data-go="toggle-pause">RESUME</button><button class="fight-pause-quit" type="button" data-go="quit-level">QUIT LEVEL</button></div></div>'+
     renderBattleAdminPanel()+
   '</section>';
 }
@@ -4829,6 +4830,7 @@ function perform(action) {
   switch(action) {
     case "fight": battleState=createBattleState(); navigate("fight"); break;
     case "retry-battle": battleState=createBattleState(); navigate("fight"); break;
+    case "quit-level": navigate("battle"); break;
     case "lose": playSfx("defeat"); navigate("battle"); break;
     case "win": {
       if (!battleState || battleState.ended!=="win") playSfx("victory");
