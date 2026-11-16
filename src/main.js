@@ -3995,7 +3995,9 @@ function renderFight() {
       '<img class="fight-worker-icon" data-active-source="' + walletImageUrl + '" src="' + walletImageUrl + '" alt="" draggable="false">'+
       '<span class="fight-wallet-level-indicator" data-level="'+walletLevel+'" aria-label="Wallet level '+walletLevel+'">'+walletLevelSpriteMarkup(walletLevel)+'</span></button>'+
     '<footer class="fight-bottom">'+
-      '<div class="fight-unit-slots" data-layout="'+slotLayout+'">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+slotPager+
+      '<div class="fight-slot-group">'+
+        '<div class="fight-unit-slots" data-layout="'+slotLayout+'">'+(slots||'<div class="fight-no-slots">Equip a Cat to deploy it.</div>')+'</div>'+slotPager+
+      '</div>'+
       '<button class="fight-cannon" type="button" disabled aria-label="Cat Cannon not implemented yet"><img class="fight-cannon-sprite" src="' + cannonImageUrl + '" alt="" draggable="false"><small>CANNON</small></button>'+
     '</footer>'+
     '<div class="fight-result" hidden><div class="fight-result-panel"><strong class="fight-result-title">STAGE CLEAR!</strong><p class="fight-result-copy">Korea cleared! Claim your reward.</p><button class="fight-result-button" data-go="win">CONTINUE</button></div></div>'+
