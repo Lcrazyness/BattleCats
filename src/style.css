@@ -4222,15 +4222,15 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   object-position:center bottom !important;
 }
 .fight-screen .fight-unit[data-unit-type="dark-emperor-nyandam"] {
-  width:clamp(200px,24vw,330px) !important;
-  height:clamp(220px,38vh,360px) !important;
+  width:clamp(54px,7.3vw,96px) !important;
+  height:clamp(78px,18vh,145px) !important;
 }
 .fight-screen .fight-unit[data-unit-type="dark-emperor-nyandam"] .fight-unit-sprite {
   width:100% !important;
-  height:82% !important;
+  height:70% !important;
   max-width:100% !important;
-  max-height:82% !important;
-  scale:1.8 !important;
+  max-height:70% !important;
+  scale:1.75 !important;
   object-fit:contain !important;
   object-position:center bottom !important;
   transform-origin:center bottom !important;
