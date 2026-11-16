@@ -4247,3 +4247,81 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   background:linear-gradient(#bd563b,#7f281b) !important;
   color:#fff0d9 !important;
 }
+
+
+/* Keep the slot lineup centered as one group and reserve the far-right edge for Cat Cannon. */
+.fight-screen .fight-bottom {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:clamp(6px,1vw,14px) !important;
+}
+.fight-screen .fight-slot-group {
+  display:flex !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  height:100% !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+  overflow:hidden !important;
+}
+.fight-screen .fight-unit-slots[data-layout="two-row"] {
+  flex:0 0 auto !important;
+  width:max-content !important;
+  max-width:100% !important;
+  justify-content:center !important;
+  align-content:center !important;
+}
+.fight-screen .fight-unit-slots[data-layout="pages"] {
+  flex:0 1 auto !important;
+  width:auto !important;
+  max-width:calc(100% - 32px) !important;
+  justify-content:center !important;
+}
+.fight-screen .fight-slot-pagination {
+  position:static !important;
+  flex:0 0 30px !important;
+  width:30px !important;
+  min-width:30px !important;
+  margin:0 0 0 5px !important;
+}
+.fight-screen .fight-cannon {
+  position:relative !important;
+  inset:auto !important;
+  flex:0 0 clamp(60px,8vw,96px) !important;
+  width:clamp(60px,8vw,96px) !important;
+  margin-left:auto !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-bottom {
+    justify-content:space-between !important;
+    gap:4px !important;
+  }
+  .fight-screen .fight-slot-group {
+    flex:1 1 auto !important;
+    justify-content:center !important;
+    min-width:0 !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="two-row"] {
+    grid-template-columns:repeat(5,clamp(31px,9vw,48px)) !important;
+    grid-template-rows:repeat(2,clamp(31px,9vw,48px)) !important;
+    flex:0 0 auto !important;
+    width:max-content !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="pages"] {
+    max-width:calc(100% - 27px) !important;
+    flex:0 1 auto !important;
+  }
+  .fight-screen .fight-slot-pagination {
+    flex:0 0 25px !important;
+    width:25px !important;
+    min-width:25px !important;
+    margin-left:2px !important;
+  }
+  .fight-screen .fight-cannon {
+    flex:0 0 48px !important;
+    width:48px !important;
+    margin-left:auto !important;
+  }
+}
