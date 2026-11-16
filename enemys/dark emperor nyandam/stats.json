@@ -2,7 +2,7 @@
   "name": "Dark Emperor Nyandam",
   "health": 99999,
   "damage": 1800,
-  "gameScale": 0.055,
+  "gameScale": 1,
   "speed": 2,
   "spriteChangeSpeed": 4,
   "walkSpriteChangeSpeed": 1.5,
