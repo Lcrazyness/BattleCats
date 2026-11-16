@@ -4122,3 +4122,128 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   padding:12% !important;
   background:linear-gradient(145deg,#e7e5d8,#aaa99e) !important;
 }
+
+
+/* Battle refinements: compact matching-size slots, visible Cat sprites, and bottom-anchored zoom. */
+.fight-screen .fight-unit-slots[data-layout="two-row"] {
+  display:grid !important;
+  grid-template-columns:repeat(5,clamp(35px,5vw,64px)) !important;
+  grid-template-rows:repeat(2,clamp(35px,5vw,64px)) !important;
+  justify-content:center !important;
+  align-content:center !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+  gap:4px 7px !important;
+  padding:1px 2px !important;
+  overflow:hidden !important;
+  flex:1 1 auto !important;
+}
+.fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  max-height:none !important;
+  aspect-ratio:1 / 1 !important;
+  padding:2px !important;
+  border-width:2px !important;
+}
+/* In paged mode, keep five slots compact and put the arrows immediately after slot five. */
+.fight-screen .fight-unit-slots[data-layout="pages"] {
+  flex:0 1 auto !important;
+  width:auto !important;
+  max-width:calc(100% - 96px) !important;
+  justify-content:flex-start !important;
+  gap:clamp(4px,.65vw,8px) !important;
+  overflow:hidden !important;
+}
+.fight-screen .fight-slot-pagination {
+  position:static !important;
+  inset:auto !important;
+  flex:0 0 30px !important;
+  min-width:30px !important;
+  width:30px !important;
+  margin:0 4px 0 3px !important;
+  padding:0 !important;
+  align-self:center !important;
+  gap:3px !important;
+}
+.fight-screen .fight-slot-pagination button {
+  width:25px !important;
+  height:23px !important;
+}
+@media(max-width:650px) {
+  .fight-screen .fight-unit-slots[data-layout="two-row"] {
+    grid-template-columns:repeat(5,clamp(31px,9vw,48px)) !important;
+    grid-template-rows:repeat(2,clamp(31px,9vw,48px)) !important;
+    gap:3px 5px !important;
+    justify-content:center !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="two-row"] .fight-unit-slot {
+    width:100% !important;
+    height:100% !important;
+    border-width:2px !important;
+  }
+  .fight-screen .fight-unit-slots[data-layout="pages"] {
+    max-width:calc(100% - 75px) !important;
+  }
+  .fight-screen .fight-slot-pagination {
+    flex-basis:25px !important;
+    min-width:25px !important;
+    width:25px !important;
+    margin-left:2px !important;
+  }
+  .fight-screen .fight-slot-pagination button {
+    width:22px !important;
+    height:21px !important;
+  }
+}
+
+/* Units now flash when hit without shaking; base attack shake remains unchanged. */
+.fight-screen .fight-unit.is-damaged .fight-unit-sprite {
+  animation:none !important;
+  filter:brightness(1.5) sepia(.7) saturate(2) !important;
+}
+
+/* Larger battlefield artwork for the newly unlocked Cats. */
+.fight-screen .fight-unit-cat[data-unit-type="cow-cat"] .fight-unit-sprite {
+  scale:1.28 !important;
+  transform-origin:center bottom !important;
+  object-position:center bottom !important;
+}
+.fight-screen .fight-unit-cat[data-unit-type="bird-cat"] .fight-unit-sprite {
+  scale:1.38 !important;
+  transform-origin:center bottom !important;
+  object-position:center bottom !important;
+}
+.fight-screen .fight-unit-cat[data-unit-type="fish-cat"] .fight-unit-sprite {
+  scale:1.18 !important;
+  transform-origin:center bottom !important;
+  object-position:center bottom !important;
+}
+.fight-screen .fight-unit[data-unit-type="dark-emperor-nyandam"] {
+  width:clamp(200px,24vw,330px) !important;
+  height:clamp(220px,38vh,360px) !important;
+}
+.fight-screen .fight-unit[data-unit-type="dark-emperor-nyandam"] .fight-unit-sprite {
+  width:100% !important;
+  height:82% !important;
+  max-width:100% !important;
+  max-height:82% !important;
+  scale:1.8 !important;
+  object-fit:contain !important;
+  object-position:center bottom !important;
+  transform-origin:center bottom !important;
+}
+
+/* The camera magnifies from the battlefield floor so the units stay below the HUD. */
+.fight-screen .fight-world-zoom {
+  transform-origin:center bottom !important;
+}
+
+/* Pause menu has an explicit, safe exit back to the stage map. */
+.fight-pause-quit {
+  border-color:#e5a18b !important;
+  background:linear-gradient(#bd563b,#7f281b) !important;
+  color:#fff0d9 !important;
+}
