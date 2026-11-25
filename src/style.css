@@ -4551,3 +4551,5 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 @media(max-width:390px) {
   .equip-cat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
+
+.world-map-stage-info{padding:clamp(8px,1vw,14px)!important;background:#fff!important;border:3px solid #111!important;border-radius:0!important;box-shadow:none!important;color:#111!important;text-shadow:none!important;max-width:46%!important}.world-map-stage-kicker{color:#111!important;text-shadow:none!important}.world-map-stage-info>strong{color:#111!important;text-shadow:none!important}.world-map-stage-stats{color:#111!important;text-shadow:none!important}.world-map-stage-stats b{color:#111!important;text-shadow:none!important}
