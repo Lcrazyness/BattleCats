@@ -1,20 +1,20 @@
 {
   "name": "Teacher Bun Bun",
-  "health": 120000,
+  "health": 130000,
   "damage": 3000,
-  "speed": 23,
+  "speed": 20,
   "range": 200,
-  "spriteChangeSpeed": 9,
-  "walkSpriteChangeSpeed": 6,
+  "spriteChangeSpeed": 11,
+  "walkSpriteChangeSpeed": 8,
   "killReward": 8000,
   "knockbackCount": 10,
   "knockbackThresholdPercent": 25,
   "knockbackDuration": 0.52,
   "knockbackDistance": 5,
-  "attackCooldown": 0.8,
+  "attackCooldown": 0.5,
   "AreaAttack": 1,
   "traits": [
     "Floating"
   ],
-  "yOffset": -33
+  "yOffset": -55
 }
