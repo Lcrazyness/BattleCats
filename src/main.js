@@ -224,7 +224,7 @@ function battleUnitStats(unitOrKey) {
     spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,key==="doge"?5:6)),
     walkSpriteChangeSpeed:positive(config.walkSpriteChangeSpeed,positive(unit.walkSpriteChangeSpeed,2.5)),
     range:positive(config.range,positive(unit.range,55)),
-    recharge:Math.max(0.1,positive(config.recharge,positive(unit.recharge,2.5))-
+    recharge:isCatUnit?0:Math.max(0.1,positive(config.recharge,positive(unit.recharge,2.5))-
       (isObject&&unit.kind!=="doge"?Math.max(0,baseUpgradeLevel("research")-1)*0.2:0)),
     attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
     attackWindup:Math.max(0,Number.isFinite(Number(config.attackWindup))?Number(config.attackWindup):0),
@@ -2721,6 +2721,9 @@ function updateBattleEntityView(entity) {
   const element = ensureBattleEntityNode(entity);
   if (!element) return;
   element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
+  const entityStats=battleUnitStats(entity);
+  const yOffset=Number(entityStats.yOffset)||0;
+  element.style.bottom=yOffset+"px";
   const animationMode=battleAnimationMode(entity);
   const attackCycle=String(Number(entity.attackCycleId)||0);
   if(animationMode==="attack"&&element.dataset.attackVisualCycle!==attackCycle) {
@@ -2998,12 +3001,12 @@ function spawnPlayerCat(unit) {
   if (!battleState || battleState.ended) return;
   const stats = battleUnitStats(unit);
   const cost = stats.price;
-  const cooldown = battleState.adminInstantRecharge?0:Number(battleState.cooldowns[unit.id]||0);
+  const cooldown = battleState.adminInstantRecharge||unit.kind!=="doge"?0:Number(battleState.cooldowns[unit.id]||0);
   if (battleState.money < cost) return notify("Not enough money to deploy "+unit.name+".");
   if (cooldown > 0.05) return notify(unit.name+" is recharging.");
   battleState.money -= cost;
-  battleState.cooldowns[unit.id] = battleState.adminInstantRecharge?0:stats.recharge;
-  battleState.cooldownWasActive[String(unit.id)] = !battleState.adminInstantRecharge&&stats.recharge > 0.05;
+  battleState.cooldowns[unit.id] = battleState.adminInstantRecharge||unit.kind!=="doge"?0:stats.recharge;
+  battleState.cooldownWasActive[String(unit.id)] = unit.kind==="doge"&&!battleState.adminInstantRecharge&&stats.recharge > 0.05;
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
@@ -4152,7 +4155,7 @@ function upgradeCardMarkup(item) {
     ? '<span class="upgrade-wedge-max">MAX</span>'
     : currencySpriteMarkup(item.cost,"currency-size-upgrade-cost");
   const art=item.kind==="unit"
-    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art'+(item.folder==="Fish-Cat"?" fish-cat-upgrade-art":"")+'" src="'+(item.folder==="Fish-Cat"?"Cats/Fish-Cat/slot.png":"Cats/"+upgradeEscape(item.folder)+"/UpgradeSlot.png")+'?v=20261115-06" alt="" draggable="false">'+
+    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="'+(item.assets&&item.assets.upgrade?item.assets.upgrade:"Cats/"+upgradeEscape(item.folder)+"/UpgradeSlot.png")+'?v=20261124-02" alt="" draggable="false">'+
       '<span class="upgrade-wedge-info"><span class="upgrade-wedge-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
       '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></span></div>'
     : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span>'+
@@ -5018,6 +5021,18 @@ stage.addEventListener("click", event => {
 document.addEventListener("keydown", event=>{
   if (scene === "loading") return;
   if(handleAdminAccessCodeKey(event)) return;
+  if(scene==="fight"&&battleState&&!event.repeat&&!event.ctrlKey&&!event.altKey&&!event.metaKey&&/^[1-9]$|^0$/.test(event.key)) {
+    const slotIndex=event.key==="0"?9:Number(event.key)-1;
+    const slots=[...stage.querySelectorAll(".fight-unit-slot[data-battle-slot]")];
+    const slot=slots[slotIndex];
+    if(slot&&!slot.disabled) {
+      event.preventDefault();
+      prepareAudioForAction();
+      playSfx("deploy");
+      perform("deploy:"+slot.dataset.battleSlot);
+      return;
+    }
+  }
   if(event.key==="Escape"&&scene==="fight"&&adminPanelOpen) {
     toggleBattleAdminPanel();
     event.preventDefault();
