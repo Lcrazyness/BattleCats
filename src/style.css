@@ -4702,19 +4702,19 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   text-shadow:1px 1px 0 #5b2b0d !important;
 }
 
-/* Bun Bun is a large floating boss; his sprite should never collapse to a tiny face. */
+/* Teacher Bun Bun uses its own enemy atlas and stays larger than a regular Cat without overpowering the battlefield. */
 .fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] {
-  width:clamp(190px,23vw,310px) !important;
-  height:clamp(210px,38vh,340px) !important;
+  width:clamp(120px,14vw,170px) !important;
+  height:clamp(130px,22vh,165px) !important;
   overflow:visible !important;
   z-index:12 !important;
 }
 .fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] .fight-unit-sprite {
-  width:150% !important;
+  width:100% !important;
   height:100% !important;
   max-width:none !important;
   object-fit:contain !important;
-  scale:2.35 !important;
+  scale:1.08 !important;
   transform-origin:center bottom !important;
 }
 .fight-screen .fight-unit[data-unit-type="teacher-bun-bun"]:not(.is-attacking):not(.is-knockback):not(.is-dead):not(.is-damaged) .fight-unit-sprite {
@@ -4722,7 +4722,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 @keyframes bun-bun-floating {
   0%,100% { translate:0 0; }
-  50% { translate:0 -15px; }
+  50% { translate:0 -10px; }
 }
 
 /* The Equip view stays transparent: five lineup slots above five more, with UpgradeSlot cards below. */
@@ -4875,4 +4875,47 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   text-shadow:1px 1px 2px #332015 !important;
+}
+
+
+/* Equip is the same fully-artworked upgrade screen, with its lineup overlaid above the Cat cards. */
+.equip-screen.upgrade-screen {
+  background:#30190e !important;
+}
+.equip-screen .equip-upgrade-header {
+  top:1% !important;
+}
+.equip-screen .equip-slot {
+  cursor:pointer;
+  user-select:none;
+}
+.equip-screen .equip-slot.is-empty {
+  cursor:default;
+}
+.equip-screen .equip-slot.is-filled:hover {
+  filter:brightness(1.12);
+}
+.equip-screen .upgrade-carousel {
+  cursor:grab;
+}
+.equip-screen .upgrade-carousel .equip-cat-tile {
+  cursor:grab;
+}
+.equip-screen .upgrade-carousel .equip-cat-tile:active {
+  cursor:grabbing;
+}
+
+/* The chapter place strip supports mouse click-and-drag as well as its scrollbar and wheel. */
+.world-country-list {
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.world-country-list.is-mouse-dragging {
+  cursor:grabbing;
+  scroll-behavior:auto !important;
+}
+.world-country-row {
+  user-select:none;
+  -webkit-user-select:none;
 }
