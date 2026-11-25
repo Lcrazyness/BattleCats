@@ -1,97 +1,27 @@
 {
   "name": "Lizard Cat",
-  "frameCells": [
-    [
-      4,
-      5,
-      56,
-      54
-    ],
-    [
-      68,
-      7,
-      56,
-      50
-    ],
-    [
-      132,
-      7,
-      56,
-      50
-    ],
-    [
-      197,
-      4,
-      54,
-      56
-    ],
-    [
-      261,
-      4,
-      53,
-      55
-    ],
-    [
-      324,
-      4,
-      56,
-      56
-    ],
-    [
-      4,
-      70,
-      56,
-      52
-    ],
-    [
-      68,
-      76,
-      56,
-      39
-    ],
-    [
-      132,
-      79,
-      56,
-      34
-    ],
-    [
-      196,
-      84,
-      56,
-      24
-    ],
-    [
-      260,
-      73,
-      56,
-      46
-    ]
+  "moving": [
+    "Cats/Lizard-Cat/moving/frame-001.png",
+    "Cats/Lizard-Cat/moving/frame-002.png",
+    "Cats/Lizard-Cat/moving/frame-003.png",
+    "Cats/Lizard-Cat/moving/frame-004.png"
   ],
-  "walkFrames": [
-    0,
-    1,
-    2,
-    3
+  "attacks": [
+    "Cats/Lizard-Cat/attack/frame-001attack.png",
+    "Cats/Lizard-Cat/attack/frame-002attack.png",
+    "Cats/Lizard-Cat/attack/frame-003attack.png"
   ],
-  "hurtFrame": 10,
+  "attack": "Cats/Lizard-Cat/attack/frame-001attack.png",
   "attackFrameRate": 2.33,
   "attackDuration": 4.3,
+  "damagedFrames": [
+    "Cats/Lizard-Cat/damaged/frame-001damaged.png"
+  ],
+  "knockbackFrames": [
+    "Cats/Lizard-Cat/damaged/frame-001damaged.png"
+  ],
+  "idle": "Cats/Lizard-Cat/moving/frame-001.png",
+  "damaged": "Cats/Lizard-Cat/damaged/frame-001damaged.png",
   "slot": "Cats/Lizard-Cat/slot.png",
-  "upgrade": "Cats/Lizard-Cat/UpgradeSlot.png",
-  "atlasSize": {
-    "width": 384,
-    "height": 128
-  },
-  "attackBodyFrames": [
-    4,
-    5,
-    6
-  ],
-  "projectileFrames": [
-    9,
-    8,
-    7
-  ],
-  "atlasImage": "Cats/Lizard-Cat/sprite-atlas.png"
+  "upgrade": "Cats/Lizard-Cat/UpgradeSlot.png"
 }
