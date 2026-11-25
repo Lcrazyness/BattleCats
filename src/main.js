@@ -1394,7 +1394,7 @@ function renderStage() {
     const locked=index>completed;
     const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"")+(locked?" is-locked":"");
     const status=cleared?"★":current?"NEXT":"🔒";
-    return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":", locked")+'"'+(locked?" disabled":"")+'>'+
+    return '<button class="'+classes+'" style="left:'+Number(level.x||50)+'%;top:'+Number(level.y||50)+'%;" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":", locked")+'"'+(locked?" disabled":"")+'>'+
       '<span class="world-country-name">'+level.name+'</span>'+
       '<span class="world-country-status" aria-hidden="true">'+status+'</span>'+
     '</button>';
@@ -1411,8 +1411,8 @@ function renderStage() {
       '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">'+
         '<div class="world-map-canvas">'+
           '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
+          '<nav class="world-country-list" aria-label="Places on the map">'+countryRows+'</nav>'+
         '</div>'+
-        '<nav class="world-country-list" aria-label="Unlocked places">'+countryRows+'</nav>'+
         '<aside class="world-map-stage-info">'+
           '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
           '<strong>'+selected.name+'</strong>'+
