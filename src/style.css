@@ -4326,3 +4326,228 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
     margin-left:auto !important;
   }
 }
+
+
+/* Stage title card: Battle Cats-style white panel with a hard black outline. */
+.world-map-stage-info {
+  max-width:min(46%,440px);
+  padding:8px 12px;
+  border:3px solid #111;
+  border-radius:0;
+  background:#fff;
+  box-shadow:2px 3px 0 #111;
+  color:#171717;
+  text-shadow:none;
+}
+.world-map-stage-kicker,
+.world-map-stage-info > strong,
+.world-map-stage-stats,
+.world-map-stage-stats b {
+  color:#171717;
+  text-shadow:none;
+}
+
+/* Chapter select now holds three campaign buttons side by side. */
+.chapter-banner-one {
+  left:18% !important;
+  top:52% !important;
+  width:31% !important;
+  max-height:52vh !important;
+}
+.chapter-banner-two {
+  left:50% !important;
+  top:52% !important;
+  width:31% !important;
+  max-height:52vh !important;
+}
+.chapter-banner-three {
+  left:82% !important;
+  top:52% !important;
+  width:31% !important;
+  max-height:52vh !important;
+  animation:chapter-banner-arrive 1050ms cubic-bezier(.17,.8,.22,1) 280ms both !important;
+}
+.chapter-banner-label {
+  border-radius:0;
+}
+
+/* Equip Cats uses the same wooden upgrade frame, with ten real slot.png targets. */
+.equip-screen .equip-board {
+  position:absolute;
+  z-index:6;
+  left:10%;
+  right:10%;
+  top:16%;
+  bottom:12%;
+  display:flex;
+  flex-direction:column;
+  gap:clamp(6px,1.1vh,12px);
+  padding:clamp(7px,1.1vw,14px);
+  border:3px solid #16110e;
+  border-radius:0;
+  background:linear-gradient(180deg,#754a2bF2 0%,#422719F5 100%);
+  box-shadow:inset 0 0 0 2px #b88a58,0 3px 0 #1a120d;
+  overflow:hidden;
+}
+.equip-board-title,
+.equip-inventory-title {
+  flex:0 0 auto;
+  color:#fff2d4;
+  font:1000 clamp(10px,1.2vw,15px)/1 Impact,Haettenschweiler,sans-serif;
+  letter-spacing:.055em;
+  text-shadow:1px 2px #24170f;
+}
+.equip-slot-grid {
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  gap:clamp(3px,.55vw,7px);
+  width:100%;
+}
+.equip-slot {
+  position:relative;
+  display:grid;
+  place-items:center;
+  min-width:0;
+  aspect-ratio:1;
+  max-height:clamp(54px,10vh,94px);
+  border:2px solid #101010;
+  border-radius:0;
+  background:#8a8a8a;
+  box-shadow:inset 0 1px 0 #c5c5c5,0 1px 0 #21170f;
+  overflow:hidden;
+  transition:background .12s ease,transform .12s ease;
+}
+.equip-slot.is-filled { background:#b1a28b; }
+.equip-slot.is-dragover {
+  background:#e7d19a;
+  outline:3px solid #fff2a8;
+  outline-offset:-3px;
+  transform:scale(1.025);
+}
+.equip-slot > img:not(.equip-drag-preview) {
+  width:88%;
+  height:88%;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.equip-slot-number {
+  position:absolute;
+  z-index:2;
+  left:2px;
+  top:1px;
+  color:#fff;
+  font:900 clamp(8px,.7vw,10px)/1 Arial,sans-serif;
+  text-shadow:1px 1px #000, -1px -1px #000;
+  pointer-events:none;
+}
+.equip-slot small {
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  overflow:hidden;
+  padding:2px 1px;
+  background:#15110ed9;
+  color:#fff;
+  font:800 clamp(6px,.55vw,8px)/1 Arial,sans-serif;
+  text-align:center;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.equip-slot .equip-drag-preview {
+  position:absolute;
+  z-index:3;
+  inset:2%;
+  width:96%;
+  height:96%;
+  object-fit:contain;
+  opacity:.65;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.equip-cat-grid {
+  flex:1 1 auto;
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  align-content:start;
+  gap:clamp(4px,.7vw,9px);
+  min-height:0;
+  padding:2px;
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.equip-cat-tile {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-width:0;
+  min-height:clamp(66px,10vh,96px);
+  padding:5px 3px;
+  border:2px solid #16120e;
+  border-radius:0;
+  background:linear-gradient(#e4d4b3,#b59b70);
+  color:#24180f;
+  font:900 clamp(8px,.8vw,11px)/1.05 Arial,sans-serif;
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.equip-cat-tile img {
+  display:block;
+  width:clamp(30px,4vw,56px);
+  height:clamp(30px,4vw,56px);
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.equip-cat-tile small {
+  font:800 clamp(6px,.58vw,8px)/1 Arial,sans-serif;
+}
+.equip-cat-tile.is-equipped {
+  border-color:#e5c45d;
+  box-shadow:inset 0 0 0 1px #342314;
+}
+.equip-cat-tile.is-dragging { opacity:.42; cursor:grabbing; }
+.equip-count {
+  position:absolute;
+  right:3%;
+  top:50%;
+  transform:translateY(-50%);
+  color:#fff7d9;
+  font:1000 clamp(13px,1.3vw,19px)/1 Arial,sans-serif;
+  text-shadow:1px 2px #382014;
+}
+.equip-screen .upgrade-footer { z-index:14; }
+
+/* Boss-scale presentation for Teacher Bun Bun. */
+.fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] {
+  width:clamp(130px,16vw,220px);
+  height:clamp(150px,30vh,250px);
+  filter:drop-shadow(2px 4px 0 #241a14b0);
+}
+
+@media(max-width:700px) {
+  .chapter-banner-one { left:50% !important; top:25% !important; width:82% !important; max-height:22vh !important; }
+  .chapter-banner-two { left:50% !important; top:49% !important; width:82% !important; max-height:22vh !important; }
+  .chapter-banner-three { left:50% !important; top:73% !important; width:82% !important; max-height:22vh !important; }
+  .equip-screen .equip-board { left:8%; right:8%; top:14%; bottom:11%; padding:6px; gap:6px; }
+  .equip-slot-grid { gap:2px; }
+  .equip-slot { border-width:1px; max-height:none; }
+  .equip-slot-number { font-size:7px; }
+  .equip-slot small { display:none; }
+  .equip-cat-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; }
+  .equip-cat-tile { min-height:70px; }
+  .equip-count { right:2%; font-size:12px; }
+  .world-map-stage-info { max-width:55%; padding:5px 7px; border-width:2px; }
+}
+@media(max-width:390px) {
+  .equip-cat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
