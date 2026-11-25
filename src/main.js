@@ -2312,8 +2312,7 @@ function loadBattleAssetManifests() {
     const folder=unit.assetFolder||unit.spriteFolder||key;
     statRequests.push({id:String(unit.id),key,path:unit.statsPath||"Cats/"+folder+"/stats.json"});
     if(key!=="cat"&&key!=="doge") {
-      const spriteManifestPath=key==="titan-cat"?"enemys/teacher-bun-bun/assets.json":(unit.assetsPath||"Cats/"+folder+"/assets.json");
-      if(!assetRequests.some(([kind])=>kind===key)) assetRequests.push([key,spriteManifestPath]);
+      if(!assetRequests.some(([kind])=>kind===key)) assetRequests.push([key,unit.assetsPath||"Cats/"+folder+"/assets.json"]);
       if(!BATTLE_ASSETS[key]) BATTLE_ASSETS[key]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+folder+"/slot.png"};
     }
   });
@@ -2384,7 +2383,7 @@ function loadBattleAssetManifests() {
       const current=BATTLE_ASSETS[type];
       const jobs=[
         (async()=>{
-          const path=type==="teacher-bun-bun"?"Cats/Titan-Cat/assets.json":"enemys/"+enemyFolder+"/assets.json";
+          const path="enemys/"+enemyFolder+"/assets.json";
           try {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
