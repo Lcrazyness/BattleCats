@@ -11,5 +11,6 @@
   "knockbackDuration": 0.64,
   "knockbackDistance": 4.5,
   "attackCooldown": 2.8,
-  "AreaAttack": 1
+  "AreaAttack": 1,
+  "yOffset": 0
 }
