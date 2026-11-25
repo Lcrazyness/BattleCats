@@ -1402,36 +1402,39 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   flex-direction:column;
   align-items:flex-start;
   gap:5px;
-  max-width:45%;
-  padding:0;
-  border:0;
+  max-width:48%;
+  padding:clamp(8px,1vw,14px);
+  border:3px solid #080808;
   border-radius:0;
-  background:transparent;
-  box-shadow:none;
-  color:#fff0c8;
-  text-shadow:2px 2px 3px #3b2415,0 0 5px #3b2415;
+  background:#fff;
+  box-shadow:3px 3px 0 #080808;
+  color:#111;
+  text-shadow:none;
 }
 .world-map-stage-kicker {
-  color:#ffe59a;
+  color:#111;
   font:900 clamp(8px,.9vw,11px)/1 Arial,sans-serif;
   letter-spacing:.08em;
+  text-shadow:none;
 }
 .world-map-stage-info > strong {
-  color:#fff5d8;
+  color:#111;
   font:1000 clamp(21px,2.8vw,36px)/.95 Impact,Haettenschweiler,sans-serif;
-  text-shadow:2px 2px 3px #3b2415,0 0 5px #3b2415;
+  text-shadow:none;
 }
 .world-map-stage-stats {
   display:flex;
   align-items:center;
   gap:6px 10px;
   flex-wrap:wrap;
-  color:#fff1c9;
+  color:#111;
   font:900 clamp(8px,.85vw,11px)/1 Arial,sans-serif;
+  text-shadow:none;
 }
 .world-map-stage-stats b {
-  color:#ffe44e;
+  color:#111;
   font:1000 clamp(11px,1.1vw,14px)/1 Arial,sans-serif;
+  text-shadow:none;
 }
 .world-map-attack-panel {
   position:absolute;
@@ -4461,11 +4464,11 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .equip-slot .equip-drag-preview {
   position:absolute;
   z-index:3;
-  inset:2%;
-  width:96%;
-  height:96%;
+  inset:0;
+  width:100%;
+  height:100%;
   object-fit:contain;
-  opacity:.65;
+  opacity:.52;
   pointer-events:none;
   user-select:none;
   -webkit-user-drag:none;
@@ -4532,6 +4535,13 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   width:clamp(130px,16vw,220px);
   height:clamp(150px,30vh,250px);
   filter:drop-shadow(2px 4px 0 #241a14b0);
+}
+.fight-screen .fight-unit[data-unit-type="lizard-cat"] {
+  overflow:visible;
+}
+.fight-screen .fight-unit[data-unit-type="lizard-cat"] .fight-unit-sprite {
+  width:140%;
+  max-width:none;
 }
 
 @media(max-width:700px) {
