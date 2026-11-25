@@ -127,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-02";
+const BATTLE_ASSET_VERSION = "20261125-03";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2031,15 +2031,15 @@ function defaultBattleLevelConfig(levelName="Korea") {
 
   if(currentChapter===3&&levelName==="Moon") {
     enemySpawns=[
-      timedEnemySpawn("those-guys","infinite",0,0.1,1,6),
-      timedEnemySpawn("kang-roo","infinite",0,13.3,60,1),
-      timedEnemySpawn("sir-seal","infinite",0,10,40,1),
-      timedEnemySpawn("croco","infinite",20,0.3,1.3,3),
-      timedEnemySpawn("b-b-bunny","infinite",20,0.3,1.3,2),
-      timedEnemySpawn("mooth",1,40,60,80,1),
-      baseTriggeredEnemySpawn("gory","infinite",99,6.7,20,1),
-      baseTriggeredEnemySpawn("pigge","infinite",99,6.7,20,1),
-      baseTriggeredEnemySpawn("those-guys","infinite",99,0.7,2,6),
+      timedEnemySpawn("those-guys",80,0,0.1,1,6),
+      timedEnemySpawn("kang-roo",80,0,13.3,60,1),
+      timedEnemySpawn("sir-seal",80,0,10,40,1),
+      timedEnemySpawn("croco",80,20,0.3,1.3,3),
+      timedEnemySpawn("b-b-bunny",80,20,0.3,1.3,2),
+      timedEnemySpawn("mooth",80,40,60,80,1),
+      baseTriggeredEnemySpawn("gory",80,99,6.7,20,1),
+      baseTriggeredEnemySpawn("pigge",80,99,6.7,20,1),
+      baseTriggeredEnemySpawn("those-guys",80,99,0.7,2,6),
       baseTriggeredEnemySpawn("mooth",4,99,0.1,0.1,4),
       baseTriggeredEnemySpawn("kang-roo",6,99,0.1,4,6),
       baseTriggeredEnemySpawn("sir-seal",6,99,4,13.3,6),
@@ -2060,7 +2060,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
         ? (levelName==="Moon"?12:Math.min(10,Math.max(6,(EOC1_MAX_ENEMIES[levelName]||6)+1)))
         : (EOC1_MAX_ENEMIES[levelName]||6),
     maxTotalSpawns:currentChapter===3&&levelName==="Moon"
-      ? 80
+      ? 120
       : currentChapter===2
         ? (levelName==="Moon"?36:Math.min(30,20+Math.floor(Math.max(0,stageIndex)/4)))
         : (stageIndex<=0?18:Math.min(28,18+Math.floor(stageIndex/5))),
@@ -2193,6 +2193,17 @@ function createBattleState() {
     paused:false,levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
 }
+async function fetchBattleAtlasDataUri(path) {
+  const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+  if(!response.ok) throw new Error("HTTP "+response.status+" loading "+path);
+  const bytes=new Uint8Array(await response.arrayBuffer());
+  let binary="";
+  for(let offset=0;offset<bytes.length;offset+=0x8000) {
+    binary+=String.fromCharCode(...bytes.subarray(offset,Math.min(bytes.length,offset+0x8000)));
+  }
+  const mime=String(response.headers.get("content-type")||"image/png").split(";")[0];
+  return "data:"+mime+";base64,"+btoa(binary);
+}
 function lizardAttackCompositeSource(atlasSource,cells,bodyIndex,projectileIndex,atlasSize={width:384,height:128}) {
   const body=cells&&cells[bodyIndex];
   const projectile=cells&&cells[projectileIndex];
@@ -2300,14 +2311,15 @@ function loadBattleAssetManifests() {
       let data=await response.json();
       if(kind==="fish-cat"||kind==="bird-cat") data=await expandBattleAtlasFrameAssets(data);
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
-      if(Array.isArray(data.atlasParts)&&Array.isArray(data.frameCells)) {
+      if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
         try {
-          const encodedParts=await Promise.all(data.atlasParts.map(async partPath=>{
-            const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
-            if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
-            return (await atlasResponse.text()).trim();
-          }));
-          const atlasSource="data:image/png;base64,"+encodedParts.join("");
+          const atlasSource=Array.isArray(data.atlasParts)
+            ? "data:image/png;base64,"+(await Promise.all(data.atlasParts.map(async partPath=>{
+                const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+                if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
+                return (await atlasResponse.text()).trim();
+              }))).join("")
+            : await fetchBattleAtlasDataUri(data.atlasImage);
           const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
           if(Array.isArray(data.walkFrames)) data.moving=data.walkFrames.map(framePath);
           if(Array.isArray(data.attackFrames)) data.attackFrames=data.attackFrames.map(framePath);
@@ -2363,20 +2375,23 @@ function loadBattleAssetManifests() {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
             let data=await response.json();
-            if(Array.isArray(data.atlasParts)&&Array.isArray(data.frameCells)) {
-              const encodedParts=await Promise.all(data.atlasParts.map(async partPath=>{
-                const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
-                if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
-                return (await atlasResponse.text()).trim();
-              }));
-              const atlasSource="data:image/png;base64,"+encodedParts.join("");
+            if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
+              const atlasSource=Array.isArray(data.atlasParts)
+                ? "data:image/png;base64,"+(await Promise.all(data.atlasParts.map(async partPath=>{
+                    const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+                    if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
+                    return (await atlasResponse.text()).trim();
+                  }))).join("")
+                : await fetchBattleAtlasDataUri(data.atlasImage);
               const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
               if(Array.isArray(data.walkFrames)) data.moving=data.walkFrames.map(framePath);
               if(Array.isArray(data.attackFrames)) data.attackFrames=data.attackFrames.map(framePath);
               if(Number.isInteger(data.hurtFrame)) {
                 data.damagedFrames=[framePath(data.hurtFrame)];
                 data.knockbackFrames=[framePath(data.hurtFrame)];
+                data.damaged=data.damagedFrames[0];
               }
+              data.idle=data.moving?.[0]||data.idle;
             }
             if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
             if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
