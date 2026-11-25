@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-13";
+const BATTLE_ASSET_VERSION = "20261125-14";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2383,7 +2383,7 @@ function loadBattleAssetManifests() {
   });
   battleAssetsPromise=Promise.all([...assetJobs,...statJobs]).then(async()=>{
     await loadBattleLevelConfig();
-    const enemyTypes=[...new Set((battleLevelConfig?.enemySpawns||[]).map(rule=>rule.enemy))].filter(type=>type!=="doge");
+    const enemyTypes=[...new Set((battleLevelConfig?.enemySpawns||[]).map(rule=>battleUnitKey(rule.enemy)))].filter(type=>type!=="doge");
     await Promise.all(enemyTypes.map(async type=>{
       const enemyFolder=battleEnemyFolder(type);
       if(!BATTLE_ASSETS[type]) BATTLE_ASSETS[type]={moving:[],attacks:[],attack:"",damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/"+enemyFolder+"/slot.png"};
@@ -2471,7 +2471,7 @@ function loadBattleAssetManifests() {
 function preloadBattleManifestSprites() {
   const paths=new Set();
   const activeKeys=new Set(save.units.map(unit=>battleUnitKey(unit)));
-  for(const rule of battleLevelConfig?.enemySpawns||[]) activeKeys.add(rule.enemy);
+  for(const rule of battleLevelConfig?.enemySpawns||[]) activeKeys.add(battleUnitKey(rule.enemy));
   for(const key of activeKeys) {
     const assets=BATTLE_ASSETS[key]; if(!assets) continue;
     for(const field of ["moving","attacks","damagedFrames","knockbackFrames"]) {
@@ -4499,7 +4499,7 @@ function renderUpgrade() {
   const items=buildUpgradeCatalog();
   if(!items.some(item=>item.key===selectedUpgradeKey)) selectedUpgradeKey=items[0]?.key||"";
   const selected=items.find(item=>item.key===selectedUpgradeKey)||items[0];
-  const cards=items.map(upgradeCardMarkup).join("");
+  const cards=items.map(item=>upgradeCardMarkup(item,false)).join("");
   const xp=currencySpriteMarkup(save.xp,"currency-size-upgrade-header");
   return '<section class="screen upgrade-screen" aria-label="Cat upgrades">'+
     '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-07" alt="" draggable="false">'+
