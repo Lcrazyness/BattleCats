@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-12";
+const BATTLE_ASSET_VERSION = "20261125-13";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2395,7 +2395,6 @@ function loadBattleAssetManifests() {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
             let data=await response.json();
-            if(type==="teacher-bun-bun"&&typeof data.atlasImage==="string") data.atlasImage="Cats/Titan-Cat/sprite-atlas.png";
             if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
               const atlasSource=Array.isArray(data.atlasParts)
                 ? "data:image/png;base64,"+(await Promise.all(data.atlasParts.map(async partPath=>{
