@@ -1381,8 +1381,8 @@ function renderStage() {
 
   const chapterLevels=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE).filter(level=>level.name!=="The Great Abyss");
   const completed=chapterClearCount();
-  const highestAvailable=Math.min(47,completed);
-  if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=highestAvailable;
+  const highestAvailable=Math.min(chapterLevels.length-1,completed);
+  if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>=chapterLevels.length) selectedLevelIndex=highestAvailable;
   selectedLevelIndex=Math.min(selectedLevelIndex,highestAvailable);
   const selected=chapterLevels[selectedLevelIndex];
   const available=selectedLevelIndex<=completed;
@@ -1414,7 +1414,7 @@ function renderStage() {
           '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261125-11" alt="" draggable="false">'+
         '</div>'+
         '<aside class="world-map-stage-info">'+
-          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
+          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 47 · '+stageStatus+'</span>'+
           '<strong>'+selected.name+'</strong>'+
           '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
         '</aside>'+
