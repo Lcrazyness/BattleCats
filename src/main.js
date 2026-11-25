@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-08";
+const BATTLE_ASSET_VERSION = "20261125-11";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -1379,7 +1379,7 @@ function renderStage() {
     return renderWindow("Choose a Stage",body,"battle");
   }
 
-  const chapterLevels=currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+  const chapterLevels=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE).filter(level=>level.name!=="The Great Abyss");
   const completed=chapterClearCount();
   const highestAvailable=Math.min(47,completed);
   if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=highestAvailable;
@@ -1394,7 +1394,7 @@ function renderStage() {
     const locked=index>completed;
     const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"")+(locked?" is-locked":"");
     const status=cleared?"★":current?"NEXT":"🔒";
-    return '<button class="'+classes+'" style="left:'+Number(level.x||50)+'%;top:'+Number(level.y||50)+'%;" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":", locked")+'"'+(locked?" disabled":"")+'>'+
+    return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":", locked")+'"'+(locked?" disabled":"")+'>'+
       '<span class="world-country-name">'+level.name+'</span>'+
       '<span class="world-country-status" aria-hidden="true">'+status+'</span>'+
     '</button>';
@@ -1408,12 +1408,12 @@ function renderStage() {
         '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER '+currentChapter+'</span></div>'+
         '<div class="world-stage-xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
       '</header>'+
-      '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">'+
-        '<div class="world-map-canvas">'+
-          '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261029-14" alt="" draggable="false">'+
-          '<nav class="world-country-list" aria-label="Places on the map">'+countryRows+'</nav>'+
-        '</div>'+
-        '<aside class="world-map-stage-info">'+
+      '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">
+        <nav class="world-country-list" aria-label="Scrollable places">'+countryRows+'</nav>
+        <div class="world-map-canvas">
+          <img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261125-11" alt="" draggable="false">
+        </div>
+        <aside class="world-map-stage-info">'+
           '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
           '<strong>'+selected.name+'</strong>'+
           '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
@@ -2312,7 +2312,8 @@ function loadBattleAssetManifests() {
     const folder=unit.assetFolder||unit.spriteFolder||key;
     statRequests.push({id:String(unit.id),key,path:unit.statsPath||"Cats/"+folder+"/stats.json"});
     if(key!=="cat"&&key!=="doge") {
-      if(!assetRequests.some(([kind])=>kind===key)) assetRequests.push([key,unit.assetsPath||"Cats/"+folder+"/assets.json"]);
+      const spriteManifestPath=key==="titan-cat"?"enemys/teacher-bun-bun/assets.json":(unit.assetsPath||"Cats/"+folder+"/assets.json");
+      if(!assetRequests.some(([kind])=>kind===key)) assetRequests.push([key,spriteManifestPath]);
       if(!BATTLE_ASSETS[key]) BATTLE_ASSETS[key]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+folder+"/slot.png"};
     }
   });
@@ -2321,6 +2322,7 @@ function loadBattleAssetManifests() {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if(!response.ok) return;
       let data=await response.json();
+      if(kind==="titan-cat"&&typeof data.atlasImage==="string") data.atlasImage="enemys/teacher-bun-bun/sprite-atlas.png";
       if(kind==="fish-cat"||kind==="bird-cat") data=await expandBattleAtlasFrameAssets(data);
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
       if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
@@ -2382,11 +2384,12 @@ function loadBattleAssetManifests() {
       const current=BATTLE_ASSETS[type];
       const jobs=[
         (async()=>{
-          const path="enemys/"+enemyFolder+"/assets.json";
+          const path=type==="teacher-bun-bun"?"Cats/Titan-Cat/assets.json":"enemys/"+enemyFolder+"/assets.json";
           try {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
             let data=await response.json();
+            if(type==="teacher-bun-bun"&&typeof data.atlasImage==="string") data.atlasImage="Cats/Titan-Cat/sprite-atlas.png";
             if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
               const atlasSource=Array.isArray(data.atlasParts)
                 ? "data:image/png;base64,"+(await Promise.all(data.atlasParts.map(async partPath=>{
@@ -4512,27 +4515,25 @@ function renderDictionary(equip=false) {
       const unit=save.units.find(candidate=>String(candidate.id)===String(ids[index]));
       const icon=unit?'<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">':'';
       const label=unit?upgradeEscape(unit.name):"Empty slot "+(index+1);
-      return '<div class="equip-slot'+(unit?' is-filled':' is-empty')+'" data-equip-slot="'+index+'" tabindex="0" role="button" aria-label="Slot '+(index+1)+': '+label+'">'+
+      return '<button class="equip-slot'+(unit?' is-filled':' is-empty')+'" type="button" data-equip-slot="'+index+'" aria-label="Slot '+(index+1)+': '+label+'">'+
         '<span class="equip-slot-number">'+(index+1)+'</span>'+icon+
-      '</div>';
+      '</button>';
     }).join("");
-    const inventory=save.units.map((unit,index)=>{
-      const isEquipped=ids.some(id=>String(id)===String(unit.id));
-      return '<div class="equip-cat-tile'+(isEquipped?' is-equipped':'')+'" draggable="true" data-equip-unit-id="'+upgradeEscape(unit.id)+'" aria-grabbed="false">'+
-        '<img src="'+upgradeSlotImageForUnit(unit)+'" alt="" draggable="false">'+
-        '<strong>'+upgradeEscape(unit.name)+'</strong>'+
-        '<small>Lv. '+Math.max(1,Number(unit.level)||1)+'</small>'+
-      '</div>';
-    }).join("");
-    return '<section class="screen equip-screen" aria-label="Equip Cats">'+
-      '<header class="equip-header"><strong>EQUIP CATS</strong><span class="equip-count">'+ids.length+' / 10</span></header>'+
-      '<section class="equip-board">'+
-        '<div class="equip-slots-heading">BATTLE LINEUP</div>'+
-        '<div class="equip-slot-grid">'+slots+'</div>'+
-        '<div class="equip-inventory-title">UPGRADE MENU · DRAG AN UPGRADE SLOT INTO A BATTLE SLOT</div>'+
-        '<div class="equip-cat-grid">'+inventory+'</div>'+
-      '</section>'+
+    const items=buildUpgradeCatalog();
+    if(!items.some(item=>item.key===selectedUpgradeKey)) selectedUpgradeKey=items[0]?.key||"";
+    const selected=items.find(item=>item.key===selectedUpgradeKey)||items[0];
+    const cards=items.map(upgradeCardMarkup).join("");
+    const xp=currencySpriteMarkup(save.xp,"currency-size-upgrade-header");
+    return '<section class="screen equip-screen upgrade-screen" aria-label="Equip and upgrade Cats">'+
+      '<header class="upgrade-header equip-upgrade-header"><strong>UPGRADE</strong><span class="upgrade-xp-readout"><small>XP</small>'+xp+'</span></header>'+
+      '<div class="equip-slot-grid" aria-label="Battle lineup">'+slots+'</div>'+
+      '<div class="equip-inventory-title">UPGRADE MENU</div>'+
+      '<div class="upgrade-carousel equip-upgrade-carousel" aria-label="Select a Cat upgrade">'+cards+'</div>'+
+      '<section class="upgrade-bottom-copy" aria-live="polite">'+upgradeDetailMarkup(selected)+'</section>'+
       '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-07" alt="" draggable="false"></button>'+
+      '<button class="upgrade-action-button" type="button" data-go="upgrade-buy" aria-label="'+(selected.level>=selected.max?upgradeEscape(selected.name+" is max level"):"Upgrade "+upgradeEscape(selected.name))+'">'+
+        '<img src="sprites/backgrounds/UpgradeMenu/upgradebutton.png?v=20261106-07" alt="" draggable="false">'+
+      '</button>'+
     '</section>';
   }
   const layoutControls=equip
