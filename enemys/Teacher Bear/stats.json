@@ -13,5 +13,6 @@
   "knockbackDistance": 3.5,
   "attackCooldown": 4,
   "AreaAttack": 1,
-  "traits": []
+  "traits": [],
+  "yOffset": 0
 }
