@@ -224,6 +224,7 @@ function battleUnitStats(unitOrKey) {
     spriteChangeSpeed:positive(config.spriteChangeSpeed,positive(unit.spriteChangeSpeed,key==="doge"?5:6)),
     walkSpriteChangeSpeed:positive(config.walkSpriteChangeSpeed,positive(unit.walkSpriteChangeSpeed,2.5)),
     range:positive(config.range,positive(unit.range,55)),
+    yOffset:Number.isFinite(Number(config.yOffset))?Number(config.yOffset):0,
     recharge:isCatUnit?0:Math.max(0.1,positive(config.recharge,positive(unit.recharge,2.5))-
       (isObject&&unit.kind!=="doge"?Math.max(0,baseUpgradeLevel("research")-1)*0.2:0)),
     attackCooldown:positive(config.attackCooldown,positive(unit.attackCooldown,key==="doge"?1.55:1.15)),
@@ -2723,7 +2724,7 @@ function updateBattleEntityView(entity) {
   element.style.left = Math.max(2,Math.min(97,entity.x))+"%";
   const entityStats=battleUnitStats(entity);
   const yOffset=Number(entityStats.yOffset)||0;
-  element.style.bottom=yOffset+"px";
+  element.style.setProperty("--battle-unit-y-offset",yOffset+"px");
   const animationMode=battleAnimationMode(entity);
   const attackCycle=String(Number(entity.attackCycleId)||0);
   if(animationMode==="attack"&&element.dataset.attackVisualCycle!==attackCycle) {
@@ -4155,7 +4156,7 @@ function upgradeCardMarkup(item) {
     ? '<span class="upgrade-wedge-max">MAX</span>'
     : currencySpriteMarkup(item.cost,"currency-size-upgrade-cost");
   const art=item.kind==="unit"
-    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="'+(item.assets&&item.assets.upgrade?item.assets.upgrade:"Cats/"+upgradeEscape(item.folder)+"/UpgradeSlot.png")+'?v=20261124-02" alt="" draggable="false">'+
+    ? '<div class="upgrade-card-art-wrap"><img class="upgrade-card-art" src="'+"Cats/"+upgradeEscape(item.folder)+"/UpgradeSlot.png"+'?v=20261124-02" alt="" draggable="false">'+
       '<span class="upgrade-wedge-info"><span class="upgrade-wedge-level"><small>LEVEL</small>'+level+'<small>/ '+item.max+'</small></span>'+
       '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></span></div>'
     : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span>'+
