@@ -4818,3 +4818,38 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .chapter-banner-two { top:49% !important; }
   .chapter-banner-three { top:73% !important; }
 }
+
+/* Restore the horizontal place-name strip above the map. */
+.world-level-map { display:flex !important; flex-direction:column !important; }
+.world-country-list { position:relative !important; inset:auto !important; z-index:8 !important; display:flex !important;
+ flex:0 0 auto !important; flex-direction:row !important; align-items:center !important; gap:12px !important;
+ width:100% !important; height:clamp(48px,6.5vh,62px) !important; overflow-x:auto !important; overflow-y:hidden !important;
+ padding:4px 12px 8px !important; pointer-events:auto !important; touch-action:pan-x !important;
+ scrollbar-width:thin !important; scrollbar-color:#70401f #d9c39a !important; }
+.world-country-list::-webkit-scrollbar { display:block !important; height:6px !important; }
+.world-country-list::-webkit-scrollbar-track { background:#d9c39a !important; }
+.world-country-list::-webkit-scrollbar-thumb { background:#70401f !important; border-radius:8px; }
+.world-country-row { position:relative !important; inset:auto !important; left:auto !important; top:auto !important;
+ flex:0 0 auto !important; transform:none !important; max-width:none !important; pointer-events:auto !important;
+ height:38px !important; min-height:38px !important; }
+.world-country-row.is-selected,.world-country-row:active { transform:none !important; }
+.world-map-canvas { flex:1 1 auto !important; min-height:0 !important; }
+@media(max-width:700px) { .world-country-list { height:48px !important; gap:8px !important; } .world-country-row { height:34px !important; min-height:34px !important; } }
+/* Teacher Bun Bun faces left toward the player. */
+.fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] .fight-unit-sprite { transform:scaleX(-1) !important; }
+/* Equip is the Upgrade screen with the ten equipped battle icons at the top. */
+.equip-screen.upgrade-screen { background:transparent !important; }
+.equip-screen .equip-upgrade-header { top:2% !important; }
+.equip-screen .equip-slot-grid { position:absolute !important; z-index:12 !important; left:8% !important; right:8% !important;
+ top:11% !important; width:84% !important; height:clamp(58px,11vh,104px) !important; display:grid !important;
+ grid-template-columns:repeat(5,minmax(0,1fr)) !important; grid-template-rows:repeat(2,minmax(0,1fr)) !important; gap:4px !important; }
+.equip-screen .equip-slot { display:flex !important; align-items:center !important; justify-content:center !important;
+ min-width:0 !important; min-height:0 !important; padding:2px !important; background:transparent !important; }
+.equip-screen .equip-slot img { width:100% !important; height:100% !important; object-fit:contain !important; }
+.equip-screen .equip-inventory-title { position:absolute !important; top:24% !important; left:8% !important; right:8% !important;
+ margin:0 !important; text-align:center !important; z-index:10 !important; }
+.equip-screen .equip-upgrade-carousel { top:30% !important; height:39% !important; left:5% !important; right:5% !important; }
+.equip-screen .upgrade-bottom-copy { bottom:12% !important; }
+.equip-screen .upgrade-action-button,.equip-screen .upgrade-back-button { bottom:2% !important; }
+@media(max-width:700px) { .equip-screen .equip-slot-grid { left:3% !important; right:3% !important; width:94% !important; top:10% !important; height:clamp(54px,10vh,82px) !important; }
+.equip-screen .equip-inventory-title { top:22% !important; } .equip-screen .equip-upgrade-carousel { top:28% !important; height:38% !important; } }
