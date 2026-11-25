@@ -3922,6 +3922,24 @@ async function loadAdminEnemyAssets(enemyType) {
     if(assetResult.status==="fulfilled"&&assetResult.value.ok) {
       try {
         const data=await assetResult.value.json();
+        if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
+          const atlasSource=Array.isArray(data.atlasParts)
+            ? "data:image/png;base64,"+(await Promise.all(data.atlasParts.map(async partPath=>{
+                const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+                if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
+                return (await atlasResponse.text()).trim();
+              }))).join("")
+            : await fetchBattleAtlasDataUri(data.atlasImage);
+          const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
+          if(Array.isArray(data.walkFrames)) data.moving=data.walkFrames.map(framePath);
+          if(Array.isArray(data.attackFrames)) data.attackFrames=data.attackFrames.map(framePath);
+          if(Number.isInteger(data.hurtFrame)) {
+            data.damagedFrames=[framePath(data.hurtFrame)];
+            data.knockbackFrames=[framePath(data.hurtFrame)];
+            data.damaged=data.damagedFrames[0];
+          }
+          data.idle=data.moving?.[0]||data.idle;
+        }
         if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
         if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
         else if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
