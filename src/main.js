@@ -117,7 +117,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261115-06";
+const BATTLE_ASSET_VERSION = "20261124-01";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2153,32 +2153,38 @@ async function expandBattleAtlasFrameAssets(data) {
   const allPaths=[...pathLists.flatMap(list=>Array.isArray(list)?list:[]),...singlePaths]
     .filter(path=>typeof path==="string"&&path.includes("#frame="));
   if(!allPaths.length) return data;
-  const atlasPath=allPaths[0].split("#frame=")[0];
-  if(allPaths.some(path=>path.split("#frame=")[0]!==atlasPath)) return data;
+  const atlasPaths=[...new Set(allPaths.map(path=>path.split("#frame=")[0]))];
   try {
-    const atlas=await new Promise((resolve,reject)=>{
-      const image=new Image();
-      image.crossOrigin="anonymous";
-      image.decoding="async";
-      image.onload=()=>resolve(image);
-      image.onerror=()=>reject(new Error("Could not load Fish Cat sprite atlas"));
-      image.src=battleAssetUrl(atlasPath);
-    });
+    const atlases=new Map();
+    await Promise.all(atlasPaths.map(async atlasPath=>{
+      const image=await new Promise((resolve,reject)=>{
+        const atlas=new Image();
+        atlas.crossOrigin="anonymous";
+        atlas.decoding="async";
+        atlas.onload=()=>resolve(atlas);
+        atlas.onerror=()=>reject(new Error("Could not load sprite sheet: "+atlasPath));
+        atlas.src=battleAssetUrl(atlasPath);
+      });
+      atlases.set(atlasPath,image);
+    }));
     const frames=new Map();
     const extractFrame=path=>{
       if(typeof path!=="string"||!path.includes("#frame=")) return path;
       if(frames.has(path)) return frames.get(path);
       const match=path.match(/#frame=(\d+),(\d+),(\d+),(\d+)$/);
       if(!match) return path;
+      const atlasPath=path.split("#frame=")[0];
+      const atlas=atlases.get(atlasPath);
+      if(!atlas) return path;
       const sx=Number(match[1]),sy=Number(match[2]),sw=Number(match[3]),sh=Number(match[4]);
       if(sw<=0||sh<=0||sx<0||sy<0||sx+sw>atlas.naturalWidth||sy+sh>atlas.naturalHeight) {
-        throw new Error("Fish Cat atlas frame is outside the image: "+path);
+        throw new Error("Sprite sheet frame is outside its image: "+path);
       }
       const canvas=document.createElement("canvas");
       canvas.width=sw;
       canvas.height=sh;
       const context=canvas.getContext("2d");
-      if(!context) throw new Error("Could not create Fish Cat frame canvas");
+      if(!context) throw new Error("Could not create sprite frame canvas");
       context.imageSmoothingEnabled=true;
       context.drawImage(atlas,sx,sy,sw,sh,0,0,sw,sh);
       const frameUrl=canvas.toDataURL("image/png");
@@ -2198,7 +2204,7 @@ async function expandBattleAtlasFrameAssets(data) {
       damaged:extractFrame(data.damaged)
     };
   } catch(error) {
-    console.warn("Fish Cat atlas frame extraction failed; keeping manifest frame paths:",error);
+    console.warn("Sprite sheet frame extraction failed; keeping manifest frame paths:",error);
     return data;
   }
 }
@@ -2221,7 +2227,7 @@ function loadBattleAssetManifests() {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if(!response.ok) return;
       let data=await response.json();
-      if(kind==="fish-cat") data=await expandBattleAtlasFrameAssets(data);
+      if(kind==="fish-cat"||kind==="bird-cat") data=await expandBattleAtlasFrameAssets(data);
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
       if(Array.isArray(data.atlasParts)&&Array.isArray(data.frameCells)) {
         try {
