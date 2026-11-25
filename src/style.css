@@ -4670,3 +4670,75 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 
 .world-country-row.is-locked { opacity:.58 !important; cursor:not-allowed !important; }
 .world-country-row.is-locked .world-country-status { color:#ed8500 !important; }
+
+
+/* Chapter banners share one centerline so Chapter 3 cannot sit lower than the others. */
+.chapter-banner-one,
+.chapter-banner-two,
+.chapter-banner-three {
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+}
+
+/* Keep stage/place labels in the established yellow-to-orange palette. */
+.world-map-stage-info {
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  color:#ffc21a !important;
+  text-shadow:1px 2px 0 #5b2b0d !important;
+}
+.world-map-stage-kicker,
+.world-map-stage-stats {
+  color:#ffb21a !important;
+  text-shadow:1px 1px 0 #5b2b0d !important;
+}
+.world-map-stage-info > strong {
+  color:#ffdc27 !important;
+  text-shadow:2px 2px 0 #9b4b0b !important;
+}
+.world-map-stage-stats b {
+  color:#f58a12 !important;
+  text-shadow:1px 1px 0 #5b2b0d !important;
+}
+
+/* Bun Bun is a large floating boss; his sprite should never collapse to a tiny face. */
+.fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] {
+  width:clamp(190px,23vw,310px) !important;
+  height:clamp(210px,38vh,340px) !important;
+  overflow:visible !important;
+  z-index:12 !important;
+}
+.fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] .fight-unit-sprite {
+  width:150% !important;
+  height:100% !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  scale:2.35 !important;
+  transform-origin:center bottom !important;
+}
+.fight-screen .fight-unit[data-unit-type="teacher-bun-bun"]:not(.is-attacking):not(.is-knockback):not(.is-dead):not(.is-damaged) .fight-unit-sprite {
+  animation:bun-bun-floating 2.8s ease-in-out infinite !important;
+}
+@keyframes bun-bun-floating {
+  0%,100% { translate:0 0; }
+  50% { translate:0 -15px; }
+}
+
+/* The Equip view stays transparent: five lineup slots above five more, with UpgradeSlot cards below. */
+.equip-screen,
+.equip-screen .equip-board {
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+}
+.equip-screen .equip-slot-grid {
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+}
+.equip-screen .equip-cat-tile {
+  cursor:grab;
+}
+.equip-screen .equip-cat-tile:active {
+  cursor:grabbing;
+}
