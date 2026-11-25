@@ -16,5 +16,6 @@
   "knockbackDistance": 5,
   "AttackTrait": "",
   "AttackBoost": "",
-  "Bio": "A speedy single-target attacker that rushes into the enemy line and strikes rapidly."
+  "Bio": "A speedy single-target attacker that rushes into the enemy line and strikes rapidly.",
+  "yOffset": 0
 }
