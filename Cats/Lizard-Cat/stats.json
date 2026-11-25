@@ -17,5 +17,7 @@
   "AttackTrait": "",
   "AttackBoost": "",
   "Bio": "A long-range dragon-like Cat that attacks from behind the frontline.",
-  "yOffset": 0
+  "yOffset": 0,
+  "unlockChapter": 1,
+  "unlockStage": "Egypt"
 }
