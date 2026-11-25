@@ -17,5 +17,7 @@
   "AttackTrait": "Red",
   "AttackBoost": "Strong",
   "Bio": "A sturdy close-range area attacker with high damage and strength against Red enemies.",
-  "yOffset": 0
+  "yOffset": 0,
+  "unlockChapter": 1,
+  "unlockStage": "Madagascar"
 }
