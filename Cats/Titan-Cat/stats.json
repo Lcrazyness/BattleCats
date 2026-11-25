@@ -1,0 +1,21 @@
+{
+  "name": "Titan Cat",
+  "health": 1000,
+  "damage": 280,
+  "price": 13,
+  "speed": 8,
+  "spriteChangeSpeed": 6,
+  "walkSpriteChangeSpeed": 2.5,
+  "range": 150,
+  "recharge": 0,
+  "attackCooldown": 2.23,
+  "AreaAttack": 1,
+  "knockbackCount": 1,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "AttackTrait": "",
+  "AttackBoost": "",
+  "Bio": "A powerful close-range area attacker with high health and heavy blows.",
+  "yOffset": 0
+}
