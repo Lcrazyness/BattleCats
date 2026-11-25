@@ -4518,18 +4518,18 @@ function renderDictionary(equip=false) {
     }).join("");
     const inventory=save.units.map((unit,index)=>{
       const isEquipped=ids.some(id=>String(id)===String(unit.id));
-      return '<button class="equip-cat-tile'+(isEquipped?' is-equipped':'')+'" type="button" draggable="true" data-equip-unit-id="'+upgradeEscape(unit.id)+'" data-go="equipunit:'+index+'" aria-grabbed="false">'+
+      return '<div class="equip-cat-tile'+(isEquipped?' is-equipped':'')+'" draggable="true" data-equip-unit-id="'+upgradeEscape(unit.id)+'" aria-grabbed="false">'+
         '<img src="'+upgradeSlotImageForUnit(unit)+'" alt="" draggable="false">'+
         '<strong>'+upgradeEscape(unit.name)+'</strong>'+
         '<small>Lv. '+Math.max(1,Number(unit.level)||1)+'</small>'+
-      '</button>';
+      '</div>';
     }).join("");
     return '<section class="screen equip-screen" aria-label="Equip Cats">'+
       '<header class="equip-header"><strong>EQUIP CATS</strong><span class="equip-count">'+ids.length+' / 10</span></header>'+
       '<section class="equip-board">'+
         '<div class="equip-slots-heading">BATTLE LINEUP</div>'+
         '<div class="equip-slot-grid">'+slots+'</div>'+
-        '<div class="equip-inventory-title">OWNED CATS · DRAG AN UPGRADE SLOT INTO A BATTLE SLOT</div>'+
+        '<div class="equip-inventory-title">UPGRADE MENU · DRAG AN UPGRADE SLOT INTO A BATTLE SLOT</div>'+
         '<div class="equip-cat-grid">'+inventory+'</div>'+
       '</section>'+
       '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-07" alt="" draggable="false"></button>'+
