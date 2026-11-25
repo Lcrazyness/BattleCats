@@ -15,5 +15,6 @@
   "AreaAttack": 0,
   "traits": [
     "Red"
-  ]
+  ],
+  "yOffset": 0
 }
