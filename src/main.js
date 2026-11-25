@@ -127,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261124-05";
+const BATTLE_ASSET_VERSION = "20261124-06";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2280,14 +2280,14 @@ function loadBattleAssetManifests() {
           }));
           const atlasSource="data:image/png;base64,"+encodedParts.join("");
           const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
-          if(Array.isArray(data.walkFrames)) current.moving=data.walkFrames.map(framePath);
-          if(Array.isArray(data.attackFrames)) current.attacks=data.attackFrames.map(framePath);
+          if(Array.isArray(data.walkFrames)) data.moving=data.walkFrames.map(framePath);
+          if(Array.isArray(data.attackFrames)) data.attackFrames=data.attackFrames.map(framePath);
           if(Number.isInteger(data.hurtFrame)) {
-            current.damagedFrames=[framePath(data.hurtFrame)];
-            current.knockbackFrames=[framePath(data.hurtFrame)];
-            current.damaged=current.damagedFrames[0];
+            data.damagedFrames=[framePath(data.hurtFrame)];
+            data.knockbackFrames=[framePath(data.hurtFrame)];
+            data.damaged=data.damagedFrames[0];
           }
-          current.idle=current.moving[0]||current.idle;
+          data.idle=data.moving?.[0]||data.idle;
         } catch(error) { console.warn("Cat sprite atlas could not be assembled:",path,error); }
       }
       if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
@@ -2369,6 +2369,10 @@ function loadBattleAssetManifests() {
         })()
       ];
       await Promise.all(jobs);
+    }));
+    const spriteKeys=new Set([...save.units.map(unit=>battleUnitKey(unit)),...enemyTypes]);
+    await Promise.all([...spriteKeys].map(async key=>{
+      if(BATTLE_ASSETS[key]) BATTLE_ASSETS[key]=await expandBattleAtlasFrameAssets(BATTLE_ASSETS[key]);
     }));
     if(battleState) {
       battleState.levelReady=true;
