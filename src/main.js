@@ -127,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261124-04";
+const BATTLE_ASSET_VERSION = "20261124-05";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -5171,7 +5171,14 @@ stage.addEventListener("dragstart",event=>{
     event.dataTransfer.effectAllowed="move";
     event.dataTransfer.setData("text/plain",activeEquipDragId);
     const image=tile.querySelector("img");
-    if(image) event.dataTransfer.setDragImage(image,Math.max(8,image.clientWidth/2),Math.max(8,image.clientHeight/2));
+    if(image) {
+      const dragIcon=image.cloneNode(true);
+      dragIcon.className="equip-drag-icon";
+      dragIcon.style.cssText="position:fixed;left:-1000px;top:-1000px;width:40px;height:40px;object-fit:contain;opacity:.42;pointer-events:none;";
+      stage.appendChild(dragIcon);
+      event.dataTransfer.setDragImage(dragIcon,20,20);
+      requestAnimationFrame(()=>dragIcon.remove());
+    }
   }
 });
 stage.addEventListener("dragover",event=>{
