@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-14";
+const BATTLE_ASSET_VERSION = "20261125-15";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2329,6 +2329,10 @@ function loadBattleAssetManifests() {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if(!response.ok) return;
       let data=await response.json();
+      if(kind==="titan-cat") {
+        data.atlasImage="Cats/Titan-Cat/sprite-atlas.png";
+        if(data.name!=="Titan Cat") console.warn("Titan Cat loaded an unexpected sprite manifest:",data.name);
+      }
       if(kind==="fish-cat"||kind==="bird-cat") data=await expandBattleAtlasFrameAssets(data);
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
       if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
@@ -2395,6 +2399,10 @@ function loadBattleAssetManifests() {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
             let data=await response.json();
+            if(type==="teacher-bun-bun") {
+              data.atlasImage="enemys/teacher-bun-bun/sprite-atlas.png";
+              if(data.name!=="Teacher Bun Bun") console.warn("Teacher Bun Bun loaded an unexpected sprite manifest:",data.name);
+            }
             if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
               const atlasSource=Array.isArray(data.atlasParts)
                 ? "data:image/png;base64,"+(await Promise.all(data.atlasParts.map(async partPath=>{
