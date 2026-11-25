@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-15";
+const BATTLE_ASSET_VERSION = "20261125-16";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2330,7 +2330,7 @@ function loadBattleAssetManifests() {
       if(!response.ok) return;
       let data=await response.json();
       if(kind==="titan-cat") {
-        data.atlasImage="Cats/Titan-Cat/sprite-atlas.png";
+        data.atlasImage="enemys/teacher-bun-bun/sprite-atlas.png";
         if(data.name!=="Titan Cat") console.warn("Titan Cat loaded an unexpected sprite manifest:",data.name);
       }
       if(kind==="fish-cat"||kind==="bird-cat") data=await expandBattleAtlasFrameAssets(data);
@@ -2400,7 +2400,7 @@ function loadBattleAssetManifests() {
             if(!response.ok) return;
             let data=await response.json();
             if(type==="teacher-bun-bun") {
-              data.atlasImage="enemys/teacher-bun-bun/sprite-atlas.png";
+              data.atlasImage="Cats/Titan-Cat/sprite-atlas.png";
               if(data.name!=="Teacher Bun Bun") console.warn("Teacher Bun Bun loaded an unexpected sprite manifest:",data.name);
             }
             if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
