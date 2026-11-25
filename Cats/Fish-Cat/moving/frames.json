@@ -1,12 +1,11 @@
 {
   "frames": [
-    "Cats/Fish-Cat/sprite-atlas.png#frame=0,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=160,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=320,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=480,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=640,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=800,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=960,0,160,160",
-    "Cats/Fish-Cat/sprite-atlas.png#frame=1120,0,160,160"
+    "Cats/Fish-Cat/moving/frame-001.png",
+    "Cats/Fish-Cat/moving/frame-002.png",
+    "Cats/Fish-Cat/moving/frame-003.png",
+    "Cats/Fish-Cat/moving/frame-004.png",
+    "Cats/Fish-Cat/moving/frame-005.png",
+    "Cats/Fish-Cat/moving/frame-006.png",
+    "Cats/Fish-Cat/moving/frame-007.png"
   ]
 }
