@@ -569,6 +569,7 @@ const stage = $(".stage");
 const persist = () => {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
 };
+const equippedCatCount=()=>save.equipped.filter(id=>id!==null&&id!==undefined&&id!=="").length;
 const BASE_UPGRADE_MAX_LEVEL = 20;
 const BASE_UPGRADE_COSTS = [400,700,1100,1600,2200,2900,3700,4600,5600,8000,10500,13500,17000,21000,25500,30500,36000,42000,48500];
 const CAT_UPGRADE_COSTS = {
@@ -4509,7 +4510,7 @@ function renderDictionary(equip=false) {
       '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07" alt="" draggable="false">'+
       '<img class="upgrade-side-wood upgrade-side-wood-left" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
       '<img class="upgrade-side-wood upgrade-side-wood-right" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
-      '<header class="upgrade-header"><strong>EQUIP CATS</strong><span class="equip-count">'+ids.length+' / 10</span></header>'+
+      '<header class="upgrade-header"><strong>EQUIP CATS</strong><span class="equip-count">'+equippedCatCount()+' / 10</span></header>'+
       '<section class="equip-board">'+
         '<div class="equip-board-title">BATTLE LINEUP · DRAG TO REORDER</div>'+
         '<div class="equip-slot-grid">'+slots+'</div>'+
@@ -4668,7 +4669,7 @@ function render() {
     if(fightScreen) {
       fightScreen.addEventListener("wheel",event=>{
         if(event.target.closest(".fight-unit-slots")&&save.battleSlotLayout==="pages") {
-          const pageCount=Math.ceil(save.equipped.length/5);
+          const pageCount=Math.ceil(equippedCatCount()/5);
           if(pageCount>1) {
             const direction=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
             if(Math.abs(direction)>0.5) {
@@ -5050,7 +5051,7 @@ function perform(action) {
     return;
   }
   if(action==="slot-page-prev"||action==="slot-page-next") {
-    const count=Math.ceil(save.equipped.length/5);
+    const count=Math.ceil(equippedCatCount()/5);
     if(count>1) {
       save.battleSlotPage=(Math.max(0,Math.floor(Number(save.battleSlotPage)||0))+(action==="slot-page-next"?1:-1)+count)%count;
       persist();
@@ -5061,16 +5062,22 @@ function perform(action) {
   if (action.startsWith("equipunit:")) {
     const unit = save.units[Number(action.split(":")[1])];
     if (!unit) return;
-    if (save.equipped.includes(unit.id)) {
-      save.equipped = save.equipped.filter(id=>id!==unit.id);
+    const existingIndex=save.equipped.findIndex(id=>String(id)===String(unit.id));
+    if(existingIndex>=0) {
+      save.equipped[existingIndex]=null;
+      while(save.equipped.length&&(save.equipped[save.equipped.length-1]===null||save.equipped[save.equipped.length-1]===undefined)) save.equipped.pop();
       notify(unit.name+" removed from lineup.");
-    } else if (save.equipped.length >= 10) {
+    } else if(equippedCatCount()>=10) {
       notify("Your battle lineup can hold up to ten Cats.");
     } else {
-      save.equipped.push(unit.id);
+      const emptyIndex=save.equipped.findIndex(id=>id===null||id===undefined||id==="");
+      if(emptyIndex>=0) save.equipped[emptyIndex]=unit.id;
+      else save.equipped.push(unit.id);
       notify(unit.name+" added to lineup.");
     }
-    render(); return;
+    persist();
+    render();
+    return;
   }
   switch(action) {
     case "fight": battleState=createBattleState(); navigate("fight"); break;
@@ -5210,24 +5217,25 @@ function moveEquippedCatToSlot(unitId,targetIndex) {
   const unit=save.units.find(candidate=>String(candidate.id)===String(unitId));
   if(!unit||targetIndex<0||targetIndex>9) return;
   const ids=save.equipped.slice(0,10);
+  while(ids.length<10) ids.push(null);
   const sourceIndex=ids.findIndex(id=>String(id)===String(unit.id));
   const targetId=ids[targetIndex];
   if(sourceIndex>=0) {
     if(sourceIndex===targetIndex) return;
-    if(targetId!==undefined) {
+    if(targetId!==null&&targetId!==undefined&&targetId!=="") {
       ids[sourceIndex]=targetId;
       ids[targetIndex]=unit.id;
     } else {
-      ids.splice(sourceIndex,1);
-      ids.splice(Math.min(targetIndex,ids.length),0,unit.id);
+      ids[sourceIndex]=null;
+      ids[targetIndex]=unit.id;
     }
-  } else if(targetId!==undefined) {
-    ids[targetIndex]=unit.id;
-  } else if(ids.length<10) {
-    ids.splice(Math.min(targetIndex,ids.length),0,unit.id);
   } else {
-    return notify("Your battle lineup can hold up to ten Cats.");
+    if((targetId===null||targetId===undefined||targetId==="")&&equippedCatCount()>=10) {
+      return notify("Your battle lineup can hold up to ten Cats.");
+    }
+    ids[targetIndex]=unit.id;
   }
+  while(ids.length&&(ids[ids.length-1]===null||ids[ids.length-1]===undefined||ids[ids.length-1]==="")) ids.pop();
   save.equipped=ids.slice(0,10);
   persist();
   render();
