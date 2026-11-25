@@ -93,6 +93,13 @@ if(Number(save.stageClears)>=24&&!save.units.some(unit=>unit.name==="Titan Cat"|
 save.chapterClears={...defaults.chapterClears,...(save.chapterClears||{})};
 save.chapterClears["2"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["2"])||0)));
 save.chapterClears["3"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["3"])||0)));
+const titanUnitIndex=save.units.findIndex(unit=>unit.name==="Titan Cat"||Number(unit.id)===9);
+if(titanUnitIndex>=0) {
+  const existingTitan=save.units[titanUnitIndex];
+  save.units[titanUnitIndex]={...makeTitanCatUnit(),...existingTitan,assetFolder:"Titan-Cat",spriteSlot:"Cats/Titan-Cat/slot.png",statsPath:"Cats/Titan-Cat/stats.json",assetsPath:"Cats/Titan-Cat/assets.json"};
+} else if(Number(save.stageClears)>=24||Number(save.chapterClears["2"])>0||Number(save.chapterClears["3"])>0) {
+  save.units.push(makeTitanCatUnit());
+}
 const currentCatMaxLevel=()=>Number(save.chapterClears["2"]||0)>=48?20:10;
 const XP_RESET_VERSION = "20261106-02";
 if(save.xpResetVersion!==XP_RESET_VERSION) {
@@ -154,7 +161,7 @@ const BATTLE_UNIT_STATS = {
   "fish-cat": {health:700,damage:180,price:5,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:13,attackCooldown:1.77,AreaAttack:1,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "lizard-cat": {health:800,damage:350,price:10,speed:10,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:400,recharge:0,attackCooldown:4.3,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "titan-cat": {health:1000,damage:280,price:13,speed:8,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:150,recharge:0,attackCooldown:2.23,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "teacher-bun-bun": {health:99999,damage:2250,speed:23,spriteChangeSpeed:8,walkSpriteChangeSpeed:5,range:200,killReward:8000,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:5,attackCooldown:1.03,AreaAttack:1,traits:["Floating"]},
+  "teacher-bun-bun": {health:99999,damage:2250,speed:23,spriteChangeSpeed:8,walkSpriteChangeSpeed:5,range:200,yOffset:28,killReward:8000,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:5,attackCooldown:1.03,AreaAttack:1,traits:["Floating"]},
   "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:1,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
@@ -2073,7 +2080,8 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
   const defaults=defaultBattleLevelConfig(levelName);
   const data=raw && typeof raw==="object" ? raw : {};
   const initialSpawnDelay=Math.max(0,Number.isFinite(Number(data.initialSpawnDelay))?Number(data.initialSpawnDelay):defaults.initialSpawnDelay);
-  const sourceRules=Array.isArray(data.enemySpawns)?data.enemySpawns:defaults.enemySpawns;
+  const sourceRules=(Array.isArray(data.enemySpawns)?data.enemySpawns:defaults.enemySpawns)
+    .filter(rule=>battleUnitKey(rule&& (rule.enemy||rule.type) || "doge")!=="titan-cat");
   const enemySpawns=sourceRules.filter(rule=>rule&&typeof rule==="object").map((rule,index)=>{
     const enemy=battleUnitKey(rule.enemy||rule.type||"doge")||"doge";
     const requestedAmount=Number(rule.amount ?? rule.count);
@@ -3004,6 +3012,7 @@ function battleEntitySpriteScale(entity) {
     if(key==="mooth") return 1.18;
     if(key==="one-horn") return 1.24;
     if(key==="teacher-bear") return 1.30;
+    if(key==="teacher-bun-bun") return 1.95;
     if(key==="the-face") return 1.75;
     if(key==="dark-emperor-nyandam") return 1.62;
     if(key==="baa-baa") return 1.0;
@@ -3027,6 +3036,7 @@ function battleEntityHitboxHeightScale(entity) {
   const key=battleUnitKey(entity.enemyType||"doge");
   if(key==="pigge"||key==="one-horn"||key==="teacher-bear") return 0.80;
   if(key==="the-face") return 0.78;
+  if(key==="teacher-bun-bun") return 0.84;
   return 0.70;
 }
 function battleEntityCollisionSquareSide(entity) {
@@ -4240,6 +4250,10 @@ function upgradeUnitKey(unit) {
   return String(unit&&(unit.assetFolder||unit.spriteFolder||unit.name)||"cat")
     .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
+function upgradeSlotImageForUnit(unit) {
+  const folder=UPGRADE_CAT_FOLDERS[upgradeUnitKey(unit)]||unit.assetFolder||"cat";
+  return battleAssetUrl("Cats/"+folder+"/UpgradeSlot.png");
+}
 function upgradeEscape(value) {
   return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
@@ -4493,31 +4507,24 @@ function renderDictionary(equip=false) {
       const label=unit?upgradeEscape(unit.name):"Empty slot "+(index+1);
       return '<div class="equip-slot'+(unit?' is-filled':' is-empty')+'" data-equip-slot="'+index+'" tabindex="0" role="button" aria-label="Slot '+(index+1)+': '+label+'">'+
         '<span class="equip-slot-number">'+(index+1)+'</span>'+icon+
-        (unit?'<small>'+upgradeEscape(unit.name)+'</small>':'')+
       '</div>';
     }).join("");
     const inventory=save.units.map((unit,index)=>{
       const isEquipped=ids.some(id=>String(id)===String(unit.id));
       return '<button class="equip-cat-tile'+(isEquipped?' is-equipped':'')+'" type="button" draggable="true" data-equip-unit-id="'+upgradeEscape(unit.id)+'" data-go="equipunit:'+index+'" aria-grabbed="false">'+
-        '<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">'+
+        '<img src="'+upgradeSlotImageForUnit(unit)+'" alt="" draggable="false">'+
         '<strong>'+upgradeEscape(unit.name)+'</strong>'+
-        '<small>Lv. '+Math.max(1,Number(unit.level)||1)+' · '+(isEquipped?'IN LINEUP':'DRAG TO ADD')+'</small>'+
+        '<small>Lv. '+Math.max(1,Number(unit.level)||1)+'</small>'+
       '</button>';
     }).join("");
-    return '<section class="screen upgrade-screen equip-screen" aria-label="Equip Cats">'+
-      '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-07" alt="" draggable="false">'+
-      '<img class="upgrade-character-art" src="sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-07" alt="" draggable="false">'+
-      '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07" alt="" draggable="false">'+
-      '<img class="upgrade-side-wood upgrade-side-wood-left" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
-      '<img class="upgrade-side-wood upgrade-side-wood-right" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
-      '<header class="upgrade-header"><strong>EQUIP CATS</strong><span class="equip-count">'+equippedCatCount()+' / 10</span></header>'+
+    return '<section class="screen equip-screen" aria-label="Equip Cats">'+
+      '<header class="equip-header"><strong>EQUIP CATS</strong><span class="equip-count">'+ids.length+' / 10</span></header>'+
       '<section class="equip-board">'+
-        '<div class="equip-board-title">BATTLE LINEUP · DRAG TO REORDER</div>'+
+        '<div class="equip-slots-heading">BATTLE LINEUP</div>'+
         '<div class="equip-slot-grid">'+slots+'</div>'+
-        '<div class="equip-inventory-title">OWNED CATS · DRAG A CAT INTO A SLOT</div>'+
+        '<div class="equip-inventory-title">OWNED CATS · DRAG AN UPGRADE SLOT INTO A BATTLE SLOT</div>'+
         '<div class="equip-cat-grid">'+inventory+'</div>'+
       '</section>'+
-      '<div class="upgrade-footer"><span>Cat Food</span><img src="sprites/ui/Cat_Food.png?v=20261106-07" alt="" draggable="false"><strong>'+money(save.catFood)+'</strong></div>'+
       '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-07" alt="" draggable="false"></button>'+
     '</section>';
   }
