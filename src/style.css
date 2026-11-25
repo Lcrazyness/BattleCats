@@ -4802,3 +4802,19 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   .world-country-name { font-size:clamp(9px,2.5vw,12px) !important; }
   .world-country-status { font-size:8px !important; }
 }
+
+
+/* Keep the three desktop chapter cards level while retaining the stacked mobile layout. */
+@media(min-width:701px) {
+  .chapter-banner-one,
+  .chapter-banner-two,
+  .chapter-banner-three {
+    top:52% !important;
+    transform:translate(-50%,-50%) !important;
+  }
+}
+@media(max-width:700px) {
+  .chapter-banner-one { top:25% !important; }
+  .chapter-banner-two { top:49% !important; }
+  .chapter-banner-three { top:73% !important; }
+}
