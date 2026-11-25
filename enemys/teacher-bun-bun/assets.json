@@ -1,7 +1,9 @@
 {
   "name": "Teacher Bun Bun",
   "atlasParts": [
-    "enemys/teacher-bun-bun/sprite-atlas.b64"
+    "enemys/teacher-bun-bun/sprite-atlas-1.b64",
+    "enemys/teacher-bun-bun/sprite-atlas-2.b64",
+    "enemys/teacher-bun-bun/sprite-atlas-3.b64"
   ],
   "frameCells": [
     [
