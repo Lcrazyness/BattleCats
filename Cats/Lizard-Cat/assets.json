@@ -1,0 +1,93 @@
+{
+  "name": "Lizard Cat",
+  "atlasParts": [
+    "Cats/Lizard-Cat/sprite-atlas.b64"
+  ],
+  "frameCells": [
+    [
+      4,
+      5,
+      56,
+      54
+    ],
+    [
+      68,
+      7,
+      56,
+      50
+    ],
+    [
+      132,
+      7,
+      56,
+      50
+    ],
+    [
+      197,
+      4,
+      54,
+      56
+    ],
+    [
+      261,
+      4,
+      53,
+      55
+    ],
+    [
+      324,
+      4,
+      56,
+      56
+    ],
+    [
+      4,
+      70,
+      56,
+      52
+    ],
+    [
+      68,
+      76,
+      56,
+      39
+    ],
+    [
+      132,
+      79,
+      56,
+      34
+    ],
+    [
+      196,
+      84,
+      56,
+      24
+    ],
+    [
+      260,
+      73,
+      56,
+      46
+    ]
+  ],
+  "walkFrames": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "attackFrames": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "hurtFrame": 10,
+  "attackFrameRate": 2.33,
+  "attackDuration": 4.3,
+  "slot": "Cats/Lizard-Cat/slot.png",
+  "upgrade": "Cats/Lizard-Cat/UpgradeSlot.png"
+}
