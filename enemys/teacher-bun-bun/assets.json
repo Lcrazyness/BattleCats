@@ -1,10 +1,5 @@
 {
   "name": "Teacher Bun Bun",
-  "atlasParts": [
-    "enemys/teacher-bun-bun/sprite-atlas-1.b64",
-    "enemys/teacher-bun-bun/sprite-atlas-2.b64",
-    "enemys/teacher-bun-bun/sprite-atlas-3.b64"
-  ],
   "frameCells": [
     [
       15,
@@ -131,5 +126,6 @@
   ],
   "hurtFrame": 16,
   "attackFrameRate": 15,
-  "attackDuration": 1.03
+  "attackDuration": 1.03,
+  "atlasImage": "enemys/teacher-bun-bun/sprite-atlas.png"
 }
