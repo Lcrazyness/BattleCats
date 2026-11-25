@@ -1,0 +1,21 @@
+{
+  "name": "Lizard Cat",
+  "health": 800,
+  "damage": 350,
+  "price": 10,
+  "speed": 10,
+  "spriteChangeSpeed": 6,
+  "walkSpriteChangeSpeed": 2.5,
+  "range": 400,
+  "recharge": 0,
+  "attackCooldown": 4.3,
+  "AreaAttack": 1,
+  "knockbackCount": 3,
+  "knockbackThresholdPercent": 25,
+  "knockbackDuration": 0.64,
+  "knockbackDistance": 4.5,
+  "AttackTrait": "",
+  "AttackBoost": "",
+  "Bio": "A long-range dragon-like Cat that attacks from behind the frontline.",
+  "yOffset": 0
+}
