@@ -127,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-03";
+const BATTLE_ASSET_VERSION = "20261125-04";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -3113,12 +3113,12 @@ function spawnPlayerCat(unit) {
   if (!battleState || battleState.ended) return;
   const stats = battleUnitStats(unit);
   const cost = stats.price;
-  const cooldown = battleState.adminInstantRecharge||unit.kind!=="doge"?0:Number(battleState.cooldowns[unit.id]||0);
+  const cooldown = 0;
   if (battleState.money < cost) return notify("Not enough money to deploy "+unit.name+".");
   if (cooldown > 0.05) return notify(unit.name+" is recharging.");
   battleState.money -= cost;
-  battleState.cooldowns[unit.id] = battleState.adminInstantRecharge||unit.kind!=="doge"?0:stats.recharge;
-  battleState.cooldownWasActive[String(unit.id)] = unit.kind==="doge"&&!battleState.adminInstantRecharge&&stats.recharge > 0.05;
+  battleState.cooldowns[unit.id] = 0;
+  battleState.cooldownWasActive[String(unit.id)] = false;
   const walkSpeedModifier = [0,2,-2][Math.floor(Math.random()*3)];
   const entity = {
     key:"cat-"+battleState.nextUnitKey++,kind:"cat",unitId:unit.id,name:unit.name,
