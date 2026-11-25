@@ -17,5 +17,7 @@
   "AttackTrait": "",
   "AttackBoost": "",
   "Bio": "A powerful close-range area attacker with high health and heavy blows.",
-  "yOffset": 0
+  "yOffset": 0,
+  "unlockChapter": 1,
+  "unlockStage": "Italy"
 }
