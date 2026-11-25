@@ -127,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261124-06";
+const BATTLE_ASSET_VERSION = "20261125-01";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -212,7 +212,7 @@ function battleUnitStats(unitOrKey) {
     return Number.isFinite(number) && number >= min ? number : fallback;
   };
   const unitLevel = isObject && unit.kind !== "doge" ? Math.max(1,Math.floor(Number(unit.level)||1)) : 1;
-  const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat","fish-cat"].includes(key);
+  const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat","fish-cat","lizard-cat","titan-cat"].includes(key);
   const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
   const chapterEnemyMultiplier=!isCatUnit&&currentChapter===2?1.5:!isCatUnit&&currentChapter===3?4:1;
   const configuredGameScale=Number(config.gameScale);
@@ -2433,9 +2433,7 @@ function battleSlotImage(unit) {
   const assets = BATTLE_ASSETS[key];
   const source=key==="tank-cat"
     ? "Cats/tank-cat/slot.png"
-    : key==="fish-cat"
-      ? "Cats/Fish-Cat/slot.png"
-      : unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp";
+    : (assets&&assets.slot) || unit.spriteSlot || "sprites/original_sheets/normal-cat-right-icon.webp";
   return battleAssetUrl(source);
 }
 function battleSpeedMultiplier() {
