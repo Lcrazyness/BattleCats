@@ -1386,13 +1386,15 @@ function renderStage() {
   selectedLevelIndex=Math.min(selectedLevelIndex,highestAvailable);
   const selected=chapterLevels[selectedLevelIndex];
   const available=selectedLevelIndex<=completed;
-  const visibleLevels=chapterLevels.slice(0,Math.min(48,completed+1));
+
+  const visibleLevels=chapterLevels;
   const countryRows=visibleLevels.map((level,index)=>{
     const cleared=index<completed;
     const current=index===completed;
-    const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"");
-    const status=cleared?"★":current?"NEXT":"";
-    return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":"")+'">'+
+    const locked=index>completed;
+    const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"")+(locked?" is-locked":"");
+    const status=cleared?"★":current?"NEXT":"🔒";
+    return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":", locked")+'"'+(locked?" disabled":"")+'>'+
       '<span class="world-country-name">'+level.name+'</span>'+
       '<span class="world-country-status" aria-hidden="true">'+status+'</span>'+
     '</button>';
