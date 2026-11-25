@@ -1776,6 +1776,7 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .fight-screen .enemy-castle { left:1.5% !important; }
 .fight-screen .player-castle { right:1.5% !important; width:clamp(85px,12vw,170px) !important; height:clamp(125px,32vh,255px) !important; }
 .fight-screen .fight-unit { animation:none !important; filter:none !important; transform:translateX(-50%) !important; }
+.fight-screen .fight-unit { translate:0 calc(var(--battle-unit-y-offset,0px) * -1) !important; }
 .fight-screen .fight-unit-sprite { filter:none !important; width:100% !important; height:70% !important; max-width:100% !important; object-fit:contain !important; transform-origin:center bottom !important; }
 .fight-screen .fight-unit-health { display:none !important; }
 .fight-screen .fight-unit.is-knockback .fight-unit-sprite { animation:battle-cats-knockback 320ms ease-out both !important; }
