@@ -362,7 +362,7 @@ const EMPIRE_CHAPTER_ONE = [
     "y": 55
   },
   {
-    "name": "Maldives",
+    "name": "The Great Abyss",
     "x": 68,
     "y": 62
   },
@@ -547,7 +547,7 @@ const EMPIRE_CHAPTER_ONE = [
     "y": 24
   },
   {
-    "name": "Hawaii",
+    "name": "Floating Continent",
     "x": 16,
     "y": 55
   },
@@ -1292,6 +1292,7 @@ function renderTitle() {
 }
 function renderChapterSelect() {
   const chapterTwoUnlocked=chapterClearCount(1)>=48;
+  const chapterThreeUnlocked=chapterClearCount(2)>=48;
   return '<section class="screen chapter-select-screen" aria-label="Chapter selection">'+
     '<div class="chapter-select-frame">'+
       '<img class="chapter-select-background" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-9" alt="" draggable="false">'+
@@ -1303,6 +1304,11 @@ function renderChapterSelect() {
         '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="" draggable="false">'+
         '<span class="chapter-banner-label">EMPIRE OF CATS<br>CHAPTER 2</span>'+
         (chapterTwoUnlocked?"":'<span class="chapter-banner-lock">CLEAR CHAPTER 1 TO UNLOCK</span>')+
+      '</button>'+
+      '<button class="chapter-banner chapter-banner-three" data-go="chapter-enter:3" aria-label="Empire of Cats Chapter 3" '+(chapterThreeUnlocked?"":"disabled")+'>'+
+        '<img src="sprites/ui/empirepfcatsbanner.png?v=20261027-1" alt="" draggable="false">'+
+        '<span class="chapter-banner-label">EMPIRE OF CATS<br>CHAPTER 3</span>'+
+        (chapterThreeUnlocked?"":'<span class="chapter-banner-lock">CLEAR CHAPTER 2 TO UNLOCK</span>')+
       '</button>'+
       '<button class="chapter-back" data-go="chapter-back" aria-label="Back to title">'+
         '<img src="sprites/ui/backbutton.png?v=20261026-9" alt="" draggable="false">'+
@@ -1365,7 +1371,7 @@ function renderStage() {
     return renderWindow("Choose a Stage",body,"battle");
   }
 
-  const chapterLevels=currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+  const chapterLevels=currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
   const completed=chapterClearCount();
   const highestAvailable=Math.min(47,completed);
   if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>47) selectedLevelIndex=highestAvailable;
@@ -1425,13 +1431,15 @@ function renderStage() {
   '</section>';
 }
 const EMPIRE_CHAPTER_TWO = EMPIRE_CHAPTER_ONE;
+const EMPIRE_CHAPTER_THREE = EMPIRE_CHAPTER_ONE;
 function chapterClearCount(chapter=currentChapter) {
-  return Math.max(0,Math.min(48,chapter===1?Number(save.stageClears)||0:Number(save.chapterClears&&save.chapterClears["2"])||0));
+  return Math.max(0,Math.min(48,chapter===1?Number(save.stageClears)||0:chapter===2?Number(save.chapterClears&&save.chapterClears["2"])||0:Number(save.chapterClears&&save.chapterClears["3"])||0));
 }
 function setChapterClearCount(chapter,count) {
   const value=Math.max(0,Math.min(48,Math.floor(Number(count)||0)));
   if(chapter===1) save.stageClears=value;
-  else save.chapterClears["2"]=value;
+  else if(chapter===2) save.chapterClears["2"]=value;
+  else save.chapterClears["3"]=value;
 }
 const EOC1_ENEMY_BASE_HEALTH = [
   500,500,500,500,750,750,2400,1500,3000,2500,3500,4000,
@@ -1470,7 +1478,7 @@ const EOC1_MAX_ENEMIES = {
   China:30,
   Thailand:5,
   Japan:6,
-  Maldives:5,
+  "The Great Abyss":5,
   Dubai:12,
   "Saudi Arabia":3,
   Kenya:4,
@@ -1503,16 +1511,18 @@ const EOC1_MAX_ENEMIES = {
   "Las Vegas":4,
   Hollywood:2,
   Alaska:10,
-  Hawaii:3,
+  "Floating Continent":3,
   Moon:10
 };
 function defaultBattleLevelConfig(levelName="Korea") {
   const stageIndex=EMPIRE_CHAPTER_ONE.findIndex(level=>level.name===levelName);
   const stageNumber=stageIndex+1;
   const appearsAt=(enemy)=>Array.isArray(EOC1_ENEMY_STAGES[enemy])&&EOC1_ENEMY_STAGES[enemy].includes(stageNumber);
-  const enemyBaseHealth=currentChapter===2&&levelName==="Moon"
-    ? 200000
-    : (EOC1_ENEMY_BASE_HEALTH[stageIndex]||500)*(currentChapter===2?2:1);
+  const enemyBaseHealth=currentChapter===3&&levelName==="Moon"
+    ? 900000
+    : currentChapter===2&&levelName==="Moon"
+      ? 200000
+      : (EOC1_ENEMY_BASE_HEALTH[stageIndex]||500)*(currentChapter===2?2:currentChapter===3?4:1);
   let enemySpawns=[];
   if(stageIndex<=0) {
     enemySpawns=[timedEnemySpawn("doge",18,2,5.5,9,3,0.82)];
@@ -1547,7 +1557,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       baseTriggeredEnemySpawn("those-guys",6,90,2,4,6)
     ];
   }
-  if(levelName==="Maldives") {
+  if(levelName==="The Great Abyss") {
     enemySpawns=[
       timedEnemySpawn("doge","infinite",0,10.67,18.67,3),
       timedEnemySpawn("snache","infinite",8,20,53.33,3),
@@ -1975,7 +1985,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("kang-roo","infinite",120,43.3,80,1),
       timedEnemySpawn("mooth",1,140,1,1,1)
     ],
-    Hawaii: [
+    "Floating Continent": [
       timedEnemySpawn("kang-roo","infinite",120,30,50,1),
       timedEnemySpawn("one-horn","infinite",140,66.7,86.7,1),
       timedEnemySpawn("teacher-bear","infinite",160,133.3,266.7,1)
@@ -2016,6 +2026,19 @@ function defaultBattleLevelConfig(levelName="Korea") {
         timedEnemySpawn("squire-rel",5,130,8,14,2)
       ];
     }
+  }
+
+
+  if(currentChapter===3&&levelName==="Moon") {
+    enemySpawns=[
+      timedEnemySpawn("those-guys","infinite",0,0.1,1,6),
+      timedEnemySpawn("kang-roo","infinite",0,13.3,60,2),
+      timedEnemySpawn("sir-seal","infinite",0,10,40,2),
+      timedEnemySpawn("croco","infinite",20,0.3,1.3,3),
+      timedEnemySpawn("b-b-bunny","infinite",20,0.3,1.3,2),
+      timedEnemySpawn("mooth","infinite",40,60,80,1),
+      baseTriggeredEnemySpawn("teacher-bun-bun",1,70,1,1,1,1,true)
+    ];
   }
 
   return {
@@ -2089,14 +2112,15 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
 }
 async function loadBattleLevelConfig() {
   if(battleLevelConfigPromise) return battleLevelConfigPromise;
-  const levels=currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+  const levels=currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
   const selected=levels[selectedLevelIndex]||levels[0];
   battleLevelName=selected.name;
   battleLevelConfigPromise=(async()=>{
     let data=null;
     if(currentChapter===1) {
       try {
-        const path="Levels/"+encodeURIComponent(battleLevelName)+"/stats.json";
+        const levelStatsName=battleLevelName==="The Great Abyss"?"Maldives":battleLevelName==="Floating Continent"?"Hawaii":battleLevelName;
+        const path="Levels/"+encodeURIComponent(levelStatsName)+"/stats.json";
         const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
         if(response.ok) data=await response.json();
       } catch(error) {
@@ -2139,8 +2163,8 @@ function createBattleEnemy(enemyType,key,x,frameAt=0) {
   };
 }
 function createBattleState() {
-  const selected=(currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
-    (currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
+  const selected=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
+    (currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
   const defaults=defaultBattleLevelConfig(selected.name);
   const walletLevel=baseUpgradeLevel("workerCatWallet");
   const efficiencyLevel=baseUpgradeLevel("workerCatEfficiency");
@@ -4037,9 +4061,9 @@ function toggleBattlePause() {
 }
 function renderFight() {
   if (!battleState) battleState=createBattleState();
-  const selectedLevel=(currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
-    (currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
-  const levelFolder="Levels/"+selectedLevel.name;
+  const selectedLevel=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
+    (currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
+  const levelFolder="Levels/"+(selectedLevel.name==="The Great Abyss"?"Maldives":selectedLevel.name==="Floating Continent"?"Hawaii":selectedLevel.name);
   const levelConfig=battleState.levelConfig||defaultBattleLevelConfig(selectedLevel.name);
   const levelBackgroundUrl=battleAssetUrl(levelFolder+"/"+levelConfig.background);
   const enemyBaseUrl=battleAssetUrl(levelFolder+"/"+levelConfig.enemyBase);
@@ -4785,7 +4809,8 @@ function perform(action) {
   if(action.startsWith("chapter-enter")) {
     const requested=Number(action.split(":")[1]||1);
     if(requested===2&&chapterClearCount(1)<48) return notify("Clear all 48 Empire of Cats Chapter 1 stages to unlock Chapter 2.");
-    currentChapter=requested===2?2:1;
+    if(requested===3&&chapterClearCount(2)<48) return notify("Clear all 48 Empire of Cats Chapter 2 stages to unlock Chapter 3.");
+    currentChapter=requested===3?3:requested===2?2:1;
     selectedLevelIndex=Math.min(47,chapterClearCount());
     return leaveChapterSelect("base");
   }
@@ -4803,7 +4828,7 @@ function perform(action) {
   }
   if (action.startsWith("level:")) {
     const index=Number(action.slice(6));
-    const chapterLevels=currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+    const chapterLevels=currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
     if(!Number.isInteger(index)||index<0||index>=chapterLevels.length) return;
     if(index>Math.min(47,chapterClearCount())) return notify("Clear "+chapterLevels[index-1].name+" to unlock this stage.");
     selectedLevelIndex=index;
@@ -4943,7 +4968,7 @@ function perform(action) {
         save.units.push(makeAxeCatUnit());
         reward += " · Axe Cat unlocked";
       }
-      if(save.stageClears>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
+      if(currentChapter===1&&save.stageClears>=6&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
         save.units.push(makeGrossCatUnit());
         reward += " · Gross Cat unlocked";
       }
@@ -4955,9 +4980,17 @@ function perform(action) {
         save.units.push(makeBirdCatUnit());
         reward += " · Bird Cat unlocked";
       }
-      if(currentChapter===1&&save.stageClears>=36&&!save.units.some(unit=>unit.name==="Fish Cat"||Number(unit.id)===7)) {
+      if(currentChapter===1&&save.stageClears>=16&&!save.units.some(unit=>unit.name==="Fish Cat"||Number(unit.id)===7)) {
         save.units.push(makeFishCatUnit());
         reward += " · Fish Cat unlocked";
+      }
+      if(currentChapter===1&&save.stageClears>=20&&!save.units.some(unit=>unit.name==="Lizard Cat"||Number(unit.id)===8)) {
+        save.units.push(makeLizardCatUnit());
+        reward += " · Lizard Cat unlocked";
+      }
+      if(currentChapter===1&&save.stageClears>=24&&!save.units.some(unit=>unit.name==="Titan Cat"||Number(unit.id)===9)) {
+        save.units.push(makeTitanCatUnit());
+        reward += " · Titan Cat unlocked";
       }
       navigate("battle"); notify(reward);
       break;
