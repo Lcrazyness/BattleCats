@@ -1,8 +1,5 @@
 {
   "name": "Lizard Cat",
-  "atlasParts": [
-    "Cats/Lizard-Cat/sprite-atlas.b64"
-  ],
   "frameCells": [
     [
       4,
@@ -95,5 +92,6 @@
     9,
     8,
     7
-  ]
+  ],
+  "atlasImage": "Cats/Lizard-Cat/sprite-atlas.png"
 }
