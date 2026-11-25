@@ -43,9 +43,15 @@ function makeBirdCatUnit() {
 function makeFishCatUnit() {
   return {id:7,name:"Fish Cat",level:1,deployCost:5,hp:700,attack:180,range:150,speed:10,recharge:13,assetFolder:"Fish-Cat",spriteSlot:"Cats/Fish-Cat/slot.png",statsPath:"Cats/Fish-Cat/stats.json",assetsPath:"Cats/Fish-Cat/assets.json"};
 }
+function makeLizardCatUnit() {
+  return {id:8,name:"Lizard Cat",level:1,deployCost:10,hp:800,attack:350,range:400,speed:10,recharge:0,assetFolder:"Lizard-Cat",spriteSlot:"Cats/Lizard-Cat/slot.png",statsPath:"Cats/Lizard-Cat/stats.json",assetsPath:"Cats/Lizard-Cat/assets.json"};
+}
+function makeTitanCatUnit() {
+  return {id:9,name:"Titan Cat",level:1,deployCost:13,hp:1000,attack:280,range:150,speed:8,recharge:0,assetFolder:"Titan-Cat",spriteSlot:"Cats/Titan-Cat/slot.png",statsPath:"Cats/Titan-Cat/stats.json",assetsPath:"Cats/Titan-Cat/assets.json"};
+}
 const defaults = {
   xp:0, catFood:0, rareTickets:0, normalTickets:0,
-  energy:100, maxEnergy:100, exp:0, stageClears:0, chapterClears:{"2":0},
+  energy:100, maxEnergy:100, exp:0, stageClears:0, chapterClears:{"2":0,"3":0},
   baseUpgrades:{workerCatWallet:1,workerCatEfficiency:1,research:1,catBaseHealth:1},
   units:[
     {id:1,name:"Cat",level:1,deployCost:1,hp:100,attack:6,range:140,speed:5,recharge:0.1}
@@ -76,14 +82,18 @@ if (savedSoundSettingsVersion < 1) {
 if(Number(save.stageClears)>=3&&!save.units.some(unit=>unit.name==="Axe Cat"||Number(unit.id)===3)) {
   save.units.push(makeAxeCatUnit());
 }
-if(Number(save.stageClears)>=7&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
+if(Number(save.stageClears)>=6&&!save.units.some(unit=>unit.name==="Gross Cat"||Number(unit.id)===4)) {
   save.units.push(makeGrossCatUnit());
 }
 if(Number(save.stageClears)>=12&&!save.units.some(unit=>unit.name==="Cow Cat"||Number(unit.id)===5)) save.units.push(makeCowCatUnit());
 if(Number(save.stageClears)>=24&&!save.units.some(unit=>unit.name==="Bird Cat"||Number(unit.id)===6)) save.units.push(makeBirdCatUnit());
-if(Number(save.stageClears)>=36&&!save.units.some(unit=>unit.name==="Fish Cat"||Number(unit.id)===7)) save.units.push(makeFishCatUnit());
+if(Number(save.stageClears)>=16&&!save.units.some(unit=>unit.name==="Fish Cat"||Number(unit.id)===7)) save.units.push(makeFishCatUnit());
+if(Number(save.stageClears)>=20&&!save.units.some(unit=>unit.name==="Lizard Cat"||Number(unit.id)===8)) save.units.push(makeLizardCatUnit());
+if(Number(save.stageClears)>=24&&!save.units.some(unit=>unit.name==="Titan Cat"||Number(unit.id)===9)) save.units.push(makeTitanCatUnit());
 save.chapterClears={...defaults.chapterClears,...(save.chapterClears||{})};
 save.chapterClears["2"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["2"])||0)));
+save.chapterClears["3"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["3"])||0)));
+const currentCatMaxLevel=()=>Number(save.chapterClears["2"]||0)>=48?20:10;
 const XP_RESET_VERSION = "20261106-02";
 if(save.xpResetVersion!==XP_RESET_VERSION) {
   save.xp=1000;
@@ -95,7 +105,7 @@ for(const key of Object.keys(defaults.baseUpgrades)) {
   save.baseUpgrades[key]=Math.max(1,Math.min(20,Math.floor(Number(save.baseUpgrades[key])||1)));
 }
 save.units.forEach(unit=>{
-  unit.level=Math.max(1,Math.min(10,Math.floor(Number(unit.level)||1)));
+  unit.level=Math.max(1,Math.min(currentCatMaxLevel(),Math.floor(Number(unit.level)||1)));
   delete unit.upgradeCost;
 });
 try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
@@ -117,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261124-01";
+const BATTLE_ASSET_VERSION = "20261124-04";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -128,6 +138,9 @@ const BATTLE_ASSETS = {
   "cow-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:7.3,attackDuration:0.55,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Cow-Cat/slot.png"},
   "bird-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.85,attackDuration:1.75,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Bird-Cat/slot.png"},
   "fish-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:5.66,attackDuration:1.77,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Fish-Cat/slot.png"},
+  "lizard-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.33,attackDuration:4.3,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Lizard-Cat/slot.png"},
+  "titan-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:2.23,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Titan-Cat/slot.png"},
+  "teacher-bun-bun": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:29,attackDuration:1.03,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/Teacher Bun Bun/slot.png"},
   "dark-emperor-nyandam": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:1.73,attackDuration:3.47,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
@@ -139,6 +152,9 @@ const BATTLE_UNIT_STATS = {
   "cow-cat": {health:125,damage:8,price:2,speed:12,spriteChangeSpeed:9,walkSpriteChangeSpeed:5.2,range:140,recharge:1.6,attackCooldown:0.55,AreaAttack:false,AttackTrait:"",AttackBoost:"",knockbackCount:5,knockbackThresholdPercent:25,knockbackDuration:0.58,knockbackDistance:5},
   "bird-cat": {health:95,damage:70,price:3,speed:5,spriteChangeSpeed:6,walkSpriteChangeSpeed:3,range:170,recharge:4.8,attackCooldown:1.75,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:4,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "fish-cat": {health:700,damage:180,price:5,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:13,attackCooldown:1.77,AreaAttack:1,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "lizard-cat": {health:800,damage:350,price:10,speed:10,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:400,recharge:0,attackCooldown:4.3,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "titan-cat": {health:1000,damage:280,price:13,speed:8,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:150,recharge:0,attackCooldown:2.23,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
+  "teacher-bun-bun": {health:99999,damage:2250,speed:23,spriteChangeSpeed:8,walkSpriteChangeSpeed:5,range:200,killReward:8000,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:5,attackCooldown:1.03,AreaAttack:1,traits:["Floating"]},
   "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:1,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
@@ -180,6 +196,7 @@ function battleEnemyFolder(enemyType) {
   if(key==="teacher-bear") return "Teacher Bear";
   if(key==="the-face") return "The Face";
   if(key==="dark-emperor-nyandam") return "dark emperor nyandam";
+  if(key==="teacher-bun-bun") return "Teacher Bun Bun";
   return key;
 }
 function battleUnitStats(unitOrKey) {
@@ -197,14 +214,14 @@ function battleUnitStats(unitOrKey) {
   const unitLevel = isObject && unit.kind !== "doge" ? Math.max(1,Math.floor(Number(unit.level)||1)) : 1;
   const isCatUnit=isObject ? unit.kind!=="doge" : ["cat","tank-cat","axe-cat","gross-cat","cow-cat","bird-cat","fish-cat"].includes(key);
   const levelMultiplier = 1 + Math.max(0,unitLevel-1)*0.15;
-  const chapterEnemyMultiplier=currentChapter===2&&!isCatUnit?1.5:1;
+  const chapterEnemyMultiplier=!isCatUnit&&currentChapter===2?1.5:!isCatUnit&&currentChapter===3?4:1;
   const configuredGameScale=Number(config.gameScale);
   const gameScale=isCatUnit?1:(Number.isFinite(configuredGameScale)&&configuredGameScale>0?configuredGameScale:1);
   const rawHealth=positive(config.health,positive(unit.hp,100))*levelMultiplier*chapterEnemyMultiplier*gameScale;
   const rawDamage=positive(config.damage,positive(unit.attack,positive(unit.attackPower,8)))*levelMultiplier*chapterEnemyMultiplier*gameScale;
   const health=chapterEnemyMultiplier>1?Math.floor(rawHealth):Math.round(rawHealth);
   const damage=chapterEnemyMultiplier>1?Math.floor(rawDamage):Math.round(rawDamage);
-  const chapterCatCostMultiplier=currentChapter===2&&isCatUnit?1.5:1;
+  const chapterCatCostMultiplier=isCatUnit&&currentChapter===2?1.5:isCatUnit&&currentChapter===3?2:1;
   const thresholdPercent = Math.max(1,Math.min(99,positive(config.knockbackThresholdPercent,positive(unit.knockbackThresholdPercent,25))));
   const knockbackCount = Math.max(0,Math.min(10,Math.floor(Number.isFinite(Number(config.knockbackCount))?Number(config.knockbackCount):3)));
   const rawAreaAttack=config.AreaAttack??config.areaAttack??unit.AreaAttack??unit.areaAttack??0;
@@ -4085,7 +4102,9 @@ const UPGRADE_CAT_FOLDERS = {
   "gross-cat":"Gross-Cat",
   "cow-cat":"Cow-Cat",
   "bird-cat":"Bird-Cat",
-  "fish-cat":"Fish-Cat"
+  "fish-cat":"Fish-Cat",
+  "lizard-cat": "Lizard-Cat",
+  "titan-cat": "Titan-Cat"
 };
 const UPGRADE_CAT_BIOS = {
   cat:"An ordinary cat who dreams of ruling the world. Simple, dependable, and always ready to fight.",
@@ -4094,7 +4113,9 @@ const UPGRADE_CAT_BIOS = {
   "gross-cat":"A lanky cat with an incredible reach. It can strike enemies from far away.",
   "cow-cat":"A speedy single-target attacker that rushes into the enemy line and strikes rapidly.",
   "bird-cat":"A fragile area attacker that hits groups of enemies from the back line.",
-  "fish-cat":"A tough, short-range fighter with heavy damage and strength against Red enemies."
+  "fish-cat":"A tough, short-range fighter with heavy damage and strength against Red enemies.",
+  "lizard-cat":"A long-range dragon-like attacker that fires from far behind the frontline.",
+  "titan-cat":"A powerful area attacker with high health and strong damage."
 };
 const UPGRADE_BASE_ROWS = [
   {key:"workerCatWallet",name:"Worker Cat Wallet",icon:"¢",bio:"Increases the maximum amount of money you can hold during battle."},
@@ -4113,11 +4134,11 @@ function upgradeEscape(value) {
 function upgradeStatsForItem(item) {
   if(!item||item.kind!=="unit") return null;
   const current=battleUnitStats(item.unit);
-  const next=item.level<10?battleUnitStats({...item.unit,level:item.level+1}):null;
+  const next=item.level<currentCatMaxLevel()?battleUnitStats({...item.unit,level:item.level+1}):null;
   return {current,next};
 }
 function buildUpgradeCatalog() {
-  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3,"cow-cat":4,"bird-cat":5,"fish-cat":6};
+  const rank={cat:0,"tank-cat":1,"axe-cat":2,"gross-cat":3,"cow-cat":4,"bird-cat":5,"fish-cat":6,"lizard-cat":7,"titan-cat":8};
   const orderedUnits=save.units.slice().sort((a,b)=>{
     const first=rank[upgradeUnitKey(a)]??100;
     const second=rank[upgradeUnitKey(b)]??100;
@@ -4126,12 +4147,12 @@ function buildUpgradeCatalog() {
   const cats=orderedUnits.map(unit=>{
     const unitKey=upgradeUnitKey(unit);
     const folder=UPGRADE_CAT_FOLDERS[unitKey]||unit.assetFolder||"cat";
-    const level=Math.max(1,Math.min(10,Math.floor(Number(unit.level)||1)));
+    const level=Math.max(1,Math.min(currentCatMaxLevel(),Math.floor(Number(unit.level)||1)));
     const stats=upgradeStatsForItem({kind:"unit",unit,level});
     const bio=upgradeBioCache.get(unitKey)||UPGRADE_CAT_BIOS[unitKey]||"A cat ready to join the battle.";
     return {
       key:"unit:"+String(unit.id),kind:"unit",unit,unitId:String(unit.id),name:String(unit.name||"Cat"),
-      folder,statsPath:unit.statsPath||"Cats/"+folder+"/stats.json",level,max:10,
+      folder,statsPath:unit.statsPath||"Cats/"+folder+"/stats.json",level,max:currentCatMaxLevel(),
       cost:level>=10?0:catUpgradeCost(unit),bio,stats
     };
   });
@@ -4745,7 +4766,7 @@ function perform(action) {
     if(item.kind==="unit"&&!unit) return;
     save.xp-=item.cost;
     if(item.kind==="unit") {
-      unit.level=Math.min(10,Math.max(1,Math.floor(Number(unit.level)||1))+1);
+      unit.level=Math.min(currentCatMaxLevel(),Math.max(1,Math.floor(Number(unit.level)||1))+1);
       playSfx("upgrade");
       persist();
       render();
