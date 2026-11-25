@@ -2032,11 +2032,18 @@ function defaultBattleLevelConfig(levelName="Korea") {
   if(currentChapter===3&&levelName==="Moon") {
     enemySpawns=[
       timedEnemySpawn("those-guys","infinite",0,0.1,1,6),
-      timedEnemySpawn("kang-roo","infinite",0,13.3,60,2),
-      timedEnemySpawn("sir-seal","infinite",0,10,40,2),
+      timedEnemySpawn("kang-roo","infinite",0,13.3,60,1),
+      timedEnemySpawn("sir-seal","infinite",0,10,40,1),
       timedEnemySpawn("croco","infinite",20,0.3,1.3,3),
       timedEnemySpawn("b-b-bunny","infinite",20,0.3,1.3,2),
-      timedEnemySpawn("mooth","infinite",40,60,80,1),
+      timedEnemySpawn("mooth",1,40,60,80,1),
+      baseTriggeredEnemySpawn("gory","infinite",99,6.7,20,1),
+      baseTriggeredEnemySpawn("pigge","infinite",99,6.7,20,1),
+      baseTriggeredEnemySpawn("those-guys","infinite",99,0.7,2,6),
+      baseTriggeredEnemySpawn("mooth",4,99,0.1,0.1,4),
+      baseTriggeredEnemySpawn("kang-roo",6,99,0.1,4,6),
+      baseTriggeredEnemySpawn("sir-seal",6,99,4,13.3,6),
+      baseTriggeredEnemySpawn("gory",10,99,0.1,1.3,8),
       baseTriggeredEnemySpawn("teacher-bun-bun",1,70,1,1,1,1,true)
     ];
   }
@@ -2047,12 +2054,16 @@ function defaultBattleLevelConfig(levelName="Korea") {
     enemyBase:"enemybase.png",
     enemyBaseHealth,
     catBaseHealth:1000,
-    maxEnemies:currentChapter===2
-      ? (levelName==="Moon"?12:Math.min(10,Math.max(6,(EOC1_MAX_ENEMIES[levelName]||6)+1)))
-      : (EOC1_MAX_ENEMIES[levelName]||6),
-    maxTotalSpawns:currentChapter===2
-      ? (levelName==="Moon"?36:Math.min(30,20+Math.floor(Math.max(0,stageIndex)/4)))
-      : (stageIndex<=0?18:Math.min(28,18+Math.floor(stageIndex/5))),
+    maxEnemies:currentChapter===3&&levelName==="Moon"
+      ? 8
+      : currentChapter===2
+        ? (levelName==="Moon"?12:Math.min(10,Math.max(6,(EOC1_MAX_ENEMIES[levelName]||6)+1)))
+        : (EOC1_MAX_ENEMIES[levelName]||6),
+    maxTotalSpawns:currentChapter===3&&levelName==="Moon"
+      ? 80
+      : currentChapter===2
+        ? (levelName==="Moon"?36:Math.min(30,20+Math.floor(Math.max(0,stageIndex)/4)))
+        : (stageIndex<=0?18:Math.min(28,18+Math.floor(stageIndex/5))),
     initialSpawnDelay:stageIndex<=0?2:0,
     enemySpawns
   };
@@ -2182,6 +2193,24 @@ function createBattleState() {
     paused:false,levelName:selected.name,levelConfig:defaults,spawnRules:[],levelReady:false
   };
 }
+function lizardAttackCompositeSource(atlasSource,cells,bodyIndex,projectileIndex,atlasSize={width:384,height:128}) {
+  const body=cells&&cells[bodyIndex];
+  const projectile=cells&&cells[projectileIndex];
+  if(!Array.isArray(body)||!Array.isArray(projectile)) return "";
+  const [bx,by,bw,bh]=body;
+  const [px,py,pw,ph]=projectile;
+  const projectileLayout={
+    9:{x:32,y:28,width:38,height:16},
+    8:{x:31,y:25,width:39,height:24},
+    7:{x:30,y:22,width:41,height:29}
+  }[projectileIndex]||{x:30,y:24,width:40,height:24};
+  const {x,y,width,height}=projectileLayout;
+  const image='<image href="'+atlasSource+'" x="0" y="0" width="'+Number(atlasSize.width||384)+'" height="'+Number(atlasSize.height||128)+'" preserveAspectRatio="none"/>';
+  const bodyCrop='<svg x="0" y="0" width="56" height="56" viewBox="'+bx+' '+by+' '+bw+' '+bh+'" preserveAspectRatio="none">'+image+'</svg>';
+  const projectileCrop='<svg x="'+x+'" y="'+y+'" width="'+width+'" height="'+height+'" viewBox="'+px+' '+py+' '+pw+' '+ph+'" preserveAspectRatio="none">'+image+'</svg>';
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="72" height="56" viewBox="0 0 72 56">'+bodyCrop+projectileCrop+'</svg>';
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
 async function expandBattleAtlasFrameAssets(data) {
   if(!data||typeof data!=="object") return data;
   const pathLists=[
@@ -2282,6 +2311,11 @@ function loadBattleAssetManifests() {
           const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
           if(Array.isArray(data.walkFrames)) data.moving=data.walkFrames.map(framePath);
           if(Array.isArray(data.attackFrames)) data.attackFrames=data.attackFrames.map(framePath);
+          if(kind==="lizard-cat"&&Array.isArray(data.attackBodyFrames)&&Array.isArray(data.projectileFrames)) {
+            data.attackFrames=data.attackBodyFrames.map((bodyIndex,index)=>
+              lizardAttackCompositeSource(atlasSource,data.frameCells,bodyIndex,data.projectileFrames[index],data.atlasSize)
+            ).filter(Boolean);
+          }
           if(Number.isInteger(data.hurtFrame)) {
             data.damagedFrames=[framePath(data.hurtFrame)];
             data.knockbackFrames=[framePath(data.hurtFrame)];
@@ -2433,7 +2467,9 @@ function battleSlotImage(unit) {
   const assets = BATTLE_ASSETS[key];
   const source=key==="tank-cat"
     ? "Cats/tank-cat/slot.png"
-    : (assets&&assets.slot) || unit.spriteSlot || "sprites/original_sheets/normal-cat-right-icon.webp";
+    : key==="fish-cat"
+      ? "Cats/Fish-Cat/slot.png"
+      : (assets&&assets.slot) || unit.spriteSlot || "sprites/original_sheets/normal-cat-right-icon.webp";
   return battleAssetUrl(source);
 }
 function battleSpeedMultiplier() {
@@ -5176,7 +5212,7 @@ stage.addEventListener("dragstart",event=>{
     if(image) {
       const dragIcon=image.cloneNode(true);
       dragIcon.className="equip-drag-icon";
-      dragIcon.style.cssText="position:fixed;left:-1000px;top:-1000px;width:40px;height:40px;object-fit:contain;opacity:.42;pointer-events:none;";
+      dragIcon.style.cssText="position:fixed;left:-1000px;top:-1000px;width:34px;height:34px;object-fit:contain;opacity:.35;pointer-events:none;";
       stage.appendChild(dragIcon);
       event.dataTransfer.setDragImage(dragIcon,20,20);
       requestAnimationFrame(()=>dragIcon.remove());
