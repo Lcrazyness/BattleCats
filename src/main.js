@@ -1394,7 +1394,7 @@ function renderStage() {
     const current=index===completed;
     const locked=index>completed;
     const classes="world-country-row"+(index===selectedLevelIndex?" is-selected":"")+(cleared?" is-cleared":"")+(current?" is-next":"")+(locked?" is-locked":"");
-    const status=cleared?"★":current?"NEXT":"🔒";
+    const status=cleared?"":current?"NEXT":"";
     return '<button class="'+classes+'" data-go="level:'+index+'" data-level-index="'+index+'" aria-label="'+level.name+(cleared?", cleared":current?", next stage":", locked")+'"'+(locked?" disabled":"")+'>'+
       '<span class="world-country-name">'+level.name+'</span>'+
       '<span class="world-country-status" aria-hidden="true">'+status+'</span>'+
