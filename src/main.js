@@ -2414,7 +2414,9 @@ function battleSlotImage(unit) {
   const assets = BATTLE_ASSETS[key];
   const source=key==="tank-cat"
     ? "Cats/tank-cat/slot.png"
-    : unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp";
+    : key==="fish-cat"
+      ? "Cats/Fish-Cat/slot.png"
+      : unit.spriteSlot || (assets && assets.slot) || "sprites/original_sheets/normal-cat-right-icon.webp";
   return battleAssetUrl(source);
 }
 function battleSpeedMultiplier() {
@@ -4072,7 +4074,7 @@ function renderFight() {
   const walletAffordable=walletLevel<8 && battleState.money>=50*walletLevel && !battleState.ended;
   const walletImageUrl=battleAssetUrl(walletAffordable?"sprites/battle/walletup.png":"sprites/battle/walletdown.png");
   const cannonImageUrl=battleAssetUrl("sprites/original_sheets/cat-base-accessory-icon.webp");
-  const equippedUnits=save.units.filter(unit=>save.equipped.includes(unit.id)).slice(0,10);
+  const equippedUnits=save.equipped.map(id=>save.units.find(unit=>String(unit.id)===String(id))).filter(Boolean).slice(0,10);
   const slotLayout=save.battleSlotLayout==="pages"?"pages":"two-row";
   const slotPageCount=Math.max(1,Math.ceil(equippedUnits.length/5));
   save.battleSlotPage=Math.max(0,Math.min(slotPageCount-1,Math.floor(Number(save.battleSlotPage)||0)));
@@ -4177,7 +4179,7 @@ function buildUpgradeCatalog() {
     return {
       key:"unit:"+String(unit.id),kind:"unit",unit,unitId:String(unit.id),name:String(unit.name||"Cat"),
       folder,statsPath:unit.statsPath||"Cats/"+folder+"/stats.json",level,max:currentCatMaxLevel(),
-      cost:level>=10?0:catUpgradeCost(unit),bio,stats
+      cost:level>=currentCatMaxLevel()?0:catUpgradeCost(unit),bio,stats
     };
   });
   const abilities=UPGRADE_BASE_ROWS.map(row=>{
@@ -4396,6 +4398,42 @@ function renderUpgrade() {
 }
 
 function renderDictionary(equip=false) {
+  if(equip) {
+    const ids=save.equipped.slice(0,10);
+    const slots=Array.from({length:10},(_,index)=>{
+      const unit=save.units.find(candidate=>String(candidate.id)===String(ids[index]));
+      const icon=unit?'<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">':'';
+      const label=unit?upgradeEscape(unit.name):"Empty slot "+(index+1);
+      return '<div class="equip-slot'+(unit?' is-filled':' is-empty')+'" data-equip-slot="'+index+'" tabindex="0" role="button" aria-label="Slot '+(index+1)+': '+label+'">'+
+        '<span class="equip-slot-number">'+(index+1)+'</span>'+icon+
+        (unit?'<small>'+upgradeEscape(unit.name)+'</small>':'')+
+      '</div>';
+    }).join("");
+    const inventory=save.units.map((unit,index)=>{
+      const isEquipped=ids.some(id=>String(id)===String(unit.id));
+      return '<button class="equip-cat-tile'+(isEquipped?' is-equipped':'')+'" type="button" draggable="true" data-equip-unit-id="'+upgradeEscape(unit.id)+'" data-go="equipunit:'+index+'" aria-grabbed="false">'+
+        '<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">'+
+        '<strong>'+upgradeEscape(unit.name)+'</strong>'+
+        '<small>Lv. '+Math.max(1,Number(unit.level)||1)+' · '+(isEquipped?'IN LINEUP':'DRAG TO ADD')+'</small>'+
+      '</button>';
+    }).join("");
+    return '<section class="screen upgrade-screen equip-screen" aria-label="Equip Cats">'+
+      '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-character-art" src="sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-side-wood upgrade-side-wood-left" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-side-wood upgrade-side-wood-right" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
+      '<header class="upgrade-header"><strong>EQUIP CATS</strong><span class="equip-count">'+ids.length+' / 10</span></header>'+
+      '<section class="equip-board">'+
+        '<div class="equip-board-title">BATTLE LINEUP · DRAG TO REORDER</div>'+
+        '<div class="equip-slot-grid">'+slots+'</div>'+
+        '<div class="equip-inventory-title">OWNED CATS · DRAG A CAT INTO A SLOT</div>'+
+        '<div class="equip-cat-grid">'+inventory+'</div>'+
+      '</section>'+
+      '<div class="upgrade-footer"><span>Cat Food</span><img src="sprites/ui/Cat_Food.png?v=20261106-07" alt="" draggable="false"><strong>'+money(save.catFood)+'</strong></div>'+
+      '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-07" alt="" draggable="false"></button>'+
+    '</section>';
+  }
   const layoutControls=equip
     ? '<div class="equip-lineup-settings"><strong>10-CAT BATTLE LINEUP</strong><span>Choose how your deployed Cat slots are arranged.</span><div><button type="button" data-go="slot-layout:two-row" class="'+(save.battleSlotLayout==="two-row"?"is-selected":"")+'">5 TOP + 5 BOTTOM</button><button type="button" data-go="slot-layout:pages" class="'+(save.battleSlotLayout==="pages"?"is-selected":"")+'">5 AT A TIME · SCROLL TO SWITCH</button></div><small>'+save.equipped.length+' / 10 Cats equipped</small></div>'
     : "";
@@ -5072,6 +5110,97 @@ stage.addEventListener("click", event => {
   }
   playSfx(action==="wallet-upgrade" || action.startsWith("deploy:") ? "deploy" : (action==="intro-back"||action==="upgrade-back") ? "back" : isStageChoice ? "enterBattle" : "button");
   if (action) perform(action);
+});
+
+let activeEquipDragId=null;
+function clearEquipDropPreviews() {
+  stage.querySelectorAll(".equip-slot.is-dragover").forEach(slot=>{
+    slot.classList.remove("is-dragover");
+    const ghost=slot.querySelector(".equip-drag-preview");
+    if(ghost) ghost.remove();
+  });
+}
+function moveEquippedCatToSlot(unitId,targetIndex) {
+  const unit=save.units.find(candidate=>String(candidate.id)===String(unitId));
+  if(!unit||targetIndex<0||targetIndex>9) return;
+  const ids=save.equipped.slice(0,10);
+  const sourceIndex=ids.findIndex(id=>String(id)===String(unit.id));
+  const targetId=ids[targetIndex];
+  if(sourceIndex>=0) {
+    if(sourceIndex===targetIndex) return;
+    if(targetId!==undefined) {
+      ids[sourceIndex]=targetId;
+      ids[targetIndex]=unit.id;
+    } else {
+      ids.splice(sourceIndex,1);
+      ids.splice(Math.min(targetIndex,ids.length),0,unit.id);
+    }
+  } else if(targetId!==undefined) {
+    ids[targetIndex]=unit.id;
+  } else if(ids.length<10) {
+    ids.splice(Math.min(targetIndex,ids.length),0,unit.id);
+  } else {
+    return notify("Your battle lineup can hold up to ten Cats.");
+  }
+  save.equipped=ids.slice(0,10);
+  persist();
+  render();
+}
+stage.addEventListener("dragstart",event=>{
+  const tile=event.target.closest("[data-equip-unit-id]");
+  if(!tile||scene!=="equip") return;
+  activeEquipDragId=tile.dataset.equipUnitId;
+  tile.classList.add("is-dragging");
+  tile.setAttribute("aria-grabbed","true");
+  if(event.dataTransfer) {
+    event.dataTransfer.effectAllowed="move";
+    event.dataTransfer.setData("text/plain",activeEquipDragId);
+    const image=tile.querySelector("img");
+    if(image) event.dataTransfer.setDragImage(image,Math.max(8,image.clientWidth/2),Math.max(8,image.clientHeight/2));
+  }
+});
+stage.addEventListener("dragover",event=>{
+  const slot=event.target.closest("[data-equip-slot]");
+  if(!slot||scene!=="equip"||!activeEquipDragId) return;
+  event.preventDefault();
+  if(event.dataTransfer) event.dataTransfer.dropEffect="move";
+  if(!slot.classList.contains("is-dragover")) {
+    clearEquipDropPreviews();
+    slot.classList.add("is-dragover");
+    const unit=save.units.find(candidate=>String(candidate.id)===String(activeEquipDragId));
+    if(unit) {
+      const ghost=document.createElement("img");
+      ghost.className="equip-drag-preview";
+      ghost.src=battleSlotImage(unit);
+      ghost.alt="";
+      ghost.draggable=false;
+      slot.appendChild(ghost);
+    }
+  }
+});
+stage.addEventListener("dragleave",event=>{
+  const slot=event.target.closest("[data-equip-slot]");
+  if(!slot||slot.contains(event.relatedTarget)) return;
+  slot.classList.remove("is-dragover");
+  const ghost=slot.querySelector(".equip-drag-preview");
+  if(ghost) ghost.remove();
+});
+stage.addEventListener("drop",event=>{
+  const slot=event.target.closest("[data-equip-slot]");
+  if(!slot||scene!=="equip") return;
+  event.preventDefault();
+  const id=activeEquipDragId||(event.dataTransfer&&event.dataTransfer.getData("text/plain"));
+  clearEquipDropPreviews();
+  if(id!==null&&id!==undefined&&id!=="") moveEquippedCatToSlot(id,Number(slot.dataset.equipSlot));
+  activeEquipDragId=null;
+});
+stage.addEventListener("dragend",event=>{
+  stage.querySelectorAll(".equip-cat-tile.is-dragging").forEach(tile=>{
+    tile.classList.remove("is-dragging");
+    tile.setAttribute("aria-grabbed","false");
+  });
+  activeEquipDragId=null;
+  clearEquipDropPreviews();
 });
 document.addEventListener("keydown", event=>{
   if (scene === "loading") return;
