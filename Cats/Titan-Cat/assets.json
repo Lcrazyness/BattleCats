@@ -1,14 +1,5 @@
 {
   "name": "Titan Cat",
-  "atlasParts": [
-    "Cats/Titan-Cat/sprite-atlas-1.b64",
-    "Cats/Titan-Cat/sprite-atlas-2.b64",
-    "Cats/Titan-Cat/sprite-atlas-3.b64",
-    "Cats/Titan-Cat/sprite-atlas-4.b64",
-    "Cats/Titan-Cat/sprite-atlas-5.b64",
-    "Cats/Titan-Cat/sprite-atlas-6.b64",
-    "Cats/Titan-Cat/sprite-atlas-7.b64"
-  ],
   "frameCells": [
     [
       4,
@@ -179,5 +170,6 @@
   "attackFrameRate": 6,
   "attackDuration": 2.23,
   "slot": "Cats/Titan-Cat/slot.png",
-  "upgrade": "Cats/Titan-Cat/UpgradeSlot.png"
+  "upgrade": "Cats/Titan-Cat/UpgradeSlot.png",
+  "atlasImage": "Cats/Titan-Cat/sprite-atlas.png"
 }
