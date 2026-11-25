@@ -16,5 +16,6 @@
   "knockbackDistance": 4.5,
   "AttackTrait": "",
   "AttackBoost": "",
-  "Bio": "A fragile area attacker that hits groups of enemies from the back line."
+  "Bio": "A fragile area attacker that hits groups of enemies from the back line.",
+  "yOffset": 0
 }
