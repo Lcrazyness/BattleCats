@@ -127,7 +127,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-05";
+const BATTLE_ASSET_VERSION = "20261125-06";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -4522,7 +4522,7 @@ function renderDictionary(equip=false) {
     '</section>';
   }
   const layoutControls=equip
-    ? '<div class="equip-lineup-settings"><strong>10-CAT BATTLE LINEUP</strong><span>Choose how your deployed Cat slots are arranged.</span><div><button type="button" data-go="slot-layout:two-row" class="'+(save.battleSlotLayout==="two-row"?"is-selected":"")+'">5 TOP + 5 BOTTOM</button><button type="button" data-go="slot-layout:pages" class="'+(save.battleSlotLayout==="pages"?"is-selected":"")+'">5 AT A TIME · SCROLL TO SWITCH</button></div><small>'+save.equipped.length+' / 10 Cats equipped</small></div>'
+    ? '<div class="equip-lineup-settings"><strong>10-CAT BATTLE LINEUP</strong><span>Choose how your deployed Cat slots are arranged.</span><div><button type="button" data-go="slot-layout:two-row" class="'+(save.battleSlotLayout==="two-row"?"is-selected":"")+'">5 TOP + 5 BOTTOM</button><button type="button" data-go="slot-layout:pages" class="'+(save.battleSlotLayout==="pages"?"is-selected":"")+'">5 AT A TIME · SCROLL TO SWITCH</button></div><small>'+equippedCatCount()+' / 10 Cats equipped</small></div>'
     : "";
   const body = pageCopy(equip?"Tap a Cat to add or remove it from your battle lineup. You can equip up to ten Cats.":"Cats you have discovered are shown here.")+
     layoutControls+
