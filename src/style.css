@@ -4742,3 +4742,63 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .equip-screen .equip-cat-tile:active {
   cursor:grabbing;
 }
+
+
+/* Place labels now sit on their map coordinates instead of a horizontally scrolling strip. */
+.world-country-list {
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  overflow:visible !important;
+  padding:0 !important;
+  pointer-events:none !important;
+  touch-action:auto !important;
+}
+.world-country-row {
+  position:absolute !important;
+  left:50%;
+  top:50%;
+  width:auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  max-width:clamp(76px,10vw,128px);
+  padding:4px 8px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  pointer-events:auto !important;
+  transform:translate(-50%,-50%) !important;
+  background:#fff !important;
+  border:2px solid #7b4a21 !important;
+  box-shadow:1px 2px 0 #5b3218 !important;
+  white-space:nowrap !important;
+}
+.world-country-row.is-selected {
+  transform:translate(-50%,-50%) !important;
+}
+.world-country-name {
+  font-size:clamp(10px,1.05vw,15px) !important;
+  color:#ffbd00 !important;
+  background:linear-gradient(180deg,#fff13a 0%,#ffc20a 48%,#f47700 100%) !important;
+  background-clip:text !important;
+  -webkit-background-clip:text !important;
+  -webkit-text-fill-color:transparent !important;
+}
+.world-country-status {
+  color:#ed8500 !important;
+}
+.world-map-canvas {
+  overflow:hidden !important;
+}
+@media(max-width:700px) {
+  .world-country-row {
+    max-width:clamp(62px,19vw,100px);
+    padding:3px 5px !important;
+    border-width:1.5px !important;
+  }
+  .world-country-name { font-size:clamp(9px,2.5vw,12px) !important; }
+  .world-country-status { font-size:8px !important; }
+}
