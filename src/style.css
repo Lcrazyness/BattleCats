@@ -4368,63 +4368,98 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   top:52% !important;
   width:31% !important;
   max-height:52vh !important;
-  animation:chapter-banner-arrive 1050ms cubic-bezier(.17,.8,.22,1) 280ms both !important;
+  transform:translate(-50%,-50%) !important;
 }
 .chapter-banner-label {
   border-radius:0;
 }
 
-/* Equip Cats uses the same wooden upgrade frame, with ten real slot.png targets. */
+/* Equip Cats: clean lineup grid with draggable UpgradeSlot cards. */
+.equip-screen {
+  isolation:isolate;
+  background:transparent !important;
+  color:#fff;
+}
+.equip-header {
+  position:absolute;
+  z-index:8;
+  left:8%;
+  right:8%;
+  top:2.2%;
+  height:7.5%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.equip-header > strong {
+  color:#ffe22c;
+  font:1000 clamp(20px,3vw,34px)/1 Impact,Haettenschweiler,sans-serif;
+  letter-spacing:.04em;
+  -webkit-text-stroke:1.5px #17110d;
+  paint-order:stroke fill;
+  text-shadow:2px 3px 0 #24170f;
+}
+.equip-screen .equip-count {
+  right:1%;
+  top:50%;
+  color:#ffe22c;
+}
 .equip-screen .equip-board {
   position:absolute;
   z-index:6;
-  left:10%;
-  right:10%;
-  top:16%;
-  bottom:12%;
+  left:7%;
+  right:7%;
+  top:11%;
+  bottom:5%;
   display:flex;
   flex-direction:column;
-  gap:clamp(6px,1.1vh,12px);
-  padding:clamp(7px,1.1vw,14px);
-  border:3px solid #16110e;
+  gap:clamp(5px,.8vh,10px);
+  padding:0;
+  border:0;
   border-radius:0;
-  background:linear-gradient(180deg,#754a2bF2 0%,#422719F5 100%);
-  box-shadow:inset 0 0 0 2px #b88a58,0 3px 0 #1a120d;
+  background:transparent;
+  box-shadow:none;
   overflow:hidden;
 }
-.equip-board-title,
+.equip-slots-heading,
 .equip-inventory-title {
   flex:0 0 auto;
-  color:#fff2d4;
-  font:1000 clamp(10px,1.2vw,15px)/1 Impact,Haettenschweiler,sans-serif;
+  color:#fff0a8;
+  font:1000 clamp(10px,1.15vw,15px)/1 Impact,Haettenschweiler,sans-serif;
   letter-spacing:.055em;
+  text-align:center;
+  -webkit-text-stroke:.55px #2a180e;
   text-shadow:1px 2px #24170f;
 }
 .equip-slot-grid {
   flex:0 0 auto;
+  align-self:center;
   display:grid;
-  grid-template-columns:repeat(10,minmax(0,1fr));
-  gap:clamp(3px,.55vw,7px);
-  width:100%;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-rows:repeat(2,minmax(0,1fr));
+  gap:clamp(4px,.65vw,8px);
+  width:min(94%,680px);
 }
 .equip-slot {
   position:relative;
   display:grid;
   place-items:center;
   min-width:0;
+  width:100%;
   aspect-ratio:1;
-  max-height:clamp(54px,10vh,94px);
-  border:2px solid #101010;
+  max-height:clamp(52px,9.2vh,92px);
+  border:3px solid #111;
   border-radius:0;
-  background:#8a8a8a;
-  box-shadow:inset 0 1px 0 #c5c5c5,0 1px 0 #21170f;
+  background:#858585;
+  box-shadow:inset 0 1px 0 #b9b9b9,0 2px 0 #111;
   overflow:hidden;
   transition:background .12s ease,transform .12s ease;
 }
-.equip-slot.is-filled { background:#b1a28b; }
+.equip-slot.is-filled { background:#e9e9e9; }
 .equip-slot.is-dragover {
-  background:#e7d19a;
-  outline:3px solid #fff2a8;
+  background:#fff;
+  outline:3px solid #ffe331;
   outline-offset:-3px;
   transform:scale(1.025);
 }
@@ -4439,26 +4474,11 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 .equip-slot-number {
   position:absolute;
   z-index:2;
-  left:2px;
-  top:1px;
+  left:3px;
+  top:2px;
   color:#fff;
   font:900 clamp(8px,.7vw,10px)/1 Arial,sans-serif;
-  text-shadow:1px 1px #000, -1px -1px #000;
-  pointer-events:none;
-}
-.equip-slot small {
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  overflow:hidden;
-  padding:2px 1px;
-  background:#15110ed9;
-  color:#fff;
-  font:800 clamp(6px,.55vw,8px)/1 Arial,sans-serif;
-  text-align:center;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  text-shadow:1px 1px #000,-1px -1px #000;
   pointer-events:none;
 }
 .equip-slot .equip-drag-preview {
@@ -4467,20 +4487,25 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   inset:0;
   width:100%;
   height:100%;
+  padding:4%;
   object-fit:contain;
-  opacity:.52;
+  opacity:.72;
   pointer-events:none;
   user-select:none;
   -webkit-user-drag:none;
+}
+.equip-screen .equip-inventory-title {
+  margin-top:clamp(3px,.5vh,7px);
 }
 .equip-cat-grid {
   flex:1 1 auto;
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
   align-content:start;
-  gap:clamp(4px,.7vw,9px);
+  justify-items:center;
+  gap:clamp(5px,.8vw,12px);
   min-height:0;
-  padding:2px;
+  padding:2px clamp(2px,.5vw,8px) 10px;
   overflow:auto;
   overscroll-behavior:contain;
 }
@@ -4488,53 +4513,69 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-start;
   gap:3px;
   min-width:0;
-  min-height:clamp(66px,10vh,96px);
-  padding:5px 3px;
-  border:2px solid #16120e;
+  width:100%;
+  padding:3px;
+  border:0;
   border-radius:0;
-  background:linear-gradient(#e4d4b3,#b59b70);
-  color:#24180f;
-  font:900 clamp(8px,.8vw,11px)/1.05 Arial,sans-serif;
+  background:transparent;
+  color:#fff4c8;
+  font:900 clamp(9px,.82vw,12px)/1.05 Arial,sans-serif;
   cursor:grab;
   user-select:none;
   -webkit-user-select:none;
 }
 .equip-cat-tile img {
   display:block;
-  width:clamp(30px,4vw,56px);
-  height:clamp(30px,4vw,56px);
+  width:100%;
+  max-width:clamp(78px,10vw,132px);
+  height:clamp(75px,13vh,116px);
   object-fit:contain;
   pointer-events:none;
   user-select:none;
   -webkit-user-drag:none;
+  filter:drop-shadow(1px 2px 1px #0009);
+}
+.equip-cat-tile strong {
+  display:block;
+  max-width:100%;
+  text-align:center;
+  text-shadow:1px 2px #20140e;
 }
 .equip-cat-tile small {
-  font:800 clamp(6px,.58vw,8px)/1 Arial,sans-serif;
+  font:800 clamp(7px,.62vw,9px)/1 Arial,sans-serif;
+  color:#fff;
+  text-shadow:1px 1px #20140e;
 }
-.equip-cat-tile.is-equipped {
-  border-color:#e5c45d;
-  box-shadow:inset 0 0 0 1px #342314;
+.equip-cat-tile.is-equipped img {
+  filter:drop-shadow(0 0 4px #ffe23b) drop-shadow(1px 2px 1px #0009);
 }
-.equip-cat-tile.is-dragging { opacity:.42; cursor:grabbing; }
-.equip-count {
-  position:absolute;
-  right:3%;
-  top:50%;
-  transform:translateY(-50%);
-  color:#fff7d9;
-  font:1000 clamp(13px,1.3vw,19px)/1 Arial,sans-serif;
-  text-shadow:1px 2px #382014;
+.equip-cat-tile.is-dragging { opacity:.35; cursor:grabbing; }
+.equip-screen .upgrade-back-button {
+  z-index:14;
+  left:1.5%;
+  bottom:1.5%;
+  width:clamp(48px,6.5vw,82px);
+  height:clamp(48px,6.5vw,82px);
 }
-.equip-screen .upgrade-footer { z-index:14; }
 
-/* Boss-scale presentation for Teacher Bun Bun. */
+/* Teacher Bun Bun is a large Floating boss, not a tiny regular enemy. */
 .fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] {
-  width:clamp(130px,16vw,220px);
-  height:clamp(150px,30vh,250px);
-  filter:drop-shadow(2px 4px 0 #241a14b0);
+  width:clamp(150px,18vw,250px) !important;
+  height:clamp(175px,32vh,280px) !important;
+  overflow:visible !important;
+  z-index:8 !important;
+  filter:drop-shadow(2px 4px 0 #241a14b0) !important;
+}
+.fight-screen .fight-unit[data-unit-type="teacher-bun-bun"] .fight-unit-sprite {
+  width:100% !important;
+  height:70% !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  scale:1.85 !important;
+  transform-origin:center bottom !important;
 }
 .fight-screen .fight-unit[data-unit-type="lizard-cat"] {
   overflow:visible;
@@ -4563,3 +4604,66 @@ button:active{filter:brightness(.91);transform:translateY(2px)}
 }
 
 .world-map-stage-info{padding:clamp(8px,1vw,14px)!important;background:#fff!important;border:3px solid #111!important;border-radius:0!important;box-shadow:none!important;color:#111!important;text-shadow:none!important;max-width:46%!important}.world-map-stage-kicker{color:#111!important;text-shadow:none!important}.world-map-stage-info>strong{color:#111!important;text-shadow:none!important}.world-map-stage-stats{color:#111!important;text-shadow:none!important}.world-map-stage-stats b{color:#111!important;text-shadow:none!important}
+
+/* The top horizontal stage selector uses the supplied white, square name-label look. */
+.world-country-list {
+  height:clamp(42px,6.4vh,58px) !important;
+  gap:clamp(6px,.8vw,10px) !important;
+  align-items:center !important;
+  padding:2px 8px 4px !important;
+}
+.world-country-row {
+  flex:0 0 auto !important;
+  min-height:34px !important;
+  height:clamp(32px,5.1vh,44px) !important;
+  padding:4px clamp(7px,.9vw,13px) !important;
+  border:2.5px solid #111 !important;
+  border-radius:0 !important;
+  background:#fff !important;
+  box-shadow:2px 2px 0 #111 !important;
+  color:#f2a000 !important;
+  text-shadow:none !important;
+  transform:none;
+}
+.world-country-name {
+  display:block;
+  color:#ffbd00 !important;
+  background:linear-gradient(180deg,#fff13a 0%,#ffc20a 48%,#f47700 100%);
+  background-clip:text;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font:1000 clamp(13px,1.25vw,17px)/1 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif !important;
+  letter-spacing:-.01em;
+  text-shadow:none !important;
+}
+.world-country-status {
+  color:#ed8500 !important;
+  text-shadow:none !important;
+}
+.world-country-row.is-selected {
+  transform:translateY(-1px) !important;
+}
+.world-country-row.is-selected::after {
+  content:none !important;
+}
+@media(max-width:700px) {
+  .equip-screen .equip-board {
+    left:3%;
+    right:3%;
+    top:12%;
+    bottom:4%;
+    gap:5px;
+  }
+  .equip-slot-grid {
+    width:96%;
+    gap:3px;
+  }
+  .equip-slot {
+    max-height:clamp(45px,9vh,72px);
+    border-width:2px;
+  }
+  .equip-slot-number { font-size:7px; }
+  .equip-cat-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; }
+  .equip-cat-tile img { height:clamp(66px,12vh,92px); }
+  .equip-screen .upgrade-back-button { width:46px; height:46px; }
+}
