@@ -1,175 +1,36 @@
 {
   "name": "Titan Cat",
-  "frameCells": [
-    [
-      4,
-      4,
-      56,
-      56
-    ],
-    [
-      68,
-      4,
-      55,
-      56
-    ],
-    [
-      133,
-      4,
-      54,
-      56
-    ],
-    [
-      196,
-      4,
-      56,
-      56
-    ],
-    [
-      260,
-      4,
-      56,
-      55
-    ],
-    [
-      324,
-      4,
-      56,
-      56
-    ],
-    [
-      5,
-      68,
-      54,
-      56
-    ],
-    [
-      68,
-      68,
-      56,
-      56
-    ],
-    [
-      133,
-      68,
-      53,
-      56
-    ],
-    [
-      197,
-      68,
-      53,
-      56
-    ],
-    [
-      260,
-      69,
-      56,
-      53
-    ],
-    [
-      324,
-      73,
-      56,
-      46
-    ],
-    [
-      4,
-      133,
-      56,
-      54
-    ],
-    [
-      68,
-      133,
-      56,
-      53
-    ],
-    [
-      132,
-      133,
-      56,
-      54
-    ],
-    [
-      196,
-      134,
-      56,
-      52
-    ],
-    [
-      260,
-      134,
-      56,
-      52
-    ],
-    [
-      324,
-      135,
-      56,
-      49
-    ],
-    [
-      4,
-      201,
-      56,
-      45
-    ],
-    [
-      68,
-      202,
-      56,
-      44
-    ],
-    [
-      132,
-      202,
-      56,
-      43
-    ],
-    [
-      196,
-      201,
-      56,
-      45
-    ],
-    [
-      260,
-      201,
-      56,
-      45
-    ]
+  "moving": [
+    "Cats/Titan-Cat/moving/frame-001.png",
+    "Cats/Titan-Cat/moving/frame-002.png",
+    "Cats/Titan-Cat/moving/frame-003.png",
+    "Cats/Titan-Cat/moving/frame-004.png",
+    "Cats/Titan-Cat/moving/frame-005.png",
+    "Cats/Titan-Cat/moving/frame-006.png"
   ],
-  "walkFrames": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7
+  "attacks": [
+    "Cats/Titan-Cat/attack/frame-001attack.png",
+    "Cats/Titan-Cat/attack/frame-002attack.png",
+    "Cats/Titan-Cat/attack/frame-003attack.png",
+    "Cats/Titan-Cat/attack/frame-004attack.png",
+    "Cats/Titan-Cat/attack/frame-005attack.png",
+    "Cats/Titan-Cat/attack/frame-006attack.png",
+    "Cats/Titan-Cat/attack/frame-007attack.png",
+    "Cats/Titan-Cat/attack/frame-008attack.png",
+    "Cats/Titan-Cat/attack/frame-009attack.png",
+    "Cats/Titan-Cat/attack/frame-010attack.png"
   ],
-  "attackFrames": [
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21
+  "attack": "Cats/Titan-Cat/attack/frame-001attack.png",
+  "attackFrameRate": 15,
+  "attackDuration": 1.03,
+  "damagedFrames": [
+    "Cats/Titan-Cat/damaged/frame-001damaged.png"
   ],
-  "hurtFrame": 22,
-  "attackFrameRate": 6,
-  "attackDuration": 2.23,
+  "knockbackFrames": [
+    "Cats/Titan-Cat/damaged/frame-001damaged.png"
+  ],
+  "idle": "Cats/Titan-Cat/idle.png",
+  "damaged": "Cats/Titan-Cat/damaged/frame-001damaged.png",
   "slot": "Cats/Titan-Cat/slot.png",
-  "upgrade": "Cats/Titan-Cat/UpgradeSlot.png",
-  "atlasImage": "Cats/Titan-Cat/sprite-atlas.png"
+  "upgrade": "Cats/Titan-Cat/UpgradeSlot.png"
 }
