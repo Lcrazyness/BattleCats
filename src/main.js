@@ -91,8 +91,8 @@ if(Number(save.stageClears)>=16&&!save.units.some(unit=>unit.name==="Fish Cat"||
 if(Number(save.stageClears)>=20&&!save.units.some(unit=>unit.name==="Lizard Cat"||Number(unit.id)===8)) save.units.push(makeLizardCatUnit());
 if(Number(save.stageClears)>=24&&!save.units.some(unit=>unit.name==="Titan Cat"||Number(unit.id)===9)) save.units.push(makeTitanCatUnit());
 save.chapterClears={...defaults.chapterClears,...(save.chapterClears||{})};
-save.chapterClears["2"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["2"])||0)));
-save.chapterClears["3"]=Math.max(0,Math.min(48,Math.floor(Number(save.chapterClears["3"])||0)));
+save.chapterClears["2"]=Math.max(0,Math.min(46,Math.floor(Number(save.chapterClears["2"])||0)));
+save.chapterClears["3"]=Math.max(0,Math.min(46,Math.floor(Number(save.chapterClears["3"])||0)));
 const titanUnitIndex=save.units.findIndex(unit=>unit.name==="Titan Cat"||Number(unit.id)===9);
 if(titanUnitIndex>=0) {
   const existingTitan=save.units[titanUnitIndex];
@@ -100,7 +100,7 @@ if(titanUnitIndex>=0) {
 } else if(Number(save.stageClears)>=24||Number(save.chapterClears["2"])>0||Number(save.chapterClears["3"])>0) {
   save.units.push(makeTitanCatUnit());
 }
-const currentCatMaxLevel=()=>Number(save.chapterClears["2"]||0)>=48?20:10;
+const currentCatMaxLevel=()=>Number(save.chapterClears["2"]||0)>=46?20:10;
 const XP_RESET_VERSION = "20261106-02";
 if(save.xpResetVersion!==XP_RESET_VERSION) {
   save.xp=1000;
@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-11";
+const BATTLE_ASSET_VERSION = "20261125-12";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -186,7 +186,8 @@ const BATTLE_UNIT_STATS_BY_ID = new Map();
 function battleUnitKey(unitOrName) {
   const value = typeof unitOrName === "string" ? unitOrName :
     (unitOrName && (unitOrName.enemyType || unitOrName.statsKey || unitOrName.assetFolder || unitOrName.spriteFolder || unitOrName.name || unitOrName.kind)) || "cat";
-  return String(value).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const key=String(value).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  return key==="bun-bun"||key==="bunbun"||key==="teacher-bunbun" ? "teacher-bun-bun" : key;
 }
 function battleEnemyFolder(enemyType) {
   const key=battleUnitKey(enemyType);
@@ -1299,8 +1300,8 @@ function renderTitle() {
   '</section>';
 }
 function renderChapterSelect() {
-  const chapterTwoUnlocked=chapterClearCount(1)>=48;
-  const chapterThreeUnlocked=chapterClearCount(2)>=48;
+  const chapterTwoUnlocked=chapterClearCount(1)>=46;
+  const chapterThreeUnlocked=chapterClearCount(2)>=46;
   return '<section class="screen chapter-select-screen" aria-label="Chapter selection">'+
     '<div class="chapter-select-frame">'+
       '<img class="chapter-select-background" src="sprites/backgrounds/titlescreenmenu.png?v=20261026-9" alt="" draggable="false">'+
@@ -1367,7 +1368,7 @@ const row = (label, detail, action, actionLabel="OPEN") =>
 const pageCopy = text => '<p class="menu-copy">'+text+'</p>';
 function renderBattle() {
   currentRegion = "empire";
-  selectedLevelIndex = Math.min(47,chapterClearCount());
+  selectedLevelIndex = Math.min(45,chapterClearCount());
   return renderStage();
 }
 function renderStage() {
@@ -1379,7 +1380,7 @@ function renderStage() {
     return renderWindow("Choose a Stage",body,"battle");
   }
 
-  const chapterLevels=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE).filter(level=>level.name!=="The Great Abyss");
+  const chapterLevels=chapterStageList();
   const completed=chapterClearCount();
   const highestAvailable=Math.min(chapterLevels.length-1,completed);
   if(!Number.isInteger(selectedLevelIndex)||selectedLevelIndex<0||selectedLevelIndex>=chapterLevels.length) selectedLevelIndex=highestAvailable;
@@ -1414,7 +1415,7 @@ function renderStage() {
           '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261125-11" alt="" draggable="false">'+
         '</div>'+
         '<aside class="world-map-stage-info">'+
-          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 47 · '+stageStatus+'</span>'+
+          '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 46 · '+stageStatus+'</span>'+
           '<strong>'+selected.name+'</strong>'+
           '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
         '</aside>'+
@@ -1442,11 +1443,18 @@ function renderStage() {
 }
 const EMPIRE_CHAPTER_TWO = EMPIRE_CHAPTER_ONE;
 const EMPIRE_CHAPTER_THREE = EMPIRE_CHAPTER_ONE;
+function chapterStageList(chapter=currentChapter) {
+  const stages=chapter===3?EMPIRE_CHAPTER_THREE:chapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+  return stages.filter(level=>level.name!=="The Great Abyss"&&level.name!=="Floating Continent");
+}
+function chapterStageCount(chapter=currentChapter) {
+  return chapterStageList(chapter).length;
+}
 function chapterClearCount(chapter=currentChapter) {
-  return Math.max(0,Math.min(48,chapter===1?Number(save.stageClears)||0:chapter===2?Number(save.chapterClears&&save.chapterClears["2"])||0:Number(save.chapterClears&&save.chapterClears["3"])||0));
+  return Math.max(0,Math.min(chapterStageCount(chapter),chapter===1?Number(save.stageClears)||0:chapter===2?Number(save.chapterClears&&save.chapterClears["2"])||0:Number(save.chapterClears&&save.chapterClears["3"])||0));
 }
 function setChapterClearCount(chapter,count) {
-  const value=Math.max(0,Math.min(48,Math.floor(Number(count)||0)));
+  const value=Math.max(0,Math.min(chapterStageCount(chapter),Math.floor(Number(count)||0)));
   if(chapter===1) save.stageClears=value;
   else if(chapter===2) save.chapterClears["2"]=value;
   else save.chapterClears["3"]=value;
@@ -2134,7 +2142,7 @@ function normalizeBattleLevelConfig(raw,levelName="Korea") {
 }
 async function loadBattleLevelConfig() {
   if(battleLevelConfigPromise) return battleLevelConfigPromise;
-  const levels=currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+  const levels=chapterStageList(currentChapter);
   const selected=levels[selectedLevelIndex]||levels[0];
   battleLevelName=selected.name;
   battleLevelConfigPromise=(async()=>{
@@ -2321,7 +2329,6 @@ function loadBattleAssetManifests() {
       const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
       if(!response.ok) return;
       let data=await response.json();
-      if(kind==="titan-cat"&&typeof data.atlasImage==="string") data.atlasImage="enemys/teacher-bun-bun/sprite-atlas.png";
       if(kind==="fish-cat"||kind==="bird-cat") data=await expandBattleAtlasFrameAssets(data);
       const current=BATTLE_ASSETS[kind]||(BATTLE_ASSETS[kind]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+kind+"/slot.svg"});
       if(Array.isArray(data.frameCells)&&(Array.isArray(data.atlasParts)||typeof data.atlasImage==="string")) {
@@ -4169,8 +4176,8 @@ function toggleBattlePause() {
 }
 function renderFight() {
   if (!battleState) battleState=createBattleState();
-  const selectedLevel=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[selectedLevelIndex]||
-    (currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE)[0];
+  const chapterLevels=chapterStageList(currentChapter);
+  const selectedLevel=chapterLevels[selectedLevelIndex]||chapterLevels[0];
   const levelFolder="Levels/"+(selectedLevel.name==="The Great Abyss"?"Maldives":selectedLevel.name==="Floating Continent"?"Hawaii":selectedLevel.name);
   const levelConfig=battleState.levelConfig||defaultBattleLevelConfig(selectedLevel.name);
   const levelBackgroundUrl=battleAssetUrl(levelFolder+"/"+levelConfig.background);
@@ -4305,8 +4312,13 @@ function buildUpgradeCatalog() {
 function upgradeItemByKey(key) {
   return buildUpgradeCatalog().find(item=>item.key===key)||null;
 }
-function upgradeCardMarkup(item) {
+function upgradeCardMarkup(item,equipMode=false) {
   const active=item.key===selectedUpgradeKey;
+  const draggableEquipCard=equipMode&&item.kind==="unit";
+  const equipClass=draggableEquipCard?" equip-cat-tile":"";
+  const equipDragAttributes=draggableEquipCard
+    ? ' draggable="true" data-equip-unit-id="'+upgradeEscape(item.unitId)+'" aria-grabbed="false"'
+    : "";
   const category=item.kind==="unit"?"CAT UNIT":"CAT BASE";
   const level=currencySpriteMarkup(item.level,"currency-size-upgrade");
   const cost=item.level>=item.max
@@ -4318,7 +4330,7 @@ function upgradeCardMarkup(item) {
       '<span class="upgrade-wedge-cost"><small>XP</small>'+cost+'</span></span></div>'
     : '<div class="upgrade-card-ability-art" aria-hidden="true"><span>'+upgradeEscape(item.icon)+'</span>'+
       '<span class="upgrade-base-level">LEVEL '+level+' / '+item.max+'</span></div>';
-  return '<button class="upgrade-card'+(active?' is-active':'')+'" type="button" data-go="upgrade-select:'+upgradeEscape(item.key)+'" data-upgrade-key="'+upgradeEscape(item.key)+'" aria-pressed="'+(active?"true":"false")+'">'+
+  return '<button class="upgrade-card'+(active?' is-active':'')+equipClass+'" type="button"'+equipDragAttributes+' data-go="upgrade-select:'+upgradeEscape(item.key)+'" data-upgrade-key="'+upgradeEscape(item.key)+'" aria-pressed="'+(active?"true":"false")+'">'+
     '<span class="upgrade-card-category">'+category+'</span>'+art+
     '</button>';
 }
@@ -4437,7 +4449,7 @@ function setupUpgradeCarousel() {
   let mouseStartScroll=0;
   let mouseDragged=false;
   track.addEventListener("pointerdown",event=>{
-    if(event.pointerType!=="mouse"||event.button!==0) return;
+    if(event.pointerType!=="mouse"||event.button!==0||(scene==="equip"&&event.target.closest("[data-equip-unit-id]"))) return;
     mousePointerId=event.pointerId;
     mouseStartX=event.clientX;
     mouseStartScroll=track.scrollLeft;
@@ -4514,20 +4526,26 @@ function renderDictionary(equip=false) {
       const unit=save.units.find(candidate=>String(candidate.id)===String(ids[index]));
       const icon=unit?'<img src="'+battleSlotImage(unit)+'" alt="" draggable="false">':'';
       const label=unit?upgradeEscape(unit.name):"Empty slot "+(index+1);
-      return '<button class="equip-slot'+(unit?' is-filled':' is-empty')+'" type="button" data-equip-slot="'+index+'" aria-label="Slot '+(index+1)+': '+label+'">'+
+      return '<button class="equip-slot'+(unit?' is-filled':' is-empty')+'" type="button" data-equip-slot="'+index+'" aria-label="Slot '+(index+1)+': '+label+(unit?'. Click to remove':' — drop a Cat here')+'" title="'+(unit?'Click to remove '+label:'Drop a Cat into this slot')+'">'+
         '<span class="equip-slot-number">'+(index+1)+'</span>'+icon+
       '</button>';
     }).join("");
-    const items=buildUpgradeCatalog();
+    const items=buildUpgradeCatalog().filter(item=>item.kind==="unit");
     if(!items.some(item=>item.key===selectedUpgradeKey)) selectedUpgradeKey=items[0]?.key||"";
     const selected=items.find(item=>item.key===selectedUpgradeKey)||items[0];
-    const cards=items.map(upgradeCardMarkup).join("");
+    const cards=items.map(item=>upgradeCardMarkup(item,true)).join("");
     const xp=currencySpriteMarkup(save.xp,"currency-size-upgrade-header");
-    return '<section class="screen equip-screen upgrade-screen" aria-label="Equip and upgrade Cats">'+
+    return '<section class="screen equip-screen upgrade-screen" aria-label="Equip Cats">'+
+      '<img class="upgrade-background-art" src="sprites/backgrounds/UpgradeMenu/MainBackgounrd.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-character-art" src="sprites/backgrounds/UpgradeMenu/charecters.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-topbar-art" src="sprites/backgrounds/UpgradeMenu/topbar.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-side-wood upgrade-side-wood-left" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
+      '<img class="upgrade-side-wood upgrade-side-wood-right" src="sprites/backgrounds/UpgradeMenu/Woodpannel.png?v=20261106-07" alt="" draggable="false">'+
+      '<div class="upgrade-footer"><span>Cat Food</span><img src="sprites/ui/Cat_Food.png?v=20261106-07" alt="" draggable="false"><strong>'+money(save.catFood)+'</strong></div>'+
       '<header class="upgrade-header equip-upgrade-header"><strong>UPGRADE</strong><span class="upgrade-xp-readout"><small>XP</small>'+xp+'</span></header>'+
-      '<div class="equip-slot-grid" aria-label="Battle lineup">'+slots+'</div>'+
+      '<div class="equip-slot-grid" aria-label="Battle lineup — click a filled slot to remove its Cat">'+slots+'</div>'+
       '<div class="equip-inventory-title">UPGRADE MENU</div>'+
-      '<div class="upgrade-carousel equip-upgrade-carousel" aria-label="Select a Cat upgrade">'+cards+'</div>'+
+      '<div class="upgrade-carousel equip-upgrade-carousel" aria-label="Drag a Cat upgrade card into a battle slot">'+cards+'</div>'+
       '<section class="upgrade-bottom-copy" aria-live="polite">'+upgradeDetailMarkup(selected)+'</section>'+
       '<button class="upgrade-back-button" type="button" data-go="upgrade-back" aria-label="Back to Cat Base"><img src="sprites/ui/backbutton.png?v=20261106-07" alt="" draggable="false"></button>'+
       '<button class="upgrade-action-button" type="button" data-go="upgrade-buy" aria-label="'+(selected.level>=selected.max?upgradeEscape(selected.name+" is max level"):"Upgrade "+upgradeEscape(selected.name))+'">'+
@@ -4671,12 +4689,56 @@ function render() {
       if(rowRight>list.scrollLeft+list.clientWidth) list.scrollLeft=rowRight-list.clientWidth+14;
       else if(rowLeft<list.scrollLeft) list.scrollLeft=rowLeft-14;
     }
-    if(list) list.addEventListener("wheel",event=>{
-      if(list.scrollWidth>list.clientWidth) {
+    if(list) {
+      list.addEventListener("wheel",event=>{
+        if(list.scrollWidth>list.clientWidth) {
+          event.preventDefault();
+          list.scrollLeft+=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+        }
+      },{passive:false});
+      let pointerId=null;
+      let startX=0;
+      let startScrollLeft=0;
+      let dragged=false;
+      list.addEventListener("pointerdown",event=>{
+        if(event.pointerType!=="mouse"||event.button!==0) return;
+        pointerId=event.pointerId;
+        startX=event.clientX;
+        startScrollLeft=list.scrollLeft;
+        dragged=false;
+      });
+      list.addEventListener("pointermove",event=>{
+        if(pointerId!==event.pointerId) return;
+        const delta=event.clientX-startX;
+        if(!dragged&&Math.abs(delta)>6) {
+          dragged=true;
+          list.classList.add("is-mouse-dragging");
+          list.setPointerCapture(event.pointerId);
+        }
+        if(dragged) {
+          event.preventDefault();
+          list.scrollLeft=startScrollLeft-delta;
+        }
+      });
+      const finishListDrag=event=>{
+        if(pointerId!==event.pointerId) return;
+        if(dragged) {
+          list.dataset.suppressClick="true";
+          list.classList.remove("is-mouse-dragging");
+        }
+        pointerId=null;
+        dragged=false;
+      };
+      list.addEventListener("pointerup",finishListDrag);
+      list.addEventListener("pointercancel",finishListDrag);
+      list.addEventListener("lostpointercapture",finishListDrag);
+      list.addEventListener("click",event=>{
+        if(list.dataset.suppressClick!=="true") return;
+        delete list.dataset.suppressClick;
         event.preventDefault();
-        list.scrollLeft+=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
-      }
-    },{passive:false});
+        event.stopPropagation();
+      },true);
+    }
   }
   if(scene==="fight") {
     const fightScreen=stage.querySelector(".fight-screen");
@@ -4947,10 +5009,10 @@ function perform(action) {
   if (action === "intro-back" || action === "intro-skip") return leaveIntro();
   if(action.startsWith("chapter-enter")) {
     const requested=Number(action.split(":")[1]||1);
-    if(requested===2&&chapterClearCount(1)<48) return notify("Clear all 48 Empire of Cats Chapter 1 stages to unlock Chapter 2.");
-    if(requested===3&&chapterClearCount(2)<48) return notify("Clear all 48 Empire of Cats Chapter 2 stages to unlock Chapter 3.");
+    if(requested===2&&chapterClearCount(1)<46) return notify("Clear all 46 Empire of Cats Chapter 1 stages to unlock Chapter 2.");
+    if(requested===3&&chapterClearCount(2)<46) return notify("Clear all 46 Empire of Cats Chapter 2 stages to unlock Chapter 3.");
     currentChapter=requested===3?3:requested===2?2:1;
-    selectedLevelIndex=Math.min(47,chapterClearCount());
+    selectedLevelIndex=Math.min(45,chapterClearCount());
     return leaveChapterSelect("base");
   }
   if (action === "chapter-back") return leaveChapterSelect("title");
@@ -4962,19 +5024,19 @@ function perform(action) {
   if (action.startsWith("stage:")) {
     currentRegion=action.slice(6);
     if(currentRegion!=="empire") currentChapter=1;
-    selectedLevelIndex=Math.min(47,chapterClearCount());
+    selectedLevelIndex=Math.min(45,chapterClearCount());
     return navigate("stage");
   }
   if (action.startsWith("level:")) {
     const index=Number(action.slice(6));
-    const chapterLevels=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE).filter(level=>level.name!=="The Great Abyss");
+    const chapterLevels=chapterStageList();
     if(!Number.isInteger(index)||index<0||index>=chapterLevels.length) return;
-    if(index>Math.min(47,chapterClearCount())) return notify("Clear "+chapterLevels[index-1].name+" to unlock this stage.");
+    if(index>Math.min(45,chapterClearCount())) return notify("Clear "+chapterLevels[index-1].name+" to unlock this stage.");
     selectedLevelIndex=index;
     return render();
   }
   if (action === "stage-battle") {
-    if (selectedLevelIndex > Math.min(47,chapterClearCount())) return notify("Clear previous stages to unlock this one.");
+    if (selectedLevelIndex > Math.min(45,chapterClearCount())) return notify("Clear previous stages to unlock this one.");
     
     battleState=createBattleState();
     return navigate("fight");
@@ -5102,7 +5164,7 @@ function perform(action) {
       if (!battleState || battleState.ended!=="win") playSfx("victory");
       save.xp += 250; save.missions = (save.missions||0)+1;
       setChapterClearCount(currentChapter,chapterClearCount()+1);
-      selectedLevelIndex=Math.min(47,chapterClearCount());
+      selectedLevelIndex=Math.min(45,chapterClearCount());
 
       let reward = "Victory! +250 XP";
       if (save.stageClears === 1 && !save.units.some(unit => unit.name === "Tank Cat")) {
@@ -5190,6 +5252,23 @@ stage.addEventListener("wheel",event=>{
 stage.addEventListener("click", event => {
   const button = event.target.closest("button");
   if (!button || !stage.contains(button)) return;
+  if(scene==="equip"&&button.hasAttribute("data-equip-slot")) {
+    if(Date.now()-lastEquipDropAt<400) {
+      event.preventDefault();
+      return;
+    }
+    const slotIndex=Number(button.dataset.equipSlot);
+    const unitId=save.equipped[slotIndex];
+    if(unitId===null||unitId===undefined||unitId==="") return;
+    event.preventDefault();
+    prepareAudioForAction();
+    playSfx("back");
+    save.equipped=save.equipped.filter((id,index)=>index!==slotIndex&&id!==null&&id!==undefined&&id!=="");
+    save.battleSlotPage=0;
+    persist();
+    render();
+    return;
+  }
   if(button.dataset.admin) {
     event.preventDefault();
     prepareAudioForAction();
@@ -5220,6 +5299,7 @@ stage.addEventListener("click", event => {
 });
 
 let activeEquipDragId=null;
+let lastEquipDropAt=0;
 function clearEquipDropPreviews() {
   stage.querySelectorAll(".equip-slot.is-dragover").forEach(slot=>{
     slot.classList.remove("is-dragover");
@@ -5305,6 +5385,7 @@ stage.addEventListener("drop",event=>{
   if(!slot||scene!=="equip") return;
   event.preventDefault();
   const id=activeEquipDragId||(event.dataTransfer&&event.dataTransfer.getData("text/plain"));
+  lastEquipDropAt=Date.now();
   clearEquipDropPreviews();
   if(id!==null&&id!==undefined&&id!=="") moveEquippedCatToSlot(id,Number(slot.dataset.equipSlot));
   activeEquipDragId=null;
