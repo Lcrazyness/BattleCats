@@ -16,5 +16,6 @@
   "AreaAttack": false,
   "AttackTrait": "Red",
   "AttackBoost": "Strong",
-  "Bio": "A cat carrying a powerful axe. Its attacks are especially effective against Red enemies."
+  "Bio": "A cat carrying a powerful axe. Its attacks are especially effective against Red enemies.",
+  "yOffset": 0
 }
