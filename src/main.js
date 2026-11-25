@@ -134,7 +134,7 @@ let battleAssetsPromise = null;
 let battleLevelConfig = null;
 let battleLevelConfigPromise = null;
 let battleLevelName = "Korea";
-const BATTLE_ASSET_VERSION = "20261125-18";
+const BATTLE_ASSET_VERSION = "20261125-19";
 const BATTLE_ENEMY_SPRITE_CACHE = new Map();
 const BATTLE_SPRITE_PRELOAD_CACHE = new Map();
 const BATTLE_ATTACK_FRAME_RATE = 8;
@@ -2321,10 +2321,7 @@ function loadBattleAssetManifests() {
     statRequests.push({id:String(unit.id),key,path:unit.statsPath||"Cats/"+folder+"/stats.json"});
     if(key!=="cat"&&key!=="doge") {
       if(!assetRequests.some(([kind])=>kind===key)) {
-        const spriteManifestPath=key==="titan-cat"
-          ? "enemys/teacher-bun-bun/assets.json"
-          : (unit.assetsPath||"Cats/"+folder+"/assets.json");
-        assetRequests.push([key,spriteManifestPath]);
+        assetRequests.push([key,unit.assetsPath||"Cats/"+folder+"/assets.json"]);
       }
       if(!BATTLE_ASSETS[key]) BATTLE_ASSETS[key]={moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:8,attackDuration:0,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/"+folder+"/slot.png"};
     }
@@ -2395,9 +2392,7 @@ function loadBattleAssetManifests() {
       const current=BATTLE_ASSETS[type];
       const jobs=[
         (async()=>{
-          const path=type==="teacher-bun-bun"
-            ? "Cats/Titan-Cat/assets.json"
-            : "enemys/"+enemyFolder+"/assets.json";
+          const path="enemys/"+enemyFolder+"/assets.json";
           try {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
