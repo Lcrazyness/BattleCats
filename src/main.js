@@ -1408,12 +1408,12 @@ function renderStage() {
         '<div class="world-stage-chapter"><strong>EMPIRE OF CATS</strong><span>CHAPTER '+currentChapter+'</span></div>'+
         '<div class="world-stage-xp"><span>XP</span><strong>'+money(save.xp)+'</strong></div>'+
       '</header>'+
-      '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">
-        <nav class="world-country-list" aria-label="Scrollable places">'+countryRows+'</nav>
-        <div class="world-map-canvas">
-          <img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261125-11" alt="" draggable="false">
-        </div>
-        <aside class="world-map-stage-info">'+
+      '<div class="world-level-map" aria-label="Empire of Cats map and horizontal country selector">'+
+        '<nav class="world-country-list" aria-label="Scrollable places">'+countryRows+'</nav>'+
+        '<div class="world-map-canvas">'+
+          '<img class="world-map-art world-map-art-background" src="sprites/backgrounds/empire-of-cats-map.png?v=20261125-11" alt="" draggable="false">'+
+        '</div>'+
+        '<aside class="world-map-stage-info">'+
           '<span class="world-map-stage-kicker">STAGE '+String(selectedLevelIndex+1).padStart(2,"0")+' / 48 · '+stageStatus+'</span>'+
           '<strong>'+selected.name+'</strong>'+
           '<div class="world-map-stage-stats"><span>ENERGY</span><b>−'+energyCost+'</b><span>CLEARED</span><b>'+clearCount+'</b></div>'+
@@ -4662,7 +4662,7 @@ function render() {
     default: html=renderGeneric(scene);
   }
   stage.innerHTML = html;
-  if(scene==="upgrade") setupUpgradeCarousel();
+  if(scene==="upgrade"||scene==="equip") setupUpgradeCarousel();
   if (scene==="stage") {
     const list=stage.querySelector(".world-country-list");
     const selectedRow=stage.querySelector(".world-country-row.is-selected");
@@ -4968,7 +4968,7 @@ function perform(action) {
   }
   if (action.startsWith("level:")) {
     const index=Number(action.slice(6));
-    const chapterLevels=currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE;
+    const chapterLevels=(currentChapter===3?EMPIRE_CHAPTER_THREE:currentChapter===2?EMPIRE_CHAPTER_TWO:EMPIRE_CHAPTER_ONE).filter(level=>level.name!=="The Great Abyss");
     if(!Number.isInteger(index)||index<0||index>=chapterLevels.length) return;
     if(index>Math.min(47,chapterClearCount())) return notify("Clear "+chapterLevels[index-1].name+" to unlock this stage.");
     selectedLevelIndex=index;
