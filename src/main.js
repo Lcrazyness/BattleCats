@@ -161,7 +161,7 @@ const BATTLE_UNIT_STATS = {
   "fish-cat": {health:700,damage:180,price:5,speed:10,spriteChangeSpeed:7,walkSpriteChangeSpeed:4,range:150,recharge:13,attackCooldown:1.77,AreaAttack:1,AttackTrait:"Red",AttackBoost:"Strong",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "lizard-cat": {health:800,damage:350,price:10,speed:10,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:400,recharge:0,attackCooldown:4.3,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
   "titan-cat": {health:1000,damage:280,price:13,speed:8,spriteChangeSpeed:6,walkSpriteChangeSpeed:2.5,range:150,recharge:0,attackCooldown:2.23,AreaAttack:1,AttackTrait:"",AttackBoost:"",knockbackCount:1,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5},
-  "teacher-bun-bun": {health:99999,damage:2250,speed:23,spriteChangeSpeed:8,walkSpriteChangeSpeed:5,range:200,yOffset:28,killReward:8000,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:5,attackCooldown:1.03,AreaAttack:1,traits:["Floating"]},
+  "teacher-bun-bun": {health:99999,damage:2250,speed:23,spriteChangeSpeed:8,walkSpriteChangeSpeed:5,range:200,yOffset:-22,killReward:8000,knockbackCount:10,knockbackThresholdPercent:25,knockbackDuration:0.52,knockbackDistance:5,attackCooldown:1.03,AreaAttack:1,traits:["Floating"]},
   "dark-emperor-nyandam": {health:99999,damage:1800,gameScale:1,speed:2,spriteChangeSpeed:4,walkSpriteChangeSpeed:1.5,range:500,killReward:1000,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.9,knockbackDistance:2.5,attackCooldown:15.43,attackWindup:3.47,AreaAttack:1,traits:["Red"]},
   doge: {health:80,damage:3,speed:2.8,spriteChangeSpeed:5,range:85,killReward:25,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.7,AreaAttack:false},
   snache: {health:85,damage:8,speed:4.3,spriteChangeSpeed:7,range:100,killReward:30,knockbackCount:3,knockbackThresholdPercent:25,knockbackDuration:0.64,knockbackDistance:4.5,attackCooldown:1.5,AreaAttack:false},
@@ -2171,6 +2171,7 @@ async function loadBattleLevelConfig() {
 }
 function createBattleEnemy(enemyType,key,x,frameAt=0) {
   const type=battleUnitKey(enemyType||"doge");
+  if(type==="titan-cat") return null;
   const stats=battleUnitStats(type);
   return {
     key,kind:"doge",enemyType:type,x,hp:stats.health,maxHp:stats.health,attackPower:stats.damage,speed:stats.speed,
@@ -3115,8 +3116,11 @@ function attemptBattleEnemySpawn(state) {
     const spawnLimit=rule.priority===true?totalLimit:normalSpawnLimit;
     if(aliveOfType<rule.maxAlive&&totalAlive<spawnLimit&&Math.random()<=rule.spawnChance) {
       const key=rule.enemy+"-"+state.nextEnemyKey++;
-      state.enemies.push(createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey));
-      rule.spawned++;
+      const enemy=createBattleEnemy(rule.enemy,key,battleBaseCenterPercent("enemy"),state.nextEnemyKey);
+      if(enemy) {
+        state.enemies.push(enemy);
+        rule.spawned++;
+      }
       totalSpawned++;
     }
     rule.nextAttemptAt=state.elapsed+rule.intervalMin+Math.random()*(rule.intervalMax-rule.intervalMin);
@@ -3990,6 +3994,7 @@ function spawnAdminEnemyAt(enemyType,x) {
   const type=battleUnitKey(enemyType);
   const key=type+"-admin-"+battleState.nextEnemyKey++;
   const enemy=createBattleEnemy(type,key,x,Math.floor(Math.random()*1000));
+  if(!enemy) return null;
   battleState.enemies.push(enemy);
   ensureBattleEntityNode(enemy);
   updateBattleEntityView(enemy);
