@@ -16,5 +16,6 @@
   "knockbackDistance": 4.5,
   "AttackTrait": "Red",
   "AttackBoost": "Strong",
-  "Bio": "A sturdy close-range area attacker with high damage and strength against Red enemies."
+  "Bio": "A sturdy close-range area attacker with high damage and strength against Red enemies.",
+  "yOffset": 0
 }
