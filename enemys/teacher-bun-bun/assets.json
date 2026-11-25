@@ -1,131 +1,41 @@
 {
   "name": "Teacher Bun Bun",
-  "frameCells": [
-    [
-      15,
-      4,
-      33,
-      55
-    ],
-    [
-      79,
-      4,
-      34,
-      55
-    ],
-    [
-      143,
-      4,
-      34,
-      55
-    ],
-    [
-      207,
-      4,
-      34,
-      55
-    ],
-    [
-      271,
-      4,
-      34,
-      55
-    ],
-    [
-      335,
-      4,
-      33,
-      55
-    ],
-    [
-      4,
-      75,
-      56,
-      41
-    ],
-    [
-      69,
-      68,
-      54,
-      56
-    ],
-    [
-      132,
-      69,
-      56,
-      53
-    ],
-    [
-      196,
-      71,
-      56,
-      49
-    ],
-    [
-      260,
-      75,
-      56,
-      41
-    ],
-    [
-      324,
-      75,
-      56,
-      42
-    ],
-    [
-      4,
-      138,
-      56,
-      43
-    ],
-    [
-      68,
-      136,
-      56,
-      48
-    ],
-    [
-      132,
-      136,
-      56,
-      48
-    ],
-    [
-      206,
-      132,
-      36,
-      56
-    ],
-    [
-      260,
-      136,
-      56,
-      47
-    ]
+  "moving": [
+    "enemys/teacher-bun-bun/moving/frame-001.png",
+    "enemys/teacher-bun-bun/moving/frame-002.png",
+    "enemys/teacher-bun-bun/moving/frame-003.png",
+    "enemys/teacher-bun-bun/moving/frame-004.png",
+    "enemys/teacher-bun-bun/moving/frame-005.png",
+    "enemys/teacher-bun-bun/moving/frame-006.png",
+    "enemys/teacher-bun-bun/moving/frame-007.png",
+    "enemys/teacher-bun-bun/moving/frame-008.png"
   ],
-  "walkFrames": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5
+  "attacks": [
+    "enemys/teacher-bun-bun/attack/frame-001.png",
+    "enemys/teacher-bun-bun/attack/frame-002.png",
+    "enemys/teacher-bun-bun/attack/frame-003.png",
+    "enemys/teacher-bun-bun/attack/frame-004.png",
+    "enemys/teacher-bun-bun/attack/frame-005.png",
+    "enemys/teacher-bun-bun/attack/frame-006.png",
+    "enemys/teacher-bun-bun/attack/frame-007.png",
+    "enemys/teacher-bun-bun/attack/frame-008.png",
+    "enemys/teacher-bun-bun/attack/frame-009.png",
+    "enemys/teacher-bun-bun/attack/frame-010.png",
+    "enemys/teacher-bun-bun/attack/frame-011.png",
+    "enemys/teacher-bun-bun/attack/frame-012.png",
+    "enemys/teacher-bun-bun/attack/frame-013.png",
+    "enemys/teacher-bun-bun/attack/frame-014.png"
   ],
-  "attackFrames": [
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15
+  "attack": "enemys/teacher-bun-bun/attack/frame-001.png",
+  "attackFrameRate": 6,
+  "attackDuration": 2.23,
+  "damagedFrames": [
+    "enemys/teacher-bun-bun/damaged/frame-001.png"
   ],
-  "hurtFrame": 16,
-  "attackFrameRate": 15,
-  "attackDuration": 1.03,
-  "atlasImage": "enemys/teacher-bun-bun/sprite-atlas.png"
+  "knockbackFrames": [
+    "enemys/teacher-bun-bun/damaged/frame-001.png"
+  ],
+  "idle": "enemys/teacher-bun-bun/moving/frame-001.png",
+  "damaged": "enemys/teacher-bun-bun/damaged/frame-001.png",
+  "slot": "enemys/teacher-bun-bun/slot.png"
 }
