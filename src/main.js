@@ -140,7 +140,7 @@ const BATTLE_ASSETS = {
   "fish-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:5.66,attackDuration:1.77,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Fish-Cat/slot.png"},
   "lizard-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:2.33,attackDuration:4.3,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Lizard-Cat/slot.png"},
   "titan-cat": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:2.23,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"Cats/Titan-Cat/slot.png"},
-  "teacher-bun-bun": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:29,attackDuration:1.03,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/Teacher Bun Bun/slot.png"},
+  "teacher-bun-bun": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:15,attackDuration:1.03,damagedFrames:[],knockbackFrames:[],damaged:"",idle:"",slot:"enemys/teacher-bun-bun/slot.png"},
   "dark-emperor-nyandam": {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:1.73,attackDuration:3.47,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
   pigge: {moving:[],attacks:[],attack:"",attackSprite:"",attackFrameRate:6,attackDuration:1,damagedFrames:[],knockbackFrames:[],damaged:"",idle:""},
 };
@@ -196,7 +196,7 @@ function battleEnemyFolder(enemyType) {
   if(key==="teacher-bear") return "Teacher Bear";
   if(key==="the-face") return "The Face";
   if(key==="dark-emperor-nyandam") return "dark emperor nyandam";
-  if(key==="teacher-bun-bun") return "Teacher Bun Bun";
+  if(key==="teacher-bun-bun") return "teacher-bun-bun";
   return key;
 }
 function battleUnitStats(unitOrKey) {
@@ -1912,7 +1912,7 @@ function defaultBattleLevelConfig(levelName="Korea") {
       timedEnemySpawn("sir-seal","infinite",80,40,53.3,1),
       timedEnemySpawn("le-boin","infinite",100,73.3,113.3,1)
     ];
-  } else if(levelName==="Hawaii") {
+  } else if(levelName==="Floating Continent") {
     enemySpawns=[
       timedEnemySpawn("those-guys","infinite",0,0,0.1,1),
       timedEnemySpawn("hippoe","infinite",0,1,2,1),
@@ -2328,7 +2328,22 @@ function loadBattleAssetManifests() {
           try {
             const response=await fetch(new URL(path,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
             if(!response.ok) return;
-            const data=await response.json();
+            let data=await response.json();
+            if(Array.isArray(data.atlasParts)&&Array.isArray(data.frameCells)) {
+              const encodedParts=await Promise.all(data.atlasParts.map(async partPath=>{
+                const atlasResponse=await fetch(new URL(partPath,APP_BASE_URL).href+"?v="+BATTLE_ASSET_VERSION,{cache:"no-store"});
+                if(!atlasResponse.ok) throw new Error("HTTP "+atlasResponse.status+" loading "+partPath);
+                return (await atlasResponse.text()).trim();
+              }));
+              const atlasSource="data:image/png;base64,"+encodedParts.join("");
+              const framePath=index=>atlasSource+"#frame="+data.frameCells[index].join(",");
+              if(Array.isArray(data.walkFrames)) data.moving=data.walkFrames.map(framePath);
+              if(Array.isArray(data.attackFrames)) data.attackFrames=data.attackFrames.map(framePath);
+              if(Number.isInteger(data.hurtFrame)) {
+                data.damagedFrames=[framePath(data.hurtFrame)];
+                data.knockbackFrames=[framePath(data.hurtFrame)];
+              }
+            }
             if(Array.isArray(data.moving)&&data.moving.length) current.moving=data.moving;
             if(Array.isArray(data.attackFrames)&&data.attackFrames.length) current.attacks=data.attackFrames;
       else if(Array.isArray(data.attacks)&&data.attacks.length) current.attacks=data.attacks;
